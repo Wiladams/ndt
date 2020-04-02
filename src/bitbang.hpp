@@ -4,14 +4,23 @@
 #include <math.h>
 
 namespace bitbang {
-// Return a value representing the single bit being set
-#define  ABIT(bitnum) ((uint64_t)1<<(bitnum))
+
+// Return various forms of pow(2,bitnum)
+// There are different ones, which allow the user to specify how
+// many bits they want
+static inline uint8_t BIT8(unsigned int bitnum) {return (uint8_t)1 << bitnum; }
+static inline uint16_t BIT16(unsigned int bitnum) {return (uint16_t)1 << bitnum; }
+static inline uint32_t BIT32(unsigned int bitnum) {return (uint32_t)1 << bitnum; }
+static inline uint64_t BIT64(unsigned int bitnum) {return (uint64_t)1 << bitnum; }
+
+// One general purpose which will default to BIT64
+static inline uint64_t BIT(unsigned int bitnum) {return BIT64(bitnum);}
 
 // return true if the specified bit is set in the value
-static inline bool isset(const uint64_t value, const size_t bit) {return (value & ABIT(bit)) > 0; }
+static inline bool isset(const uint64_t value, const uint64_t bitnum) {return (value & BIT64(bitnum)) > 0; }
 
 // set a specific bit within a value
-static inline uint64_t setbit(uint64_t value, size_t bit) {return (value | ABIT(bit));}
+static inline uint64_t setbit(const uint64_t value, const uint64_t bitnum) {return (value | BIT64(bitnum));}
 
 // This will work for any number of bits from 32 to 63
 // create a bit mask based on the low bit to high bit inclusive
@@ -22,7 +31,7 @@ static inline uint64_t BITMASK(size_t lowbit, size_t highbit)
     uint64_t mask = 0ULL;
 
     for (int i=lowbit; i <= highbit; i++) {
-        mask = mask | ABIT(i);
+        mask = mask | BIT64(i);
     }
 
     return mask;
