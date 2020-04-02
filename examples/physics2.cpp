@@ -1,3 +1,23 @@
+/*
+    physics2
+
+    Demonstrate a couple of things.  
+    Thing One: in the draw() function, a semi-transparent
+    gray is drawn as a rectangle over the existing background.
+    The sem-transparency causes whatever was previously 
+    drawn to fade somewhat.  Over successive frames, 
+    whatever was previously draw is completely wiped out.
+    
+    Thing Two:  A bit of simple rigid body physic simulation.
+    blocks bounce off the walls, and change direction as they
+    do so.  There is some 'gravity', and it dampens the bounce
+    as time goes on.
+    
+    Thing Three:  There's some aging going on.  As a block bounces
+    around, it gets darker and darker.  when it reaches a certain 
+    age, it will simply stop moving.
+
+*/
 #include "p5.hpp"
 
 const int nShapes = 200;
@@ -106,7 +126,7 @@ void setup()
         shapes[i].x = width/2;
     }
 
-    frameRate(60);
+    frameRate(30);
 }
 
 void draw() {
