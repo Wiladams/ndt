@@ -14,7 +14,7 @@ static inline uint32_t BIT32(unsigned int bitnum) {return (uint32_t)1 << bitnum;
 static inline uint64_t BIT64(unsigned int bitnum) {return (uint64_t)1 << bitnum; }
 
 // One general purpose which will default to BIT64
-static inline uint64_t BIT(unsigned int bitnum) {return BIT64(bitnum);}
+//static inline uint64_t BIT(unsigned int bitnum) {return BIT64(bitnum);}
 
 // return true if the specified bit is set in the value
 static inline bool isset(const uint64_t value, const uint64_t bitnum) {return (value & BIT64(bitnum)) > 0; }
@@ -22,25 +22,42 @@ static inline bool isset(const uint64_t value, const uint64_t bitnum) {return (v
 // set a specific bit within a value
 static inline uint64_t setbit(const uint64_t value, const uint64_t bitnum) {return (value | BIT64(bitnum));}
 
-// This will work for any number of bits from 32 to 63
-// create a bit mask based on the low bit to high bit inclusive
-// This is useful when you're trying to get a certain value
-// out of an integer of some sort
-static inline uint64_t BITMASK(size_t lowbit, size_t highbit)
+// BITMASK64
+// A bitmask is an integer where all the bits from the 
+// specified low value to the specified high value
+// are set to 1.
+// The trick used in BITMASK64 is to set a single bit
+// above the required range, then subtracting 1 from that
+// value.  By subtracting 1, we get all 1 bits below the
+// single bit value.
+// This set of 1 bits are then shifted upward by the number
+// of the low bit, and we have our mask.
+// Discussion: 
+//   https://stackoverflow.com/questions/28035794/masking-bits-within-a-range-given-in-parameter-in-c
+//
+//  uint64_t mask = (uint64_t)1 << (high-low);
+//  mask <<= 1;
+//  mask--;         // turn on all the bits below
+//  mask <<= low;   // shift up to proper position
+//  return mask;
+
+static inline uint64_t BITMASK64(const size_t low, const size_t high)
 {
-    uint64_t mask = 0ULL;
-
-    for (int i=lowbit; i <= highbit; i++) {
-        mask = mask | BIT64(i);
-    }
-
-    return mask;
+    return ((((uint64_t)1 << (high-low)) << 1) - 1) << low;
 }
 
-// retrieve an integer value from a bitmask on a value
+static inline uint8_t BITMASK8(const size_t low, const size_t high) {return (uint8_t)BITMASK64(low, high);}
+static inline uint16_t BITMASK16(const size_t low, const size_t high) {return (uint16_t)BITMASK64(low,high);}
+static inline uint32_t BITMASK32(const size_t low, const size_t high) {return (uint32_t)BITMASK64(low, high);}
+
+//#define BITMASK BITMASK64
+
+
+// BITSVALUE
+// Retrieve a value from a lowbit highbit pair
 static inline  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
 {
-    return ((src & BITMASK(lowbit, highbit)) >> lowbit);
+    return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
 }
 
 // Determine at runtime if the CPU is little-endian (intel standard)
