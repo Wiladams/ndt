@@ -2,13 +2,8 @@
 
 #include "appconfig.hpp"
 #include "maths.hpp"
-
-
-
-int GetAlignedByteCount(const int width, const int bitsperpixel, const int alignment)
-{
-    return (((width * (bitsperpixel / 8)) + (alignment - 1)) & ~(alignment - 1));
-}
+#include "bitbang.hpp"
+#include "definitions.hpp"
 
 typedef union PixRGBA {
     uint32_t intValue;
@@ -42,10 +37,7 @@ typedef union PixRGB {
 } PixRGB;
 
 
-// Some well known types
-typedef float	float32;
-typedef double	float64;
-typedef float32 REAL;
+
 typedef float coord;
 
 typedef uint32_t GRSIZE;

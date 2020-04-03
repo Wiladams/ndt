@@ -6,6 +6,8 @@
 
 #include "w32.hpp"
 #include "PixelBufferRGBA32.hpp"
+#include "bitbang.hpp"
+
 
 class PBDIBSection : public PixelBufferRGBA32
 {
@@ -19,8 +21,8 @@ public:
     {
         int bitsPerPixel = 32;
         int alignment = 4;
-        //int bytesPerRow = GetAlignedByteCount(awidth, bitsPerPixel, alignment);
-        int bytesPerRow = awidth*4;
+        int bytesPerRow = GetAlignedByteCount(awidth, bitsPerPixel, alignment);
+        //int bytesPerRow = awidth*4;
         
 
         fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);

@@ -97,4 +97,8 @@ static inline uint64_t swapUInt64(const uint64_t num)
           (num << 56);
 }
 
+static inline int GetAlignedByteCount(const int width, const int bitsperpixel, const int alignment)
+{
+    return (((width * (bitsperpixel / 8)) + (alignment - 1)) & ~(alignment - 1));
+}
 }; // namespace bitbang

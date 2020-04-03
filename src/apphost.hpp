@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "bitbang.hpp"
 #include "w32.hpp"
 #include "NativeWindow.hpp"
 #include "PixelBufferRGBA32.hpp"
@@ -590,7 +591,7 @@ bool setCanvasSize(size_t aWidth, size_t aHeight)
     
     int alignment = 4;
     int bitsPerPixel = 32;
-    int bytesPerRow = aWidth*4; // GetAlignedByteCount(aWidth, bitsPerPixel, alignment);
+    int bytesPerRow = bitbang::GetAlignedByteCount(aWidth, bitsPerPixel, alignment);
     gAppSurfaceInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     gAppSurfaceInfo.bmiHeader.biWidth = aWidth;
     gAppSurfaceInfo.bmiHeader.biHeight = -aHeight;	// top-down DIB Section
