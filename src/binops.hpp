@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 
 /*
     Binary operators
@@ -69,6 +70,8 @@ static inline int tobin32(uint32_t a, char *buff, size_t buffLen)
 
 
 // 16-bit versions
+//static inline uint16_t bswap16(uint16_t a) {return (((a & 0x00ff) << 8) | ((a & 0xff00) >> 8));}
+
 inline static uint16_t bnot16(uint16_t a) {return ~a;}
 inline static uint16_t band16(uint16_t a, uint16_t b) {return a & b;}
 inline static uint16_t bor16(uint16_t a, uint16_t b) {return a | b;}
@@ -78,12 +81,14 @@ inline static uint16_t rshift16(uint16_t a, unsigned int nbits) {return a >> nbi
 inline static int16_t arshift16(int16_t a, unsigned int nbits) {return a >> nbits;}
 inline static uint16_t rol16(uint16_t a, unsigned int n) {return ((a << n) | (a >> (16-n)));}
 inline static uint16_t ror16(uint16_t a, unsigned int n) {return ((a << (16-n)) | (a >> n));}
-static inline uint16_t bswap16(uint16_t a) {return (((a & 0x00ff) << 8) | ((a & 0xff00) >> 8));}
+static inline uint16_t bswap16(uint16_t a) {return _byteswap_ushort(a);}
 
 static inline uint16_t tobit16(uint64_t a) {return (uint16_t)a;}
 
 
 // 32-bit versions
+//static inline uint32_t bswap32(uint32_t a) {return (a >> 24) | ((a>>8) & 0xff00) | ((a & 0xff00) << 8) | (a << 24);}
+
 inline static uint32_t bnot32(uint32_t a) {return ~a;}
 inline static uint32_t band32(uint32_t a, uint32_t b) {return a & b;}
 inline static uint32_t bor32(uint32_t a, uint32_t b) {return a | b;}
@@ -93,12 +98,22 @@ inline static uint32_t rshift32(uint32_t a, unsigned int nbits) {return a >> nbi
 inline static int32_t arshift16(int32_t a, unsigned int nbits) {return a >> nbits;}
 inline static uint32_t rol32(uint32_t a, unsigned int n) {return ((a << n) | (a >> (32-n)));}
 inline static uint32_t ror32(uint32_t a, unsigned int n) {return ((a << (32-n)) | (a >> n));}
-static inline uint32_t bswap32(uint32_t a) {return (a >> 24) | ((a>>8) & 0xff00) | ((a & 0xff00) << 8) | (a << 24);}
+static inline uint32_t bswap32(uint32_t a) {return _byteswap_ulong(a);}
 
 static inline uint32_t tobit32(uint64_t a) {return (uint32_t)a;}
 
 
-
+// 64-bit versions
+inline static uint64_t bnot64(uint64_t a) {return ~a;}
+inline static uint64_t band64(uint64_t a, uint64_t b) {return a & b;}
+inline static uint64_t bor64(uint64_t a, uint64_t b) {return a | b;}
+inline static uint64_t bxor64(uint64_t a, uint64_t b) {return a ^ b;}
+inline static uint64_t lshift64(uint64_t a, unsigned int nbits) {return a << nbits;}
+inline static uint64_t rshift64(uint64_t a, unsigned int nbits) {return a >> nbits;}
+inline static int64_t arshift16(int64_t a, unsigned int nbits) {return a >> nbits;}
+inline static uint64_t rol32(uint64_t a, unsigned int n) {return ((a << n) | (a >> (64-n)));}
+inline static uint64_t ror32(uint64_t a, unsigned int n) {return ((a << (64-n)) | (a >> n));}
+inline static uint64_t bswap64(uint64_t a) {return _byteswap_uint64(a);}
 
 
 }   // end of bops namespace

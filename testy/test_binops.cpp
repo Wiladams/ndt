@@ -51,9 +51,15 @@ void test_arshift16()
     printf("arshift(-256, 8): %d\n", bops::arshift16(-256,8));
 }
 
+void test_bswap32()
+{
+    printf("bswap32(0xaabbccdd): %lx\n", bops::bswap32(0xaabbccdd));
+}
+
 void main()
 {
     //test_tohex32();
     //test_tobin32();
-    test_arshift16();
+    //test_arshift16();
+    test_bswap32();
 }
