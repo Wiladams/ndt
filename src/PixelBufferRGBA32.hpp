@@ -7,6 +7,8 @@
 #include "PixelBuffer.hpp"
 #include "RectangleI.hpp"
 
+#pragma intrinsic(__stosd)
+
 /*
     This is a class that represents a framebuffer.
     A framebuffer is the most rudimentary graphics
@@ -131,7 +133,7 @@ public:
         // we can do clipping here by reducing width to whatever
         // is remaining on the line, rather than fulfilling the
         // entire 'width' request
-        void * destPtr = (void *)getPixelPointer(x, y);
+        uint32_t * destPtr = (uint32_t *)getPixelPointer(x, y);
         memcpy(destPtr, pix, width*sizeof(PixRGBA));
 
         //for (GRSIZE i=0; i<width; i++) 
@@ -142,23 +144,30 @@ public:
         return true;
     }
 
+    // set consecutive pixels in a row (srccopy)
+    virtual void setPixels(GRCOORD x, GRCOORD y, GRSIZE width, const PixRGBA src)
+    {
+        uint32_t * pixelPtr = (uint32_t *)getPixelPointer(x, y);
+        __stosd((unsigned long *)pixelPtr, src.intValue, width);
+        //for (int col=x; col<x+width; col++) {
+        //    setPixel(col,y, src);
+        //}
+    }
 
     // setAllPixels()
     // Set all the pixels in the framebuffer to the value specified
-    // This is done here in case a framebuffer has a way of doing it
-    // really fast.
+    // Since we know we're storing aligned 32-bit integers (DWORD)
+    // we can use a compiler intrinsic to speed things up over the
+    // brute force method provided in PixelBuffer.  
+    // Should be faster than a memcpy as well? Something to measure
     bool setAllPixels(const PixRGBA value)
     {
         size_t nPixels = getWidth() * getHeight();
-        while (nPixels > 0){
-            data[nPixels-1] = value;
-            nPixels = nPixels - 1;
-        }
+        __stosd((unsigned long *)data, value.intValue, nPixels);
 
         return true;
     }
 
-//void *memcpy(void *dest, const void * src, size_t n)
     bool blit(const PixelBuffer &src, 
         int srcX, int srcY, int srcWidth, int srcHeight, 
         int destX, int destY, int destWidth, int destHeight)
@@ -184,6 +193,7 @@ public:
                 // get pointer from source
                 //    virtual const void * getPixelPointer(int x, int y) const = 0;
                 const PixRGBA * pixPtr = (const PixRGBA *)src.getPixelPointer(sx, sy);
+                
                 // setSpan on ourself
                 setSpan(clipRect.x1, row, clipRect.getWidth(), pixPtr);
             }

@@ -100,6 +100,14 @@ public:
     // Retrieve a single pixel value from the specified location 
     virtual PixRGBA getPixel(GRCOORD x, GRCOORD y) const = 0;
     
+    // Draw a horizontal line using srccopy as fast as possible
+    virtual void setPixels(GRCOORD x, GRCOORD y, GRSIZE width, const PixRGBA src)
+    {
+        for (int col=x; col<x+width; col++) {
+            setPixel(col,y, src);
+        }
+    }
+
     // Draw a horizontal line with transfer op
     virtual void horizontalLine(GRCOORD x, GRCOORD y, GRSIZE width, const PixRGBA src, const PixelTransferOp &tOp) 
     {
@@ -108,6 +116,7 @@ public:
         }
     }
 
+    // BUGBUG - There should be a TransferSpan() that honors a transfer function
     // Copy the span of pixels into the pixel buffer
     // Like a horizontal line, but individual color values
     virtual bool setSpan(const GRCOORD x, const GRCOORD y, const GRSIZE width, const PixRGBA * pix)
@@ -120,6 +129,7 @@ public:
         return true;
     }
 
+    
     // Set all pixels within the pixel buffer to the specified value
     // we do a brute force implementation here so there's one less
     // thing for a derived class to implement. 

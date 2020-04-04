@@ -36,3 +36,12 @@ Bits And Bobs
 ndt aims to be as independent as possible.  There are no external dependencies other than what is already provided on every Windows machine it will run on.  There is no dependency on the Windows SDK header files.  This ensures that a bare minimum coding environment will be sufficient to try things out.
 
 Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'libary' that programs link against.  Each program is individual, and compiles down to a fairly small size.
+
+
+References
+==========
+C# .net framework code
+https://referencesource.microsoft.com/
+
+C++ compiler intrinsics
+https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view=vs-2019

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "definitions.hpp"
 
-#include <stdint.h>
 
 #if BUILD_AS_DLL
   #define APP_API		__declspec(dllexport)

@@ -114,52 +114,6 @@ public:
         return PixRGBA(data[offset].red, data[offset].green, data[offset].blue, 255);
     }
 
-/*
-    bool blit(const PixelBuffer &src, 
-        int srcX, int srcY, int srcWidth, int srcHeight, 
-        int destX, int destY, int destWidth, int destHeight)
-    {
-        //printf("blit, src size : %d X %d\n", srcWidth, srcHeight);
-        //printf("blit, dst size : %d X %d\n", destWidth, destHeight);
-        
-        // If the source and destination start out as the same size
-        // then we can perform some copy optimizations
-        bool isOptimal = ((destWidth == srcWidth) && (destHeight == srcHeight));    // AND formats are the same
-        
-        RectangleI myRect(0,0,getWidth(), getHeight());
-        RectangleI destRect(destX, destY, destWidth, destHeight);
-        RectangleI clipRect = RectangleI::intersection(myRect, destRect);
 
-        if (isOptimal) {
-            //printf("OPTIMAL\n");
-            for (int row=clipRect.y1; row<clipRect.y2; row++) {
-                int sx = MAP(clipRect.x1, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                int sy = MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
-                // get pointer from source
-                //    virtual const void * getPixelPointer(int x, int y) const = 0;
-                const PixRGBA * pixPtr = (const PixRGBA *)src.getPixelPointer(sx, sy);
-                // setSpan on ourself
-                setSpan(clipRect.x1, row, clipRect.getWidth(), pixPtr);
-            }
-        } else {
-            for (int row=clipRect.y1; row<clipRect.y2; row++) {
-                for (int col=clipRect.x1; col<clipRect.x2; col++)
-                {
-                    int dx = MAP(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                    int dy = MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
-                
-                    //printf("blit: %d %d\n", dx, dy);
-
-                    PixRGBA pix = src.getPixel(dx,dy);
-                    //printf("blit, pixel: %d %d (%d, %d, %d)\n", dx, dy, pix.red, pix.green, pix.blue);
-
-                    setPixel(col, row, pix);
-                }
-            }
-        }
-
-        return true;
-    }
-*/
 
 };

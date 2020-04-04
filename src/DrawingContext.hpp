@@ -157,11 +157,19 @@ public:
     {
         // BUGBUG - should sanity check line fits
         // within bounds
-        GRCOORD idx = x;
-        while (idx < x+width)
-        {
-            pb.transferPixel(idx, y, fillPix, *tOp);
-            idx = idx + 1;
+        // BUGBUG - using alhpa as an optimization is a hack
+        // as it assumes a SRCCOPY operation
+        if (fillPix.alpha == 255) {
+            //printf_s("fastfill\n");
+            pb.setPixels(x, y, width, fillPix);
+        } else {
+            GRCOORD idx = x;
+        
+            while (idx < x+width)
+            {
+                pb.transferPixel(idx, y, fillPix, *tOp);
+                idx = idx + 1;
+            }
         }
 
         return true;

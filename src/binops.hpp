@@ -1,8 +1,16 @@
 #pragma once
 
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
+#include "definitions.hpp"
+
+// Let compiler know we want to use some intrinsics
+#pragma intrinsic (_byteswap_ushort, _byteswap_ulong, _byteswap_uint64)
+
+
+
+
+//#include <cstdio>
+//#include <cstdlib>
+
 
 /*
     Binary operators
@@ -29,6 +37,7 @@ static const char *hexdigits = "0123456789abcdef";
 // tohex32
 // Take a 32-bit number and return the hex representation of the same
 // The buffer passed in needs to be at least 8 bytes long
+//
 // Return:
 //  The number of bytes actually written
 //  0 upon error
@@ -70,7 +79,6 @@ static inline int tobin32(uint32_t a, char *buff, size_t buffLen)
 
 
 // 16-bit versions
-//static inline uint16_t bswap16(uint16_t a) {return (((a & 0x00ff) << 8) | ((a & 0xff00) >> 8));}
 
 inline static uint16_t bnot16(uint16_t a) {return ~a;}
 inline static uint16_t band16(uint16_t a, uint16_t b) {return a & b;}
@@ -87,7 +95,6 @@ static inline uint16_t tobit16(uint64_t a) {return (uint16_t)a;}
 
 
 // 32-bit versions
-//static inline uint32_t bswap32(uint32_t a) {return (a >> 24) | ((a>>8) & 0xff00) | ((a & 0xff00) << 8) | (a << 24);}
 
 inline static uint32_t bnot32(uint32_t a) {return ~a;}
 inline static uint32_t band32(uint32_t a, uint32_t b) {return a & b;}

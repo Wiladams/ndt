@@ -27,7 +27,7 @@ void test_BIT64()
 
 void test_bitshift()
 {
-        printf("1<<31 : 0x%lx\n", ((uint32_t)1) << 31);
+    printf("1<<31 : 0x%lx\n", ((uint32_t)1) << 31);
     printf("(1<<31) << 1 : 0x%lx\n", (((uint32_t)1) << 31) << 1);
     printf("((1<<31) << 1) -1 : 0x%lx\n", ((((uint32_t)1) << 31) << 1)-1);
 
@@ -37,5 +37,5 @@ void main()
 {
     //test_bitshift();
     //test_BIT64();
-    //test_BITMASK();
+    test_BITMASK();
 }

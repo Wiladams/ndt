@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include "definitions.hpp"
+
 #include <math.h>
 
 namespace bitbang {
