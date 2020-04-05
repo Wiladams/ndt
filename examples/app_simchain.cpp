@@ -59,7 +59,7 @@ struct Spring2D {
     void display(int nx, int ny)
     {
         noStroke();
-        fill(color, 126);
+        fill(color);
         ellipse(x, y, radius, radius);
         stroke(255);
         line(x, y, nx, ny);
@@ -77,7 +77,8 @@ PixRGBA  randomColor()
     int g = random(30,255);
     int b = random(30,255);
     
-    return PixRGBA(r,g,b,126);
+    //return PixRGBA(r,g,b,126);
+    return PixRGBA(r,g,b,255);
 }
 
 void addSpring()

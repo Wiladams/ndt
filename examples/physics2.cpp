@@ -115,20 +115,6 @@ struct shape {
 
 shape shapes[nShapes];
 
-void setup()
-{
-    createCanvas(400, 400);
-    background(255);
-
-    noStroke();
-
-    for (int i=0; i < nShapes; i++) {
-        shapes[i].x = width/2;
-    }
-
-    frameRate(30);
-}
-
 void draw() {
     // fade background
     fill(255, 100);
@@ -144,3 +130,18 @@ void draw() {
         shapeCount += birthRate;
     }
 }
+
+void setup()
+{
+    createCanvas(400, 400);
+    background(255);
+
+    noStroke();
+
+    for (int i=0; i < nShapes; i++) {
+        shapes[i].x = width/2;
+    }
+
+    frameRate(30);
+}
+

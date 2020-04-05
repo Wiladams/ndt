@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "Task.hpp"
+#include "Thread.hpp"
 #include <cstdio>
 
 /*
@@ -37,15 +37,16 @@ DWORD liner(void *param)
 }
 
 
-Task *t1 = nullptr;
+Thread t1(liner);
+
 
 void setup()
 {
     createCanvas(800,600);
     frameRate(30);
 
-    t1 = new Task(liner);
-    printf("t1.isValid(): %d\n", t1->isValid());
+    //t1 = new Task(liner);
+    printf("t1.isValid(): %d\n", t1.isValid());
 
-    t1->resume();
+    t1.resume();
 }

@@ -1,7 +1,7 @@
 #include "w32.hpp"
 
 
-class Task
+class Thread
 {
     PTHREAD_START_ROUTINE fRoutine;     // The routine we're going to run
     HANDLE fHandle;
@@ -9,7 +9,7 @@ class Task
     int fLastError;
 
 public:
-    Task(PTHREAD_START_ROUTINE routine)
+    Thread(PTHREAD_START_ROUTINE routine)
         : fRoutine(routine),
         fThreadId(0),
         fLastError(0)
