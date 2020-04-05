@@ -510,6 +510,18 @@ typedef struct _OVERLAPPED {
     HANDLE hEvent;
 } OVERLAPPED, *LPOVERLAPPED;
 
+
+typedef struct _SECURITY_ATTRIBUTES
+{
+    DWORD nLength;
+    LPVOID lpSecurityDescriptor;
+    BOOL bInheritHandle;
+} 	SECURITY_ATTRIBUTES;
+
+typedef struct _SECURITY_ATTRIBUTES *PSECURITY_ATTRIBUTES;
+typedef struct _SECURITY_ATTRIBUTES *LPSECURITY_ATTRIBUTES;
+
+
 #ifdef __cplusplus
 }
 #endif

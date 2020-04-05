@@ -34,4 +34,6 @@
 #include "w32_funcs.hpp"
 #include "w32_video.hpp"
 #include "w32_socket.hpp"
+#include "w32_procthread.hpp"
+
 

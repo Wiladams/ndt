@@ -136,10 +136,7 @@ public:
         uint32_t * destPtr = (uint32_t *)getPixelPointer(x, y);
         memcpy(destPtr, pix, width*sizeof(PixRGBA));
 
-        //for (GRSIZE i=0; i<width; i++) 
-        //{
-        //    data[offset+i] = pix[i];
-        //}
+        //__movsd((unsigned long *)destPtr, (unsigned long *)pix, width);
 
         return true;
     }
