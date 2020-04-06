@@ -15,5 +15,12 @@
 #include <intrin.h>
 #include <cstdint>
 
+// EXPORT allows us to declare a function as exported
+// this will make it possible to then lookup that 
+// function in the .dll using GetProcAddress
+// So, if that's needed, just put EXPORT at the front
+// of a declaration.
+#define EXPORT __declspec(dllexport)
+
 
 #define U64x(hi, lo)	(((uint64_t)0x##hi << 32) + (uint64_t)0x##lo)

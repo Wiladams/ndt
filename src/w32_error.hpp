@@ -4,6 +4,10 @@
 #define ERROR_OPERATION_ABORTED          995L
 #define ERROR_IO_INCOMPLETE              996L
 #define ERROR_IO_PENDING                 997L    // dderror
+
+#define ERROR_CLASS_DOES_NOT_EXIST       1411L
+
+
 #define WSAEINTR                         10004L
 #define WSAEBADF                         10009L
 #define WSAEACCES                        10013L

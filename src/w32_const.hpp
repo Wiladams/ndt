@@ -30,9 +30,18 @@ static const int PAGE_READWRITE        = 0x4;
 // winuser
 
 // Class styles
-static const int CS_VREDRAW         = 0x0001;
-static const int CS_HREDRAW         = 0x0002;
-static const int CS_OWNDC           = 0x0020;
+#define CS_VREDRAW          0x0001
+#define CS_HREDRAW          0x0002
+#define CS_DBLCLKS          0x0008
+#define CS_OWNDC            0x0020
+#define CS_CLASSDC          0x0040
+#define CS_PARENTDC         0x0080
+#define CS_NOCLOSE          0x0200
+#define CS_SAVEBITS         0x0800
+#define CS_BYTEALIGNCLIENT  0x1000
+#define CS_BYTEALIGNWINDOW  0x2000
+#define CS_GLOBALCLASS      0x4000
+
 
 // Extended Window Styles
 static const int WS_EX_TOPMOST           = 0x00000008L;
@@ -116,7 +125,28 @@ enum  {
 static const int SM_CXSCREEN = 0;
 static const int SM_CYSCREEN = 1;
 
-
+// Setting various attributes of window classes
+#define COLOR_SCROLLBAR         0
+#define COLOR_BACKGROUND        1
+#define COLOR_ACTIVECAPTION     2
+#define COLOR_INACTIVECAPTION   3
+#define COLOR_MENU              4
+#define COLOR_WINDOW            5
+#define COLOR_WINDOWFRAME       6
+#define COLOR_MENUTEXT          7
+#define COLOR_WINDOWTEXT        8
+#define COLOR_CAPTIONTEXT       9
+#define COLOR_ACTIVEBORDER      10
+#define COLOR_INACTIVEBORDER    11
+#define COLOR_APPWORKSPACE      12
+#define COLOR_HIGHLIGHT         13
+#define COLOR_HIGHLIGHTTEXT     14
+#define COLOR_BTNFACE           15
+#define COLOR_BTNSHADOW         16
+#define COLOR_GRAYTEXT          17
+#define COLOR_BTNTEXT           18
+#define COLOR_INACTIVECAPTIONTEXT 19
+#define COLOR_BTNHIGHLIGHT      20
 
 /*
  * SetWindowPos Flags
@@ -293,7 +323,6 @@ static const int GID_ROLLOVER                   = GID_PRESSANDTAP;
 
 
 //    Related to raw input
-
 static const int RIDEV_REMOVE           = 0x00000001;
 static const int RIDEV_EXCLUDE          = 0x00000010;
 static const int RIDEV_PAGEONLY         = 0x00000020;

@@ -65,6 +65,7 @@ HWND CreateWindowExA(DWORD dwExStyle, const char * lpClassName, const char * lpW
      HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, void * lpParam);
 LRESULT DefWindowProcA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 BOOL DestroyWindow(HWND hWnd);
+BOOL GetClassInfoExA(HINSTANCE hInstance, LPCSTR lpszClass, LPWNDCLASSEXA lpwcx);
 BOOL GetClientRect(HWND   hWnd, LPRECT lpRect);
 BOOL GetWindowInfo(HWND hWnd, PWINDOWINFO pwi);
 BOOL GetWindowRect(HWND hWnd, LPRECT lpRect);

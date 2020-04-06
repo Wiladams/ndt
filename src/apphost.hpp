@@ -8,12 +8,6 @@
 #include "PixelBufferRGBA32.hpp"
 #include "DrawingContext.hpp"
 
-// We need this export so when the user defines their functions
-// they will be listed as exports, and then at runtime we can 
-// load their pointers from the module
-#define EXPORT __declspec(dllexport)
-
-
 // Basic type to encapsulate a mouse event
 enum {
     KEYPRESSED,
@@ -55,6 +49,7 @@ struct KeyEvent {
     bool wasDown;       // 30
 };
 
+
 // Some globals to set event handlers
 typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 typedef void (* KeyEventHandler)(const KeyEvent &e);
@@ -94,7 +89,7 @@ static int gargc;
 static char **gargv;
 
 static int gFPS = 15;   // Frames per second
-static Window * gAppWindow = nullptr;
+static User32Window * gAppWindow = nullptr;
 static PixelBuffer * gAppSurface = nullptr;
 static DrawingContext * gAppDC = nullptr;
 static UINT_PTR gAppTimerID = 0;
@@ -536,6 +531,7 @@ void noLoop() {
 }
 
 
+
 // A basic Windows event loop
 void run()
 {
@@ -613,6 +609,24 @@ bool setCanvasSize(size_t aWidth, size_t aHeight)
     return true;
 }
 
+// do any initialization that needs to occur 
+// in the very beginning
+void prolog()
+{
+    // Initialize Windows networking
+    uint16_t version = MAKEWORD(2,2);
+    WSADATA lpWSAData;
+    int res = WSAStartup(version, &lpWSAData);
+}
+
+// Do whatever cleanup needs to be done before
+// exiting application
+void epilog()
+{
+    WSACleanup();
+}
+
+
 /*
     The 'main()' function is in here to ensure that compiling
     this header will result in an executable file.
@@ -620,28 +634,28 @@ bool setCanvasSize(size_t aWidth, size_t aHeight)
     The code for the user just needs to implement the 'setup()'
     and other functions.
 */
+// Declare some standard Window Kinds we'll be using
+User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS|CS_HREDRAW|CS_VREDRAW, MsgHandler);
+
+
 int main(int argc, char **argv)
 {
     gargc = argc;
     gargv = argv;
     
-    // Call stuff that must be setup
-    // Windows networking
-    uint16_t version = MAKEWORD(2,2);
-    WSADATA lpWSAData;
-    int res = WSAStartup(version, &lpWSAData);
-
+    prolog();
 
     // set the canvas a default size to start
     // but don't show it
     setCanvasSize(320, 240);
 
-    gAppWindow = new Window("Application Window", 320, 240, MsgHandler);
-
+    //gAppWindow = new Window("Application Window", 320, 240, MsgHandler);
+    gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240, WS_OVERLAPPEDWINDOW);
+    
     run();
 
     // do any cleanup after all is done
-    WSACleanup();
+    epilog();
 
 
     return 0;
