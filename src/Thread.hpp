@@ -1,5 +1,19 @@
 #include "w32.hpp"
 
+/*
+    This is rudimentary thread support.  You can easily
+    create a thread, and start it.
+
+    DWORD ARoutine(void *param)
+    {
+        // my thread routine
+    }
+
+    Thread t1(routine)
+
+    Threads are a fairly low level primitive.  More advanced
+    constructs can be composed from threads.
+*/
 
 class Thread
 {

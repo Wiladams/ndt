@@ -4,7 +4,11 @@ Newgrammer Development Tools
 
 A newgrammer is someone who is new to programming.
 
-Herein lies a set of tools that support newgrammer explorations in doing simple things.
+This repository contains esoteric examples of programmin
+in the Windows (Win32) environment.  As of 2020, this 
+environment is being sunsetted for more modern approaches.  Although the future is upon us, there are
+still plenty of lessons to be learned from how to keep 
+simple things simple and make hard things possible.
 
 This is a Windows specific set of code, which makes not attempt at working on any other platform.  It is meant as a teaching tool for those who are relatively new to programming.
 
@@ -35,13 +39,15 @@ Bits And Bobs
 
 ndt aims to be as independent as possible.  There are no external dependencies other than what is already provided on every Windows machine it will run on.  There is no dependency on the Windows SDK header files.  This ensures that a bare minimum coding environment will be sufficient to try things out.
 
-Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'libary' that programs link against.  Each program is individual, and compiles down to a fairly small size.
+Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'library' that programs link against.  Each program is individual, and compiles down to a fairly small size.
 
 
 References
 ==========
 C# .net framework code
 https://referencesource.microsoft.com/
+
+https://github.com/Wiladams/NewTOAPIA
 
 C++ compiler intrinsics
 https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view=vs-2019
