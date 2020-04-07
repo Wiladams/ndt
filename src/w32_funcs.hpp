@@ -84,6 +84,8 @@ BOOL UpdateLayeredWindow(HWND hWnd, HDC hdcDst, POINT* pptDst, SIZE* psize,
     BLENDFUNCTION* pblend, 
     DWORD dwFlags);
 
+BOOL UpdateLayeredWindowIndirect(HWND hWnd, const UPDATELAYEREDWINDOWINFO* pULWInfo);
+
 DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT dpiContext);
 UINT __stdcall GetDpiForSystem();
 

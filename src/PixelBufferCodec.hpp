@@ -1,4 +1,5 @@
 #include "PixelBuffer.hpp"
+#include "functor.hpp"
 
 /*
     The PixelBufferCodec has functor representations
@@ -31,7 +32,7 @@
 
 
 
-class PixelBufferOp
+class PixelBufferOp : public Functor
 {
 public:
     enum Commands {
@@ -58,7 +59,8 @@ public:
     
     int getCommand() const { return fCommand;}
 
-    virtual void operator()() = 0;
+    // Must be implemented by base class
+    //virtual void operator()() = 0;
 };
 
 // Operation to set a single pixel
