@@ -1,7 +1,7 @@
 /*
     References
     https://stackoverflow.com/questions/11706985/win32-thread-safe-queue-implementation-using-native-windows-api
-    
+
 */
 
 #include "w32.hpp"
@@ -82,29 +82,24 @@ class Computicle
 
             // If we're here, it's normal run
             // of the mill messages
-            switch (Msg.message) {
-                case CM_NULL:
-                    // do nothing
+            if (Msg.message == CM_SYNC) {
+                self->signalSync();
+            } else if (Msg.message == CM_SYNCANDEXIT) {
+                // signal sync
+                // then exit out of the queue processing
+                self->signalSync();
                 break;
-
-                case CM_SYNC:
-                    self->signalSync();
-                break;
-
-                case CM_SYNCANDEXIT:
-                    self->signalSync();
-                    break;
-                break;
-
-                default:
-                    // call onMessage
-                    self->onMessage(Msg);
-                break;
+            } else if (Msg.message == CM_NULL) {
+                // Do nothing in particular
+            } else {
+                // In all other cases, pass it along
+                self->onMessage(Msg);
             }
         }
 
-        self->signalFinished();
         self->setStatus(Computicle::FINISHED);
+        self->signalFinished();
+
 
         return 0;
     }
@@ -119,33 +114,48 @@ class Computicle
     }
 
 public:
-    Computicle()
+    Computicle(bool autoRun = true)
         : fThread(Computicle::WorkRoutine, this)
         , fLastError(0)
-        , fReadyEvent(false, false)
-        , fFinishedEvent(false, false)
-        , fSyncEvent(false, false)
+        //, fReadyEvent(false, false)
+        //, fFinishedEvent(false, false)
+        //, fSyncEvent(false, false)
     {
         fStatus = Computicle::PENDING;
 
-        // resume thread
-        fThread.resume();
-
-        // wait on event to continue
-        bool success = fReadyEvent.wait();
-        if (!success) {
-            printf("fReadyEvent.wait() ERROR: %d\n", fReadyEvent.getLastError());
+        // start running immediately
+        // This could be deferred
+        if (autoRun) {
+            run();
         }
-
-        //printf("done waiting\n");
     }
 
     virtual ~Computicle()
     {
+        // anything to do for cleanup?
     }
 
     int getStatus() const {return fStatus;}
     int getLastError() const {return fLastError;}
+
+    bool run()
+    {
+        // resume thread
+        fThread.resume();
+        
+        // wait on event to continue
+        // we wait on the ready event to be set
+        // to ensure the caller that we're ready
+        // to process messages.
+        bool success = fReadyEvent.wait();
+        if (!success) {
+            //printf("fReadyEvent.wait() ERROR: %d\n", fReadyEvent.getLastError());
+            fLastError = fReadyEvent.getLastError();
+            return false;
+        }
+
+        return true;
+    }
 
     // Send a message that might have some parameters
     // Ideally this would be private to the computicle
