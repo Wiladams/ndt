@@ -58,7 +58,7 @@ public:
     
     int getCommand() const { return fCommand;}
 
-    virtual void operator()() const = 0;
+    virtual void operator()() = 0;
 };
 
 // Operation to set a single pixel
@@ -251,6 +251,7 @@ public:
     void operator()(){
         fPixelBuffer.blend(fSource, 
             fsrcX, fsrcY, fsrcWidth, fsrcHeight,
-            fdestX, fdestY, fdestWidth, fdestHeight);
+            fdestX, fdestY, fdestWidth, fdestHeight,
+            fTransferOp);
     }
 };
