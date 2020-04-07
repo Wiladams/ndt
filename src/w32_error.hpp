@@ -1,6 +1,9 @@
 #define ERROR_INVALID_HANDLE             6L
 #define ERROR_NOT_ENOUGH_MEMORY          8L    // dderror
 #define ERROR_INVALID_PARAMETER          87L    // dderror
+
+#define WAIT_TIMEOUT                     258L    // dderror
+
 #define ERROR_OPERATION_ABORTED          995L
 #define ERROR_IO_INCOMPLETE              996L
 #define ERROR_IO_PENDING                 997L    // dderror

@@ -23,14 +23,13 @@ class Thread
     int fLastError;
 
 public:
-    Thread(PTHREAD_START_ROUTINE routine)
+    Thread(PTHREAD_START_ROUTINE routine, void * lpParameter)
         : fRoutine(routine),
         fThreadId(0),
         fLastError(0)
     {
         LPSECURITY_ATTRIBUTES lpThreadAttributes = nullptr;
         SIZE_T dwStackSize = 0;
-        void * lpParameter = (void *)this;
         DWORD dwCreationFlags = CREATE_SUSPENDED;
         DWORD lpThreadId;
 
@@ -43,8 +42,9 @@ public:
         fThreadId = lpThreadId;
     }
 
-    bool isValid() {return fHandle != nullptr;}
-    int getLastError() {return fLastError;}
+    bool isValid() const {return fHandle != nullptr;}
+    int getLastError() const {return fLastError;}
+    DWORD getThreadId() const {return fThreadId;}
 
     int resume()
     {

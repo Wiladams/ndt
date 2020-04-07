@@ -1,5 +1,23 @@
 #pragma once
 
+#define IGNORE              0       // Ignore signal
+#define INFINITE            0xFFFFFFFF  // Infinite timeout
+
+#define STATUS_WAIT_0                           ((DWORD   )0x00000000L) 
+#define STATUS_ABANDONED_WAIT_0          ((DWORD   )0x00000080L)    
+#define STATUS_USER_APC                  ((DWORD   )0x000000C0L)    
+#define STATUS_TIMEOUT                   ((DWORD   )0x00000102L)    
+#define STATUS_PENDING                   ((DWORD   )0x00000103L)    
+
+
+#define WAIT_FAILED ((DWORD)0xFFFFFFFF)
+#define WAIT_OBJECT_0       ((STATUS_WAIT_0 ) + 0 )
+
+#define WAIT_ABANDONED         ((STATUS_ABANDONED_WAIT_0 ) + 0 )
+#define WAIT_ABANDONED_0       ((STATUS_ABANDONED_WAIT_0 ) + 0 )
+
+#define WAIT_IO_COMPLETION                  STATUS_USER_APC
+
 /*
     Windows has thousands of me
 */
@@ -84,7 +102,12 @@ static const int RDW_ERASENOW            = 0x0200;
 
 
 
-static const int PM_REMOVE  =  0x0001;
+
+// PeekMessage() options
+#define PM_NOREMOVE         0x0000
+#define PM_REMOVE           0x0001
+#define PM_NOYIELD          0x0002
+
 
 static const int CW_USEDEFAULT      = 0x80000000;
 static const int COLOR_WINDOW          =  5;

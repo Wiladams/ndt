@@ -106,11 +106,16 @@ BOOL UnregisterTouchWindow(HWND hwnd);
 BOOL IsTouchWindow(HWND hwnd, PULONG pulFlags);
 
 // Regular Windows messaging
+
+BOOL GetMessageA(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax);
 void PostQuitMessage(int nExitCode);
 int PeekMessageA(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
 LRESULT SendMessageA(HWND hWnd,UINT Msg,WPARAM wParam, LPARAM lParam);
 int TranslateMessage(const MSG *lpMsg);
 LRESULT DispatchMessageA(const MSG *lpMsg);
+
+// Thread messaging
+BOOL PostThreadMessageA(DWORD idThread, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 BOOL GetKeyboardState(PBYTE lpKeyState);
 SHORT GetAsyncKeyState(int vKey);
