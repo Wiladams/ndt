@@ -9,12 +9,18 @@ class Event {
     bool fOwnsHandle;
     int fLastError;
 
-    Event() = delete;
+
     Event(const Event &) = delete;
 
 public:
+    Event()
+        :Event(false, false, nullptr)
+    {
+    }
+
     Event(bool initiallySet, bool resetManually, const char *lpName = nullptr) 
         : fLastError(0)
+        , fOwnsHandle(false)
     {
         LPSECURITY_ATTRIBUTES lpEventAttributes = nullptr;  // default security attributes
         BOOL bManualReset = resetManually ? 1 : 0;
@@ -26,18 +32,18 @@ public:
         {
             fLastError = GetLastError();
         }
+        fOwnsHandle = true;
     }
 
     ~Event()
     {
-        CloseHandle(fHandle);
+        if (fOwnsHandle) {
+            CloseHandle(fHandle);
+        }
     }
 
     bool isValid() const {return nullptr != fHandle;}
-    int getLastError() const
-    {
-        return fLastError;
-    }
+    int getLastError() const {return fLastError;}
 
     bool set()
     {
