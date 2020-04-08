@@ -7,6 +7,7 @@
     image as it displays.
 
 https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/december/windows-with-c-layered-windows-with-direct2d
+https://docs.microsoft.com/en-us/archive/msdn-magazine/2014/june/windows-with-c-high-performance-window-layering-using-the-windows-composition-engine
 */
 
 #include "w32.hpp"
@@ -107,6 +108,5 @@ public:
     void display()
     {
         UpdateLayeredWindowIndirect(getHandle(), &fLayeredWindowInfo);
-
     }
 };
