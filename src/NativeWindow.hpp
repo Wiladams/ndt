@@ -140,9 +140,9 @@ public:
         // The user might want to change any of these as they are not passed
         // into the constructor.
         fWndClass.hbrBackground = nullptr;
-        fWndClass.hCursor = nullptr;        // LoadCursor(NULL, IDC_ARROW);
+        fWndClass.hCursor = LoadCursorA(nullptr, IDC_ARROW);
         fWndClass.lpszMenuName = nullptr;
-        fWndClass.hIcon = nullptr;          // LoadIcon(NULL, IDI_APPLICATION);
+        fWndClass.hIcon = nullptr;          // LoadIcon(nullptr, IDI_APPLICATION);
         fWndClass.hIconSm = nullptr;
 
         // Try to register the window class

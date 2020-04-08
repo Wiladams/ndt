@@ -650,7 +650,8 @@ int main(int argc, char **argv)
     setCanvasSize(320, 240);
 
     //gAppWindow = new Window("Application Window", 320, 240, MsgHandler);
-    gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240, WS_OVERLAPPEDWINDOW);
+    //gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240, WS_OVERLAPPEDWINDOW, WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
     
     run();
 

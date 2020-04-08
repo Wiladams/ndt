@@ -34,10 +34,10 @@ int __stdcall wWinMain(HINSTANCE module, HINSTANCE, PWSTR, int)
 
     RegisterClass(&wc);
 
-    //User32WindowClass winclass("samplewindow", CS_HREDRAW | CS_VREDRAW, GenericWndProc);
 
-
-    HWND const window = CreateWindowEx(WS_EX_NOREDIRECTIONBITMAP,
+    //HWND const window = CreateWindowEx(WS_POPUP|WS_EX_NOREDIRECTIONBITMAP,
+    //HWND const window = CreateWindowEx(WS_EX_NOREDIRECTIONBITMAP,
+    HWND const window = CreateWindowEx(0,
         wc.lpszClassName, L"Sample",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT,

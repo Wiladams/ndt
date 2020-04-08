@@ -48,7 +48,7 @@ public:
     PixelBufferRGBA32(const size_t width, const size_t height)
         : PixelBuffer(width, height, 32)
     {
-        data = {new PixRGBA[width*height]{}};
+        data = {new PixRGBA[width*height]{0}};
         fOwnsData = true;
     }
 
@@ -157,7 +157,7 @@ public:
     // we can use a compiler intrinsic to speed things up over the
     // brute force method provided in PixelBuffer.  
     // Should be faster than a memcpy as well? Something to measure
-    bool setAllPixels(const PixRGBA value)
+    bool setAllPixels(const PixRGBA &value)
     {
         size_t nPixels = getWidth() * getHeight();
         __stosd((unsigned long *)data, value.intValue, nPixels);

@@ -32,21 +32,24 @@ class LayeredWindowInfo
     SIZE fSize;
     BLENDFUNCTION   fBlendFunction;
     UPDATELAYEREDWINDOWINFO fInfo;
+    int fLastError;
 
+public:
     LayeredWindowInfo(int width, int height)
-    :fSourcePosition(),
-    fWindowPosition(),
-    fSize({width, height}),
-    fBlendFunction(),
-        fInfo()
+        :fSourcePosition(),
+        fWindowPosition(),
+        fSize({width, height}),
+        fBlendFunction(),
+        fInfo(),
+        fLastError(0)
     {
         // When SourceConstantAlpha == 255
         // the layered window will use per pixel
         // alpha when compositing
         // AC_SRC_ALPHA indicates the source bitmap has
         // an alpha channel
-        fBlendFunction.BlendOp = AC_SRC_OVER;
-        fBlendFunction.BlendFlags = 0;
+        //fBlendFunction.BlendOp = AC_SRC_OVER;
+        //fBlendFunction.BlendFlags = 0;
         fBlendFunction.SourceConstantAlpha = 255;
         fBlendFunction.AlphaFormat = AC_SRC_ALPHA;
     
@@ -61,17 +64,27 @@ class LayeredWindowInfo
 
     }
 
-    void display(HWND win, HDC source)
+    int getLastError() {return fLastError;}
+
+    bool display(HWND win, HDC source)
     {
         fInfo.hdcSrc = source;
 
-        UpdateLayeredWindowIndirect(win, &fInfo);
+        BOOL bResult = UpdateLayeredWindowIndirect(win, &fInfo);
+
+        if (!bResult) {
+            fLastError = GetLastError();
+            return false;
+        }
+
+        return true;
     }
 
     int getWidth() {return fSize.cx;}
     int getHeight() {return fSize.cy;}
 };
 
+/*
 class AlphaWindow {
     static User32WindowClass AlphaWindowKind("alphawindow", CS_GLOBALCLASS | CS_DBLCLKS|CS_HREDRAW|CS_VREDRAW, MsgHandler);
 
@@ -110,3 +123,4 @@ public:
         UpdateLayeredWindowIndirect(getHandle(), &fLayeredWindowInfo);
     }
 };
+*/

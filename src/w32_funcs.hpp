@@ -73,6 +73,8 @@ UINT GetDpiForWindow(HWND hwnd);
 int GetSystemMetrics(int nIndex);
 BOOL IsWindow(HWND hWnd);
 BOOL InvalidateRect(HWND hWnd, const RECT *lpRect, BOOL bErase);
+
+HCURSOR LoadCursorA(HINSTANCE hInstance, LPCSTR lpCursorName);
 HICON LoadIconA(HINSTANCE hInstance,LPCSTR    lpIconName);
 BOOL RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags);
 BOOL ScreenToClient(HWND hWnd, LPPOINT lpPoint);
