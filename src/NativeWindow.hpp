@@ -57,6 +57,22 @@ public:
         ::ShowWindow(fHandle, SW_SHOWNORMAL);
     }
 
+    int getWidth() 
+    {
+        RECT wRect;
+        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        int cx = wRect.right-wRect.left;
+        return cx;
+    }
+
+    int getHeight() 
+    {
+        RECT wRect;
+        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        int cy = wRect.bottom-wRect.top;
+        
+        return cy;
+    }
 
     void setCanvasSize(size_t awidth, size_t aheight)
     {
@@ -78,6 +94,18 @@ public:
 
         bResult = SetWindowPos(getHandle(), hWndInsertAfter,X,Y,cx,cy, uFlags);
 
+    }
+
+    // Set a specific extended window style
+    LONG setExtendedStyle(int xstyle)
+    {
+        return SetWindowLongA(fHandle, GWL_EXSTYLE, GetWindowLongA(fHandle, GWL_EXSTYLE) | xstyle);
+    }
+
+    // clear a specific extended window style
+    LONG clearExtendedStyle(int xstyle)
+    {
+        return SetWindowLongA(fHandle, GWL_EXSTYLE, (~(LONG)xstyle)&GetWindowLongA(fHandle, GWL_EXSTYLE));
     }
 
 };

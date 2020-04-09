@@ -27,6 +27,7 @@ https://docs.microsoft.com/en-us/archive/msdn-magazine/2014/june/windows-with-c-
 */
 class LayeredWindowInfo
 {
+public:
     POINT fSourcePosition;
     POINT fWindowPosition;
     SIZE fSize;
@@ -34,7 +35,7 @@ class LayeredWindowInfo
     UPDATELAYEREDWINDOWINFO fInfo;
     int fLastError;
 
-public:
+
     LayeredWindowInfo(int width, int height)
         :fSourcePosition(),
         fWindowPosition(),
@@ -65,12 +66,20 @@ public:
     }
 
     int getLastError() {return fLastError;}
+    int getWidth() {return fSize.cx;}
+    int getHeight() {return fSize.cy;}
+
 
     bool display(HWND win, HDC source)
     {
         fInfo.hdcSrc = source;
-
-        BOOL bResult = UpdateLayeredWindowIndirect(win, &fInfo);
+        RECT wRect;
+        BOOL bResult = GetWindowRect(win, &wRect);
+        
+        fWindowPosition.x = wRect.left;
+        fWindowPosition.y = wRect.top;
+        
+        bResult = UpdateLayeredWindowIndirect(win, &fInfo);
 
         if (!bResult) {
             fLastError = GetLastError();
@@ -80,8 +89,8 @@ public:
         return true;
     }
 
-    int getWidth() {return fSize.cx;}
-    int getHeight() {return fSize.cy;}
+
+
 };
 
 /*

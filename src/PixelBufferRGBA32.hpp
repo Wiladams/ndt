@@ -159,6 +159,7 @@ public:
     // Should be faster than a memcpy as well? Something to measure
     bool setAllPixels(const PixRGBA &value)
     {
+        //printf("setAllPixels: 0x%x\n", value.intValue);
         size_t nPixels = getWidth() * getHeight();
         __stosd((unsigned long *)data, value.intValue, nPixels);
 

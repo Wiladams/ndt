@@ -77,6 +77,10 @@ BOOL InvalidateRect(HWND hWnd, const RECT *lpRect, BOOL bErase);
 HCURSOR LoadCursorA(HINSTANCE hInstance, LPCSTR lpCursorName);
 HICON LoadIconA(HINSTANCE hInstance,LPCSTR    lpIconName);
 BOOL RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags);
+
+LONG GetWindowLongA(HWND hWnd, int nIndex);
+LONG SetWindowLongA(HWND hWnd, int nIndex, LONG dwNewLong);
+
 BOOL ScreenToClient(HWND hWnd, LPPOINT lpPoint);
 BOOL SetWindowPos(HWND hWnd, HWND hWndInsertAfter,int X,int Y,int cx,int cy, UINT uFlags);
 BOOL ShowWindow(HWND hWnd, int nCmdShow);

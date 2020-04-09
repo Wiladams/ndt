@@ -45,6 +45,11 @@ public:
         SelectObject(fBitmapDC, fGDIHandle);
     }
 
+    BITMAPINFO getBitmapInfo()
+    {
+        return fBMInfo;
+    }
+
     HDC getDC()
     {
         return fBitmapDC;

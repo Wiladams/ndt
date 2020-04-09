@@ -124,8 +124,7 @@ void reset()
 }
 
 int T_SP = ' ';
-int VK_UP = 38;
-int VK_DOWN = 40;
+
 
 void keyReleased(const KeyEvent &event)
 {
@@ -136,6 +135,8 @@ void keyReleased(const KeyEvent &event)
         addSpring();
     } else if (keyCode == VK_DOWN) {
         removeSpring();
+    } else if (keyCode == VK_ESCAPE) {
+        halt();
     }
 }
 
@@ -145,13 +146,23 @@ void keyTyped(const KeyEvent &event)
     // If the user types a '<sp>' reset
     // the chain to 1 node
     if (keyCode == T_SP) {
-        reset();
+        if (gIsLayered)
+            noLayered();
+        else
+            layered();
+
     }
 }
 
 void draw()
 {
-    background(127);
+    if (gIsLayered)
+    {
+        //clear();
+        background(color(225, 127,0,127));
+    } else {
+        background(color(225, 127,0,255));
+    }
 
     if (headSpring == nullptr) {
         return;
@@ -181,8 +192,7 @@ void draw()
 void setup()
 {
     createCanvas(1280, 1024);
-    setFrameRate(30);
-    //fill(PixRGBA(0x7fffffff));
+    setFrameRate(15);
 
     reset();
 }

@@ -6,7 +6,10 @@
 #include "w32.hpp"
 #include "NativeWindow.hpp"
 #include "PixelBufferRGBA32.hpp"
+#include "PBDIBSection.hpp"
 #include "DrawingContext.hpp"
+#include "LayeredWindow.hpp"
+
 
 // Basic type to encapsulate a mouse event
 enum {
@@ -14,6 +17,10 @@ enum {
     KEYRELEASED,
     KEYTYPED
 };
+
+#define VK_ESCAPE         0x1B
+static const int VK_UP = 38;
+static const int VK_DOWN = 40;
 
 enum {
     MOUSEMOVED,
@@ -85,22 +92,23 @@ static MouseEventHandler gMouseDraggedHandler = nullptr;
 // Touch
 static WinMSGObserver gTouchHandler = nullptr;
 
+// Miscellaneous globals
 static int gargc;
 static char **gargv;
 
 static int gFPS = 15;   // Frames per second
 static User32Window * gAppWindow = nullptr;
-static PixelBuffer * gAppSurface = nullptr;
+static PBDIBSection * gAppSurface = nullptr;
 static DrawingContext * gAppDC = nullptr;
 static UINT_PTR gAppTimerID = 0;
 static bool gLooping = true;
 static bool gRunning = true;
+static bool gIsLayered = false;
+static LayeredWindowInfo *gLayeredWindow = nullptr;
 
 static int keyCode = 0;
 static int keyChar = 0;
 
-
-static BITMAPINFO gAppSurfaceInfo;
 
 LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -297,6 +305,8 @@ LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    //printf("HandlePaintEvent\n");
+
     LRESULT res = 0;
     PAINTSTRUCT ps;
 
@@ -311,12 +321,14 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int SrcWidth = gAppSurface->getWidth();
     int SrcHeight = gAppSurface->getHeight();
 
+    BITMAPINFO info = gAppSurface->getBitmapInfo();
+
     int pResult = StretchDIBits(hdc,
         xDest,yDest,
         DestWidth,DestHeight,
         xSrc,ySrc,
         SrcWidth, SrcHeight,
-        gAppSurface->getData(),&gAppSurfaceInfo,
+        gAppSurface->getData(),&info,
         DIB_RGB_COLORS,
         SRCCOPY);
         
@@ -377,7 +389,19 @@ void forceRedraw()
         gDrawHandler();
     }
 
-    InvalidateRect(gAppWindow->getHandle(), NULL, 1);
+    if (!gIsLayered) {
+        // if we're not layered, then do a regular
+        // sort of WM_PAINT based drawing
+        InvalidateRect(gAppWindow->getHandle(), NULL, 1);
+    } else {
+        if ((gAppSurface == nullptr)){
+            printf("forceRedraw, NULL PTRs\n");
+            return ;
+        }
+
+        LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
+        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
+    }
 }
 
 // Setup the routines that will handle
@@ -490,6 +514,7 @@ LRESULT MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     } else if (msg == WM_TIMER) {
         forceRedraw();
     } else if (msg == WM_PAINT) {
+        //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
             gPaintHandler(hWnd, msg, wParam, lParam);
         } else
@@ -530,7 +555,17 @@ void noLoop() {
     //printf("noLoop: %d  %Id\n", bResult, gAppTimerID);
 }
 
+void layered()
+{
+    gAppWindow->setExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gIsLayered = true;
+}
 
+void noLayered()
+{
+    gAppWindow->clearExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gIsLayered = false;
+}
 
 // A basic Windows event loop
 void run()
@@ -554,14 +589,15 @@ void run()
     while (true) {
         //printf("run(), looping: %d\n", gLooping);
 
-        if ((gLoopHandler != nullptr) && (gLooping)) {
+        if (gLooping && (gLoopHandler != nullptr)) {
             gLoopHandler();
         }
 
         // we use peekmessage, so we don't stall on a GetMessage
         //while (C.PeekMessageA(msg, nil, 0, 0, C.PM_REMOVE) ~= 0) do
-        BOOL haveMessage = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE) != 0;
-        if (haveMessage) {
+        BOOL bResult = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
+        
+        if (bResult > 0) {
             // If we see a quit message, it's time to stop the program
             if (msg.message == WM_QUIT) {
                 break;
@@ -577,26 +613,21 @@ void run()
 
 bool setCanvasSize(size_t aWidth, size_t aHeight)
 {
+    // Create new drawing surface
     if (gAppSurface != nullptr) {
         // Delete old one if it exists
         delete gAppSurface;
     }
+    //gAppSurface = new PixelBufferRGBA32(aWidth,aHeight);
+    gAppSurface = new PBDIBSection(aWidth, aHeight);
+    gAppSurface->setAllPixels(PixRGBA(0x00000000));
 
-    // Create new drawing surface
-    gAppSurface = new PixelBufferRGBA32(aWidth,aHeight);
-    
-    int alignment = 4;
-    int bitsPerPixel = 32;
-    int bytesPerRow = bitbang::GetAlignedByteCount(aWidth, bitsPerPixel, alignment);
-    gAppSurfaceInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    gAppSurfaceInfo.bmiHeader.biWidth = aWidth;
-    gAppSurfaceInfo.bmiHeader.biHeight = -aHeight;	// top-down DIB Section
-    gAppSurfaceInfo.bmiHeader.biPlanes = 1;
-    gAppSurfaceInfo.bmiHeader.biBitCount = 32;
-    gAppSurfaceInfo.bmiHeader.biSizeImage = bytesPerRow * aHeight;
-    gAppSurfaceInfo.bmiHeader.biClrImportant = 0;
-    gAppSurfaceInfo.bmiHeader.biClrUsed = 0;
-    gAppSurfaceInfo.bmiHeader.biCompression = BI_RGB;
+
+    // create new layering blitter
+    if (gLayeredWindow != nullptr) {
+        delete gLayeredWindow;
+    }
+    gLayeredWindow = new LayeredWindowInfo(aWidth, aHeight);
 
     // Delete old drawing context if it exists
     if (gAppDC != nullptr) {
@@ -649,15 +680,12 @@ int main(int argc, char **argv)
     // but don't show it
     setCanvasSize(320, 240);
 
-    //gAppWindow = new Window("Application Window", 320, 240, MsgHandler);
-    //gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240, WS_OVERLAPPEDWINDOW, WS_EX_NOREDIRECTIONBITMAP);
     gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
     
     run();
 
     // do any cleanup after all is done
     epilog();
-
 
     return 0;
 }

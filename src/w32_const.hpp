@@ -60,6 +60,12 @@ static const int PAGE_READWRITE        = 0x4;
 #define CS_BYTEALIGNWINDOW  0x2000
 #define CS_GLOBALCLASS      0x4000
 
+// Constants for Set/GetWindowLong
+#define GWL_STYLE           (-16)
+#define GWL_EXSTYLE         (-20)
+#define GWL_USERDATA        (-21)
+#define GWL_ID              (-12)
+
 
 // Extended Window Styles
 static const int WS_EX_TOPMOST           = 0x00000008L;

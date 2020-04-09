@@ -133,7 +133,7 @@ public:
     // Set all pixels within the pixel buffer to the specified value
     // we do a brute force implementation here so there's one less
     // thing for a derived class to implement. 
-    virtual bool setAllPixels(const PixRGBA pix)
+    virtual bool setAllPixels(const PixRGBA &pix)
     {
         for (int row=0;row<height-1;row++)
         {
