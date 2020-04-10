@@ -20,6 +20,7 @@
 #include "Image.hpp"
 #include "PixelOps.hpp"
 #include "stopwatch.hpp"
+#include "random.hpp"
 
 // RectMode, EllipseMode
 enum {
@@ -85,6 +86,8 @@ local Colorrefs = {
 /*
 Global State
 */
+
+
 bool gUseStroke = true;
 bool gUseFill = true;
 static StopWatch SWatch;

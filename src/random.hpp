@@ -97,13 +97,13 @@ public:
         return (int)d;
     }
 
-    // return an integer value in the range
+    // return a value in the range
     // between low and high, inclusive
-    int next(int low, int high)
+    double next(double low, double high)
     {
         double d = next();
-        d = floor(d*(high-low+1.0)) + low;
-        return (int)d;
+        d = (d*(high-low+1.0)) + low;
+        return d;
     }
 };
 

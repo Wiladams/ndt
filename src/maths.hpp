@@ -17,6 +17,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "bitbang.hpp"
+#include "random.hpp"
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
@@ -24,6 +25,8 @@
 // doesn't deal with -0 vs +0
 #define ABS(a) ((a) > 0 ? (a) : -(a))
 
+// Random number generator
+TausPRNG rng(5);
 
 
 double constrain(double x, double low, double high)
@@ -108,17 +111,21 @@ double mag(double x, double y)
 
 double random()
 {
-    return (double)rand()/(double)RAND_MAX;
+    return rng.next();
+
+    //return (double)rand()/(double)RAND_MAX;
 }
 
 double random(double low, double high)
 {
-    return MAP(random(), 0,1, low,high);
+    return rng.next(low, high);
+    //return MAP(random(), 0,1, low,high);
 }
 
 double random(double high)
 {
-    return random(0, high);
+    return rng.next(0,high);
+    //return random(0, high);
 }
 
 
