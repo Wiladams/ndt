@@ -4,7 +4,8 @@
     The mating between a DIBSection and a PixelBufferRGBA32
 */
 
-#include "w32.hpp"
+#include <windows.h>
+
 #include "PixelBufferRGBA32.hpp"
 #include "bitbang.hpp"
 

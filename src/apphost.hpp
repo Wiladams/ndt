@@ -1,15 +1,26 @@
 #pragma once
 
-#include <stdio.h>
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "vfw32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "gdi32.lib")
+
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <windowsx.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 #include "bitbang.hpp"
-#include "w32.hpp"
 #include "NativeWindow.hpp"
 #include "PixelBufferRGBA32.hpp"
 #include "PBDIBSection.hpp"
 #include "DrawingContext.hpp"
 #include "LayeredWindow.hpp"
 
+#include <stdio.h>
 
 // Basic type to encapsulate a mouse event
 enum {
@@ -18,9 +29,6 @@ enum {
     KEYTYPED
 };
 
-#define VK_ESCAPE         0x1B
-static const int VK_UP = 38;
-static const int VK_DOWN = 40;
 
 enum {
     MOUSEMOVED,

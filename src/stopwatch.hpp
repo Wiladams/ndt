@@ -1,6 +1,9 @@
 #pragma once
 
-#include "w32_funcs.hpp"
+
+#include <windows.h>
+#include <profileapi.h>
+
 
 /*
     A simple stopwatch.
@@ -15,24 +18,26 @@
 // various Windows APIs needed for a high precision timer
 int64_t GetPerformanceFrequency()
 {
-	int64_t anum;
+	//int64_t anum;
+    LARGE_INTEGER anum;
+
 	int success = QueryPerformanceFrequency(&anum);
 	if (success == 0) {
 		return 0;   //, ffi.C.GetLastError(); 
     }
 
-	return anum;
+	return anum.QuadPart;
 }
 
 int64_t GetPerformanceCounter()
 {
-	int64_t pnum;
+	LARGE_INTEGER pnum;
 	int success = QueryPerformanceCounter(&pnum);
 	if (success == 0) { 
 		return 0; //--, ffi.C.GetLastError();
     }
 
-	return pnum;
+	return pnum.QuadPart;
 }
 
 double GetCurrentTickTime()

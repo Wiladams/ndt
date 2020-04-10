@@ -13,7 +13,9 @@
 
 #include <stdio.h>
 
-#include "w32.hpp"
+#include <windows.h>
+
+//#include "w32.hpp"
 #include "PixelBuffer.hpp"
 
 #include <cstring>

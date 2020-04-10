@@ -10,7 +10,7 @@ https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/december/windows-wit
 https://docs.microsoft.com/en-us/archive/msdn-magazine/2014/june/windows-with-c-high-performance-window-layering-using-the-windows-composition-engine
 */
 
-#include "w32.hpp"
+#include <windows.h>
 #include "NativeWindow.hpp"
 
 /*

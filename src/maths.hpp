@@ -26,7 +26,7 @@
 #define ABS(a) ((a) > 0 ? (a) : -(a))
 
 // Random number generator
-TausPRNG rng(5);
+TausPRNG mRandomNumberGenerator(5);
 
 
 double constrain(double x, double low, double high)
@@ -111,21 +111,17 @@ double mag(double x, double y)
 
 double random()
 {
-    return rng.next();
-
-    //return (double)rand()/(double)RAND_MAX;
+    return mRandomNumberGenerator.next();
 }
 
 double random(double low, double high)
 {
-    return rng.next(low, high);
-    //return MAP(random(), 0,1, low,high);
+    return mRandomNumberGenerator.next(low, high);
 }
 
 double random(double high)
 {
-    return rng.next(0,high);
-    //return random(0, high);
+    return mRandomNumberGenerator.next(0,high);
 }
 
 

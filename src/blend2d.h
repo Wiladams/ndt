@@ -12,6 +12,8 @@
 // Headers that end with "_p" suffix are private and should never be
 // included as they are not part of public API.
 
+#pragma comment(lib, "blend2d.lib")
+
 #ifndef BLEND2D_H
 #define BLEND2D_H
 
