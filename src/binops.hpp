@@ -6,12 +6,6 @@
 #pragma intrinsic (_byteswap_ushort, _byteswap_ulong, _byteswap_uint64)
 
 
-
-
-//#include <cstdio>
-//#include <cstdlib>
-
-
 /*
     Binary operators
 
