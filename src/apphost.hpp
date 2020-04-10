@@ -610,6 +610,10 @@ void run()
 }
 
 
+void setWindowPosition(int x, int y)
+{
+    gAppWindow->moveTo(x, y);
+}
 
 bool setCanvasSize(size_t aWidth, size_t aHeight)
 {

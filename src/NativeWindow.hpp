@@ -74,6 +74,17 @@ public:
         return cy;
     }
 
+    void moveTo(int x, int y)
+    {
+        RECT wRect;
+        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        int cx = wRect.right - wRect.left;
+        int cy = wRect.bottom - wRect.top;
+        int flags = SWP_NOOWNERZORDER | SWP_NOSIZE;
+
+        bResult = ::SetWindowPos(fHandle, (HWND)0, x, y, 0, 0, flags);
+    }
+
     void setCanvasSize(size_t awidth, size_t aheight)
     {
         // Get current size of window

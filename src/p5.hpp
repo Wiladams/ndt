@@ -300,6 +300,7 @@ Image * createImage(size_t width, size_t height)
 }
 
 // Canvas management
+
 void createCanvas(size_t aWidth, size_t aHeight)
 {
     width = aWidth;
@@ -312,9 +313,10 @@ void createCanvas(size_t aWidth, size_t aHeight)
 
     // get current mouse position
     
-    //clear();
+
     gAppDC->clearToBackground();
 
+    // reset overall timer
     SWatch.reset();
 }
 
