@@ -8,13 +8,18 @@
 
 #include "PixelBufferRGBA32.hpp"
 #include "bitbang.hpp"
-
+#include "blend2d.h"
 
 class PBDIBSection : public PixelBufferRGBA32
 {
+    // for interacting with win32
     BITMAPINFO fBMInfo;
     HBITMAP fGDIHandle;
-    HDC     fBitmapDC;
+    HDC     fBitmapDC;      
+    
+    // For interacting with blend2d
+    BLImage fImage;
+    BLContext fContext;     // for Blend2D drawing
 
 public:
     PBDIBSection(size_t awidth, size_t aheight)
@@ -44,6 +49,11 @@ public:
         // select the DIBSection into the memory context so we can 
         // peform operations with it
         SelectObject(fBitmapDC, fGDIHandle);
+
+        // Bind BLImage
+        // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
+        BLResult bResult = blImageCreateFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, pData, bytesPerRow, nullptr, nullptr);
+        fContext.begin(fImage);
     }
 
     BITMAPINFO getBitmapInfo()
@@ -54,5 +64,10 @@ public:
     HDC getDC()
     {
         return fBitmapDC;
+    }
+
+    BLContext & getBlend2dContext()
+    {
+        return fContext;
     }
 };
