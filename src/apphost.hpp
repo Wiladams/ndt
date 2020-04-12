@@ -107,7 +107,7 @@ static char **gargv;
 static int gFPS = 15;   // Frames per second
 static User32Window * gAppWindow = nullptr;
 static PBDIBSection * gAppSurface = nullptr;
-static DrawingContext * gAppDC = nullptr;
+static BLContext gAppDC;
 static UINT_PTR gAppTimerID = 0;
 static bool gLooping = true;
 static bool gRunning = true;
@@ -630,24 +630,16 @@ bool setCanvasSize(size_t aWidth, size_t aHeight)
         // Delete old one if it exists
         delete gAppSurface;
     }
-    //gAppSurface = new PixelBufferRGBA32(aWidth,aHeight);
+
     gAppSurface = new PBDIBSection(aWidth, aHeight);
     gAppSurface->setAllPixels(PixRGBA(0x00000000));
-
+    gAppDC = gAppSurface->getBlend2dContext();
 
     // create new layering blitter
     if (gLayeredWindow != nullptr) {
         delete gLayeredWindow;
     }
     gLayeredWindow = new LayeredWindowInfo(aWidth, aHeight);
-
-    // Delete old drawing context if it exists
-    if (gAppDC != nullptr) {
-        delete gAppDC;
-    }
-
-    // Create a new one
-    gAppDC = new DrawingContext(*gAppSurface);
 
     return true;
 }

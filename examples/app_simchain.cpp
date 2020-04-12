@@ -26,9 +26,9 @@ struct Spring2D {
     float gravity;
     float stiffness;
     float damping;
-    PixRGBA color;
+    BLRgba32 color;
 
-    Spring2D(int xpos, int ypos, float m, float g, PixRGBA c)
+    Spring2D(int xpos, int ypos, float m, float g, BLRgba32 c)
     {
         x = xpos;   // The x- and y-coordinates
         y = ypos;
@@ -71,14 +71,19 @@ struct Spring2D {
 Stack<Spring2D *> springs;
 Spring2D * headSpring = nullptr;
 
-PixRGBA  randomColor()
+BLRgba32  randomColor()
 {
     int r = random(30,255);
     int g = random(30,255);
     int b = random(30,255);
     
-    //return PixRGBA(r,g,b,126);
-    return PixRGBA(r,g,b,255);
+    BLRgba32 c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = 255;
+
+    return c;
 }
 
 void addSpring()

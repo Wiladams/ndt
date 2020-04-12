@@ -144,11 +144,16 @@ void keyReleased(const KeyEvent &event)
     }
 }
 
+double lasttime;
+
 void draw()
 {
+    double lasttime = millis();
     clear();
 
     l1.draw();
+    double duration = millis() - lasttime;
+    //printf("after draw: %3.3f\n", duration);
 }
 
 void setup()

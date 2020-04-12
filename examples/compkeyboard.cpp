@@ -118,7 +118,6 @@ static const int unit = 40;
 
 void drawNeutral()
 {
-
     fill(127);
     stroke(10);
 

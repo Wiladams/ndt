@@ -21,8 +21,8 @@ void draw()
         // draw some random pixels
         int x = random(0,width-1);
         int y = random(0,height-1);
-        PixRGBA c1 = color(random(255), random(255), random(255));
-        PixRGBA c2 = color(random(255), random(255), random(255), 0x7f);
+        BLRgba32 c1 = color(random(255), random(255), random(255));
+        BLRgba32 c2 = color(random(255), random(255), random(255), 0x7f);
     
         fill(c1);
         circle(x, y, 4);

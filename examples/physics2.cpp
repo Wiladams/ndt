@@ -22,8 +22,8 @@
 
 const int nShapes = 200;
 float shapeCount;
-float birthRate = 0.25;
-float gGravity = 0.10;
+float birthRate = 0.30;
+float gGravity = 0.20;
 int gDeathRate = 1;
 
 // control width of sparay when shapes are born
@@ -43,7 +43,7 @@ struct shape {
 
     int lives;
 
-    PixRGBA c;
+    BLRgba32 c;
 
     shape() 
     {
@@ -66,7 +66,7 @@ struct shape {
             x = width/2;
             y = 0;
             xSpeed = random(-sprayWidth, sprayWidth);
-            c = color(c.red-10);
+            c = color(c.r-10);
         }
     }
 
