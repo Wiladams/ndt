@@ -141,6 +141,16 @@ void fill(BLRgba32 pix, uint8_t alpha)
     fill(c);
 }
 
+void fill(uint8_t r, uint8_t g, uint8_t b)
+{
+    BLRgba32 c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = 255;
+    fill(c);
+}
+
 void fill(uint8_t gray, uint8_t alpha)
 {
     BLRgba32 c;
@@ -173,6 +183,16 @@ void stroke(BLRgba32 pix, int alpha)
 {
     BLRgba32 c = pix;
     c.a = alpha;
+    stroke(c);
+}
+
+void stroke(uint8_t r, uint8_t g, uint8_t b)
+{
+    BLRgba32 c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = 255;
     stroke(c);
 }
 
@@ -249,14 +269,16 @@ void rect(int x, int y, int width, int height)
     }
 }
 
-void triangle(int x1, int y1, int x2, int y2, int x3, int y3)
+void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
 {
+    BLTriangle tri = {x1,y1, x1,y2,x3,y3};
+
     if (gUseFill) {
-        // fill a triangle
+        gAppDC.fillGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
     }
 
     if (gUseStroke) {
-        //gAppDC->strokeTriangle(x1, y1, x2, y2, x3, y3);
+        gAppDC.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
     }
 }
 
