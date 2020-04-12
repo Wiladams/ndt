@@ -47,11 +47,14 @@ inline double MAP(double x, double olow, double ohigh, double rlow, double rhigh
     return rlow + (cx-olow)*((rhigh-rlow)/(ohigh-olow));
 }
 
+// The value of 't' ranges from 0..1 inclusive
+// the return value will be between a (at t == 0)
+// and b (at t==1), inclusive
 inline double LERP(double t, double a, double b)
 {
     // first constrain
     if (t<=0) return a;
-    if (t>=b) return b;
+    if (t>=1) return b;
     
     // linear interpolation
     return a + (t*(b-a)); 
