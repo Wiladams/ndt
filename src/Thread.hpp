@@ -1,4 +1,5 @@
-#include "w32.hpp"
+#pragma once
+#include <windows.h>
 
 /*
     This is rudimentary thread support.  You can easily

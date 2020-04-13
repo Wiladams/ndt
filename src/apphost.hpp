@@ -19,6 +19,8 @@
 #include "PBDIBSection.hpp"
 #include "DrawingContext.hpp"
 #include "LayeredWindow.hpp"
+#include "TimeTicker.hpp"
+
 
 #include <stdio.h>
 
@@ -103,6 +105,8 @@ static WinMSGObserver gTouchHandler = nullptr;
 // Miscellaneous globals
 static int gargc;
 static char **gargv;
+
+TimeTicker *gAppTicker = nullptr;
 
 static int gFPS = 15;   // Frames per second
 static User32Window * gAppWindow = nullptr;
@@ -342,7 +346,6 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         
 	EndPaint(hWnd, &ps);
 
-
     return res;
 }
 
@@ -377,21 +380,15 @@ EXPORT void mouseWheel(const MouseEvent &e);
 }
 #endif
 
-void setFrameRate(int newRate)
-{
-    gFPS = newRate;
-    //printf("setFrameRate: %d\n", newRate);
-    UINT_PTR nIDEvent = 5;
-    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-    //printf("KillTimer: %d %lld\n", bResult, gAppTimerID);
-    UINT uElapse = 1000 / gFPS;
-    gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
-    //printf("SetTimer: %lld\n", gAppTimerID);
 
-}
 
 // Controlling drawing
-void forceRedraw()
+void fakeRedraw(void *param, int64_t tickCount)
+{
+    //printf("FAKE Recraw\n");
+}
+
+void forceRedraw(void *param, int64_t tickCount)
 {
     if (gDrawHandler != nullptr) {
         gDrawHandler();
@@ -410,6 +407,33 @@ void forceRedraw()
         LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
         lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
     }
+}
+
+void setFrameRate(int newRate)
+{
+    gFPS = newRate;
+
+    if (gAppTicker != nullptr){
+        gAppTicker->stop();
+        delete gAppTicker;
+    }
+
+    int64_t interval = (int64_t)(1000.0 / gFPS);
+    gAppTicker = new TimeTicker(interval, fakeRedraw, nullptr);
+
+    if (gLooping) {
+        gAppTicker->start();
+    }
+
+
+    //printf("setFrameRate: %d\n", newRate);
+    UINT_PTR nIDEvent = 5;
+    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
+    //printf("KillTimer: %d %lld\n", bResult, gAppTimerID);
+    UINT uElapse = 1000 / gFPS;
+    gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
+    //printf("SetTimer: %lld\n", gAppTimerID);
+
 }
 
 // Setup the routines that will handle
@@ -520,7 +544,7 @@ LRESULT MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // return non-zero indicating we erase the background
         res = 1;
     } else if (msg == WM_TIMER) {
-        forceRedraw();
+        forceRedraw(nullptr, 0);
     } else if (msg == WM_PAINT) {
         //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
@@ -536,8 +560,6 @@ LRESULT MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     return res;
 }
-
-
 
 // Controlling the runtime
 void halt() {
@@ -575,6 +597,33 @@ void noLayered()
     gIsLayered = false;
 }
 
+void setWindowPosition(int x, int y)
+{
+    gAppWindow->moveTo(x, y);
+}
+
+bool setCanvasSize(size_t aWidth, size_t aHeight)
+{
+    // Create new drawing surface
+    if (gAppSurface != nullptr) {
+        // Delete old one if it exists
+        delete gAppSurface;
+    }
+
+    gAppSurface = new PBDIBSection(aWidth, aHeight);
+    gAppSurface->setAllPixels(PixRGBA(0x00000000));
+    gAppDC = gAppSurface->getBlend2dContext();
+
+    // create new layering blitter
+    if (gLayeredWindow != nullptr) {
+        delete gLayeredWindow;
+    }
+    gLayeredWindow = new LayeredWindowInfo(aWidth, aHeight);
+
+    return true;
+}
+
+
 // A basic Windows event loop
 void run()
 {
@@ -589,6 +638,12 @@ void run()
     if (gSetupHandler != nullptr) {
         gSetupHandler();
     }
+
+    // do drawing at least once in case
+    // the user calls noLoot() within 
+    // the setup() routine
+    forceRedraw(nullptr, 0);
+
 
     // Do a typical Windows message pump
     MSG msg;
@@ -618,31 +673,7 @@ void run()
 }
 
 
-void setWindowPosition(int x, int y)
-{
-    gAppWindow->moveTo(x, y);
-}
 
-bool setCanvasSize(size_t aWidth, size_t aHeight)
-{
-    // Create new drawing surface
-    if (gAppSurface != nullptr) {
-        // Delete old one if it exists
-        delete gAppSurface;
-    }
-
-    gAppSurface = new PBDIBSection(aWidth, aHeight);
-    gAppSurface->setAllPixels(PixRGBA(0x00000000));
-    gAppDC = gAppSurface->getBlend2dContext();
-
-    // create new layering blitter
-    if (gLayeredWindow != nullptr) {
-        delete gLayeredWindow;
-    }
-    gLayeredWindow = new LayeredWindowInfo(aWidth, aHeight);
-
-    return true;
-}
 
 // do any initialization that needs to occur 
 // in the very beginning

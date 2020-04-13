@@ -12,7 +12,7 @@
 	local bs = binstream(m:getPointer(), #m)
 */
 
-#include "w32.hpp"
+#include <windows.h>
 #include <stdio.h>
 
 class mmap

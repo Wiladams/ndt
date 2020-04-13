@@ -1,4 +1,4 @@
-#include "w32.hpp"
+#include <windows.h>
 
 class DesktopWindow {
 public:

@@ -344,14 +344,14 @@ void createCanvas(size_t aWidth, size_t aHeight)
     // reset overall timer
     SWatch.reset();
 }
-
+/*
 void redraw(int nTimes=1)
 {
     for (int i=1;i<=nTimes;i++) {
         forceRedraw();
     }
 }
-
+*/
 void frameRate(int newRate)
 {
     setFrameRate(newRate);

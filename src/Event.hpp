@@ -1,6 +1,6 @@
-#include "w32_event.hpp"
-#include "w32_funcs.hpp"
-#include "w32_const.hpp"
+#pragma once
+
+#include <synchapi.h>
 
 #include <cstdio>
 

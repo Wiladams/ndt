@@ -13,8 +13,8 @@
 #include <cstdio>
 #include <string.h>
 
-#include "w32.hpp"
-#include "w32_video.hpp"
+#include <windows.h>
+//#include "w32_video.hpp"
 
 class VfwDeviceDriver
 {

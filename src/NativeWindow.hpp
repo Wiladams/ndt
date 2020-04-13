@@ -11,13 +11,13 @@
     single file (and it pulls in w32.hpp) contains everything you need.
 */
 
-#include <stdio.h>
+
 
 #include <windows.h>
 
-//#include "w32.hpp"
 #include "PixelBuffer.hpp"
 
+#include <stdio.h>
 #include <cstring>
 
 

@@ -3,7 +3,7 @@
 
 #include <windows.h>
 #include <profileapi.h>
-
+#include <cstdint>
 
 /*
     A simple stopwatch.
@@ -16,7 +16,7 @@
 
 // These are convenience functions that wrap up the 
 // various Windows APIs needed for a high precision timer
-int64_t GetPerformanceFrequency()
+int64_t GetPerfFrequency()
 {
 	//int64_t anum;
     LARGE_INTEGER anum;
@@ -29,7 +29,7 @@ int64_t GetPerformanceFrequency()
 	return anum.QuadPart;
 }
 
-int64_t GetPerformanceCounter()
+int64_t GetPerfCounter()
 {
 	LARGE_INTEGER pnum;
 	int success = QueryPerformanceCounter(&pnum);
@@ -44,8 +44,8 @@ double GetCurrentTickTime()
 {
     int64_t pnum;
 
-	double frequency = 1.0f/GetPerformanceFrequency();
-	double currentCount = GetPerformanceCounter();
+	double frequency = 1.0f/GetPerfFrequency();
+	double currentCount = GetPerfCounter();
 	double seconds = (double)currentCount * frequency;
 
 	return seconds;
