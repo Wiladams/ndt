@@ -7,14 +7,14 @@
 			"command": "cl.exe",
 			"args": [
 				"/nologo",
-				"/Zi",
 				"/EHsc",
 				"/I",
 				"${workspaceFolder}\\src",
 				"/Fe:",
 				"${fileDirname}\\${fileBasenameNoExtension}.exe",
 				"${file}",
-				"/link /LIBPATH:${workspaceFolder}\\lib"
+				"/link /LIBPATH:${workspaceFolder}\\lib",
+				"blend2d.lib"
 
 			],
 			"problemMatcher": [

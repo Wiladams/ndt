@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\blend2d">
+      <UniqueIdentifier>{c9e92963-4411-4ec1-b1e1-e274a05ba02f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\core\appmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\core\apphost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\binops.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\binstream.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\bitbang.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\codec_targa.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\computicle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\definitions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\DesktopWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Draw2DContext.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\drawicle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\DrawingContext.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Event.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\functor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\grtypes.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\guistyle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Image.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\LayeredWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\List.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\maths.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\mmap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\NativeWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Network.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\p5.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PBDIBSection.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PixelBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PixelBufferCodec.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PixelBufferRGB24.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PixelBufferRGBA32.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\PixelOps.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\random.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\RectangleI.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\screensnapshot.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Stack.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\stopwatch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\TcpClient.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\TcpServer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Thread.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\TimeTicker.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\VfwCameraDevice.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\VfwCaptureDevice.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\api.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\array.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\bitarray.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\context.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\filesystem.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\font.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\fontdefs.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\fontmanager.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\format.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\geometry.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\glyphbuffer.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\gradient.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\image.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\imagecodec.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\matrix.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\path.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\pattern.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\pixelconverter.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\random.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\region.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\rgba.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\runtime.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\string.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\style.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\blend2d\variant.h">
+      <Filter>Header Files\blend2d</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

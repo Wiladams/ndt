@@ -17,7 +17,7 @@ int ** Array2D(int rows, int columns)
     return arr;
 }
 
-static const int w = 1;  // size of a cell
+static const int w = 2;  // size of a cell
 
 class Life {
     int fW;
@@ -34,8 +34,8 @@ public:
         fW = w;
 
         // Calculate columns and rows
-        fColumns = (int)floor(aWidth/fW);
-        fRows = (int)floor(aHeight/fW);
+        fColumns = floor(aWidth/fW);
+        fRows = floor(aHeight/fW);
 
 //printf("rows: %d  cols: %d\n", fRows, fColumns);
 
@@ -113,8 +113,8 @@ public:
         for (int i = 0; i <= fColumns-1; i++) {
             for (int j = 0; j<=fRows-1;j++) {
                 if (board[j][i] == 1) {
-                    fill(255);
-                    //fill((uint8_t)randomLowHigh(50,230), (uint8_t)randomLowHigh(127,255));
+                    //fill(255);
+                    fill(randomLowHigh(50,230), randomLowHigh(127,255));
                 } else { 
                     fill(0,0);
                 }

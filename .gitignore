@@ -36,3 +36,16 @@
 *.pdb
 *.ilk
 
+*.user
+*.dylib
+*.ipch
+*.db 
+*.idb
+*.ipdb
+*.iobj
+*.tlog
+*.log
+*.FileListAbsolute.txt
+
+.suo
+*.sqlite

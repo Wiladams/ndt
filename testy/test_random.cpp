@@ -18,8 +18,10 @@ void test_explicitRange()
     }
 }
 
-void main()
+int main(int argc, char **argv)
 {
     //test_impliedRange();
     test_explicitRange();
+
+    return 0;
 }

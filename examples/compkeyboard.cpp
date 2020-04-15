@@ -8,7 +8,7 @@ typedef struct keyFrame_t {
 typedef struct keyStruct_t {
     int vkey;
     keyFrame frame;
-    char *caption;
+    const char *caption;
 } keyStruct;
 
 
@@ -93,8 +93,8 @@ static const int nKeys = sizeof(keyValues)/ sizeof(keyStruct);
 
 keyFrame insetRect(keyFrame rrect, float cx, float cy)
 {
-    int dx = cx/2;
-    int dy = cy/2;
+    int dx = (int)(cx/2);
+    int dy = (int)(cy/2);
 
     return {rrect.x+dx, rrect.y+dy, rrect.width-(int)cx, rrect.height-(int)cy};
 }
