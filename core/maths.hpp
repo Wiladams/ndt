@@ -61,14 +61,13 @@ inline double constrain(double x, double low, double high)
     return MIN(MAX(x, low), high);
 }
 
-inline double MAP(double x, double olow, double ohigh, double rlow, double rhigh, bool tight= false)
+inline double map(double x, double olow, double ohigh, double rlow, double rhigh, bool tight= false)
 {
-    if (!tight) {
-        return rlow + (x-olow)*((double)(rhigh-rlow)/(ohigh-olow));
+    if (tight) {
+        x = constrain(x, olow, ohigh);
     }
 
-    double cx = constrain(x, olow, ohigh);
-    return rlow + (cx-olow)*((rhigh-rlow)/(ohigh-olow));
+    return rlow + (x-olow)*((rhigh-rlow)/(ohigh-olow));
 }
 
 // The value of 't' ranges from 0..1 inclusive

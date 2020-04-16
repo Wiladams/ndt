@@ -163,8 +163,10 @@ void draw()
 {
     if (gIsLayered)
     {
-        //clear();
-        background(color(225, 127,0,127));
+        // MUST do this clear first if you want a 
+        // fairly transparent background
+        clear();
+        background(color(0x20,0x20, 0x20, 20));
     } else {
         background(color(225, 127,0,255));
     }

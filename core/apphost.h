@@ -111,7 +111,7 @@ EXPORT void setup();
 
 //EXPORT LRESULT onPaintHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 //EXPORT LRESULT keyboardHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-EXPORT LRESULT mouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//EXPORT LRESULT mouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // IO Event Handlers
 EXPORT void keyPressed(const KeyEvent &e);
@@ -134,7 +134,8 @@ EXPORT void noLoop();
 
 EXPORT void layered();
 EXPORT void noLayered();
-
+EXPORT void cursor();
+EXPORT void noCursor();
 EXPORT void setFrameRate(int newRate);
 EXPORT void setWindowPosition(int x, int y);
 EXPORT bool setCanvasSize(GRCOORD aWidth, GRCOORD aHeight);

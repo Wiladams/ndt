@@ -22,7 +22,7 @@ class PBDIBSection : public PixelBufferRGBA32
     BLContext fContext;     // for Blend2D drawing
 
 public:
-    PBDIBSection(GRCOORD awidth, GRCOORD aheight)
+    PBDIBSection(GRSIZE awidth, GRSIZE aheight)
         : PixelBufferRGBA32(awidth, aheight, nullptr)
     {
         int bitsPerPixel = 32;
@@ -31,7 +31,7 @@ public:
 
         fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
         fBMInfo.bmiHeader.biWidth = awidth;
-        fBMInfo.bmiHeader.biHeight = -aheight;	// top-down DIB Section
+        fBMInfo.bmiHeader.biHeight = -(LONG)aheight;	// top-down DIB Section
         fBMInfo.bmiHeader.biPlanes = 1;
         fBMInfo.bmiHeader.biBitCount = bitsPerPixel;
         fBMInfo.bmiHeader.biSizeImage = bytesPerRow * aheight;
@@ -81,6 +81,11 @@ public:
     BLContext & getBlend2dContext()
     {
         return fContext;
+    }
+
+    BLImage& getBlend2dImage()
+    {
+        return fImage;
     }
 
     void flush()

@@ -43,7 +43,7 @@ protected:
 
 public:
     // Public constructor
-    PixelBufferRGBA32(GRCOORD width, GRCOORD height)
+    PixelBufferRGBA32(GRSIZE width, GRSIZE height)
         : PixelBuffer(width, height, 32)
         , fDataLength(0)
     {
@@ -53,7 +53,7 @@ public:
         fOwnsData = true;
     }
 
-    PixelBufferRGBA32(GRCOORD width, GRCOORD height, void *pixels)
+    PixelBufferRGBA32(GRSIZE width, GRSIZE height, void *pixels)
         : PixelBuffer(width, height, 32), 
         data((PixRGBA *)pixels),
         fDataLength(0)
@@ -190,8 +190,8 @@ public:
         if (isOptimal) {
             //printf("OPTIMAL\n");
             for (GRCOORD row=clipRect.y1; row<clipRect.y2; row++) {
-                GRCOORD sx = (GRCOORD)MAP(clipRect.x1, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                GRCOORD sy = (GRCOORD)MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
+                GRCOORD sx = (GRCOORD)map(clipRect.x1, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
+                GRCOORD sy = (GRCOORD)map(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
                 // get pointer from source
                 //    virtual const void * getPixelPointer(int x, int y) const = 0;
                 const PixRGBA * pixPtr = (const PixRGBA *)src.getPixelPointer(sx, sy);
@@ -209,11 +209,11 @@ public:
                     int dy;
 
                     if (getVertical() == TopToBottom) {
-                        dx = (GRCOORD)MAP(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                        dy = (GRCOORD)MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
+                        dx = (GRCOORD)map(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
+                        dy = (GRCOORD)map(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
                     } else {
-                        dx = (GRCOORD)MAP(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                        dy = (GRCOORD)MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
+                        dx = (GRCOORD)map(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
+                        dy = (GRCOORD)map(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
                     }
                     
                     PixRGBA pix = src.getPixel(dx,dy);

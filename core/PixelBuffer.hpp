@@ -48,7 +48,7 @@ protected:
 
 public:
 
-    PixelBuffer(const GRCOORD awidth, const GRCOORD aheight, const int bpp)
+    PixelBuffer(const GRSIZE awidth, const GRSIZE aheight, const int bpp)
         :width(awidth), height(aheight), fBitsPerPixel(bpp)
     {
         fHorizontalOrientation = LeftToRight;
@@ -154,8 +154,8 @@ public:
         for (GRCOORD row=destY;row<(destY+destHeight-1);row++){
             for (GRCOORD col=destX; col<(destX+destWidth-1); col++)
             {
-                GRCOORD dx = (GRCOORD)MAP(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                GRCOORD dy = (GRCOORD)MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
+                GRCOORD dx = (GRCOORD)map(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
+                GRCOORD dy = (GRCOORD)map(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
                 
                 //printf("blit: %d %d\n", dx, dy);
 
@@ -179,8 +179,8 @@ public:
         for (GRCOORD row=destY;row<(destY+destHeight-1);row++){
             for (GRCOORD col=destX; col<(destX+destWidth-1); col++)
             {
-                GRCOORD dx = (GRCOORD)MAP(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
-                GRCOORD dy = (GRCOORD)MAP(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
+                GRCOORD dx = (GRCOORD)map(col, destX, destX+destWidth-1, srcX, srcX+srcWidth-1);
+                GRCOORD dy = (GRCOORD)map(row, destY, destY+destHeight-1, srcY, srcY+srcHeight-1);
                 
                 //printf("blit: %d %d\n", dx, dy);
 

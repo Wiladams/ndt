@@ -15,10 +15,7 @@
 #include <stdlib.h>
 
 #include "apphost.h"
-#include "grtypes.hpp"
 #include "maths.hpp"
-//#include "P5Image.hpp"
-#include "PixelOps.hpp"
 #include "stopwatch.hpp"
 #include "random.hpp"
 
@@ -39,70 +36,150 @@ enum {
 
 
 
-
-
-
-
 // Specifying a color using a 32-bit integer
 // 0xAARRGGBB
 class colors {
 public:
-    const PixRGBA transparent   = {0x00000000};
-    const PixRGBA black         = {0xff000000};
-    const PixRGBA white         = {0xffffffff};
+    const BLRgba32 transparent{0x00000000};
+    const BLRgba32 black{0xff000000};
+    const BLRgba32 white{ 0xffffffff };
 
     // RGB primaries
-    const PixRGBA red           = {0xffff0000};
-    const PixRGBA green         = {0xff00ff00};
-    const PixRGBA blue          = {0xff0000ff};
+    const BLRgba32 red           {0xffff0000};
+    const BLRgba32 green         {0xff00ff00};
+    const BLRgba32 blue          {0xff0000ff};
 
     // CYMK primaries
-    const PixRGBA cyan          = {0xff00ffff};
-    const PixRGBA magenta       = {0xffff00ff};
-    const PixRGBA yellow        = {0xffffff00};
+    const BLRgba32 cyan          {0xff00ffff};
+    const BLRgba32 magenta       {0xffff00ff};
+    const BLRgba32 yellow        {0xffffff00};
 
     // grays
-    const PixRGBA ltGray        = {0xffc0c0c0};
-    const PixRGBA midGray       = {0xff7f7f7f};
-    const PixRGBA darkGray      = {0xff404040};
+    const BLRgba32 ltGray        {0xffc0c0c0};
+    const BLRgba32 midGray       {0xff7f7f7f};
+    const BLRgba32 darkGray      {0xff404040};
 
 
     // other colors
-    const PixRGBA pink          = {0xffffc0cb};
-    const PixRGBA darkBlue      = {0xff00007f};
-    const PixRGBA darkGreen     = {0xff007f00};
-    const PixRGBA darkRed       = {0xff7f0000};
-    const PixRGBA darkCyan      = {0xff008080};
+    const BLRgba32 pink          {0xffffc0cb};
+    const BLRgba32 darkBlue      {0xff00007f};
+    const BLRgba32 darkGreen     {0xff007f00};
+    const BLRgba32 darkRed       {0xff7f0000};
+    const BLRgba32 darkCyan      {0xff008080};
+
+    const BLRgba32 midGreen{0xff00C000};
+    const BLRgba32 midBlue{0xff0000C0};
+    const BLRgba32 midRed{0xffC00000};
+    const BLRgba32 midMagenta{0xffC00C0};
 } colors;
 
-/*
-local Colorrefs = {
-    MidGreen = color(0,192,0);
-    MidBlue = color(0,0,192);
-    MidRed = color(0xC0, 0,0);
-    MidMagenta = color(0xC0, 0, 0xC0);
-}
-*/
 
 /*
 Global State
 */
 bool gUseStroke = true;
 bool gUseFill = true;
-static StopWatch SWatch;
+
 
 static size_t width = 0;
 static size_t height = 0;
 
-BLRgba32 gBackgroundColor;
-BLRgba32 gStrokeColor;
-BLRgba32 gFillColor;
+//BLRgba32 gBackgroundColor;
+//BLRgba32 gStrokeColor;
+//BLRgba32 gFillColor;
+
+static StopWatch SWatch;
+
+
+void blendMode(int mode)
+{
+    // set compositing operator
+    gAppDC.setCompOp(mode);
+}
+
+// Set stroke caps for beginning, intermediate, end
+void strokeCaps(int caps)
+{
+    gAppDC.setStrokeCaps(caps);
+}
+
+void strokeJoin(int join)
+{
+    gAppDC.setStrokeJoin(join);
+}
+
+void strokeWeight(int weight)
+{
+    gAppDC.setStrokeWidth(weight);
+}
+
+
+// State management
+void push()
+{
+    gAppDC.save();
+}
+
+void pop()
+{
+    gAppDC.restore();
+}
+
+// Coordinate Transformation
+void translate(double dx, double dy)
+{
+    gAppDC.translate(dx, dy);
+}
+
+void scale(double sx, double sy)
+{
+    gAppDC.scale(sx, sy);
+}
+
+void scale(double sxy)
+{
+    scale(sxy, sxy);
+}
+
+
+void rotate(double rads, double cx, double cy)
+{
+    gAppDC.rotate(rads, cx, cy);
+}
+
+void rotate(double rads)
+{
+    rotate(rads, 0, 0);
+}
 
 
 // Drawing attributes
+
+// Color parts
+int blue(const BLRgba32& c)
+{
+    return c.b;
+}
+
+int green(const BLRgba32& c)
+{
+    return c.g;
+}
+
+int red(const BLRgba32& c)
+{
+    return c.r;
+}
+
+int alpha(const BLRgba32& c)
+{
+    return c.a;
+}
+
 // general color construction from components
 BLRgba32 color(int a, int b, int c, int d)
 {
+    //printf("color: %d %d %d %d\n", a, b, c, d);
     BLRgba32 pix;
     pix.r = a;
     pix.g = b;
@@ -128,6 +205,16 @@ BLRgba32 color(int gray)
 }
 
 
+BLRgba32 lerpColor(const BLRgba32 &from, const BLRgba32 &to, double f)
+{
+    uint8_t r = (uint8_t)lerp(from.r, to.r, f);
+    uint8_t g = (uint8_t)lerp(from.g, to.g, f);
+    uint8_t b = (uint8_t)lerp(from.b, to.b, f);
+    uint8_t a = (uint8_t)lerp(from.a, to.a, f);
+
+    return color((int)r, (int)g, (int)b, (int)a);
+}
+
 
 void fill(BLRgba32 pix)
 {
@@ -138,6 +225,16 @@ void fill(BLRgba32 pix)
 void fill(BLRgba32 pix, uint8_t alpha)
 {
     BLRgba32 c = pix;
+    c.a = alpha;
+    fill(c);
+}
+
+void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+{
+    BLRgba32 c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
     c.a = alpha;
     fill(c);
 }
@@ -187,6 +284,16 @@ void stroke(BLRgba32 pix, int alpha)
     stroke(c);
 }
 
+void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+{
+    BLRgba32 c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = alpha;
+    stroke(c);
+}
+
 void stroke(uint8_t r, uint8_t g, uint8_t b)
 {
     BLRgba32 c;
@@ -213,7 +320,26 @@ void noStroke()
     gUseStroke = false;
 }
 
-// Clearing the canvas
+
+inline void frameRate(int newRate)
+{
+    setFrameRate(newRate);
+}
+
+inline double seconds()
+{
+    return SWatch.seconds();
+}
+
+inline double millis()
+{
+    // get millis from p5 stopwatch
+    return SWatch.millis();
+}
+
+// Clearing is a complete wipe, which will leave 
+// the canvas with fully transparent black
+// The other state information is saved
 void clear()
 {
     gAppDC.save();
@@ -221,6 +347,8 @@ void clear()
     gAppDC.restore();
 }
 
+// Background will do a fillAll() to set the background
+// to a particular color
 void background(BLRgba32 pix)
 {
     gAppDC.save();
@@ -244,14 +372,31 @@ void background(int gray)
     background(color(gray));
 }
 
-// Drawing Primitives
-void set(int x1, int y1, PixRGBA c)
+void clip(double x, double y, double w, double h)
 {
-    // fill a rectangle of size 1
-    gAppDC.fillRect(x1, y1, 1, 1);
+    gAppDC.clipToRect(x, y, w, h);
 }
 
-void line(int x1, int y1, int x2, int y2)
+void noClip()
+{
+    gAppDC.restoreClipping();
+}
+
+// Drawing Primitives
+// You can set a single pixel, but this is an extremely expensive
+// operation.  It would be better to get a pointer to the data
+// and set the pixel directly.
+void set(double x1, double y1, BLRgba32 c)
+{
+    // fill a rectangle of size 1
+    gAppDC.save();
+    gAppDC.setFillStyle(c);
+    gAppDC.fillRect(x1, y1, 1, 1);
+    gAppDC.restore();
+}
+
+// draw a line using the stroke color
+void line(double x1, double y1, double x2, double y2)
 {
     if (!gUseStroke) 
     { return ;}
@@ -259,7 +404,10 @@ void line(int x1, int y1, int x2, int y2)
     gAppDC.strokeLine(x1, y1, x2, y2);
 }
 
-void rect(int x, int y, int width, int height)
+// Draw rectangle
+// if using fill, then fill first
+// if using stroke, then draw outline second
+void rect(double x, double y, double width, double height)
 {
     if (gUseFill) {
         gAppDC.fillRect(x, y, width, height);
@@ -268,6 +416,22 @@ void rect(int x, int y, int width, int height)
     if (gUseStroke) {
         gAppDC.strokeRect(x, y, width, height);
     }
+}
+
+void ellipse(double cx, double cy, double xRadius, double yRadius)
+{
+    if (gUseFill) {
+        gAppDC.fillEllipse(cx, cy, xRadius, yRadius);
+    }
+
+    if (gUseStroke) {
+        gAppDC.strokeEllipse(cx, cy, xRadius, yRadius);
+    }
+}
+
+void circle(double cx, double cy, double diameter)
+{
+    ellipse(cx, cy, diameter / 2.0, diameter / 2.0);
 }
 
 void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
@@ -283,20 +447,43 @@ void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
     }
 }
 
-void ellipse(int cx, int cy, int xRadius, int yRadius)
+
+
+//
+// Curves
+//
+void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+{
+    BLPath path;
+    path.moveTo(x1, y1);
+    path.cubicTo(x2, y2, x2, y3, x4, y4);
+    gAppDC.strokePath(path);
+}
+
+// 
+// Polygons
+//
+void polyline(const BLPoint* pts, size_t n)
+{
+    gAppDC.strokePolyline(pts, n);
+}
+
+void polygon(const BLPoint* pts, size_t n)
 {
     if (gUseFill) {
-        gAppDC.fillEllipse(cx, cy, xRadius, yRadius);
+        gAppDC.fillPolygon(pts, n);
     }
 
     if (gUseStroke) {
-        gAppDC.strokeEllipse(cx, cy, xRadius, yRadius);
+        gAppDC.strokePolygon(pts, n);
     }
 }
 
-void circle(int cx, int cy, int diameter)
+
+void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
 {
-    ellipse(cx, cy, diameter/2, diameter/2);
+    BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
+    polygon(pts, 4);
 }
 
 void image(BLImage &img, int x, int y)
@@ -304,6 +491,26 @@ void image(BLImage &img, int x, int y)
     gAppDC.blitImage(BLPointI(x, y), img);
 }
 
+void scaleImage(BLImage& src, 
+    double srcX, double srcY, double srcWidth, double srcHeight, 
+    double dstX, double dstY, double dstWidth, double dstHeight)
+{
+    BLRect dst{dstX,dstY,dstWidth,dstHeight };
+    BLRectI srcArea{ (int)srcX,(int)srcY,(int)srcWidth,(int)srcHeight };
+
+    gAppDC.blitImage(dst, src, srcArea);
+}
+
+void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
+{
+    double dstWidth = src.width() * scaleX;
+    double dstHeight = src.height() * scaleY;
+
+    BLRect dst{ x,y,dstWidth,dstHeight };
+    BLRectI srcArea{ 0,0,src.width(),src.height() };
+
+    gAppDC.blitImage(dst, src, srcArea);
+}
 
 static int gAngleMode = DEGREES;
 void angleMode(int newMode)
@@ -311,11 +518,33 @@ void angleMode(int newMode)
     gAngleMode = newMode;
 }
 
+// Random number generator
+TausPRNG mRandomNumberGenerator(5);
+
+inline double random()
+{
+    return mRandomNumberGenerator.next();
+}
+
+inline double random(double low, double high)
+{
+    return mRandomNumberGenerator.next(low, high);
+}
+
+inline double random(double high)
+{
+    return mRandomNumberGenerator.next(0, high);
+}
+
+#define randomLowHigh random
+#define randomHigh random
+
+
 
 // Image management
-BLImage * createImage(int width, int height)
+BLImage* createImage(int width, int height)
 {
-    BLImage *img = new BLImage(width, height, BL_FORMAT_PRGB32);
+    BLImage* img = new BLImage(width, height, BL_FORMAT_PRGB32);
     return img;
 }
 
@@ -325,14 +554,14 @@ void createCanvas(GRCOORD aWidth, GRCOORD aHeight)
 {
     width = aWidth;
     height = aHeight;
-    
+
     setCanvasSize(aWidth, aHeight);
 
     gAppWindow->setCanvasSize(aWidth, aHeight);
     gAppWindow->show();
 
     // get current mouse position
-    
+
 
     gAppDC.clearAll();
 
@@ -340,37 +569,4 @@ void createCanvas(GRCOORD aWidth, GRCOORD aHeight)
     SWatch.reset();
 }
 
-void frameRate(int newRate)
-{
-    setFrameRate(newRate);
-}
-
-double seconds()
-{
-    return SWatch.seconds();
-}
-
-double millis()
-{
-    // get millis from p5 stopwatch
-    return SWatch.millis();
-}
-
-// Random number generator
-TausPRNG mRandomNumberGenerator(5);
-
-double random()
-{
-    return mRandomNumberGenerator.next();
-}
-
-double randomLowHigh(double low, double high)
-{
-    return mRandomNumberGenerator.next(low, high);
-}
-
-double randomHigh(double high)
-{
-    return mRandomNumberGenerator.next(0,high);
-}
 

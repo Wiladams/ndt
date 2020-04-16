@@ -61,7 +61,6 @@ UINT_PTR gAppTimerID = 0;
 bool gLooping = true;
 bool gRunning = true;
 bool gIsLayered = false;
-static LayeredWindowInfo *gLayeredWindow = nullptr;
 
 int keyCode = 0;
 int keyChar = 0;
@@ -282,6 +281,9 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int SrcHeight = gAppSurface->getHeight();
 
     BITMAPINFO info = gAppSurface->getBitmapInfo();
+    
+    // Make sure we sync all current drawing
+    gAppSurface->flush();
 
     int pResult = StretchDIBits(hdc,
         xDest,yDest,
@@ -339,6 +341,24 @@ void forceRedraw(void *param, int64_t tickCount)
         LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
         lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
     }
+}
+
+/*
+    Environment
+*/
+void cursor()
+{
+    int count = ShowCursor(1);
+}
+
+// Show the cursor, if there is one
+// BUGBUG - we should be more robust here and
+// check to see if there's even a mouse attached
+// Then, decrement count enough times to make showing
+// the cursor absolute rather than relative.
+void noCursor()
+{
+    ShowCursor(0);
 }
 
 void setFrameRate(int newRate)
@@ -441,7 +461,6 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     //printf("MSG: 0x%04x\n", msg);
     LRESULT res = 0;
 
-
     if (msg == WM_DESTROY) {
         // By doing a PostQuitMessage(), a 
         // WM_QUIT message will eventually find its way into the
@@ -541,12 +560,6 @@ bool setCanvasSize(GRCOORD aWidth, GRCOORD aHeight)
 
     gAppSurface = new PBDIBSection(aWidth, aHeight);
     gAppDC = gAppSurface->getBlend2dContext();
-
-    // create new layering blitter
-    if (gLayeredWindow != nullptr) {
-        delete gLayeredWindow;
-    }
-    gLayeredWindow = new LayeredWindowInfo(aWidth, aHeight);
 
     return true;
 }
