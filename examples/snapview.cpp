@@ -1,14 +1,14 @@
 #include "p5.hpp"
 
-#include "screensnapshot.h"
+#include "screensnapshot.hpp"
 
 ScreenSnapshot *ss = nullptr;
 
 int gScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
 int gScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
 
-GRSIZE captureWidth = gScreenWidth/2;
-GRSIZE captureHeight = gScreenHeight /2;
+int captureWidth = gScreenWidth/2;
+int captureHeight = gScreenHeight /2;
 
 
 void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
@@ -51,7 +51,7 @@ void keyTyped(const KeyEvent& event)
 
 void setup()
 {
-    createCanvas(gScreenWidth/4, gScreenHeight/4);
+    createCanvas(displayWidth/4, displayHeight/4);
     frameRate(30);
 
     ss = new ScreenSnapshot(0, 0, captureWidth, captureHeight);

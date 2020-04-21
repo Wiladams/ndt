@@ -1,11 +1,11 @@
 #include "p5.hpp"
 #include "Stack.hpp"
 
-float gRadius = 20;
-float gravity = 7.0;    // 9.0
-float mass = 1.80;       // 2.0
-float gDamping = 0.7;   // 0.7
-float gStiffness = 0.3; // 0.2
+double gRadius = 20.0;
+double gravity = 4.0;    // 9.0
+double mass = 1.75;       // 2.0
+double gDamping = 0.7;   // 0.7
+double gStiffness = 0.2; // 0.2
 
 /*
     A Spring2D is the essential data structure
@@ -73,9 +73,9 @@ Spring2D * headSpring = nullptr;
 
 BLRgba32  randomColor()
 {
-    int r = random(30,255);
-    int g = random(30,255);
-    int b = random(30,255);
+    int r = (int)random(30,255);
+    int g = (int)random(30,255);
+    int b = (int)random(30,255);
     
     BLRgba32 c;
     c.r = r;
@@ -198,8 +198,9 @@ void draw()
 
 void setup()
 {
-    createCanvas(1280, 1024);
-    setFrameRate(15);
+    createCanvas(displayWidth, displayHeight);
+    setWindowPosition(0, 0);
+    setFrameRate(30);
 
     reset();
 }

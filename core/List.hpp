@@ -14,7 +14,7 @@ struct ListNode {
 
 template <typename T>
 struct List {
-    size_t count;
+    int count;
     ListNode<T> * farLeft;
     ListNode<T> * farRight;
 

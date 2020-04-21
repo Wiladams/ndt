@@ -54,3 +54,9 @@ https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view=vs-2019
 
 VS Code c++ task configuration
 https://code.visualstudio.com/docs/cpp/config-msvc
+
+Things to try
+=============
+Processing and P5 worlds are full of great things to play with.
+
+http://haptic-data.com/toxiclibsjs/examples/force-directed-graph-p5

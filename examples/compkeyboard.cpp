@@ -1,16 +1,14 @@
 #include "p5.hpp"
 
-typedef struct keyFrame_t {
-    int x, y;
-    int width, height;
-} keyFrame;
 
 typedef struct keyStruct_t {
     int vkey;
-    keyFrame frame;
+    BLRect frame;
     const char *caption;
 } keyStruct;
 
+
+static const int unit = 40;
 
 keyStruct keyValues[] = {
 {0x1b, {4, 6, 40, 40}, "Esc"},
@@ -26,7 +24,7 @@ keyStruct keyValues[] = {
 {0x79, {484, 6, 40, 40}, "F10"},
 {0x7a, {524, 6, 40, 40}, "F11"},
 {0x7b, {564, 6, 40, 40}, "F12"},
-{0x00, {4, 82, 40, 40}, "`"},
+{0xc0, {4, 82, 40, 40}, "`"},
 {0x31, {44, 82, 40, 40}, "1"},
 {0x32, {84, 82, 40, 40}, "2"},
 {0x33, {124, 82, 40, 40}, "3"},
@@ -85,76 +83,135 @@ keyStruct keyValues[] = {
 {0x20, {154, 242, 250, 40}, "Space"},
 {0x12, {404, 242, 50, 40}, "Alt"},
 {0x5c, {454, 242, 50, 40}, "Win"},
-{0xa5, {504, 242, 50, 40}, "Menu"},
+{0x5d, {504, 242, 50, 40}, "Apps"},
 {0xa3, {554, 242, 50, 40}, "Ctrl"},
 };
 
-static const int nKeys = sizeof(keyValues)/ sizeof(keyStruct);
+static const int nKeys = sizeof(keyValues) / sizeof(keyStruct);
 
-keyFrame insetRect(keyFrame rrect, float cx, float cy)
+BLGradient gradient(BLLinearGradientValues(unit/2, unit/2, unit/2, unit/2));
+
+BLRoundRect insetRoundRect(const BLRoundRect& rrect, double cx, double cy)
 {
-    int dx = (int)(cx/2);
-    int dy = (int)(cy/2);
+    double dx = cx / 2;
+    double dy = cy / 2;
 
-    return {rrect.x+dx, rrect.y+dy, rrect.width-(int)cx, rrect.height-(int)cy};
+    return BLRoundRect(rrect.x + dx, rrect.y + dy, rrect.w - cx, rrect.h - cy, rrect.rx, rrect.ry);
 }
 
-int T_SP = ' ';
 
-void keyTyped(const KeyEvent &event)
+
+
+void drawKeyStates()
 {
-    // If the user types a '<sp>' reset
-    // the chain to 1 node
-    if (keyCode == T_SP) {
-        if (gIsLayered)
-            noLayered();
-        else
-            layered();
+    //#define KEY_IS_DOWN = 0x8000;
 
+    //first get the state of all the keys
+    //uint8_t lpKeyState[256];
+    //BOOL bResult = ::GetKeyboardState(lpKeyState);
+    
+    for (int i = 0; i < nKeys; i++)
+    {
+        auto key = keyValues[i];
+        int state = (::GetAsyncKeyState(key.vkey) & 0xffff);
+
+        if (state) {
+            BLRoundRect rrect(key.frame.x, key.frame.y, key.frame.w, key.frame.h, 3, 3);
+            fill(0x30, 0x6f);
+            rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+        }
     }
 }
-
-static const int unit = 40;
 
 void drawNeutral()
 {
     fill(127);
     stroke(10);
+    strokeWeight(1);
 
-    int rowoffset = 4;
-    int ygap = 2;
+    textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+    textFont("c:\\windows\\fonts\\segoeui.ttf");
+    textSize(8);
 
-    //ctx:textAlign(MIDDLE, MIDDLE)
-    //ctx:textFont("segoe ui")
-    //ctx:textSize(8);
     for (int i=0; i<nKeys; i++)
     {
-        keyFrame rrect = keyValues[i].frame;
-        keyFrame crect = insetRect(rrect, unit*0.30, unit*0.30);
+        auto key = keyValues[i];
+        BLRoundRect rrect{ key.frame.x, key.frame.y, key.frame.w,key.frame.h,3,3 };
+        auto crect = insetRoundRect(rrect, unit*0.15 , unit*0.30);
 
-        fill(127);
-        stroke(10);
-        rect(rrect.x, rrect.y, rrect.width, rrect.height);
+        // need to adjust values of linear gradient
+        double cx = key.frame.x + key.frame.w / 2;
+        double cy = key.frame.y + key.frame.h / 2;
+        auto r = key.frame.h;
 
+        auto values = BLLinearGradientValues(cx, key.frame.y + key.frame.h, cx, cy);
+        gradient.setValues(values);
+
+        noStroke();
+        fill(gradient);
+
+
+        rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+
+        noFill();
+        stroke(0);
+        rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+
+        // do the inset rectangle
+        noStroke();
         fill(255, 0x6f);
-        rect(crect.x, crect.y, crect.width, crect.height);
+        rect(crect.x, crect.y, crect.w, crect.h, crect.rx, crect.ry);
 
-        // draw the caption
+        // Now do the text
         fill(0);
-        //ctx:text(key.caption, key.frame.x+key.frame.width/2, key.frame.y+key.frame.height/2)
-
+        text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
     }
 
 }
 
+
+void keyReleased(const KeyEvent& event)
+{
+    // toggle layered
+    //printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
+    if (event.keyCode == VK_ESCAPE) {
+        if (gIsLayered)
+            noLayered();
+        else
+            layered();
+    }
+}
+
 void draw()
 {
-    background(0xc0);
-    clear();
+    if (!gIsLayered) {
+        background(0xc0);
+    } else {
+        clear();
+    }
+
     drawNeutral();
+    drawKeyStates();
+
+    //noLoop();
 }
 
 void setup()
 {
     createCanvas(800, 600);
+
+    //scale(0.25, 0.5);
+    //scale(2, 2);
+
+    // fixup gradient
+    //gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
+    //gradient.addStop(1.0, BLRgba32(0xFF9f9f9f));
+
+    // slightly bluish
+    gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
+    gradient.addStop(1.0, BLRgba32(0xFF9f9fff));
+
+    // slightly yellowish
+    //gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
+    //gradient.addStop(1.0, BLRgba32(0xFFffff9f));
 }

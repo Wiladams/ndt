@@ -20,18 +20,18 @@
     ss.getCurrent()
 */
 
-#include "PBDIBSection.hpp"
-//#include "enumerable.hpp"
+#include "Surface.h"
+
 
 class ScreenSnapshot //: public IEnumerator<PixelBufferRGBA32>
 {
-    PBDIBSection fImage;
+    Surface fImage;
     HDC fScreenDC;
     int fOriginX;
     int fOriginY;
 
 public:
-    ScreenSnapshot(int x, int y, size_t awidth, size_t aheight)
+    ScreenSnapshot(int x, int y, int awidth, int aheight)
         : fImage(awidth, aheight),
         fOriginX(x),
         fOriginY(y)
@@ -44,7 +44,7 @@ public:
         // do nothing
     }
 
-    PixelBufferRGBA32 getCurrent() const
+    Surface & getCurrent()
     {
         return fImage;
     }

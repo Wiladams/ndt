@@ -17,170 +17,164 @@
 #include "apphost.h"
 #include "maths.hpp"
 #include "stopwatch.hpp"
-#include "random.hpp"
+//#include "Graphics.h"
 
-// RectMode, EllipseMode
-enum {
-    CORNER,
-    CORNERS,
-    CENTER,
-    RADIUS
-};
 
-// are angles specified in degrees
-// or in radians
-enum {
-    DEGREES,
-    RADIANS
-};
 
+/*
+Global State
+*/
+
+static StopWatch SWatch;    // Stopwatch used for time 
+int width = 0;
+int height = 0;
 
 
 // Specifying a color using a 32-bit integer
 // 0xAARRGGBB
 class colors {
 public:
-    const BLRgba32 transparent{0x00000000};
-    const BLRgba32 black{0xff000000};
-    const BLRgba32 white{ 0xffffffff };
+    const Color transparent{ 0x00000000 };
+    const Color black{ 0xff000000 };
+    const Color white{ 0xffffffff };
 
     // RGB primaries
-    const BLRgba32 red           {0xffff0000};
-    const BLRgba32 green         {0xff00ff00};
-    const BLRgba32 blue          {0xff0000ff};
+    const Color red{ 0xffff0000 };
+    const Color green{ 0xff00ff00 };
+    const Color blue{ 0xff0000ff };
 
     // CYMK primaries
-    const BLRgba32 cyan          {0xff00ffff};
-    const BLRgba32 magenta       {0xffff00ff};
-    const BLRgba32 yellow        {0xffffff00};
+    const Color cyan{ 0xff00ffff };
+    const Color magenta{ 0xffff00ff };
+    const Color yellow{ 0xffffff00 };
 
     // grays
-    const BLRgba32 ltGray        {0xffc0c0c0};
-    const BLRgba32 midGray       {0xff7f7f7f};
-    const BLRgba32 darkGray      {0xff404040};
+    const Color ltGray{ 0xffc0c0c0 };
+    const Color midGray{ 0xff7f7f7f };
+    const Color darkGray{ 0xff404040 };
 
 
     // other colors
-    const BLRgba32 pink          {0xffffc0cb};
-    const BLRgba32 darkBlue      {0xff00007f};
-    const BLRgba32 darkGreen     {0xff007f00};
-    const BLRgba32 darkRed       {0xff7f0000};
-    const BLRgba32 darkCyan      {0xff008080};
+    const Color pink{ 0xffffc0cb };
+    const Color darkBlue{ 0xff00007f };
+    const Color darkGreen{ 0xff007f00 };
+    const Color darkRed{ 0xff7f0000 };
+    const Color darkCyan{ 0xff008080 };
 
-    const BLRgba32 midGreen{0xff00C000};
-    const BLRgba32 midBlue{0xff0000C0};
-    const BLRgba32 midRed{0xffC00000};
-    const BLRgba32 midMagenta{0xffC00C0};
-} colors;
-
-
-/*
-Global State
-*/
-bool gUseStroke = true;
-bool gUseFill = true;
+    const Color midGreen{ 0xff00C000 };
+    const Color midBlue{ 0xff0000C0 };
+    const Color midRed{ 0xffC00000 };
+    const Color midMagenta{ 0xffC00C0 };
+};
 
 
-static size_t width = 0;
-static size_t height = 0;
 
-//BLRgba32 gBackgroundColor;
-//BLRgba32 gStrokeColor;
-//BLRgba32 gFillColor;
 
-static StopWatch SWatch;
+// Various modes
+void angleMode(int mode)
+{
+    gAppSurface->angleMode(mode);
+}
 
+
+void ellipseMode(const ELLIPSEMODE mode)
+{
+    gAppSurface->ellipseMode(mode);
+}
+
+void rectMode(const RECTMODE mode)
+{
+    gAppSurface->rectMode(mode);
+}
 
 void blendMode(int mode)
 {
-    // set compositing operator
-    gAppDC.setCompOp(mode);
+    gAppSurface->blendMode(mode);
 }
 
 // Set stroke caps for beginning, intermediate, end
 void strokeCaps(int caps)
 {
-    gAppDC.setStrokeCaps(caps);
+    gAppSurface->strokeCaps(caps);
 }
 
 void strokeJoin(int join)
 {
-    gAppDC.setStrokeJoin(join);
+    gAppSurface->strokeJoin(join);
 }
 
 void strokeWeight(int weight)
 {
-    gAppDC.setStrokeWidth(weight);
+    gAppSurface->strokeWeight(weight);
 }
 
 
 // State management
 void push()
 {
-    gAppDC.save();
+    gAppSurface->push();
 }
 
 void pop()
 {
-    gAppDC.restore();
+    gAppSurface->pop();
 }
 
 // Coordinate Transformation
 void translate(double dx, double dy)
 {
-    gAppDC.translate(dx, dy);
+    gAppSurface->translate(dx, dy);
 }
 
 void scale(double sx, double sy)
 {
-    gAppDC.scale(sx, sy);
+    gAppSurface->scale(sx, sy);
 }
 
 void scale(double sxy)
 {
-    scale(sxy, sxy);
+    gAppSurface->scale(sxy, sxy);
 }
 
 
-void rotate(double rads, double cx, double cy)
+void rotate(double angle, double cx, double cy)
 {
-    gAppDC.rotate(rads, cx, cy);
+    gAppSurface->rotate(angle, cx, cy);
 }
 
-void rotate(double rads)
+void rotate(double angle)
 {
-    rotate(rads, 0, 0);
+    gAppSurface->rotate(angle);
 }
 
 
 // Drawing attributes
 
 // Color parts
-int blue(const BLRgba32& c)
+int blue(const Color& c)
 {
     return c.b;
 }
 
-int green(const BLRgba32& c)
+int green(const Color& c)
 {
     return c.g;
 }
 
-int red(const BLRgba32& c)
+int red(const Color& c)
 {
     return c.r;
 }
 
-int alpha(const BLRgba32& c)
+int alpha(const Color& c)
 {
     return c.a;
 }
 
 // general color construction from components
-BLRgba32 color(int a, int b, int c, int d)
+Color color(int a, int b, int c, int d)
 {
-    //printf("color: %d %d %d %d\n", a, b, c, d);
-    BLRgba32 pix;
+    Color pix;
     pix.r = a;
     pix.g = b;
     pix.b = c;
@@ -189,23 +183,23 @@ BLRgba32 color(int a, int b, int c, int d)
     return pix;
 }
 
-BLRgba32 color(int r, int g, int b)
+Color color(int r, int g, int b)
 {
     return color(r, g, b, 255);
 }
 
-BLRgba32 color(int gray, int alpha)
+Color color(int gray, int alpha)
 {
     return color(gray, gray, gray, alpha);
 }
 
-BLRgba32 color(int gray)
+Color color(int gray)
 {
     return color(gray,gray,gray,255);
 }
 
 
-BLRgba32 lerpColor(const BLRgba32 &from, const BLRgba32 &to, double f)
+Color lerpColor(const Color&from, const Color&to, double f)
 {
     uint8_t r = (uint8_t)lerp(from.r, to.r, f);
     uint8_t g = (uint8_t)lerp(from.g, to.g, f);
@@ -215,23 +209,19 @@ BLRgba32 lerpColor(const BLRgba32 &from, const BLRgba32 &to, double f)
     return color((int)r, (int)g, (int)b, (int)a);
 }
 
-
-void fill(BLRgba32 pix)
+void fill(const BLGradient& g)
 {
-    gUseFill = true;
-    gAppDC.setFillStyle(pix);
+    gAppSurface->fill(g);
 }
 
-void fill(BLRgba32 pix, uint8_t alpha)
+void fill(const Color& pix)
 {
-    BLRgba32 c = pix;
-    c.a = alpha;
-    fill(c);
+    gAppSurface->fill(pix);
 }
 
 void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
-    BLRgba32 c;
+    Color c;
     c.r = r;
     c.g = g;
     c.b = b;
@@ -239,9 +229,16 @@ void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
     fill(c);
 }
 
+void fill(Color pix, uint8_t alpha)
+{
+    Color c = pix;
+    c.a = alpha;
+    fill(c);
+}
+
 void fill(uint8_t r, uint8_t g, uint8_t b)
 {
-    BLRgba32 c;
+    Color c;
     c.r = r;
     c.g = g;
     c.b = b;
@@ -251,7 +248,7 @@ void fill(uint8_t r, uint8_t g, uint8_t b)
 
 void fill(uint8_t gray, uint8_t alpha)
 {
-    BLRgba32 c;
+    Color c;
     c.r = gray;
     c.g = gray;
     c.b = gray;
@@ -266,58 +263,42 @@ void fill(uint8_t gray)
 
 void noFill()
 {
-    gUseFill = false;
+    gAppSurface->noFill();
 }
 
 // Setting Stroke
-void stroke(BLRgba32 pix)
+void stroke(const Color &pix)
 {
-    gUseStroke = true;
-    gAppDC.setStrokeStyle(pix);
+    gAppSurface->stroke(pix);
 }
 
 // Change the alpha of an existing color
-void stroke(BLRgba32 pix, int alpha)
+void stroke(Color pix, int alpha)
 {
-    BLRgba32 c = pix;
+    Color c = pix;
     c.a = alpha;
     stroke(c);
 }
 
 void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
-    BLRgba32 c;
-    c.r = r;
-    c.g = g;
-    c.b = b;
-    c.a = alpha;
-    stroke(c);
+    stroke(Color(r,g,b,alpha));
 }
 
 void stroke(uint8_t r, uint8_t g, uint8_t b)
 {
-    BLRgba32 c;
-    c.r = r;
-    c.g = g;
-    c.b = b;
-    c.a = 255;
-    stroke(c);
+    stroke(Color(r, g, b, 255));
 }
 
 // create color with gray and alpha
 void stroke(uint8_t gray, uint8_t alpha=255)
 {
-    BLRgba32 c;
-    c.r = gray;
-    c.g = gray;
-    c.b = gray;
-    c.a = alpha;
-    stroke(c);
+    stroke(Color(gray, gray, gray, alpha));
 }
 
 void noStroke()
 {
-    gUseStroke = false;
+    gAppSurface->noStroke();
 }
 
 
@@ -342,19 +323,14 @@ inline double millis()
 // The other state information is saved
 void clear()
 {
-    gAppDC.save();
-    gAppDC.clearAll();
-    gAppDC.restore();
+    gAppSurface->clear();
 }
 
 // Background will do a fillAll() to set the background
 // to a particular color
-void background(BLRgba32 pix)
+void background(const Color &pix)
 {
-    gAppDC.save();
-    gAppDC.setFillStyle(pix);
-    gAppDC.fillAll();
-    gAppDC.restore();
+    gAppSurface->background(pix);
 }
 
 void background(int a, int b, int c, int d)
@@ -374,59 +350,60 @@ void background(int gray)
 
 void clip(double x, double y, double w, double h)
 {
-    gAppDC.clipToRect(x, y, w, h);
+    gAppSurface->clip(x, y, w, h);
 }
 
 void noClip()
 {
-    gAppDC.restoreClipping();
+    gAppSurface->noClip();
 }
 
 // Drawing Primitives
 // You can set a single pixel, but this is an extremely expensive
 // operation.  It would be better to get a pointer to the data
 // and set the pixel directly.
-void set(double x1, double y1, BLRgba32 c)
+void set(double x1, double y1, const Color &c)
 {
-    // fill a rectangle of size 1
-    gAppDC.save();
-    gAppDC.setFillStyle(c);
-    gAppDC.fillRect(x1, y1, 1, 1);
-    gAppDC.restore();
+    gAppSurface->set(x1, y1, c);
+}
+
+Color get(double x, double y)
+{
+    return gAppSurface->get(x, y);
+}
+
+// Point uses the stroke color to do the painting
+// and honors the strokeWeight
+// so, if the weight is <= 1, we can simply set a single pixel
+// for anything else, we can draw an ellipse
+// using a radius of 1/2 the stroke weight
+void point(double x, double y)
+{
+    gAppSurface->point(x, y);
 }
 
 // draw a line using the stroke color
 void line(double x1, double y1, double x2, double y2)
 {
-    if (!gUseStroke) 
-    { return ;}
-
-    gAppDC.strokeLine(x1, y1, x2, y2);
+    gAppSurface->line(x1, y1, x2, y2);
 }
 
 // Draw rectangle
 // if using fill, then fill first
 // if using stroke, then draw outline second
-void rect(double x, double y, double width, double height)
+void rect(double x, double y, double width, double height, double xradius, double yradius)
 {
-    if (gUseFill) {
-        gAppDC.fillRect(x, y, width, height);
-    }
-
-    if (gUseStroke) {
-        gAppDC.strokeRect(x, y, width, height);
-    }
+    gAppSurface->rect(x, y, width, height, xradius, yradius);
 }
 
-void ellipse(double cx, double cy, double xRadius, double yRadius)
+void rect(double x, double y, double width, double height)
 {
-    if (gUseFill) {
-        gAppDC.fillEllipse(cx, cy, xRadius, yRadius);
-    }
+    gAppSurface->rect(x, y, width, height);
+}
 
-    if (gUseStroke) {
-        gAppDC.strokeEllipse(cx, cy, xRadius, yRadius);
-    }
+void ellipse(double a, double b, double c, double d)
+{
+    gAppSurface->ellipse(a, b, c, d);
 }
 
 void circle(double cx, double cy, double diameter)
@@ -436,15 +413,7 @@ void circle(double cx, double cy, double diameter)
 
 void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
 {
-    BLTriangle tri = {x1,y1, x1,y2,x3,y3};
-
-    if (gUseFill) {
-        gAppDC.fillGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
-    }
-
-    if (gUseStroke) {
-        gAppDC.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
-    }
+    gAppSurface->triangle(x1, y1, x2, y2, x3, y3);
 }
 
 
@@ -454,10 +423,7 @@ void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
 //
 void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
 {
-    BLPath path;
-    path.moveTo(x1, y1);
-    path.cubicTo(x2, y2, x2, y3, x4, y4);
-    gAppDC.strokePath(path);
+    gAppSurface->bezier(x1, y1, x2, y2, x2, y3, x4, y4);
 }
 
 // 
@@ -465,44 +431,36 @@ void bezier(double x1, double y1, double x2, double y2, double x3, double y3, do
 //
 void polyline(const BLPoint* pts, size_t n)
 {
-    gAppDC.strokePolyline(pts, n);
+    gAppSurface->polyline(pts, n);
 }
 
 void polygon(const BLPoint* pts, size_t n)
 {
-    if (gUseFill) {
-        gAppDC.fillPolygon(pts, n);
-    }
-
-    if (gUseStroke) {
-        gAppDC.strokePolygon(pts, n);
-    }
+    gAppSurface->polygon(pts, n);
 }
 
 
 void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
 {
-    BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
-    polygon(pts, 4);
+    gAppSurface->quad(x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
 void image(BLImage &img, int x, int y)
 {
-    gAppDC.blitImage(BLPointI(x, y), img);
+    gAppSurface->image(img, x, y);
 }
 
 void scaleImage(BLImage& src, 
     double srcX, double srcY, double srcWidth, double srcHeight, 
     double dstX, double dstY, double dstWidth, double dstHeight)
 {
-    BLRect dst{dstX,dstY,dstWidth,dstHeight };
-    BLRectI srcArea{ (int)srcX,(int)srcY,(int)srcWidth,(int)srcHeight };
-
-    gAppDC.blitImage(dst, src, srcArea);
+    gAppSurface->scaleImage(src, srcX, srcY, srcWidth, srcHeight,
+        dstX, dstY, dstWidth, dstHeight);
 }
-
+/*
 void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
 {
+    gAppSurface->scaleImage(src, x, y, scaleX, scaleY);
     double dstWidth = src.width() * scaleX;
     double dstHeight = src.height() * scaleY;
 
@@ -511,12 +469,8 @@ void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
 
     gAppDC.blitImage(dst, src, srcArea);
 }
+*/
 
-static int gAngleMode = DEGREES;
-void angleMode(int newMode)
-{
-    gAngleMode = newMode;
-}
 
 // Random number generator
 TausPRNG mRandomNumberGenerator(5);
@@ -540,6 +494,26 @@ inline double random(double high)
 #define randomHigh random
 
 
+// Text Handling
+void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
+{
+    gAppSurface->textAlign(horizontal, vertical);
+}
+
+void textFont(const char* fontname)
+{
+    gAppSurface->textFont(fontname);
+}
+
+void textSize(double size)
+{
+    gAppSurface->textSize(size);
+}
+
+void text(const char* txt, double x, double y)
+{
+    gAppSurface->text(txt, x, y);
+}
 
 // Image management
 BLImage* createImage(int width, int height)
@@ -550,7 +524,7 @@ BLImage* createImage(int width, int height)
 
 // Canvas management
 
-void createCanvas(GRCOORD aWidth, GRCOORD aHeight)
+void createCanvas(long aWidth, long aHeight)
 {
     width = aWidth;
     height = aHeight;
@@ -563,10 +537,18 @@ void createCanvas(GRCOORD aWidth, GRCOORD aHeight)
     // get current mouse position
 
 
-    gAppDC.clearAll();
+    gAppSurface->clear();
 
     // reset overall timer
     SWatch.reset();
 }
 
+void loadPixels()
+{
+    gAppSurface->loadPixels();
+}
 
+void updatePixels()
+{
+    gAppSurface->updatePixels();
+}

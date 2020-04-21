@@ -1,29 +1,33 @@
 #pragma once
 
 /*
-    The mating between a DIBSection and a PixelBufferRGBA32
+    The mating between a DIBSection and a BLImage
 */
 
 #include <windows.h>
 
-#include "PixelBufferRGBA32.hpp"
 #include "bitbang.hpp"
 #include "blend2d.h"
 
-class PBDIBSection : public PixelBufferRGBA32
+class PBDIBSection
 {
     // for interacting with win32
     BITMAPINFO fBMInfo;
     HBITMAP fGDIHandle;
     HDC     fBitmapDC;      
-    
+    BLRgba32 * fData;       // A pointer to the data
+    size_t fDataSize;       // How much data is allocated
+    long fWidth;
+    long fHeight;
+
     // For interacting with blend2d
     BLImage fImage;
     BLContext fContext;     // for Blend2D drawing
 
 public:
-    PBDIBSection(GRSIZE awidth, GRSIZE aheight)
-        : PixelBufferRGBA32(awidth, aheight, nullptr)
+    PBDIBSection(long awidth, long aheight)
+        : fWidth(awidth),
+        fHeight(aheight)
     {
         int bitsPerPixel = 32;
         int alignment = 4;
@@ -39,9 +43,9 @@ public:
         fBMInfo.bmiHeader.biClrUsed = 0;
         fBMInfo.bmiHeader.biCompression = BI_RGB;
     
-        void * pData;
-        fGDIHandle = CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS,(void **)&pData,nullptr,0);
-        setData(pData, fBMInfo.bmiHeader.biSizeImage);
+
+        fGDIHandle = CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS,(void **)&fData,nullptr,0);
+        fDataSize = fBMInfo.bmiHeader.biSizeImage;
         
         // memory Device Context
         fBitmapDC = CreateCompatibleDC(nullptr);
@@ -52,14 +56,12 @@ public:
 
         // Bind BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
-        BLResult bResult = blImageCreateFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, pData, bytesPerRow, nullptr, nullptr);
+        BLResult bResult = blImageCreateFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fData, bytesPerRow, nullptr, nullptr);
         
         //fContext.begin(fImage);
         BLContextCreateInfo createInfo{};
         createInfo.threadCount = 4;
         bResult = fContext.begin(fImage, createInfo);
-        //bResult = fContext.begin(fImage);
-        //printf("fContext.begin: %d\n", bResult);
     }
 
     virtual ~PBDIBSection()
@@ -68,6 +70,10 @@ public:
         fImage.reset();
     }
     
+    long getWidth() { return fWidth; }
+    long getHeight() { return fHeight; }
+    BLRgba32* getData() { return fData; }
+
     BITMAPINFO getBitmapInfo()
     {
         return fBMInfo;

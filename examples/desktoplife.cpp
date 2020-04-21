@@ -158,7 +158,7 @@ void draw()
 
 void setup()
 {
-    createCanvas(gScreenWidth, gScreenHeight);
+    createCanvas(displayWidth, displayHeight);
     layered();
     setWindowPosition(0, 0);
 

@@ -15,8 +15,6 @@
 
 #include <windows.h>
 
-#include "PixelBuffer.hpp"
-
 #include <stdio.h>
 #include <cstring>
 
@@ -25,8 +23,6 @@ class User32Window {
 public:
 
     HWND fHandle;
-    //PixelBuffer * fBackground;
-    //WINDOWINFO fInfo;
 
     // Constructor taking an already allocated
     // window handle.  Use a WindowKind to allocate
@@ -87,14 +83,14 @@ public:
         bResult = ::SetWindowPos(fHandle, (HWND)0, x, y, 0, 0, flags);
     }
 
-    void setCanvasSize(GRCOORD awidth, GRCOORD aheight)
+    void setCanvasSize(long awidth, long aheight)
     {
         // Get current size of window
         RECT wRect;
         BOOL bResult = GetWindowRect(fHandle, &wRect);
 
         // Set the new size of the window based on the client area
-        RECT cRect = {0,0,(LONG)awidth,(LONG)aheight};
+        RECT cRect = {0,0,awidth,aheight};
         bResult = AdjustWindowRect(&cRect, WS_OVERLAPPEDWINDOW, 1);
 
         //HWND hWndInsertAfter = (HWND)-1;
@@ -164,7 +160,9 @@ public:
 
     User32WindowClass(const char *className, unsigned int classStyle, WNDPROC wndProc = nullptr)
         :fLastError(0),
-        fClassAtom(0)
+        fClassAtom(0),
+        fClassName(nullptr),
+        fIsRegistered(false)
     {
         if (className == nullptr) {
             return;

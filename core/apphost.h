@@ -11,7 +11,7 @@
 
 #include "bitbang.hpp"
 #include "NativeWindow.hpp"
-#include "PBDIBSection.hpp"
+#include "Surface.h"
 
 
 
@@ -85,16 +85,21 @@ EXPORT extern char **gargv;
 
 EXPORT extern int gFPS;   // Frames per second
 EXPORT extern User32Window * gAppWindow;
-EXPORT extern PBDIBSection * gAppSurface;
-EXPORT extern BLContext gAppDC;
+EXPORT extern Surface * gAppSurface;
+//EXPORT extern BLContext gAppDC;
 EXPORT extern UINT_PTR gAppTimerID;
 EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
 EXPORT extern bool gIsLayered;
 
+// Globals we expect the user to consume
+EXPORT extern int displayWidth;
+EXPORT extern int displayHeight;
+EXPORT extern int pixelDensity;
 
 EXPORT extern int keyCode;
 EXPORT extern int keyChar;
+
 EXPORT extern bool mouseIsPressed;
 EXPORT extern int mouseX;
 EXPORT extern int mouseY;
@@ -138,7 +143,7 @@ EXPORT void cursor();
 EXPORT void noCursor();
 EXPORT void setFrameRate(int newRate);
 EXPORT void setWindowPosition(int x, int y);
-EXPORT bool setCanvasSize(GRCOORD aWidth, GRCOORD aHeight);
+EXPORT bool setCanvasSize(long aWidth, long aHeight);
 
 
 #ifdef __cplusplus

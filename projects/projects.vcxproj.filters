@@ -221,5 +221,14 @@
     <ClInclude Include="..\core\blend2d\variant.h">
       <Filter>Header Files\blend2d</Filter>
     </ClInclude>
+    <ClInclude Include="..\core\Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\BLGraphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\Surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

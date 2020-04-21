@@ -55,13 +55,17 @@ TimeTicker *gAppTicker = nullptr;
 
 int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
-PBDIBSection * gAppSurface = nullptr;
-BLContext gAppDC;
+Surface * gAppSurface = nullptr;
+//BLContext gAppDC;
 UINT_PTR gAppTimerID = 0;
 bool gLooping = true;
 bool gRunning = true;
 bool gIsLayered = false;
 
+// Some globals friendly to the p5 environment
+int displayWidth=0;
+int displayHeight=0;
+int pixelDensity = 1;
 int keyCode = 0;
 int keyChar = 0;
 
@@ -550,7 +554,7 @@ void setWindowPosition(int x, int y)
     gAppWindow->moveTo(x, y);
 }
 
-bool setCanvasSize(GRCOORD aWidth, GRCOORD aHeight)
+bool setCanvasSize(long aWidth, long aHeight)
 {
     // Create new drawing surface
     if (gAppSurface != nullptr) {
@@ -558,8 +562,8 @@ bool setCanvasSize(GRCOORD aWidth, GRCOORD aHeight)
         delete gAppSurface;
     }
 
-    gAppSurface = new PBDIBSection(aWidth, aHeight);
-    gAppDC = gAppSurface->getBlend2dContext();
+    gAppSurface = new Surface(aWidth, aHeight);
+    //gAppDC = gAppSurface->getBlend2dContext();
 
     return true;
 }
@@ -617,6 +621,16 @@ void run()
 }
 
 
+/*
+    The 'main()' function is in here to ensure that compiling
+    this header will result in an executable file.
+
+    The code for the user just needs to implement the 'setup()'
+    and other functions.
+*/
+// Declare some standard Window Kinds we'll be using
+User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);
+
 
 
 // do any initialization that needs to occur 
@@ -627,6 +641,16 @@ void prolog()
     uint16_t version = MAKEWORD(2,2);
     WSADATA lpWSAData;
     int res = WSAStartup(version, &lpWSAData);
+
+    // Get the screen size
+    displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
+    displayHeight = ::GetSystemMetrics(SM_CYSCREEN);
+
+    // set the canvas a default size to start
+    // but don't show it
+    setCanvasSize(320, 240);
+
+    gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
 }
 
 // Do whatever cleanup needs to be done before
@@ -637,16 +661,6 @@ void epilog()
 }
 
 
-/*
-    The 'main()' function is in here to ensure that compiling
-    this header will result in an executable file.
-
-    The code for the user just needs to implement the 'setup()'
-    and other functions.
-*/
-// Declare some standard Window Kinds we'll be using
-User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS|CS_HREDRAW|CS_VREDRAW, MsgHandler);
-
 
 int main(int argc, char **argv)
 {
@@ -655,12 +669,21 @@ int main(int argc, char **argv)
     
     prolog();
 
-    // set the canvas a default size to start
-    // but don't show it
-    setCanvasSize(320, 240);
+    run();
 
-    gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
-    
+    // do any cleanup after all is done
+    epilog();
+
+    return 0;
+}
+
+int WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShowCmd)
+{
+    //gargc = argc;
+    //gargv = argv;
+
+    prolog();
+
     run();
 
     // do any cleanup after all is done

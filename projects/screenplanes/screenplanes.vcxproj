@@ -20,10 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{16FD6614-5D7F-4404-A17B-4CA8296B58F6}</ProjectGuid>
-    <RootNamespace>projects</RootNamespace>
+    <ProjectGuid>{39053EC6-DD33-46AC-BAD8-1800EE343B79}</ProjectGuid>
+    <RootNamespace>screenplanes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>snapp</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,6 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -79,9 +81,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\repos\ndt\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\repos\ndt\projects\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>blend2d.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -100,13 +118,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\repos\ndt\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\repos\ndt\projects\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;blend2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,95 +140,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\core\appmain.cpp" />
+    <ClCompile Include="..\..\core\appmain.cpp" />
+    <ClCompile Include="screenplanes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\core\apphost.h" />
-    <ClInclude Include="..\core\binops.hpp" />
-    <ClInclude Include="..\core\binstream.hpp" />
-    <ClInclude Include="..\core\bitbang.hpp" />
-    <ClInclude Include="..\core\blend2d.h" />
-    <ClInclude Include="..\core\blend2d\api.h" />
-    <ClInclude Include="..\core\blend2d\array.h" />
-    <ClInclude Include="..\core\blend2d\bitarray.h" />
-    <ClInclude Include="..\core\blend2d\context.h" />
-    <ClInclude Include="..\core\blend2d\filesystem.h" />
-    <ClInclude Include="..\core\blend2d\font.h" />
-    <ClInclude Include="..\core\blend2d\fontdefs.h" />
-    <ClInclude Include="..\core\blend2d\fontmanager.h" />
-    <ClInclude Include="..\core\blend2d\format.h" />
-    <ClInclude Include="..\core\blend2d\geometry.h" />
-    <ClInclude Include="..\core\blend2d\glyphbuffer.h" />
-    <ClInclude Include="..\core\blend2d\gradient.h" />
-    <ClInclude Include="..\core\blend2d\image.h" />
-    <ClInclude Include="..\core\blend2d\imagecodec.h" />
-    <ClInclude Include="..\core\blend2d\matrix.h" />
-    <ClInclude Include="..\core\blend2d\path.h" />
-    <ClInclude Include="..\core\blend2d\pattern.h" />
-    <ClInclude Include="..\core\blend2d\pixelconverter.h" />
-    <ClInclude Include="..\core\blend2d\random.h" />
-    <ClInclude Include="..\core\blend2d\region.h" />
-    <ClInclude Include="..\core\blend2d\rgba.h" />
-    <ClInclude Include="..\core\blend2d\runtime.h" />
-    <ClInclude Include="..\core\blend2d\string.h" />
-    <ClInclude Include="..\core\blend2d\style.h" />
-    <ClInclude Include="..\core\blend2d\variant.h" />
-    <ClInclude Include="..\core\BLGraphics.h" />
-    <ClInclude Include="..\core\codec_targa.hpp" />
-    <ClInclude Include="..\core\computicle.hpp" />
-    <ClInclude Include="..\core\definitions.hpp" />
-    <ClInclude Include="..\core\DesktopWindow.hpp" />
-    <ClInclude Include="..\core\Draw2DContext.hpp" />
-    <ClInclude Include="..\core\drawicle.hpp" />
-    <ClInclude Include="..\core\DrawingContext.hpp" />
-    <ClInclude Include="..\core\Event.hpp" />
-    <ClInclude Include="..\core\functor.hpp" />
-    <ClInclude Include="..\core\Graphics.h" />
-    <ClInclude Include="..\core\grtypes.hpp" />
-    <ClInclude Include="..\core\guistyle.hpp" />
-    <ClInclude Include="..\core\Image.hpp" />
-    <ClInclude Include="..\core\LayeredWindow.hpp" />
-    <ClInclude Include="..\core\List.hpp" />
-    <ClInclude Include="..\core\maths.hpp" />
-    <ClInclude Include="..\core\mmap.hpp" />
-    <ClInclude Include="..\core\NativeWindow.hpp" />
-    <ClInclude Include="..\core\Network.hpp" />
-    <ClInclude Include="..\core\p5.hpp" />
-    <ClInclude Include="..\core\PBDIBSection.hpp" />
-    <ClInclude Include="..\core\PixelBuffer.hpp" />
-    <ClInclude Include="..\core\PixelBufferCodec.hpp" />
-    <ClInclude Include="..\core\PixelBufferRGB24.hpp" />
-    <ClInclude Include="..\core\PixelBufferRGBA32.hpp" />
-    <ClInclude Include="..\core\PixelOps.hpp" />
-    <ClInclude Include="..\core\random.hpp" />
-    <ClInclude Include="..\core\RectangleI.hpp" />
-    <ClInclude Include="..\core\screensnapshot.hpp" />
-    <ClInclude Include="..\core\Stack.hpp" />
-    <ClInclude Include="..\core\stopwatch.hpp" />
-    <ClInclude Include="..\core\Surface.h" />
-    <ClInclude Include="..\core\TcpClient.hpp" />
-    <ClInclude Include="..\core\TcpServer.hpp" />
-    <ClInclude Include="..\core\Thread.hpp" />
-    <ClInclude Include="..\core\TimeTicker.hpp" />
-    <ClInclude Include="..\core\VfwCameraDevice.hpp" />
-    <ClInclude Include="..\core\VfwCaptureDevice.hpp" />
+    <ClInclude Include="..\..\core\screensnapshot.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
