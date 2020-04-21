@@ -4,46 +4,44 @@ Newgrammer Development Tools
 
 A newgrammer is someone who is new to programming.
 
-This repository contains esoteric examples of programmin
-in the Windows (Win32) environment.  As of 2020, this 
-environment is being sunsetted for more modern approaches.  Although the future is upon us, there are
-still plenty of lessons to be learned from how to keep 
-simple things simple and make hard things possible.
+This repository contains examples of programming using the
+C++ language on the Windows platform.  Although the platform is
+Windows, the graphics subsystem is primarily supported by
+blend2d for vector graphics.
+
+At the moment, the projects do not leverage much of WinRT, but
+it does not preclude its usage either.
+
+There is "P5" like API available, and that makes it very easy to 
+create fairly involved programs without much effort, so exploration
+is relatively easy.
 
 This is a Windows specific set of code, which makes not attempt at working on any other platform.  It is meant as a teaching tool for those who are relatively new to programming.
 
-The examples directory contains... examples of how to use various bits and pieces of the library.  Programs must be compiled to run.  The programs are meant to work with Visual Studio C++ compiler (cl).  The programs favor the 64-bit environment, and make no attempt to work for 32-bit environments.  
+The projects directory contains a Visual Studio solutions file which
+gives you ready access to all the coded up examples.
 
 Compiling
 =========
 Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.
 
-Bring up a command prompt for 64-bit development: 
-
-x64 Native Tools Command Prompt
-
-From here, cd into the directory where the code is to be compiled, like the examples directory, and type:
-
-c:> cl /EHsc /I../src filename.cpp
-
-Assuming your program is correct, you will be left with a filed:
-
-filename.exe
-
-Which is your executable.
+Open up the projects.sln file in the \projects directory
+build the entire solution, play with examples
 
 
 
 Bits And Bobs
 =============
 
-ndt aims to be as independent as possible.  There are no external dependencies other than what is already provided on every Windows machine it will run on.  There is no dependency on the Windows SDK header files.  This ensures that a bare minimum coding environment will be sufficient to try things out.
+ndt aims to be as independent as possible.  There are no external dependencies other than the blend2d library, which is included.
+
 
 Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'library' that programs link against.  Each program is individual, and compiles down to a fairly small size.
 
 
-References
+Random References
 ==========
+
 C# .net framework code
 https://referencesource.microsoft.com/
 
@@ -60,3 +58,8 @@ Things to try
 Processing and P5 worlds are full of great things to play with.
 
 http://haptic-data.com/toxiclibsjs/examples/force-directed-graph-p5
+
+
+Interesting Books
+=================
+https://natureofcode.com/book/
