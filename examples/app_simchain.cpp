@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "Stack.hpp"
+#include <vector>
 
 double gRadius = 20.0;
 double gravity = 4.0;    // 9.0
@@ -28,6 +28,11 @@ struct Spring2D {
     float damping;
     BLRgba32 color;
 
+    static const Spring2D empty;
+
+    Spring2D()
+    {}
+
     Spring2D(int xpos, int ypos, float m, float g, BLRgba32 c)
     {
         x = xpos;   // The x- and y-coordinates
@@ -40,6 +45,16 @@ struct Spring2D {
         stiffness = gStiffness;
         damping = gDamping;
         color = c;
+    }
+
+    bool operator==(const Spring2D& rhs)
+    {
+        // Either they are the exact same object
+        // or they have the exact same attributes
+        return (&rhs == this) ||
+            ((x == rhs.x) &&
+                (y == rhs.y) &&
+                (radius == rhs.radius));
     }
 
     void update(int targetX, int targetY)
@@ -67,9 +82,9 @@ struct Spring2D {
 
 };
 
+const Spring2D Spring2D::empty;
 
-Stack<Spring2D *> springs;
-Spring2D * headSpring = nullptr;
+
 
 BLRgba32  randomColor()
 {
@@ -86,49 +101,38 @@ BLRgba32  randomColor()
     return c;
 }
 
+std::vector<Spring2D> springs;
+Spring2D headSpring = Spring2D(width / 2, height / 2, mass, gravity, randomColor());
+
+
 void addSpring()
 {
-    Spring2D * aspring = new Spring2D(width/2, height / 2, mass, gravity, randomColor());
+    Spring2D aspring(width/2, height / 2, mass, gravity, randomColor());
     
-    if (headSpring == nullptr) {
-        headSpring = aspring;
-    } else {
-        springs.push(aspring);
-    }
+
+    springs.push_back(aspring);
 }
 
 // Remove a single spring
 void removeSpring()
 {
-    if (springs.length() > 1) {
-        Spring2D *aspring = (Spring2D *)springs.pop();
-        //delete aspring;
+    if (springs.size() > 1) {
+        springs.pop_back();
     }
 }
 
 void clearSprings()
 {
-    Spring2D * spring = (Spring2D *)springs.pop();
-    while (spring != nullptr) {
-        delete spring;
-        spring = (Spring2D *)springs.pop();
-    }
+    springs.clear();
 }
 
 void reset()
 {
     // Inputs: x, y, mass, gravity
     clearSprings();
-    if (headSpring != nullptr) {
-        delete headSpring;
-        headSpring = nullptr;
-    }
 
-    addSpring();
     addSpring();
 }
-
-int T_SP = ' ';
 
 
 void keyReleased(const KeyEvent &event)
@@ -150,7 +154,7 @@ void keyTyped(const KeyEvent &event)
 {
     // If the user types a '<sp>' reset
     // the chain to 1 node
-    if (keyCode == T_SP) {
+    if (keyCode == ' ') {
         if (gIsLayered)
             noLayered();
         else
@@ -166,33 +170,27 @@ void draw()
         // MUST do this clear first if you want a 
         // fairly transparent background
         clear();
-        background(color(0x20,0x20, 0x20, 20));
+        background(color(10,0, 0, 117));
     } else {
         background(color(225, 127,0,255));
     }
 
-    if (headSpring == nullptr) {
-        return;
-    }
 
-    //printf("Mouse: %d %d\n", mouseX, mouseY);
-
-    headSpring->update(mouseX, mouseY);
-    headSpring->display(mouseX, mouseY);
+    // Let the top spring follow the mouse
+    headSpring.update(mouseX, mouseY);
+    headSpring.display(mouseX, mouseY);
   
   
     // iterate through rest of springs
-    Spring2D * currentSpring = headSpring;
+    Spring2D * currentSpring = &headSpring;
 
-    Spring2D * spring;
-    for (int i=0; i < springs.length(); i++)
+    for (int i = 0; i < springs.size(); i++)
     {
-        spring = springs[i];
-        spring->update(currentSpring->x, currentSpring->y);
-        spring->display(currentSpring->x, currentSpring->y);
-        currentSpring = spring;
+        springs[i].update(currentSpring->x, currentSpring->y);
+        springs[i].display(currentSpring->x, currentSpring->y);
+        
+        currentSpring = &springs[i];
     }
-
 
 }
 
@@ -201,6 +199,7 @@ void setup()
     createCanvas(displayWidth, displayHeight);
     setWindowPosition(0, 0);
     setFrameRate(30);
+    layered();
 
     reset();
 }

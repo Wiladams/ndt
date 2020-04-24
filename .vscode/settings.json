@@ -2,6 +2,10 @@
     "files.associations": {
         "cstring": "cpp",
         "cstdint": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "xstring": "cpp",
+        "regex": "cpp",
+        "vector": "cpp",
+        "locale": "cpp"
     }
 }

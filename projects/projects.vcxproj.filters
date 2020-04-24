@@ -95,28 +95,10 @@
     <ClInclude Include="..\core\p5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\core\PBDIBSection.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\PixelBuffer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\core\PixelBufferCodec.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\core\PixelBufferRGB24.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\PixelBufferRGBA32.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\PixelOps.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\core\random.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\RectangleI.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\core\screensnapshot.hpp">

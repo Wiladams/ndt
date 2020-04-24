@@ -17,9 +17,6 @@
 #include "apphost.h"
 #include "maths.hpp"
 #include "stopwatch.hpp"
-//#include "Graphics.h"
-
-
 
 /*
 Global State
@@ -71,78 +68,78 @@ public:
 
 
 // Various modes
-void angleMode(int mode)
+void angleMode(int mode) noexcept
 {
     gAppSurface->angleMode(mode);
 }
 
 
-void ellipseMode(const ELLIPSEMODE mode)
+void ellipseMode(const ELLIPSEMODE mode) noexcept
 {
     gAppSurface->ellipseMode(mode);
 }
 
-void rectMode(const RECTMODE mode)
+void rectMode(const RECTMODE mode) noexcept
 {
     gAppSurface->rectMode(mode);
 }
 
-void blendMode(int mode)
+void blendMode(int mode) noexcept
 {
     gAppSurface->blendMode(mode);
 }
 
 // Set stroke caps for beginning, intermediate, end
-void strokeCaps(int caps)
+void strokeCaps(int caps) noexcept
 {
     gAppSurface->strokeCaps(caps);
 }
 
-void strokeJoin(int join)
+void strokeJoin(int join) noexcept
 {
     gAppSurface->strokeJoin(join);
 }
 
-void strokeWeight(int weight)
+void strokeWeight(int weight) noexcept
 {
     gAppSurface->strokeWeight(weight);
 }
 
 
 // State management
-void push()
+void push() noexcept
 {
     gAppSurface->push();
 }
 
-void pop()
+void pop() noexcept
 {
     gAppSurface->pop();
 }
 
 // Coordinate Transformation
-void translate(double dx, double dy)
+void translate(double dx, double dy) noexcept
 {
     gAppSurface->translate(dx, dy);
 }
 
-void scale(double sx, double sy)
+void scale(double sx, double sy) noexcept
 {
     gAppSurface->scale(sx, sy);
 }
 
-void scale(double sxy)
+void scale(double sxy) noexcept
 {
     gAppSurface->scale(sxy, sxy);
 }
 
 
-void rotate(double angle, double cx, double cy)
+void rotate(double angle, double cx, double cy) noexcept
 {
     gAppSurface->rotate(angle, cx, cy);
 }
 
-void rotate(double angle)
+void rotate(double angle) noexcept
 {
     gAppSurface->rotate(angle);
 }
@@ -151,28 +148,28 @@ void rotate(double angle)
 // Drawing attributes
 
 // Color parts
-int blue(const Color& c)
+int blue(const Color& c) noexcept
 {
     return c.b;
 }
 
-int green(const Color& c)
+int green(const Color& c) noexcept
 {
     return c.g;
 }
 
-int red(const Color& c)
+int red(const Color& c) noexcept
 {
     return c.r;
 }
 
-int alpha(const Color& c)
+int alpha(const Color& c) noexcept
 {
     return c.a;
 }
 
 // general color construction from components
-Color color(int a, int b, int c, int d)
+Color color(int a, int b, int c, int d) noexcept
 {
     Color pix;
     pix.r = a;
@@ -183,23 +180,23 @@ Color color(int a, int b, int c, int d)
     return pix;
 }
 
-Color color(int r, int g, int b)
+Color color(int r, int g, int b) noexcept
 {
     return color(r, g, b, 255);
 }
 
-Color color(int gray, int alpha)
+Color color(int gray, int alpha) noexcept
 {
     return color(gray, gray, gray, alpha);
 }
 
-Color color(int gray)
+Color color(int gray) noexcept
 {
     return color(gray,gray,gray,255);
 }
 
 
-Color lerpColor(const Color&from, const Color&to, double f)
+Color lerpColor(const Color&from, const Color&to, double f) noexcept
 {
     uint8_t r = (uint8_t)lerp(from.r, to.r, f);
     uint8_t g = (uint8_t)lerp(from.g, to.g, f);
@@ -209,17 +206,17 @@ Color lerpColor(const Color&from, const Color&to, double f)
     return color((int)r, (int)g, (int)b, (int)a);
 }
 
-void fill(const BLGradient& g)
+void fill(const BLGradient& g) noexcept
 {
     gAppSurface->fill(g);
 }
 
-void fill(const Color& pix)
+void fill(const Color& pix) noexcept
 {
     gAppSurface->fill(pix);
 }
 
-void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept
 {
     Color c;
     c.r = r;
@@ -229,14 +226,14 @@ void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
     fill(c);
 }
 
-void fill(Color pix, uint8_t alpha)
+void fill(Color pix, uint8_t alpha) noexcept
 {
     Color c = pix;
     c.a = alpha;
     fill(c);
 }
 
-void fill(uint8_t r, uint8_t g, uint8_t b)
+void fill(uint8_t r, uint8_t g, uint8_t b) noexcept
 {
     Color c;
     c.r = r;
@@ -246,7 +243,7 @@ void fill(uint8_t r, uint8_t g, uint8_t b)
     fill(c);
 }
 
-void fill(uint8_t gray, uint8_t alpha)
+void fill(uint8_t gray, uint8_t alpha) noexcept
 {
     Color c;
     c.r = gray;
@@ -256,63 +253,63 @@ void fill(uint8_t gray, uint8_t alpha)
     fill(c);
 }
 
-void fill(uint8_t gray)
+void fill(uint8_t gray) noexcept
 {
     fill(gray, 255);
 }
 
-void noFill()
+void noFill() noexcept
 {
     gAppSurface->noFill();
 }
 
 // Setting Stroke
-void stroke(const Color &pix)
+void stroke(const Color &pix) noexcept
 {
     gAppSurface->stroke(pix);
 }
 
 // Change the alpha of an existing color
-void stroke(Color pix, int alpha)
+void stroke(Color pix, int alpha) noexcept
 {
     Color c = pix;
     c.a = alpha;
     stroke(c);
 }
 
-void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept
 {
     stroke(Color(r,g,b,alpha));
 }
 
-void stroke(uint8_t r, uint8_t g, uint8_t b)
+void stroke(uint8_t r, uint8_t g, uint8_t b) noexcept
 {
     stroke(Color(r, g, b, 255));
 }
 
 // create color with gray and alpha
-void stroke(uint8_t gray, uint8_t alpha=255)
+void stroke(uint8_t gray, uint8_t alpha=255) noexcept
 {
     stroke(Color(gray, gray, gray, alpha));
 }
 
-void noStroke()
+void noStroke() noexcept
 {
     gAppSurface->noStroke();
 }
 
 
-inline void frameRate(int newRate)
+inline void frameRate(int newRate) noexcept
 {
     setFrameRate(newRate);
 }
 
-inline double seconds()
+inline double seconds() noexcept
 {
     return SWatch.seconds();
 }
 
-inline double millis()
+inline double millis() noexcept
 {
     // get millis from p5 stopwatch
     return SWatch.millis();
@@ -321,39 +318,39 @@ inline double millis()
 // Clearing is a complete wipe, which will leave 
 // the canvas with fully transparent black
 // The other state information is saved
-void clear()
+void clear() noexcept
 {
     gAppSurface->clear();
 }
 
 // Background will do a fillAll() to set the background
 // to a particular color
-void background(const Color &pix)
+void background(const Color &pix) noexcept
 {
     gAppSurface->background(pix);
 }
 
-void background(int a, int b, int c, int d)
+void background(int a, int b, int c, int d) noexcept
 {
     background(color(a, b, c, d));
 }
 
-void background(int gray, int alpha)
+void background(int gray, int alpha) noexcept
 {
     background(color(gray, alpha));
 }
 
-void background(int gray)
+void background(int gray) noexcept
 {
     background(color(gray));
 }
 
-void clip(double x, double y, double w, double h)
+void clip(double x, double y, double w, double h) noexcept
 {
     gAppSurface->clip(x, y, w, h);
 }
 
-void noClip()
+void noClip() noexcept
 {
     gAppSurface->noClip();
 }
@@ -362,12 +359,12 @@ void noClip()
 // You can set a single pixel, but this is an extremely expensive
 // operation.  It would be better to get a pointer to the data
 // and set the pixel directly.
-void set(double x1, double y1, const Color &c)
+void set(double x1, double y1, const Color &c) noexcept
 {
     gAppSurface->set(x1, y1, c);
 }
 
-Color get(double x, double y)
+Color get(double x, double y) noexcept
 {
     return gAppSurface->get(x, y);
 }
@@ -377,13 +374,13 @@ Color get(double x, double y)
 // so, if the weight is <= 1, we can simply set a single pixel
 // for anything else, we can draw an ellipse
 // using a radius of 1/2 the stroke weight
-void point(double x, double y)
+void point(double x, double y) noexcept
 {
     gAppSurface->point(x, y);
 }
 
 // draw a line using the stroke color
-void line(double x1, double y1, double x2, double y2)
+void line(double x1, double y1, double x2, double y2) noexcept
 {
     gAppSurface->line(x1, y1, x2, y2);
 }
@@ -391,27 +388,27 @@ void line(double x1, double y1, double x2, double y2)
 // Draw rectangle
 // if using fill, then fill first
 // if using stroke, then draw outline second
-void rect(double x, double y, double width, double height, double xradius, double yradius)
+void rect(double x, double y, double width, double height, double xradius, double yradius) noexcept
 {
     gAppSurface->rect(x, y, width, height, xradius, yradius);
 }
 
-void rect(double x, double y, double width, double height)
+void rect(double x, double y, double width, double height) noexcept
 {
     gAppSurface->rect(x, y, width, height);
 }
 
-void ellipse(double a, double b, double c, double d)
+void ellipse(double a, double b, double c, double d) noexcept
 {
     gAppSurface->ellipse(a, b, c, d);
 }
 
-void circle(double cx, double cy, double diameter)
+void circle(double cx, double cy, double diameter) noexcept
 {
     ellipse(cx, cy, diameter / 2.0, diameter / 2.0);
 }
 
-void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
+void triangle(double x1, double y1, double x2, double y2, double x3, double y3) noexcept
 {
     gAppSurface->triangle(x1, y1, x2, y2, x3, y3);
 }
@@ -421,7 +418,7 @@ void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
 //
 // Curves
 //
-void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept
 {
     gAppSurface->bezier(x1, y1, x2, y2, x2, y3, x4, y4);
 }
@@ -429,30 +426,30 @@ void bezier(double x1, double y1, double x2, double y2, double x3, double y3, do
 // 
 // Polygons
 //
-void polyline(const BLPoint* pts, size_t n)
+void polyline(const BLPoint* pts, size_t n) noexcept
 {
     gAppSurface->polyline(pts, n);
 }
 
-void polygon(const BLPoint* pts, size_t n)
+void polygon(const BLPoint* pts, size_t n) noexcept
 {
     gAppSurface->polygon(pts, n);
 }
 
 
-void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept
 {
     gAppSurface->quad(x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
-void image(BLImage &img, int x, int y)
+void image(BLImage &img, int x, int y) noexcept
 {
     gAppSurface->image(img, x, y);
 }
 
 void scaleImage(BLImage& src, 
     double srcX, double srcY, double srcWidth, double srcHeight, 
-    double dstX, double dstY, double dstWidth, double dstHeight)
+    double dstX, double dstY, double dstWidth, double dstHeight) noexcept
 {
     gAppSurface->scaleImage(src, srcX, srcY, srcWidth, srcHeight,
         dstX, dstY, dstWidth, dstHeight);
@@ -475,17 +472,17 @@ void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
 // Random number generator
 TausPRNG mRandomNumberGenerator(5);
 
-inline double random()
+inline double random() noexcept
 {
     return mRandomNumberGenerator.next();
 }
 
-inline double random(double low, double high)
+inline double random(double low, double high) noexcept
 {
     return mRandomNumberGenerator.next(low, high);
 }
 
-inline double random(double high)
+inline double random(double high) noexcept
 {
     return mRandomNumberGenerator.next(0, high);
 }
@@ -495,28 +492,45 @@ inline double random(double high)
 
 
 // Text Handling
-void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
+void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) noexcept
 {
     gAppSurface->textAlign(horizontal, vertical);
 }
 
-void textFont(const char* fontname)
+void textFont(const char* fontname) noexcept
 {
     gAppSurface->textFont(fontname);
 }
 
-void textSize(double size)
+void textSize(double size) noexcept
 {
     gAppSurface->textSize(size);
 }
 
-void text(const char* txt, double x, double y)
+void text(const char* txt, double x, double y) noexcept
 {
     gAppSurface->text(txt, x, y);
 }
 
+
+void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) noexcept
+{
+    gAppSurface->beginShape(shapeKind);
+}
+
+void vertex(double x, double y) noexcept
+{
+    gAppSurface->vertex(x, y);
+}
+
+void endShape(SHAPEEND endKind = SHAPEEND::STROKE) noexcept
+{
+    gAppSurface->endShape(endKind);
+}
+
+
 // Image management
-BLImage* createImage(int width, int height)
+BLImage* createImage(int width, int height) noexcept
 {
     BLImage* img = new BLImage(width, height, BL_FORMAT_PRGB32);
     return img;
@@ -524,7 +538,7 @@ BLImage* createImage(int width, int height)
 
 // Canvas management
 
-void createCanvas(long aWidth, long aHeight)
+void createCanvas(long aWidth, long aHeight) noexcept
 {
     width = aWidth;
     height = aHeight;
@@ -534,21 +548,18 @@ void createCanvas(long aWidth, long aHeight)
     gAppWindow->setCanvasSize(aWidth, aHeight);
     gAppWindow->show();
 
-    // get current mouse position
-
-
-    gAppSurface->clear();
+    //gAppSurface->clear();
 
     // reset overall timer
     SWatch.reset();
 }
 
-void loadPixels()
+void loadPixels() noexcept
 {
     gAppSurface->loadPixels();
 }
 
-void updatePixels()
+void updatePixels() noexcept
 {
     gAppSurface->updatePixels();
 }

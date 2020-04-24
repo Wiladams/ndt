@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{CEF0F3BC-2EC7-402C-9EF8-54DFE5E022EB}</ProjectGuid>
-    <RootNamespace>spirograph</RootNamespace>
+    <ProjectGuid>{276A19EA-5A1A-4690-A80F-B6530B3C82F7}</ProjectGuid>
+    <RootNamespace>shapes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -142,12 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\core\appmain.cpp" />
-    <ClCompile Include="..\examples\spirograph.cpp" />
+    <ClCompile Include="..\..\core\appmain.cpp" />
+    <ClCompile Include="shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\core\apphost.h" />
-    <ClInclude Include="..\core\p5.hpp" />
+    <ClInclude Include="..\..\core\BLGraphics.h" />
+    <ClInclude Include="..\..\core\Graphics.h" />
+    <ClInclude Include="..\..\core\p5.hpp" />
+    <ClInclude Include="..\..\core\Surface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

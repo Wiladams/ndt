@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{CEF0F3BC-2EC7-402C-9EF8-54DFE5E022EB}</ProjectGuid>
-    <RootNamespace>spirograph</RootNamespace>
+    <ProjectGuid>{72A6701E-8730-4241-BC39-F7972E5FA12C}</ProjectGuid>
+    <RootNamespace>covidplot</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -90,7 +90,6 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\repos\ndt\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,12 +141,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\core\appmain.cpp" />
-    <ClCompile Include="..\examples\spirograph.cpp" />
+    <ClInclude Include="..\..\core\p5.hpp" />
+    <ClInclude Include="locations.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\core\apphost.h" />
-    <ClInclude Include="..\core\p5.hpp" />
+    <ClCompile Include="..\..\core\appmain.cpp" />
+    <ClCompile Include="covidplot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

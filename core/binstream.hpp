@@ -22,19 +22,7 @@
 #define BINMIN(a,b) (((a)<(b))?(a):(b))
 
 
-//local min = math.min
-void memcopy(void *dst, const size_t n, const void *src)
-{
-    for (int i=0;i<n;i++)
-    {
-        ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
-    }
-}
-
 /*
-    Standard 'object' construct.
-    __call is implemented so we get a 'constructor'
-    sort of feel:
     binstream(data, size, position)
 */
 class BinStream
@@ -60,7 +48,8 @@ public:
     // report whether we've reached the end of the stream yet
     bool isEOF() {return (remaining() < 1);}
 
-    size_t length() {return fsize;}
+    uint8_t * data() {return fdata;}
+    size_t size() {return fsize;}
     
     // report how many bytes remain to be read
     // from stream
@@ -73,7 +62,7 @@ public:
 
     // get a subrange of the memory stream
     // returning a new memory stream
-    BinStream range(int64_t size, int64_t pos)
+    BinStream range(int64_t pos, int64_t size)
     {
         if (pos < 0 || (fsize < 0)) {
             // BUGBUG - throw exception
@@ -93,7 +82,7 @@ public:
         return BinStream(fdata+pos, size, 0 , !fbigend);
     }
 
-    BinStream range(size_t size) {return range(size, fcursor); }
+    BinStream range(size_t size) {return range(fcursor, size); }
 
 
     // move to an absolute position
@@ -155,7 +144,7 @@ public:
         return fdata[fcursor-1];
     }
 
-    size_t readBytes(const size_t n, uint8_t * buff)
+    size_t readBytes(uint8_t * buff, const size_t n)
     {
         if (n < 1) { 
             // throw exception
@@ -167,7 +156,8 @@ public:
     
         // read the minimum between remaining and 'n'
         uint8_t * ptr = fdata+fcursor;
-        memcopy(buff, nActual, ptr);
+        memcpy_s(buff, n, ptr,nActual);
+
         skip(nActual);
 
         // return the number of bytes actually read
@@ -200,8 +190,15 @@ public:
 static const int CR = '\r';
 static const int LF = '\n';
 
-
-size_t readLine(const size_t bufflen, char * buff)
+// Read a single line up to a maximum specified buffer size
+// A line is designated with one of the following sequences
+// CR-LF
+// LF
+//
+// In either case, the line ending will not be included in the buffer
+//
+// The buffer is null terminated
+size_t readLine(char* buff, const size_t bufflen)
 {
     if (isEOF()) {
         return 0;
@@ -236,7 +233,7 @@ size_t readLine(const size_t bufflen, char * buff)
     int64_t len = ending - starting;
     len = BINMIN(len, bufflen-1);
 
-    memcopy((uint8_t *)buff, len, startPtr);
+    memcpy(buff, startPtr, len);
     buff[len] = 0;
 
     return len;
@@ -335,7 +332,7 @@ size_t readLine(const size_t bufflen, char * buff)
         return true;
     }
 
-    bool writeBytes(const size_t n, const uint8_t *bytes)
+    bool writeBytes(const uint8_t *bytes, const size_t n)
     {
         if (bytes == nullptr) {
             return false;
@@ -346,7 +343,7 @@ size_t readLine(const size_t bufflen, char * buff)
             return false;   //, "Not enough space"
         }
 
-        memcopy(fdata+fcursor, n, bytes);
+        memcpy_s(fdata+fcursor, n, bytes, n);
         skip(n);
 
         return true;
@@ -359,7 +356,7 @@ size_t readLine(const size_t bufflen, char * buff)
         }
 
         size_t n = strlen(str);
-        bool success = writeBytes(n, (const uint8_t *)str);
+        bool success = writeBytes((const uint8_t *)str, n);
         
         // write a null terminating byte
         writeOctet(0);

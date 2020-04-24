@@ -17,7 +17,7 @@ int ** Array2D(int rows, int columns)
     return arr;
 }
 
-static const int w = 1;  // size of a cell
+static const int w = 2;  // size of a cell
 
 class Life {
     int fW;

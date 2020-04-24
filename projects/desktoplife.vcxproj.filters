@@ -29,11 +29,5 @@
     <ClInclude Include="..\core\apphost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\core\P5Image.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\core\PBDIBSection.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,12 +1,5 @@
 
 
-//#pragma comment(lib, "ws2_32.lib")
-//#pragma comment(lib, "winmm.lib")
-//#pragma comment(lib, "vfw32.lib")
-//#pragma comment(lib, "user32.lib")
-//#pragma comment(lib, "gdi32.lib")
-//#pragma comment(lib, "blend2d.lib")
-
 #include "apphost.h"
 
 #include "LayeredWindow.hpp"

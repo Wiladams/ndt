@@ -90,7 +90,7 @@ void draw() {
 	// Fill background black
 	if (gIsLayered) {
 		clear();
-		background(100, 100, 100, 10);
+		//background(100, 100, 100, 0);
 	} else {
 		background(0);
 	}
@@ -181,8 +181,8 @@ void setup() {
 
 	// Stroke/line/border thickness
 	strokeWeight(1);
-	rectMode(CENTER);
-	ellipseMode(CENTER);
+	rectMode(RECTMODE::CENTER);
+	ellipseMode(ELLIPSEMODE::CENTER);
 
 	// Initiate array with random values for circles
 	for (int j = 0; j < count; j++) {

@@ -67,6 +67,10 @@ public:
         BLContextCreateInfo createInfo{};
         createInfo.threadCount = 4;
         bResult = getBlend2dContext().begin(fImage, createInfo);
+
+
+        getBlend2dContext().setFillStyle(BLRgba32(0xffffffff));
+        getBlend2dContext().setStrokeStyle(BLRgba32(0xff000000));
     }
 
     virtual ~Surface()

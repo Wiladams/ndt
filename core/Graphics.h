@@ -38,9 +38,34 @@ enum ANGLEMODE {
     RADIANS
 };
 
+enum class SHAPEMODE {
+    NONE = -1,
+    OPEN = 0,
+    POINTS = 1,
+    LINES = 2,
+    TRIANGLES = 3,
+    TRIANGLE_STRIP = 4,
+    TRIANGLE_FAN = 5,
+    QUADS = 6,
+    QUAD_STRIP=7,
+
+};
+
+
+enum class SHAPEEND {
+    STROKE = 0,
+    CLOSE = 1,
+};
+
+
 typedef BLRgba32 Color;
 
 
+/*
+    IGraphics defines the essential interface for doing vector graphics
+    This is a pure virtual interface for the most part, so a sub-class must 
+    implement a fair bit of stuff.
+*/
 struct IGraphics
 {
     virtual void angleMode(int newMode) = 0;
@@ -117,6 +142,10 @@ struct IGraphics
     virtual void polyline(const BLPoint* pts, size_t n) = 0;
     virtual void polygon(const BLPoint* pts, size_t n) = 0;
     virtual void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) = 0;
+
+    virtual void beginShape(SHAPEMODE shapeKind) = 0;
+    virtual void vertex(double x, double y) = 0;
+    virtual void endShape(SHAPEEND endKind) = 0;
 
     // Bitmaps
     virtual void image(BLImage& img, int x, int y) = 0;

@@ -8,6 +8,7 @@
 
 
 #include "Graphics.h"
+#include <vector>
 
 
 class BLGraphics : public IGraphics
@@ -65,6 +66,10 @@ private:
     ALIGNMENT fTextHAlignment = ALIGNMENT::LEFT;
     ALIGNMENT fTextVAlignment = ALIGNMENT::BASELINE;
 
+    // Vertex shaping
+    SHAPEMODE fShapeMode = SHAPEMODE::NONE;
+    std::vector<BLPoint> fShapeVertices;
+
 public:
     BLGraphics() 
         :fUseFill(true),
@@ -72,7 +77,9 @@ public:
         fEllipseMode(ELLIPSEMODE::RADIUS),
         fRectMode(RECTMODE::CORNER),
         fAngleMode(RADIANS)
-    {}
+    {
+        initialize();
+    }
 
     BLGraphics(BLContext& ctx)
         : fCtx(ctx)
@@ -82,6 +89,16 @@ public:
         ,fRectMode(RECTMODE::CORNER)
         ,fAngleMode(RADIANS)
     {
+        initialize();
+    }
+
+    // Create initial state
+    void initialize()
+    {
+        // white fill
+        fCtx.setFillStyle(BLRgba32(0xffffffff));
+        // black stroke
+        fCtx.setStrokeStyle(BLRgba32(0xff000000));
     }
 
     BLContext& getBlend2dContext()
@@ -170,7 +187,12 @@ public:
     
 
 
-    virtual void point(double x, double y) { set(x, y, color(0)); }
+    virtual void point(double x, double y) 
+    { 
+        line(x, y, x+1, y);
+        // set(x, y, color(0)); 
+    }
+
     virtual void line(double x1, double y1, double x2, double y2) {
         if (!fUseStroke)
         {
@@ -227,7 +249,7 @@ public:
 
     virtual void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
     {
-        BLTriangle tri = { x1,y1, x1,y2,x3,y3 };
+        BLTriangle tri = { x1,y1, x2,y2,x3,y3 };
 
         if (fUseFill) {
             fCtx.fillGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
@@ -370,4 +392,122 @@ public:
         fCtx.fillUtf8Text(xy, fFont, txt);
     }
 
+
+    // Vertex shaping
+    void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN)
+    {
+        // To begin a shape, clear out existing shape
+        // and set the shape mode to that specified
+        fShapeMode = shapeKind;
+        fShapeVertices.clear();
+    }
+
+    void vertex(double x, double y)
+    {
+        // Make sure beginShape() has been called
+        if (fShapeMode == SHAPEMODE::NONE)
+            return;
+
+        fShapeVertices.push_back({ x,y });
+    }
+
+    // endKind - SHAPEEND
+    void endShape(SHAPEEND endKind)
+    {
+        // Sanity check to ensure we're in a shape
+        if (fShapeMode == SHAPEMODE::NONE)
+            return;
+
+        push();
+
+        switch (fShapeMode) {
+        case SHAPEMODE::OPEN: {
+            BLPath path;
+            if (endKind == SHAPEEND::CLOSE) {
+                polygon(fShapeVertices.data(), fShapeVertices.size());
+            } else if (endKind == SHAPEEND::STROKE) {
+                if (fUseFill) {
+                    fCtx.fillPolygon(fShapeVertices.data(), fShapeVertices.size());
+                }
+
+                polyline(fShapeVertices.data(), fShapeVertices.size());
+            }
+            break; 
+        }
+        case SHAPEMODE::POINTS: {
+            for (int i = 1; i <= fShapeVertices.size(); i++) {
+                point(fShapeVertices[i - 1].x, fShapeVertices[i - 1].y);
+            }
+        }
+            break;
+        case SHAPEMODE::LINES: {
+            for (int i = 0; i < fShapeVertices.size(); i += 2) {
+                BLPoint p1 = fShapeVertices[i];
+                BLPoint p2 = fShapeVertices[i + 1];
+                line(p1.x, p1.y, p2.x, p2.y);
+            }
+        }
+            break;
+        case SHAPEMODE::TRIANGLES: {
+            // consume 3 points at a time doing triangles
+            for (int i = 0; i < fShapeVertices.size(); i += 3) {
+                BLPoint p1 = fShapeVertices[i];
+                BLPoint p2 = fShapeVertices[i + 1];
+                BLPoint p3 = fShapeVertices[i + 2];
+                triangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+            }
+        }
+            break;
+
+        case SHAPEMODE::TRIANGLE_STRIP: {
+            // consume 3 points at a time doing triangles
+            for (int i = 0; i < fShapeVertices.size() - 2; i += 1) {
+                BLPoint p0 = fShapeVertices[i + 0];
+                BLPoint p1 = fShapeVertices[i + 1];
+                BLPoint p2 = fShapeVertices[i + 2];
+                triangle(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
+            }
+        }
+            break;
+
+        case SHAPEMODE::TRIANGLE_FAN: {
+            // consume 3 points at a time doing triangles
+            // get the first point
+            BLPoint p0 = fShapeVertices[0];
+            for (int i = 1; i < fShapeVertices.size() - 1; i += 1) {
+                BLPoint p1 = fShapeVertices[i];
+                BLPoint p2 = fShapeVertices[i + 1];
+                triangle(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
+            }
+        }
+            break;
+
+        case SHAPEMODE::QUADS: {
+            // consume 4 points at a time doing quads
+            for (int i = 0; i < fShapeVertices.size(); i += 4) {
+                BLPoint p1 = fShapeVertices[i];
+                BLPoint p2 = fShapeVertices[i + 1];
+                BLPoint p3 = fShapeVertices[i + 2];
+                BLPoint p4 = fShapeVertices[i + 3];
+                quad(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
+            }
+        }
+            break;
+
+        case SHAPEMODE::QUAD_STRIP: {
+            // consume 4 points at a time doing quads
+            for (int i = 0; i < fShapeVertices.size() - 2; i += 2) {
+                BLPoint p1 = fShapeVertices[i + 0];
+                BLPoint p2 = fShapeVertices[i + 1];
+                BLPoint p3 = fShapeVertices[i + 2];
+                BLPoint p4 = fShapeVertices[i + 3];
+                quad(p1.x, p1.y, p2.x, p2.y, p4.x, p4.y, p3.x, p3.y);
+            }
+        }
+        break;
+
+        }
+
+        pop();
+    }
 };

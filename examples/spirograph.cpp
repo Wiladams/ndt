@@ -8,7 +8,7 @@ int i; // a counter variable
 // play with these to get a sense of what's going on:
 double fund = 0.005; // the speed of the central sine
 double ratio = 1; // what multiplier for speed is each additional sine?
-int alpha = 50; // how opaque is the tracing system
+int galpha = 50; // how opaque is the tracing system
     
 bool trace = false; // are we tracing?
 
@@ -30,8 +30,8 @@ void draw()
         
         // setup for tracing
         if (trace) {
-          stroke(0, 0, (int)(255 * (float(i) / NUMSINES)), alpha); // blue
-          fill(0, 0, 255, (int)(alpha / 2.0)); // also, um, blue
+          stroke(0, 0, (int)(255 * (float(i) / NUMSINES)), galpha); // blue
+          fill(0, 0, 255, (int)(galpha / 2.0)); // also, um, blue
           erad = 5.0 * (1.0 - float(i) / NUMSINES); // pen width will be related to which sine
         }
         double radius = rad / (i + 1); // radius for circle itself
