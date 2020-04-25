@@ -63,6 +63,7 @@ private:
 public:
     // Constructor with a seed
     TausPRNG(double d)
+        :gen{0}
     {
         uint32_t r = 0x11090601;  // 64-k[i] as four 8 bit constants.
         int i;

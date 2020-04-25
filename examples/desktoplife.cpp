@@ -1,5 +1,7 @@
 #include "p5.hpp"
 
+using namespace p5;
+
 /*
     Game of life running on the entire desktop as a layered window
 */
@@ -55,7 +57,7 @@ public:
                 if ((column == 0) || (row == 0) || (column == fColumns-1) || (row == fRows-1)) {
                     board[row][column] = 0;
                 } else { 
-                    int val = (int)randomLowHigh(0,1);
+                    int val = (int)random(0,1);
                     board[row][column] = val;
                 }
                 next[row][column] = 0;
@@ -125,15 +127,15 @@ public:
     }
 };
 
-Life l1(gScreenWidth, gScreenHeight);
 
-int T_SP = ' ';
+Life* l1 = nullptr;
+
 
 void keyTyped(const KeyEvent &event)
 {
     // if [Space] reset life
-    if (keyCode == T_SP) {
-        l1.init();
+    if (keyCode == ' ') {
+        l1->init();
     }
 }
 
@@ -151,13 +153,15 @@ void draw()
     double lasttime = millis();
     clear();
 
-    l1.draw();
+    l1->draw();
     double duration = millis() - lasttime;
     //printf("after draw: %3.3f\n", duration);
 }
 
 void setup()
 {
+    l1 = new Life(displayWidth, displayHeight);
+
     createCanvas(displayWidth, displayHeight);
     layered();
     setWindowPosition(0, 0);

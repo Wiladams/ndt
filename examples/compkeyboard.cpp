@@ -1,5 +1,6 @@
 #include "p5.hpp"
 
+using namespace p5;
 
 typedef struct keyStruct_t {
     int vkey;
@@ -200,9 +201,11 @@ void setup()
 {
     createCanvas(800, 600);
 
-    //scale(0.25, 0.5);
+    scale(0.5, 0.5);
+    //scale(0.25, 0.25);
     //scale(2, 2);
 
+    // Setting up different colors
     // fixup gradient
     //gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
     //gradient.addStop(1.0, BLRgba32(0xFF9f9f9f));

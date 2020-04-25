@@ -1,6 +1,8 @@
 #include "p5.hpp"
 #include <vector>
 
+using namespace p5;
+
 double gRadius = 20.0;
 double gravity = 4.0;    // 9.0
 double mass = 1.75;       // 2.0
@@ -30,8 +32,8 @@ struct Spring2D {
 
     static const Spring2D empty;
 
-    Spring2D()
-    {}
+    Spring2D() {};
+
 
     Spring2D(int xpos, int ypos, float m, float g, BLRgba32 c)
     {
@@ -84,21 +86,13 @@ struct Spring2D {
 
 const Spring2D Spring2D::empty;
 
-
-
-BLRgba32  randomColor()
+Color  randomColor()
 {
-    int r = (int)random(30,255);
-    int g = (int)random(30,255);
-    int b = (int)random(30,255);
+    uint8_t r = (uint8_t)random(30,255);
+    uint8_t g = (uint8_t)random(30,255);
+    uint8_t b = (uint8_t)random(30,255);
     
-    BLRgba32 c;
-    c.r = r;
-    c.g = g;
-    c.b = b;
-    c.a = 255;
-
-    return c;
+    return { r,g,b,255 };
 }
 
 std::vector<Spring2D> springs;

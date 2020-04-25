@@ -141,6 +141,11 @@ EXPORT void layered();
 EXPORT void noLayered();
 EXPORT void cursor();
 EXPORT void noCursor();
+EXPORT double millis();
+EXPORT double seconds();
+
+
+
 EXPORT void setFrameRate(int newRate);
 EXPORT void setWindowPosition(int x, int y);
 EXPORT bool setCanvasSize(long aWidth, long aHeight);

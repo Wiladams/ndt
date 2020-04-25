@@ -14,6 +14,8 @@ Reference: http://processingjs.org/sketches/bannerSketch.pde
 */
 #include "p5.hpp"
 
+using namespace p5;
+
 // Set number of circles
 static const int count = 40;
 // Set maximum and minimum circle size

@@ -14,17 +14,16 @@
 class Surface : public BLGraphics
 {
     // for interacting with win32
-    BITMAPINFO fBMInfo;
-    HBITMAP fGDIHandle;
-    HDC     fBitmapDC;
-    void * fData;       // A pointer to the data
-    size_t fDataSize;       // How much data is allocated
-    long fWidth;
-    long fHeight;
+    BITMAPINFO fBMInfo{0};
+    HBITMAP fDIBHandle = nullptr;
+    HDC     fBitmapDC = nullptr;
+    void * fData = nullptr;       // A pointer to the data
+    size_t fDataSize=0;       // How much data is allocated
+    long fWidth=0;
+    long fHeight=0;
 
     // For interacting with blend2d
     BLImage fImage;
-
 
 
 public:
@@ -45,18 +44,20 @@ public:
         fBMInfo.bmiHeader.biClrImportant = 0;
         fBMInfo.bmiHeader.biClrUsed = 0;
         fBMInfo.bmiHeader.biCompression = BI_RGB;
+        fDataSize = fBMInfo.bmiHeader.biSizeImage;
 
         // We'll create a DIBSection so we have an actual backing
         // storage for the context to draw into
-        fGDIHandle = CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS, &fData, nullptr, 0);
-        fDataSize = fBMInfo.bmiHeader.biSizeImage;
+        // BUGBUG - check for nullptr and fail if found
+        fDIBHandle = CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS, &fData, nullptr, 0);
+
 
         // Create a GDI Device Context
         fBitmapDC = CreateCompatibleDC(nullptr);
 
         // select the DIBSection into the memory context so we can 
         // peform operations with it
-        SelectObject(fBitmapDC, fGDIHandle);
+        SelectObject(fBitmapDC, fDIBHandle);
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly

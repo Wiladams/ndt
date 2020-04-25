@@ -13,6 +13,28 @@
 
 class BLGraphics : public IGraphics
 {
+    int fCommandCount = 0;  // How many commands since last flush
+    int fCommandThreshold = 256;
+
+    BLContext fCtx;
+    int fAngleMode = RADIANS;
+    ELLIPSEMODE fEllipseMode = ELLIPSEMODE::RADIUS;
+    RECTMODE fRectMode = RECTMODE::CORNER;
+
+    bool fUseFill = true;
+    bool fUseStroke = true;
+
+    // Text Stuff
+    BLFontFace fFontFace;
+    BLFont fFont;
+    float fFontSize = 12;
+    ALIGNMENT fTextHAlignment = ALIGNMENT::LEFT;
+    ALIGNMENT fTextVAlignment = ALIGNMENT::BASELINE;
+
+    // Vertex shaping
+    SHAPEMODE fShapeMode = SHAPEMODE::NONE;
+    std::vector<BLPoint> fShapeVertices;
+
 private:
     static BLEllipse calcEllipseParams(ELLIPSEMODE mode, double& a, double& b, double& c, double& d)
     {
@@ -51,24 +73,7 @@ private:
     }
 
 
-    BLContext fCtx;
-    int fAngleMode;
-    ELLIPSEMODE fEllipseMode = ELLIPSEMODE::RADIUS;
-    RECTMODE fRectMode = RECTMODE::CORNER;
 
-    bool fUseFill = true;
-    bool fUseStroke = true;
-
-    // Text Stuff
-    BLFontFace fFontFace;
-    BLFont fFont;
-    float fFontSize = 12;
-    ALIGNMENT fTextHAlignment = ALIGNMENT::LEFT;
-    ALIGNMENT fTextVAlignment = ALIGNMENT::BASELINE;
-
-    // Vertex shaping
-    SHAPEMODE fShapeMode = SHAPEMODE::NONE;
-    std::vector<BLPoint> fShapeVertices;
 
 public:
     BLGraphics() 
@@ -99,12 +104,27 @@ public:
         fCtx.setFillStyle(BLRgba32(0xffffffff));
         // black stroke
         fCtx.setStrokeStyle(BLRgba32(0xff000000));
+
+        // Start with a default font so we can start drawing text
+        textFont("c:\\windows\\fonts\\segoeui.ttf");
     }
 
     BLContext& getBlend2dContext()
     {
         return fCtx;
     }
+
+    // Increment command count since last flush
+    void incrCmd() {
+        fCommandCount += 1;
+        if (fCommandCount >= fCommandThreshold)
+            flush();
+    }
+    // Reset command count to zero since last flush
+    void resetCommandCount() { fCommandCount = 0; }
+
+    // how many threads is the context using
+    int threadCount() { return fCtx.queryThreadCount(); }
 
     // Various Modes
     virtual void angleMode(int mode) { fAngleMode = mode; }
@@ -142,6 +162,7 @@ public:
     virtual void flush()
     {
         fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
+        resetCommandCount();
     }
 
     virtual void loadPixels()
@@ -183,6 +204,8 @@ public:
         fill(c);
         rect(x, y, 1, 1);
         pop();
+
+        incrCmd();
     }
     
 
@@ -200,6 +223,8 @@ public:
         }
 
         fCtx.strokeLine(x1, y1, x2, y2);
+
+        incrCmd();
     }
 
     virtual void rect(const BLRect& arect)
@@ -209,6 +234,8 @@ public:
 
         if (fUseStroke)
             fCtx.strokeRect(arect);
+
+        incrCmd();
     }
 
     virtual void rect(double x, double y, double width, double height, double xradius, double yradius)
@@ -220,6 +247,8 @@ public:
         if (fUseStroke) {
             fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
         }
+
+        incrCmd();
     }
 
     virtual void rect(double x, double y, double width, double height)
@@ -231,6 +260,8 @@ public:
         if (fUseStroke) {
             fCtx.strokeRect(x, y, width, height);
         }
+
+        incrCmd();
     }
 
     virtual void ellipse(double a, double b, double c, double d) {
@@ -243,6 +274,8 @@ public:
         if (fUseStroke) {
             fCtx.strokeEllipse(params);
         }
+
+        incrCmd();
     }
 
     virtual void circle(double cx, double cy, double diameter) { ellipse(cx, cy, diameter, diameter); }
@@ -258,6 +291,8 @@ public:
         if (fUseStroke) {
             fCtx.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
         }
+
+        incrCmd();
     }
 
     virtual void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
@@ -266,11 +301,14 @@ public:
         path.moveTo(x1, y1);
         path.cubicTo(x2, y2, x2, y3, x4, y4);
         fCtx.strokePath(path);
+
+        incrCmd();
     }
     
     virtual void polyline(const BLPoint* pts, size_t n)
     {
         fCtx.strokePolyline(pts, n);
+        incrCmd();
     }
     
     virtual void polygon(const BLPoint* pts, size_t n)
@@ -282,18 +320,22 @@ public:
         if (fUseStroke) {
             fCtx.strokePolygon(pts, n);
         }
+
+        incrCmd();
     }
     
     virtual void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
     {
         BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
         polygon(pts, 4);
+        incrCmd();
     }
 
     // Bitmaps
     virtual void image(BLImage& img, int x, int y)
     {
         fCtx.blitImage(BLPointI(x, y), img);
+        incrCmd();
     }
     
     virtual void scaleImage(BLImage& src,
@@ -390,6 +432,8 @@ public:
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
         fCtx.fillUtf8Text(xy, fFont, txt);
+        
+        incrCmd();
     }
 
 
@@ -435,13 +479,13 @@ public:
             break; 
         }
         case SHAPEMODE::POINTS: {
-            for (int i = 1; i <= fShapeVertices.size(); i++) {
+            for (size_t i = 1; i <= fShapeVertices.size(); i++) {
                 point(fShapeVertices[i - 1].x, fShapeVertices[i - 1].y);
             }
         }
             break;
         case SHAPEMODE::LINES: {
-            for (int i = 0; i < fShapeVertices.size(); i += 2) {
+            for (size_t i = 0; i < fShapeVertices.size(); i += 2) {
                 BLPoint p1 = fShapeVertices[i];
                 BLPoint p2 = fShapeVertices[i + 1];
                 line(p1.x, p1.y, p2.x, p2.y);
@@ -450,7 +494,7 @@ public:
             break;
         case SHAPEMODE::TRIANGLES: {
             // consume 3 points at a time doing triangles
-            for (int i = 0; i < fShapeVertices.size(); i += 3) {
+            for (size_t i = 0; i < fShapeVertices.size(); i += 3) {
                 BLPoint p1 = fShapeVertices[i];
                 BLPoint p2 = fShapeVertices[i + 1];
                 BLPoint p3 = fShapeVertices[i + 2];
@@ -461,7 +505,7 @@ public:
 
         case SHAPEMODE::TRIANGLE_STRIP: {
             // consume 3 points at a time doing triangles
-            for (int i = 0; i < fShapeVertices.size() - 2; i += 1) {
+            for (size_t i = 0; i < fShapeVertices.size() - 2; i += 1) {
                 BLPoint p0 = fShapeVertices[i + 0];
                 BLPoint p1 = fShapeVertices[i + 1];
                 BLPoint p2 = fShapeVertices[i + 2];
@@ -474,7 +518,7 @@ public:
             // consume 3 points at a time doing triangles
             // get the first point
             BLPoint p0 = fShapeVertices[0];
-            for (int i = 1; i < fShapeVertices.size() - 1; i += 1) {
+            for (size_t i = 1; i < fShapeVertices.size() - 1; i += 1) {
                 BLPoint p1 = fShapeVertices[i];
                 BLPoint p2 = fShapeVertices[i + 1];
                 triangle(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);

@@ -9,18 +9,21 @@
 */
 #include "p5.hpp"
 
+using namespace p5;
+
 int ITERATIONS = 10000;
 
 void draw()
 {
-    //background(255);
-    clear();
+    background(255);
+    //clear();
 
     BLRgba32 from = color(255, 0, 0, (int)(0.2 * 255));
     BLRgba32 to = color(0, 0, 255, (int)(0.2 * 255));
     BLRgba32 c1 = lerpColor(from, to, 0.33);
     BLRgba32 c2 = lerpColor(from, to, 0.66);
 
+    noStroke();
     fill(from);
 
 
@@ -52,7 +55,7 @@ void draw()
             random(320, 580), random(height),
             random(320, 580), random(height)
         );
-/*
+
         fill(to);
         quad(
             random(500, 760), random(height),
@@ -60,7 +63,7 @@ void draw()
             random(500, 760), random(height),
             random(500, 760), random(height)
         );
-*/
+
     }
 
 }

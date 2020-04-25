@@ -45,6 +45,8 @@ int gargc;
 char **gargv;
 
 TimeTicker *gAppTicker = nullptr;
+static StopWatch SWatch;    // Stopwatch used for time 
+
 
 int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
@@ -385,6 +387,21 @@ void setFrameRate(int newRate)
     //printf("SetTimer: %lld\n", gAppTimerID);
 }
 
+
+double seconds() noexcept
+{
+    return SWatch.seconds();
+}
+
+double millis() noexcept
+{
+    // get millis from p5 stopwatch
+    return SWatch.millis();
+}
+
+
+
+
 // Setup the routines that will handle
 // keyboard and mouse events
 void setupHandlers()
@@ -556,7 +573,7 @@ bool setCanvasSize(long aWidth, long aHeight)
     }
 
     gAppSurface = new Surface(aWidth, aHeight);
-    //gAppDC = gAppSurface->getBlend2dContext();
+
 
     return true;
 }
@@ -587,7 +604,8 @@ void run()
     MSG msg;
     LRESULT res;
 
-    // BUGBUG
+    // reset overall timer
+    SWatch.reset();
     gAppWindow->show();
 
     while (true) {
@@ -628,12 +646,14 @@ User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_H
 
 // do any initialization that needs to occur 
 // in the very beginning
-void prolog()
+bool prolog()
 {
     // Initialize Windows networking
+    // BUGBUG - decide whether or not we care about WSAStartup failing
     uint16_t version = MAKEWORD(2,2);
     WSADATA lpWSAData;
     int res = WSAStartup(version, &lpWSAData);
+
 
     // Get the screen size
     displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
@@ -644,6 +664,8 @@ void prolog()
     setCanvasSize(320, 240);
 
     gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
+
+    return true;
 }
 
 // Do whatever cleanup needs to be done before
@@ -660,7 +682,10 @@ int main(int argc, char **argv)
     gargc = argc;
     gargv = argv;
     
-    prolog();
+    if (!prolog()) {
+        printf("error in prolog\n");
+        return -1;
+    }
 
     run();
 
@@ -670,8 +695,9 @@ int main(int argc, char **argv)
     return 0;
 }
 
-int WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShowCmd)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShowCmd)
 {
+    // BUGBUG, need to parse those command line arguments
     //gargc = argc;
     //gargv = argv;
 

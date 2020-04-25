@@ -162,7 +162,8 @@ public:
         :fLastError(0),
         fClassAtom(0),
         fClassName(nullptr),
-        fIsRegistered(false)
+        fIsRegistered(false),
+        fWndClass{0}
     {
         if (className == nullptr) {
             return;

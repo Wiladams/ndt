@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\core\appmain.cpp" />
+    <ClCompile Include="..\core\p5.cpp" />
     <ClCompile Include="..\examples\desktoplife.cpp" />
   </ItemGroup>
   <ItemGroup>
