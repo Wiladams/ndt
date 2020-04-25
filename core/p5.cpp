@@ -1,10 +1,22 @@
 #include "p5.hpp"
 #include "random.hpp"
-
+#include "stopwatch.hpp"
 
 namespace p5 {
     int width = 0;
     int height = 0;
+    static StopWatch SWatch;    // Stopwatch used for time 
+
+    double seconds() noexcept
+    {
+        return SWatch.seconds();
+    }
+
+    double millis() noexcept
+    {
+        // get millis from p5 stopwatch
+        return SWatch.millis();
+    }
 
     // Various modes
     void angleMode(int mode) noexcept

@@ -18,13 +18,6 @@
 #include "maths.hpp"
 
 
-/*
-Global State
-*/
-
-
-
-
 namespace p5 {
     EXPORT extern int width;
     EXPORT extern int height;
@@ -169,6 +162,7 @@ namespace p5 {
 
     BLImage* createImage(int width, int height) noexcept;
     void createCanvas(long aWidth, long aHeight) noexcept;
+    Surface * createSurface(long aWidth, long aHeight) noexcept;
 
     void loadPixels() noexcept;
     void updatePixels() noexcept;
@@ -177,4 +171,7 @@ namespace p5 {
     double random() noexcept;
     double random(double low, double high) noexcept;
     double random(double high) noexcept;
+
+    double millis();
+    double seconds();
 }

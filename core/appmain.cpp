@@ -45,13 +45,12 @@ int gargc;
 char **gargv;
 
 TimeTicker *gAppTicker = nullptr;
-static StopWatch SWatch;    // Stopwatch used for time 
 
 
 int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
-//BLContext gAppDC;
+
 UINT_PTR gAppTimerID = 0;
 bool gLooping = true;
 bool gRunning = true;
@@ -69,6 +68,83 @@ int mouseX = 0;
 int mouseY = 0;
 int pmouseX = 0;
 int pmouseY = 0;
+
+
+// Controlling drawing
+void fakeRedraw(void* param, int64_t tickCount)
+{
+    //printf("FAKE Redraw\n");
+}
+
+void forceRedraw(void* param, int64_t tickCount)
+{
+    if (gDrawHandler != nullptr) {
+        gDrawHandler();
+    }
+
+    if (!gIsLayered) {
+        // if we're not layered, then do a regular
+        // sort of WM_PAINT based drawing
+        InvalidateRect(gAppWindow->getHandle(), NULL, 1);
+    }
+    else {
+        if ((gAppSurface == nullptr)) {
+            printf("forceRedraw, NULL PTRs\n");
+            return;
+        }
+
+        gAppSurface->flush();
+        LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
+        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
+    }
+}
+
+/*
+    Environment
+*/
+void cursor()
+{
+    int count = ShowCursor(1);
+}
+
+// Show the cursor, if there is one
+// BUGBUG - we should be more robust here and
+// check to see if there's even a mouse attached
+// Then, decrement count enough times to make showing
+// the cursor absolute rather than relative.
+void noCursor()
+{
+    ShowCursor(0);
+}
+
+void setFrameRate(int newRate)
+{
+    gFPS = newRate;
+
+    if (gAppTicker != nullptr) {
+        gAppTicker->stop();
+        delete gAppTicker;
+    }
+
+    /*
+        int64_t interval = (int64_t)(1000.0 / gFPS);
+        gAppTicker = new TimeTicker(interval, fakeRedraw, nullptr);
+
+        if (gLooping) {
+            gAppTicker->start();
+        }
+    */
+
+    //printf("setFrameRate: %d\n", newRate);
+    UINT_PTR nIDEvent = 5;
+    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
+    //printf("KillTimer: %d %lld\n", bResult, gAppTimerID);
+    UINT uElapse = 1000 / gFPS;
+    gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
+    //printf("SetTimer: %lld\n", gAppTimerID);
+}
+
+
 
 
 
@@ -314,90 +390,7 @@ EXPORT LRESULT mouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 */
 
 
-// Controlling drawing
-void fakeRedraw(void *param, int64_t tickCount)
-{
-    //printf("FAKE Redraw\n");
-}
 
-void forceRedraw(void *param, int64_t tickCount)
-{
-    if (gDrawHandler != nullptr) {
-        gDrawHandler();
-    }
-
-    if (!gIsLayered) {
-        // if we're not layered, then do a regular
-        // sort of WM_PAINT based drawing
-        InvalidateRect(gAppWindow->getHandle(), NULL, 1);
-    } else {
-        if ((gAppSurface == nullptr)){
-            printf("forceRedraw, NULL PTRs\n");
-            return ;
-        }
-
-        gAppSurface->flush();
-        LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
-        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
-    }
-}
-
-/*
-    Environment
-*/
-void cursor()
-{
-    int count = ShowCursor(1);
-}
-
-// Show the cursor, if there is one
-// BUGBUG - we should be more robust here and
-// check to see if there's even a mouse attached
-// Then, decrement count enough times to make showing
-// the cursor absolute rather than relative.
-void noCursor()
-{
-    ShowCursor(0);
-}
-
-void setFrameRate(int newRate)
-{
-    gFPS = newRate;
-
-    if (gAppTicker != nullptr){
-        gAppTicker->stop();
-        delete gAppTicker;
-    }
-
-/*
-    int64_t interval = (int64_t)(1000.0 / gFPS);
-    gAppTicker = new TimeTicker(interval, fakeRedraw, nullptr);
-
-    if (gLooping) {
-        gAppTicker->start();
-    }
-*/
-
-    //printf("setFrameRate: %d\n", newRate);
-    UINT_PTR nIDEvent = 5;
-    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-    //printf("KillTimer: %d %lld\n", bResult, gAppTimerID);
-    UINT uElapse = 1000 / gFPS;
-    gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
-    //printf("SetTimer: %lld\n", gAppTimerID);
-}
-
-
-double seconds() noexcept
-{
-    return SWatch.seconds();
-}
-
-double millis() noexcept
-{
-    // get millis from p5 stopwatch
-    return SWatch.millis();
-}
 
 
 
@@ -604,8 +597,6 @@ void run()
     MSG msg;
     LRESULT res;
 
-    // reset overall timer
-    SWatch.reset();
     gAppWindow->show();
 
     while (true) {
@@ -676,12 +667,17 @@ void epilog()
 }
 
 
+/*
+    Why on Earth are there two 'main' routines in here?
+    the first one 'main()' will be called when the code is compiled
+    as a console application.
 
-int main(int argc, char **argv)
+    the second one 'WinMain' will be called when the code is compiled
+    as a WINDOWS subsystem.  by having both, we kill two birds with 
+    one stone.
+*/
+int ndtInit()
 {
-    gargc = argc;
-    gargv = argv;
-    
     if (!prolog()) {
         printf("error in prolog\n");
         return -1;
@@ -695,18 +691,19 @@ int main(int argc, char **argv)
     return 0;
 }
 
+int main(int argc, char **argv)
+{
+    gargc = argc;
+    gargv = argv;
+    
+    return ndtInit();
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShowCmd)
 {
     // BUGBUG, need to parse those command line arguments
     //gargc = argc;
     //gargv = argv;
 
-    prolog();
-
-    run();
-
-    // do any cleanup after all is done
-    epilog();
-
-    return 0;
+    return ndtInit();
 }

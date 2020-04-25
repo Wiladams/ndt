@@ -141,8 +141,7 @@ EXPORT void layered();
 EXPORT void noLayered();
 EXPORT void cursor();
 EXPORT void noCursor();
-EXPORT double millis();
-EXPORT double seconds();
+
 
 
 

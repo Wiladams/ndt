@@ -12,57 +12,65 @@ using namespace std;
 //https://ideone.com/cyVOkZ
 // split explicitly with ',' as delimeter
 // won't quite handle quoted entries
+// This was a little experiment
 vector<string> splitCSV(string line)
 {
     const regex re{"((?:[^\\\\,]|\\\\.)*?)(?:,|$)"};
     return {sregex_token_iterator(line.begin(), line.end(), re, 1), sregex_token_iterator()};
 }
 
-string nextField(BinStream &bs, const char delim)
-{
-    string s;
-    
-    //printf("nextField: %zd - %zd (%c)\n", bs.tell(), bs.size(), bs.peekOctet());
 
-    if (bs.tell() == bs.size())
-        {
-            bs.skip(1);
-            return s;
-        }
-
-    // trim leading whitespace
-    while (!bs.isEOF() && isspace(bs.peekOctet())) {
-        bs.skip(1);
-    }
-
-    while (!bs.isEOF()) {
-        char c = bs.readOctet();
-        //printf("%c", c);
-
-        // check for the delimeter
-        if (c == delim){
-            // break out of the loop if we found it
-            break;
-        }
-
-        // append a character to the string
-        s.append(1, c);
-    }
-
-    return s;
-}
 
 class CSVSplitter 
 {
 
 public:
+    // This next field calculator will split fields strictly
+    // on the delimeter.  it will NOT honor delimeters
+    // which are embedded in '"' fields.
+
+    // So, if the input has a quoted field with an embedded delimeter
+    // it will be split across that embedded delimeter
+    static string nextField(BinStream &bs, const char delim)
+    {
+        string s;
+    
+        //printf("nextField: %zd - %zd (%c)\n", bs.tell(), bs.size(), bs.peekOctet());
+
+        if (bs.tell() == bs.size())
+        {
+            bs.skip(1);
+            return s;
+        }
+
+        // trim leading whitespace
+        while (!bs.isEOF() && isspace(bs.peekOctet())) {
+            bs.skip(1);
+        }
+
+        while (!bs.isEOF()) {
+            char c = bs.readOctet();
+
+            // check for the delimeter
+            if (c == delim){
+                // break out of the loop if we found it
+                break;
+            }
+
+            // append a character to the string
+            s.append(1, c);
+        }
+
+        return s;
+    }
+
     static vector<string> SplitFields(char *buff, size_t bufflen, const char delimeter=',')
     {
         vector<string> res;
         BinStream bs(buff, bufflen);
 
         while (!bs.isEOF()) {
-            auto field = nextField(bs, delimeter);
+            auto field = CSVSplitter::nextField(bs, delimeter);
             res.push_back(field);
         }
 
@@ -77,7 +85,7 @@ void test_fields()
     BinStream bs(s, strlen(s));
 
     while (!bs.isEOF()) {
-        auto field = nextField(bs, ',');
+        auto field = CSVSplitter::nextField(bs, ',');
         //printf("field: %s\n", field.c_str());
     }
 }
