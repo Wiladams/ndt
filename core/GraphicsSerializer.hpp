@@ -1,71 +1,10 @@
 #pragma once
 
-//Binding P5 graphics API to a JSON serializer
-// this makes it possible to remote the interface
-// Basically, use the encoder instead of a regular surface
-// Serialize to some sort of stream, and that's it.
-
-
-enum {
-    GCMD_ANGLEMODE = 1,
-GCMD_ELLIPSEMODE,
-GCMD_RECTMODE,
-GCMD_BLENDMODE,
-GCMD_STROKECAPS,
-GCMD_STROKEJOIN,
-GCMD_STROKEWEIGHT,
-
-GCMD_PUSH,
-GCMD_POP,
-
-GCMD_TRANSLATE,
-GCMD_SCALE,
-GCMD_ROTATE,
-
-GCMD_FILL_COLOR,
-GCMD_FILL_GRADIENT,
-GCMD_FILL_PATTERN,
-GCMD_FILL_NONE,
-
-GCMD_STROKE,
-GCMD_NOSTROKE,
-
-GCMD_FLUSH,
-GCMD_LOADPIXELS,
-GCMD_UPDATEPIXELS,
-GCMD_CLEAR,
-GCMD_BACKGROUND,
-GCMD_CLIP,
-GCMD_NOCLIP,
-
-GCMD_SET,
-GCMD_POINT,
-GCMD_LINE,
-GCMD_RECT,
-GCMD_ROUNDRECT,
-GCMD_ELLIPSE,
-GCMD_CIRCLE,
-GCMD_TRIANGLE,
-GCMD_BEZIER,
-GCMD_POLYLINE,
-GCMD_POLYGON,
-GCMD_QUAD,
-
-GCMD_IMAGE,
-GCMD_IMAGE_SCALE,
-
-GCMD_TEXTALIGN,
-GCMD_TEXTFONT,
-GCMD_TEXTSIZE,
-GCMD_TEXT,
-
-GCMD_BEGINSHAPE,
-GCMD_VERTEX,
-GCMD_ENDSHAPE,
-};
+// Binding P5 graphics API to a  serializer
+// The binding takes all the Graphics calls and turns them
+// into writes to a binary stream
 
 #include "Graphics.h"
-#include <vector>
 #include "binstream.hpp"
 
 class GraphicsEncode : public IGraphics
