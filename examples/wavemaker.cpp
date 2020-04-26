@@ -1,6 +1,9 @@
 #include "p5.hpp"
 #include <cstdio>
 
+using namespace p5;
+
+
 //local stats = require("P5status")()
 
 double t = 0; // time variable

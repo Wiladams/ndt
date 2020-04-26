@@ -139,6 +139,8 @@ EXPORT void noLoop();
 
 EXPORT void layered();
 EXPORT void noLayered();
+EXPORT bool isLayered();
+
 EXPORT void cursor();
 EXPORT void noCursor();
 

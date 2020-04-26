@@ -552,6 +552,11 @@ void noLayered()
     gIsLayered = false;
 }
 
+bool isLayered()
+{
+    return gIsLayered;
+}
+
 void setWindowPosition(int x, int y)
 {
     gAppWindow->moveTo(x, y);

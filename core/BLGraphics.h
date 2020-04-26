@@ -22,7 +22,6 @@ class BLGraphics : public IGraphics
     RECTMODE fRectMode = RECTMODE::CORNER;
 
     bool fUseFill = true;
-    bool fUseStroke = true;
 
     // Text Stuff
     BLFontFace fFontFace;
@@ -73,12 +72,36 @@ private:
     }
 
 
+    // Increment command count since last flush
+// We track number of commands since last flush so that
+// we can flush after a certain limit
+    void incrCmd() {
+        fCommandCount += 1;
+
+        if (fCommandCount >= fCommandThreshold) {
+            flush();
+        }
+    }
+    // Reset command count to zero since last flush
+    void resetCommandCount() { fCommandCount = 0; }
+
+    // Create initial state
+    void initialize()
+    {
+        // white fill
+        fill(Color(255, 255, 255, 255));
+
+        // black stroke
+        stroke(Color(0, 0, 0, 255));
+
+        // Start with a default font so we can start drawing text
+        textFont("c:\\windows\\fonts\\segoeui.ttf");
+    }
 
 
 public:
     BLGraphics() 
         :fUseFill(true),
-        fUseStroke(true),
         fEllipseMode(ELLIPSEMODE::RADIUS),
         fRectMode(RECTMODE::CORNER),
         fAngleMode(RADIANS)
@@ -89,7 +112,6 @@ public:
     BLGraphics(BLContext& ctx)
         : fCtx(ctx)
         ,fUseFill(true)
-        ,fUseStroke(true)
         ,fEllipseMode(ELLIPSEMODE::CENTER)
         ,fRectMode(RECTMODE::CORNER)
         ,fAngleMode(RADIANS)
@@ -97,31 +119,10 @@ public:
         initialize();
     }
 
-    // Create initial state
-    void initialize()
-    {
-        // white fill
-        fCtx.setFillStyle(BLRgba32(0xffffffff));
-        // black stroke
-        fCtx.setStrokeStyle(BLRgba32(0xff000000));
-
-        // Start with a default font so we can start drawing text
-        textFont("c:\\windows\\fonts\\segoeui.ttf");
-    }
-
     BLContext& getBlend2dContext()
     {
         return fCtx;
     }
-
-    // Increment command count since last flush
-    void incrCmd() {
-        fCommandCount += 1;
-        if (fCommandCount >= fCommandThreshold)
-            flush();
-    }
-    // Reset command count to zero since last flush
-    void resetCommandCount() { fCommandCount = 0; }
 
     // how many threads is the context using
     int threadCount() { return fCtx.queryThreadCount(); }
@@ -152,10 +153,10 @@ public:
     // Color management
     virtual void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
     virtual void fill(const Color& c) { fUseFill = true; fCtx.setFillStyle(c); }
-    virtual void noFill() { fUseFill = false; }
+    virtual void noFill() { fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); fUseFill = false; }
 
-    virtual void stroke(const Color& c) { fUseStroke = true; fCtx.setStrokeStyle(c); }
-    virtual void noStroke() { fUseStroke = false; }
+    virtual void stroke(const Color& c) {fCtx.setStrokeStyle(c); }
+    virtual void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
 
 
     // Synchronization
@@ -217,10 +218,6 @@ public:
     }
 
     virtual void line(double x1, double y1, double x2, double y2) {
-        if (!fUseStroke)
-        {
-            return;
-        }
 
         fCtx.strokeLine(x1, y1, x2, y2);
 
@@ -232,7 +229,7 @@ public:
         if (fUseFill)
             fCtx.fillRect(arect);
 
-        if (fUseStroke)
+
             fCtx.strokeRect(arect);
 
         incrCmd();
@@ -244,9 +241,9 @@ public:
             fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         }
 
-        if (fUseStroke) {
+
             fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
-        }
+
 
         incrCmd();
     }
@@ -257,9 +254,9 @@ public:
             fCtx.fillRect(x, y, width, height);
         }
 
-        if (fUseStroke) {
+
             fCtx.strokeRect(x, y, width, height);
-        }
+
 
         incrCmd();
     }
@@ -271,9 +268,9 @@ public:
             fCtx.fillEllipse(params);
         }
 
-        if (fUseStroke) {
+
             fCtx.strokeEllipse(params);
-        }
+
 
         incrCmd();
     }
@@ -288,9 +285,9 @@ public:
             fCtx.fillGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
         }
 
-        if (fUseStroke) {
+
             fCtx.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
-        }
+
 
         incrCmd();
     }
@@ -317,9 +314,7 @@ public:
             fCtx.fillPolygon(pts, n);
         }
 
-        if (fUseStroke) {
-            fCtx.strokePolygon(pts, n);
-        }
+        fCtx.strokePolygon(pts, n);
 
         incrCmd();
     }

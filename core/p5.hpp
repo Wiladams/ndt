@@ -19,8 +19,16 @@
 
 
 namespace p5 {
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
     EXPORT extern int width;
     EXPORT extern int height;
+#ifdef __cplusplus
+}
+#endif
 
     // Specifying a color using a 32-bit integer
     // 0xAARRGGBB
@@ -172,6 +180,6 @@ namespace p5 {
     double random(double low, double high) noexcept;
     double random(double high) noexcept;
 
-    double millis();
-    double seconds();
+    double millis() noexcept;
+    double seconds() noexcept;
 }

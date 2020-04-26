@@ -21,6 +21,10 @@
 // reduce dependencies
 #define BINMIN(a,b) (((a)<(b))?(a):(b))
 
+typedef union {
+    uint32_t u32;
+    float f;
+} U32float;
 
 /*
     binstream(data, size, position)
@@ -315,6 +319,13 @@ size_t readLine(char* buff, const size_t bufflen)
         return (uint64_t)readInt(8);
     }
 
+    float readFloat()
+    {
+        U32float f1;
+        f1.u32 = readUInt32();
+        return f1.f;
+    }
+
 
 
     /*
@@ -427,7 +438,13 @@ size_t readLine(char* buff, const size_t bufflen)
         return writeInt(n, 8);
     }
 
-
+    void writeFloat(float value)
+    {
+        U32float f1;
+        f1.f = value;
+        writeUInt32(f1.u32);
+    }
+    
     // various useful fixed formats
     // fixed 2_14 numbers
     // 16-bit
@@ -458,6 +475,10 @@ size_t readLine(char* buff, const size_t bufflen)
     uint16_t readWORD() {return readUInt16();}
     uint32_t readDWORD() {return  readUInt32();}
     int32_t readLONG() {return readInt32();}
+
+
+
+
 
 /*
 readFWord = readInt16;

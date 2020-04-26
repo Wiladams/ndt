@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\appmain.cpp" />
+    <ClCompile Include="..\core\p5.cpp" />
     <ClCompile Include="..\examples\snapview.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

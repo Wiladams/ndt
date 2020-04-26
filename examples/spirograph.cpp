@@ -1,5 +1,7 @@
 #include "p5.hpp"
 
+using namespace p5;
+
 static const int NUMSINES = 20; // how many of these things can we do at once?
 double sines[NUMSINES]; // an array to hold all the current angles
 double rad; // an initial radius value for the central sine
@@ -15,6 +17,12 @@ bool trace = false; // are we tracing?
     
 void draw()
 {
+    if (isLayered())
+    {
+        // clear surface
+        background(0,0);
+    }
+
     if (!trace) {
         background(204); // clear screen if showing geometry
         stroke(0, 255); // black pen

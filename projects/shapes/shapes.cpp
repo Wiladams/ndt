@@ -1,9 +1,10 @@
 #include "p5.hpp"
+using namespace p5;
 
 void shape1()
 {
+	stroke(0);
 	fill(255);
-
 	beginShape();
 	vertex(30, 20);
 	vertex(85, 20);
@@ -14,6 +15,7 @@ void shape1()
 
 void shape2()
 {
+	stroke(0);
 	beginShape(SHAPEMODE::POINTS);
 	vertex(30, 20);
 	vertex(85, 20);
@@ -24,6 +26,7 @@ void shape2()
 
 void shape3()
 {
+	stroke(0);
 	beginShape(SHAPEMODE::LINES);
 	vertex(30, 20);
 	vertex(85, 20);
@@ -34,6 +37,7 @@ void shape3()
 
 void shape4()
 {
+	stroke(0);
 	noFill();
 	beginShape();
 	vertex(30, 20);
@@ -45,6 +49,7 @@ void shape4()
 
 void shape5()
 {
+	stroke(0);
 	noFill();
 	beginShape();
 	vertex(30, 20);
@@ -56,6 +61,7 @@ void shape5()
 
 void shape6()
 {
+	stroke(0);
 	fill(255);
 	beginShape(SHAPEMODE::TRIANGLES);
 	vertex(30, 75);
@@ -69,6 +75,7 @@ void shape6()
 
 void shape7()
 {
+	stroke(0);
 	fill(255);
 	beginShape(SHAPEMODE::TRIANGLE_STRIP);
 	vertex(30, 75);
@@ -83,6 +90,7 @@ void shape7()
 
 void shape8()
 {
+	stroke(0);
 	fill(255);
 	beginShape(SHAPEMODE::TRIANGLE_FAN);
 	vertex(57.5, 50);
@@ -96,6 +104,7 @@ void shape8()
 
 void shape9()
 {
+	stroke(0);
 	fill(255);
 	beginShape(SHAPEMODE::QUADS);
 	vertex(30, 20);
@@ -111,6 +120,7 @@ void shape9()
 
 void shape10()
 {
+	stroke(0);
 	fill(255);
 	beginShape(SHAPEMODE::QUAD_STRIP);
 	vertex(30, 20);
@@ -126,6 +136,7 @@ void shape10()
 
 void shape11()
 {
+	stroke(0);
 	fill(255);
 	beginShape();
 	vertex(20, 20);

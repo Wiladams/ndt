@@ -3,8 +3,10 @@
 #include "stopwatch.hpp"
 
 namespace p5 {
+
     int width = 0;
     int height = 0;
+
     static StopWatch SWatch;    // Stopwatch used for time 
 
     double seconds() noexcept

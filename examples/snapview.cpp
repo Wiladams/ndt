@@ -2,6 +2,8 @@
 
 #include "screensnapshot.hpp"
 
+using namespace p5;
+
 ScreenSnapshot *ss = nullptr;
 
 int gScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
