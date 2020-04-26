@@ -4,7 +4,9 @@
 #include "maths.hpp"
 
 // Enumerations for all the commands
-enum GRAPHICSCOMMANDS {
+// 
+enum  GRCOMMANDS {
+GCMD_NONE = 0,
 GCMD_ANGLEMODE = 1,
 GCMD_ELLIPSEMODE,
 GCMD_RECTMODE,
