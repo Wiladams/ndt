@@ -7,24 +7,11 @@
 #include "Graphics.h"
 #include "binstream.hpp"
 
-class GraphicsEncode : public IGraphics
+class GraphicsEncoder : public IGraphics
 {
     BinStream &fBS;
 
 private:
-
-    // Create initial state
-    void initialize()
-    {
-        // white fill
-        fill(Color(255, 255, 255, 255));
-
-        // black stroke
-        stroke(Color(0, 0, 0, 255));
-
-        // Start with a default font so we can start drawing text
-        textFont("c:\\windows\\fonts\\segoeui.ttf");
-    }
 
     bool writeShort(int16_t value)
     {
@@ -56,16 +43,17 @@ private:
         return true;
     }
 
-    bool writeCommand(uint32_t cmd)
+    bool writeCommand(uint16_t cmd)
     {
-        fBS.writeUInt32(cmd);
+        fBS.writeUInt16(cmd);
         return true;
     }
 
-    bool writeEnum(uint32_t cmd, uint32_t value)
+    bool writeEnum(uint16_t cmd, uint32_t value)
     {
         writeCommand(cmd);
         writeUInt(value);
+        return true;
     }
 
     bool writeCoord(double x, double y)
@@ -89,15 +77,16 @@ private:
     bool writeColor(const Color &c)
     {
         writeUInt(c.value);
+
+        return true;
     }
 
 
 public:
 
-    GraphicsEncode(BinStream& bs)
+    GraphicsEncoder(BinStream& bs)
         : fBS(bs)
     {
-        initialize();
     }
 
 

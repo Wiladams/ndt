@@ -155,13 +155,16 @@ public:
     virtual void fill(const Color& c) { fUseFill = true; fCtx.setFillStyle(c); }
     virtual void noFill() { fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); fUseFill = false; }
 
-    virtual void stroke(const Color& c) {fCtx.setStrokeStyle(c); }
+    virtual void stroke(const Color& c) {
+        fCtx.setStrokeStyle(c); 
+    }
     virtual void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
 
 
     // Synchronization
     virtual void flush()
     {
+        //printf("BLGraphics.flush()\n");
         fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         resetCommandCount();
     }
@@ -179,6 +182,7 @@ public:
     // Background management
     virtual void clear() 
     {
+        printf("BLGraphics.clear\n");
         fCtx.save();
         fCtx.clearAll();
         fCtx.restore();
@@ -217,33 +221,29 @@ public:
         // set(x, y, color(0)); 
     }
 
-    virtual void line(double x1, double y1, double x2, double y2) {
-
-        fCtx.strokeLine(x1, y1, x2, y2);
+    virtual void line(double x1, double y1, double x2, double y2) 
+    {
+        BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
+        //printf("BLGraphics.line(%d): %f %f %f %f\n", bResult, x1, y1, x2, y2);
 
         incrCmd();
     }
 
-    virtual void rect(const BLRect& arect)
+    virtual void rect(const BLRect& rr)
     {
-        if (fUseFill)
-            fCtx.fillRect(arect);
-
-
-            fCtx.strokeRect(arect);
+        printf("BLGraphics.rect( %f %f %f %f);\n", rr.x, rr.y, rr.w, rr.h);
+        BLResult bResult = fCtx.fillRect(rr);
+        bResult = fCtx.strokeRect(rr);
 
         incrCmd();
     }
 
     virtual void rect(double x, double y, double width, double height, double xradius, double yradius)
     {
-        if (fUseFill) {
-            fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
-        }
+        printf("BLGraphics.rrect( %f %f %f %f %f %f);\n", x, y, width, height, xradius, yradius);
 
-
-            fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
-
+        fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
+        fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
 
         incrCmd();
     }
@@ -523,7 +523,7 @@ public:
 
         case SHAPEMODE::QUADS: {
             // consume 4 points at a time doing quads
-            for (int i = 0; i < fShapeVertices.size(); i += 4) {
+            for (size_t i = 0; i < fShapeVertices.size(); i += 4) {
                 BLPoint p1 = fShapeVertices[i];
                 BLPoint p2 = fShapeVertices[i + 1];
                 BLPoint p3 = fShapeVertices[i + 2];
