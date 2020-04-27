@@ -342,9 +342,19 @@ public:
         drawDate(ctx);
 
         // If the mouse down while inside us, we'll stop
-        if (mouseIsPressed) {
-            double ldistance = dist(screenMouseX, screenMouseY, fCenterX, fCenterY);
-            if (ldistance < 70) {
+
+        
+        if (mouseIsPressed)
+        {
+            double ldistance = dist(mouseX, mouseY, fCenterX, fCenterY);
+
+            if ((ldistance >= 1) && (ldistance < 70)) 
+            {
+                // Move closer to the cursor location position
+                double x = lerp(mouseX, fCenterX, 0.3);
+                double y = lerp(mouseY, fCenterY, 0.3);
+                moveTo(x, y);
+
                 calculateFlightTime();
             }
         } else {
