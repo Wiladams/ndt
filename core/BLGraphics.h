@@ -182,7 +182,7 @@ public:
     // Background management
     virtual void clear() 
     {
-        printf("BLGraphics.clear\n");
+        //printf("BLGraphics.clear\n");
         fCtx.save();
         fCtx.clearAll();
         fCtx.restore();

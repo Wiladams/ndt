@@ -51,12 +51,11 @@ static const std::string MonthsShort[] = {
 
 class AnalogClock {
 
-    BLRect fFrame;
     double fCenterX;
     double fCenterY;
     double fRadius;
-
-    double fValue;
+    double fCenterRadius;
+    Color fBackgroundColor;
 
     bool fDrivenExternally;
     SYSTEMTIME fTime;
@@ -72,20 +71,16 @@ class AnalogClock {
 public:
     static BLSize getPreferredSize() { return BLSize(240, 240); }
 
-    AnalogClock(double x, double y)
+    AnalogClock(double cx, double cy, double radius = 240)
     {
-        auto size = AnalogClock::getPreferredSize();
-        fFrame.x = x;
-        fFrame.y = y;
-        fFrame.w = size.w;
-        fFrame.h = size.h;
 
-        fValue = 0;
+        fCenterX = cx;
+        fCenterY = cy;
+        fRadius = radius;
+        fCenterRadius = 6;
+        fBackgroundColor = color(0xe2, 0x84, 0x30, 0x7f);
 
-        fCenterX = fFrame.x + fFrame.w / 2;
-        fCenterY = fFrame.y + fFrame.h / 2;
-        fRadius = fFrame.w / 2;
-
+        // For doing hand animation
         fOvershootAmount = radians(1.25);
         fOvershootRemaining = 0;
         fRecoveryIncrement = radians(1.0);
@@ -96,7 +91,10 @@ public:
         GetLocalTime(&fTime);
     }
 
-    BLRect getFrame() { return fFrame; }
+    void setColor(const Color& c)
+    {
+        fBackgroundColor = c;
+    }
 
     void drawSecondTickmarks(IGraphics &ctx)
     {
@@ -185,7 +183,7 @@ public:
         // Draw the indicator line
         ctx.strokeWeight(4);
         ctx.stroke(30);
-        ctx.line(-4, 0, fCenterX - 40, 0);
+        ctx.line(-4, 0, fRadius - 40, 0);
 
         ctx.pop();
     }
@@ -202,7 +200,7 @@ public:
         // Draw the indicator line
         ctx.strokeWeight(4);
         ctx.stroke(30);
-        ctx.line(-2, 0, fCenterX - 20, 0);
+        ctx.line(-2, 0, fRadius - 20, 0);
 
         ctx.pop();
     }
@@ -250,6 +248,22 @@ public:
         ctx.text(buff, fCenterX, fCenterY + 24);
     }
 
+    void drawBackground(IGraphics& ctx)
+    {
+        // fill background
+        ctx.ellipseMode(ELLIPSEMODE::RADIUS);
+        ctx.stroke(255);
+        ctx.strokeWeight(2);
+        //ctx.fill(210, 210, 210);
+        ctx.fill(fBackgroundColor);
+        ctx.circle(fCenterX, fCenterY, fRadius);
+
+        // draw inside radius
+        ctx.fill(240);
+        ctx.circle(fCenterX, fCenterY, fCenterRadius);
+
+    }
+
     void draw(IGraphics &ctx)
     {
         // if self driven, get our own time
@@ -257,15 +271,7 @@ public:
             GetLocalTime(&fTime);
         }
 
-        // fill background
-        ctx.ellipseMode(ELLIPSEMODE::RADIUS);
-        ctx.stroke(255);
-        ctx.strokeWeight(2);
-        //ctx.fill(210, 210, 210);
-        ctx.fill(0xe2, 0x84, 0x30, 0x7f);
-        ctx.circle(fCenterX, fCenterY, fRadius);
-        ctx.fill(240);
-        ctx.circle(fCenterX, fCenterY, 6);
+        drawBackground(ctx);
 
         ctx.push();
 
@@ -289,7 +295,16 @@ public:
 
         drawDate(ctx);
 
-
+        // calculate distance to current mouse position
+        double ldistance = dist(mouseX, mouseY, fCenterX, fCenterY);
+        //printf("ldistance: %f\n", ldistance);
+        // if the distance is really close, then alter our center to match that of the mouse
+        // that will make us a but stick to the mouse position if they don't move the mouse very fast
+        // and let go when they escape
+        if (ldistance < 70) {
+            fCenterX = mouseX;
+            fCenterY = mouseY;
+        }
     }
 };
 
