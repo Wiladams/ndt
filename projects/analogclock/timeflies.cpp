@@ -8,20 +8,6 @@ using namespace p5;
 std::vector<AnalogClock> clocks;
 
 
-/*
-void keyTyped(const KeyEvent& event)
-{
-    // if [Space] toggle layering
-    if (keyCode == ' ') {
-        if (gIsLayered)
-            noLayered();
-        else {
-            layered();
-        }
-    }
-}
-*/
-
 Color  randomColor()
 {
     uint8_t r = (uint8_t)random(30, 255);
@@ -82,16 +68,13 @@ void draw()
 
 
 void setup()
-{
-
-    
+{   
     clocks.push_back(AnalogClock(displayWidth/2, displayHeight/2, 90));
 
     // Create a transparent canvas the size of the screen
-    //createCanvas((long)size.w, (long)size.h);
     createCanvas(displayWidth, displayHeight);
     layered();
     setWindowPosition(0, 0);
 
-    //frameRate(3);
+    frameRate(15);
 }

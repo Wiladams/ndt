@@ -67,6 +67,10 @@ class AnalogClock {
     long fLastSec;
 
     // For flying
+    double fFlightTime=0;     // at which seconds will we start flying
+    double fFlightSpeed=0;
+    double fFlightDuration = 0;
+    BLPoint fFlightDirection;
 
 public:
     static BLSize getPreferredSize() { return BLSize(240, 240); }
@@ -88,12 +92,54 @@ public:
 
         fDrivenExternally = false;
 
+        // Flight Stuff
+
         GetLocalTime(&fTime);
+
+        calculateFlightTime();
+    }
+
+    void calculateFlightTime()
+    {
+        // minimum flight delay, 10 seconds
+        // maximum flight delay, 60 seconds
+        fFlightTime = seconds() + random(10, 60);
+        fFlightDuration = random(10, 60);
+
+
+        fFlightDirection = BLPoint(random(-1, 1), random(-1, 1));
+        fFlightSpeed = random(1, 10);
     }
 
     void setColor(const Color& c)
     {
         fBackgroundColor = c;
+    }
+
+    void moveTo(const double cx, const double cy)
+    {
+        fCenterX = cx;
+        fCenterY = cy;
+    }
+
+    void autoMove()
+    {
+        fCenterX += fFlightDirection.x * fFlightSpeed;
+        fCenterY += fFlightDirection.y * fFlightSpeed;
+        
+        //printf("automove: %f %f\n", fCenterX, fCenterY);
+
+        // boundary test
+        // if we hit a limit, reverse direction
+        if ((fCenterX < 0) || (fCenterX > displayWidth))
+            fFlightDirection.x *= -1;
+
+        if ((fCenterY < 0) || (fCenterY > displayHeight))
+            fFlightDirection.y *= -1;
+
+        if (seconds() > fFlightTime + fFlightDuration) {
+            calculateFlightTime();
+        }
     }
 
     void drawSecondTickmarks(IGraphics &ctx)
@@ -264,7 +310,7 @@ public:
 
     }
 
-    void draw(IGraphics &ctx)
+    void draw(IGraphics& ctx)
     {
         // if self driven, get our own time
         if (!fDrivenExternally) {
@@ -287,7 +333,7 @@ public:
         drawHourTickmarks(ctx);
         drawSecondTickmarks(ctx);
 
-        
+
         drawHourHand(ctx);
         drawMinuteHand(ctx);
         drawSecondsHand(ctx);
@@ -295,16 +341,43 @@ public:
 
         drawDate(ctx);
 
+        // If the mouse down while inside us, we'll stop
+        if (mouseIsPressed) {
+            double ldistance = dist(screenMouseX, screenMouseY, fCenterX, fCenterY);
+            if (ldistance < 70) {
+                calculateFlightTime();
+            }
+        } else {
+            // otherwise, see if it's time to fly away
+            if ((fFlightTime > 0) && (seconds() > fFlightTime)) {
+                autoMove();
+            }
+        }
+/*
         // calculate distance to current mouse position
-        double ldistance = dist(mouseX, mouseY, fCenterX, fCenterY);
+        
         //printf("ldistance: %f\n", ldistance);
         // if the distance is really close, then alter our center to match that of the mouse
         // that will make us a but stick to the mouse position if they don't move the mouse very fast
         // and let go when they escape
-        if (ldistance < 70) {
-            fCenterX = mouseX;
-            fCenterY = mouseY;
+        //printf("distance: %f  flightTime: %f  now: %f\n", ldistance, fFlightTime, seconds());
+        if (ldistance < 70.0) {
+            // draw a little targeting ellipse
+            fill(255, 0, 0);
+            circle(mouseX, mouseY, 10);
+
+            // Move halfway between mouse and current position
+            double x = lerp(mouseX, fCenterX, 0.3);
+            double y = lerp(mouseY, fCenterY, 0.3);
+            moveTo(x, y);
+
+            // Reset flight time whenever we move
+            calculateFlightTime();
+        } else if ((fFlightTime > 0) && (seconds() > fFlightTime)){
+            // we're flying
+            autoMove();
         }
+ */
     }
 };
 

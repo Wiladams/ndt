@@ -105,6 +105,23 @@ public:
 
     }
 
+    // Controlling a Window's style
+    LONG addWindowStyle(int style)
+    {
+        return SetWindowLongA(fHandle, GWL_STYLE, GetWindowLongA(fHandle, GWL_EXSTYLE) | style);
+    }
+
+    LONG setWindowStyle(int style)
+    {
+        return SetWindowLongA(fHandle, GWL_STYLE, style);
+    }
+
+    LONG removeWindowStyle(int style)
+    {
+        return SetWindowLongA(fHandle, GWL_STYLE, (~(LONG)style) & GetWindowLongA(fHandle, GWL_STYLE));
+    }
+
+
     // Set a specific extended window style
     LONG setExtendedStyle(int xstyle)
     {

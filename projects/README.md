@@ -23,6 +23,7 @@ screenplanes - capture section of screen, split it to R,G,B,Gray.  Move it to th
 snapview - take a snapshot of your screen and watch it
 spirograph - watch it twirl, [SPACE] to see a different view
 svgcolors - just mouse around pretty colors
+timeflies - press [UP][DOWN] to get more or less time, [ESC] to quit time.  click to stop time, time never stands still
 wavemaker - move mouse around, watch pretty patterns
 
 These dactions were created using a programming environment called 'ndt', which can be found here:

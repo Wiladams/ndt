@@ -151,6 +151,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\core\apphost.h" />
     <ClInclude Include="..\..\core\BLGraphics.h" />
+    <ClInclude Include="..\..\core\maths.hpp" />
+    <ClInclude Include="..\..\core\NativeWindow.hpp" />
     <ClInclude Include="..\..\core\p5.hpp" />
     <ClInclude Include="..\..\core\Surface.h" />
   </ItemGroup>

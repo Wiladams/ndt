@@ -97,15 +97,23 @@ EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
 EXPORT extern int pixelDensity;
 
+EXPORT extern int clientLeft;
+EXPORT extern int clientTop;
+
+// Keyboard Globals
 EXPORT extern int keyCode;
 EXPORT extern int keyChar;
 
+// Mouse Globals
 EXPORT extern bool mouseIsPressed;
 EXPORT extern int mouseX;
 EXPORT extern int mouseY;
 EXPORT extern int pmouseX;
 EXPORT extern int pmouseY;
 
+// Location of mouse in screen coordinates
+EXPORT extern int screenMouseX;
+EXPORT extern int screenMouseY;
 
 
 

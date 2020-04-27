@@ -57,18 +57,27 @@ bool gRunning = true;
 bool gIsLayered = false;
 
 // Some globals friendly to the p5 environment
+// Display Globals
 int displayWidth=0;
 int displayHeight=0;
 int pixelDensity = 1;
+
+// Client Area globals
+int clientLeft;
+int clientTop;
+
+// Keyboard globals
 int keyCode = 0;
 int keyChar = 0;
 
+// Mouse Globals
 bool mouseIsPressed = false;
 int mouseX = 0;
 int mouseY = 0;
 int pmouseX = 0;
 int pmouseY = 0;
-
+int screenMouseX = 0;
+int screenMouseY = 0;
 
 // Controlling drawing
 void fakeRedraw(void* param, int64_t tickCount)
@@ -196,6 +205,13 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    // First get screen location of mouse
+    POINT mousePT;
+    auto bResult = GetCursorPos(&mousePT);
+    screenMouseX = mousePT.x;
+    screenMouseY = mousePT.y;
+
+    
     LRESULT res = 0;
     MouseEvent e;
 
@@ -540,15 +556,21 @@ void noLoop() {
     //printf("noLoop: %d  %Id\n", bResult, gAppTimerID);
 }
 
+static LONG gLastWindowStyle=0;
+
 void layered()
 {
     gAppWindow->setExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gLastWindowStyle = gAppWindow->setWindowStyle(WS_POPUP);
+
     gIsLayered = true;
 }
 
 void noLayered()
 {
     gAppWindow->clearExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow->setWindowStyle(gLastWindowStyle);
+
     gIsLayered = false;
 }
 
@@ -571,7 +593,6 @@ bool setCanvasSize(long aWidth, long aHeight)
     }
 
     gAppSurface = new Surface(aWidth, aHeight);
-
 
     return true;
 }
@@ -638,7 +659,16 @@ void run()
 // Declare some standard Window Kinds we'll be using
 User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);
 
+HHOOK mouseHook = nullptr;
 
+LRESULT CALLBACK MouseHooker(int hookCode, WPARAM wParam, LPARAM lParam)
+{
+    printf("MouseHooker\n");
+    // After we're done with our processing, pass it along like
+    // a nice person
+    //if (hookCode < 0)
+        return CallNextHookEx(nullptr, hookCode, wParam, lParam);
+}
 
 // do any initialization that needs to occur 
 // in the very beginning
@@ -661,6 +691,16 @@ bool prolog()
 
     gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
 
+    // Get client area
+    RECT cRect;
+    GetClientRect(gAppWindow->getHandle(), &cRect);
+    clientLeft = cRect.left;
+    clientTop = cRect.top;
+
+    // Setup any hooks for keyboard and mouse events
+    //mouseHook = SetWindowsHookExA(WH_MOUSE, MouseHooker, nullptr, 0);
+    //printf("mouseHook: %p  Error: %d\n", mouseHook, GetLastError());
+
     return true;
 }
 
@@ -669,6 +709,9 @@ bool prolog()
 void epilog()
 {
     WSACleanup();
+
+    // Release the mouse hook 
+    //UnhookWindowsHookEx(mouseHook);
 }
 
 
@@ -681,7 +724,7 @@ void epilog()
     as a WINDOWS subsystem.  by having both, we kill two birds with 
     one stone.
 */
-int ndtInit()
+int ndtRun()
 {
     if (!prolog()) {
         printf("error in prolog\n");
@@ -701,7 +744,7 @@ int main(int argc, char **argv)
     gargc = argc;
     gargv = argv;
     
-    return ndtInit();
+    return ndtRun();
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShowCmd)
@@ -710,5 +753,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prev, LPSTR cmdLine, int nShow
     //gargc = argc;
     //gargv = argv;
 
-    return ndtInit();
+    return ndtRun();
 }
