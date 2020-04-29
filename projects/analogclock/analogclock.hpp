@@ -72,7 +72,12 @@ class AnalogClock {
     double fFlightDuration = 0;
     BLPoint fFlightDirection;
 
+
 public:
+    static const int SmallestRadius = 90;
+    static const int LargestRadius = 300;
+
+
     static BLSize getPreferredSize() { return BLSize(240, 240); }
 
     AnalogClock(double cx, double cy, double radius = 240)
@@ -81,7 +86,7 @@ public:
         fCenterX = cx;
         fCenterY = cy;
         fRadius = radius;
-        fCenterRadius = 6;
+        fCenterRadius = fRadius*.618;
         fBackgroundColor = color(0xe2, 0x84, 0x30, 0x7f);
 
         // For doing hand animation
@@ -101,14 +106,23 @@ public:
 
     void calculateFlightTime()
     {
+        // Every time we calculate the flight time, the 
+        // fCenterRadius should reduce until it gets down
+        // to the smallest internal radius (3)
+        fCenterRadius = constrain(fCenterRadius-1, 3, fCenterRadius);
+
         // minimum flight delay, 10 seconds
         // maximum flight delay, 60 seconds
         fFlightTime = seconds() + random(10, 60);
         fFlightDuration = random(10, 60);
 
 
-        fFlightDirection = BLPoint(random(-1, 1), random(-1, 1));
-        fFlightSpeed = random(1, 10);
+        fFlightDirection = BLPoint(random(-2, 2), random(-2, 2));
+        // The speed should be modulated by the 'weight' of the clock
+        // slowest speed == 1, at biggest radius
+        fFlightSpeed = map(fRadius, SmallestRadius, LargestRadius, 10, 1);
+        //fFlightSpeed = random(1, 10);
+
     }
 
     void setColor(const Color& c)
@@ -297,21 +311,36 @@ public:
     void drawBackground(IGraphics& ctx)
     {
         // fill background
-        ctx.ellipseMode(ELLIPSEMODE::RADIUS);
-        ctx.stroke(255);
-        ctx.strokeWeight(2);
+        BLGradient gradient(BLRadialGradientValues(fCenterX, fCenterY, fCenterX, fCenterY, fRadius));
+        gradient.addStop(0, color(220, 127));     // center
+        gradient.addStop(0.20, color(fBackgroundColor.r, fBackgroundColor.g, fBackgroundColor.b, 127));     // center
+        gradient.addStop(0.80, fBackgroundColor);
+        //gradient.addStop(0.90, color(127,127));
+        gradient.addStop(1.0, color(65, 127));              // edge
+        ctx.fill(gradient);
+        //ctx.fill(fBackgroundColor);
+
+
+        noStroke();
+        //ctx.stroke(255);
+        //ctx.strokeWeight(2);
         //ctx.fill(210, 210, 210);
-        ctx.fill(fBackgroundColor);
+
+        ctx.ellipseMode(ELLIPSEMODE::RADIUS);
         ctx.circle(fCenterX, fCenterY, fRadius);
 
         // draw inside radius
-        ctx.fill(240);
+        // This indicates where mouse activation occurs
+        noStroke();
+        ctx.fill(240,65);
         ctx.circle(fCenterX, fCenterY, fCenterRadius);
 
     }
 
     void draw(IGraphics& ctx)
     {
+        //printf("RAWMOUSE: %d %d\n", rawMouseX, rawMouseY);
+
         // if self driven, get our own time
         if (!fDrivenExternally) {
             GetLocalTime(&fTime);
@@ -342,13 +371,11 @@ public:
         drawDate(ctx);
 
         // If the mouse down while inside us, we'll stop
-
-        
         if (mouseIsPressed)
         {
             double ldistance = dist(mouseX, mouseY, fCenterX, fCenterY);
 
-            if ((ldistance >= 1) && (ldistance < 70)) 
+            if ((ldistance >= 1) && (ldistance < fCenterRadius))
             {
                 // Move closer to the cursor location position
                 double x = lerp(mouseX, fCenterX, 0.3);
@@ -363,31 +390,6 @@ public:
                 autoMove();
             }
         }
-/*
-        // calculate distance to current mouse position
-        
-        //printf("ldistance: %f\n", ldistance);
-        // if the distance is really close, then alter our center to match that of the mouse
-        // that will make us a but stick to the mouse position if they don't move the mouse very fast
-        // and let go when they escape
-        //printf("distance: %f  flightTime: %f  now: %f\n", ldistance, fFlightTime, seconds());
-        if (ldistance < 70.0) {
-            // draw a little targeting ellipse
-            fill(255, 0, 0);
-            circle(mouseX, mouseY, 10);
-
-            // Move halfway between mouse and current position
-            double x = lerp(mouseX, fCenterX, 0.3);
-            double y = lerp(mouseY, fCenterY, 0.3);
-            moveTo(x, y);
-
-            // Reset flight time whenever we move
-            calculateFlightTime();
-        } else if ((fFlightTime > 0) && (seconds() > fFlightTime)){
-            // we're flying
-            autoMove();
-        }
- */
     }
 };
 

@@ -100,7 +100,7 @@ population
 void print_covid_locations()
 {
     mmap m = mmap::create(".\\data\\locations.csv");
-    BinStream bs = BinStream(m.data, m.size);
+    BinStream bs = BinStream(m.data(), m.size());
     if (!bs.isValid())
         return ;
 
@@ -128,8 +128,8 @@ void print_covid_locations()
 
 void test_file()
 {
-    mmap m = mmap::create(".\\data\\locations.csv");
-    BinStream bs = BinStream(m.data, m.size);
+    mmap m = mmap::create(".\\data\\locations.csv", GENERIC_READ);
+    BinStream bs = BinStream(m.data(), m.size());
     if (!bs.isValid())
         return ;
 

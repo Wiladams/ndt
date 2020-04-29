@@ -20,14 +20,12 @@ Color  randomColor()
 
 void addClock()
 {
-    //printf("addingClock\n");
-    clocks.push_back(AnalogClock(random(120, displayWidth - 120), random(120, displayHeight - 120), random(90, 300)));
+    clocks.push_back(AnalogClock(random(120, displayWidth - 120), random(120, displayHeight - 120), random(AnalogClock::SmallestRadius, AnalogClock::LargestRadius)));
     clocks[clocks.size() - 1].setColor(randomColor());
 }
 
 void removeClock()
 {
-    //printf("removingClock\n");
     if (clocks.size() < 2)
         return;
 
@@ -73,8 +71,9 @@ void setup()
 
     // Create a transparent canvas the size of the screen
     createCanvas(displayWidth, displayHeight);
-    layered();
+
     setWindowPosition(0, 0);
 
-    frameRate(15);
+    layered();
+    frameRate(30);
 }

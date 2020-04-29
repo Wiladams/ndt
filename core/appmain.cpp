@@ -5,7 +5,8 @@
 #include "LayeredWindow.hpp"
 #include "TimeTicker.hpp"
 
-#include <stdio.h>
+#include <cstdio>
+#include <array>
 
 // Some function signatures
 typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -58,9 +59,9 @@ bool gIsLayered = false;
 
 // Some globals friendly to the p5 environment
 // Display Globals
-int displayWidth=0;
-int displayHeight=0;
-int pixelDensity = 1;
+int displayWidth = 0;
+int displayHeight= 0;
+unsigned int displayDpi = 0;
 
 // Client Area globals
 int clientLeft;
@@ -76,8 +77,46 @@ int mouseX = 0;
 int mouseY = 0;
 int pmouseX = 0;
 int pmouseY = 0;
-int screenMouseX = 0;
-int screenMouseY = 0;
+
+// Raw Mouse input
+int rawMouseX = 0;
+int rawMouseY = 0;
+
+
+//
+//    https://docs.microsoft.com/en-us/windows/desktop/inputdev/using-raw-input
+//
+//Raw input utility functions
+static const USHORT HID_MOUSE = 2;
+static const USHORT HID_KEYBOARD = 6;
+
+// Register for mouseand keyboard
+void HID_RegisterDevice(HWND hTarget, USHORT usage, USHORT usagePage = 1)
+{
+    RAWINPUTDEVICE hid[1];
+
+    hid[0].usUsagePage = usagePage;
+    hid[0].usUsage = usage;
+    hid[0].dwFlags = (RIDEV_DEVNOTIFY | RIDEV_INPUTSINK);
+    hid[0].hwndTarget = hTarget;
+    UINT uiNumDevices = 1;
+
+    BOOL bResult = ::RegisterRawInputDevices(hid, uiNumDevices, sizeof(RAWINPUTDEVICE));
+    printf("HID_RegisterDevice: HWND: 0x%p,  %d  %d\n", hTarget, bResult, ::GetLastError());
+}
+
+void HID_UnregisterDevice(USHORT usage)
+{
+    RAWINPUTDEVICE hid{ 0 };
+    hid.usUsagePage = 1;
+    hid.usUsage = usage;
+    hid.dwFlags = RIDEV_REMOVE;
+    hid.hwndTarget = nullptr;
+    UINT uiNumDevices = 1;
+
+    BOOL bResult = ::RegisterRawInputDevices(&hid, 1, sizeof(RAWINPUTDEVICE));
+}
+
 
 // Controlling drawing
 void fakeRedraw(void* param, int64_t tickCount)
@@ -171,6 +210,7 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch(msg) {
 
+        
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             e.activity = KEYPRESSED;
@@ -206,10 +246,10 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // First get screen location of mouse
-    POINT mousePT;
-    auto bResult = GetCursorPos(&mousePT);
-    screenMouseX = mousePT.x;
-    screenMouseY = mousePT.y;
+    //POINT mousePT;
+    //auto bResult = GetCursorPos(&mousePT);
+    //screenMouseX = mousePT.x;
+    //screenMouseY = mousePT.y;
 
     
     LRESULT res = 0;
@@ -484,7 +524,42 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     //printf("MSG: 0x%04x\n", msg);
     LRESULT res = 0;
 
-    if (msg == WM_DESTROY) {
+    if (msg == WM_INPUT) {
+        //printf("WM_INPUT\n");
+        bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
+        HRAWINPUT inputHandle = (HRAWINPUT)lParam;
+        UINT uiCommand = RID_INPUT;
+        UINT cbSize;
+
+        // First, find out how much space will be needed
+        UINT size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, nullptr, &cbSize, sizeof(RAWINPUTHEADER));
+
+
+        // Allocate space, and try it again
+        std::vector<uint8_t> buff(cbSize, 0);
+        size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, buff.data(), &cbSize, sizeof(RAWINPUTHEADER));
+        //printf("WM_INPUT: %d - %d\n", cbSize, size);
+        if (size == cbSize) {
+            RAWINPUT* raw = (RAWINPUT*)buff.data();
+
+            // See what we got
+            //printf("RAWINPUT: %d\n", raw->header.dwType);
+
+            switch (raw->header.dwType) {
+                case RIM_TYPEMOUSE: {
+                    rawMouseX = raw->data.mouse.lLastX;
+                    rawMouseY = raw->data.mouse.lLastY;
+                    //printf("RAWMOUSE: %d %d\n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+                }
+                break;
+
+                    case RIM_TYPEKEYBOARD: {
+
+                    }
+                                         break;
+                    }
+                }
+    } else if (msg == WM_DESTROY) {
         // By doing a PostQuitMessage(), a 
         // WM_QUIT message will eventually find its way into the
         // message queue.
@@ -554,6 +629,21 @@ void noLoop() {
     BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
 
     //printf("noLoop: %d  %Id\n", bResult, gAppTimerID);
+}
+
+void rawInput()
+{
+    HWND localWindow = gAppWindow->getHandle();
+
+    HID_RegisterDevice(gAppWindow->getHandle(), HID_MOUSE);
+    HID_RegisterDevice(gAppWindow->getHandle(), HID_KEYBOARD);
+}
+
+void noRawInput()
+{
+    // unregister devices
+    HID_UnregisterDevice(HID_MOUSE);
+    HID_UnregisterDevice(HID_KEYBOARD);
 }
 
 static LONG gLastWindowStyle=0;
@@ -682,8 +772,13 @@ bool prolog()
 
 
     // Get the screen size
+    //First thing to do is let the system know we are
+    // going to be DPI aware
+    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    displayDpi = ::GetDpiForSystem();
     displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
     displayHeight = ::GetSystemMetrics(SM_CYSCREEN);
+    //printf("appmain.prolog, width: %d  height: %d  DPI: %d\n", displayWidth, displayHeight, displayDpi);
 
     // set the canvas a default size to start
     // but don't show it
@@ -696,6 +791,8 @@ bool prolog()
     GetClientRect(gAppWindow->getHandle(), &cRect);
     clientLeft = cRect.left;
     clientTop = cRect.top;
+
+    rawInput();
 
     // Setup any hooks for keyboard and mouse events
     //mouseHook = SetWindowsHookExA(WH_MOUSE, MouseHooker, nullptr, 0);
@@ -710,6 +807,7 @@ void epilog()
 {
     WSACleanup();
 
+    noRawInput();
     // Release the mouse hook 
     //UnhookWindowsHookEx(mouseHook);
 }

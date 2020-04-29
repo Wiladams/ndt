@@ -95,7 +95,7 @@ EXPORT extern bool gIsLayered;
 // Globals we expect the user to consume
 EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
-EXPORT extern int pixelDensity;
+EXPORT extern unsigned int displayDpi;
 
 EXPORT extern int clientLeft;
 EXPORT extern int clientTop;
@@ -112,8 +112,8 @@ EXPORT extern int pmouseX;
 EXPORT extern int pmouseY;
 
 // Location of mouse in screen coordinates
-EXPORT extern int screenMouseX;
-EXPORT extern int screenMouseY;
+EXPORT extern int rawMouseX;
+EXPORT extern int rawMouseY;
 
 
 
@@ -148,6 +148,8 @@ EXPORT void noLoop();
 EXPORT void layered();
 EXPORT void noLayered();
 EXPORT bool isLayered();
+EXPORT void rawInput();
+EXPORT void noRawInput();
 
 EXPORT void cursor();
 EXPORT void noCursor();

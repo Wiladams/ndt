@@ -510,7 +510,7 @@ PixelBuffer * readFromFile(const char *filename, TargaMeta &meta)
         return nullptr;
     }
 
-    BinStream bs(fmap.getPointer(), fmap.length(), 0, true );
+    BinStream bs(fmap.data(), fmap.size(), 0, true );
 
     if (!bs.isValid()) {
         printf("BinaryStream not valid.\n");
