@@ -98,7 +98,6 @@ public:
         fDrivenExternally = false;
 
         // Flight Stuff
-
         GetLocalTime(&fTime);
 
         calculateFlightTime();
@@ -109,19 +108,19 @@ public:
         // Every time we calculate the flight time, the 
         // fCenterRadius should reduce until it gets down
         // to the smallest internal radius (3)
-        fCenterRadius = constrain(fCenterRadius-1, 3, fCenterRadius);
+        fCenterRadius = constrain(fCenterRadius-0.3, 3, fCenterRadius);
 
-        // minimum flight delay, 10 seconds
-        // maximum flight delay, 60 seconds
+        // delay before flight takeoff, 10 to 60 seconds
         fFlightTime = seconds() + random(10, 60);
+
+        // flight duration from 10 to 60 seconds
         fFlightDuration = random(10, 60);
 
 
         fFlightDirection = BLPoint(random(-2, 2), random(-2, 2));
-        // The speed should be modulated by the 'weight' of the clock
-        // slowest speed == 1, at biggest radius
+        // The speed is inversely proportional to the size
+        // smaller clocks move faster
         fFlightSpeed = map(fRadius, SmallestRadius, LargestRadius, 10, 1);
-        //fFlightSpeed = random(1, 10);
 
     }
 
@@ -270,7 +269,7 @@ public:
     {
         ctx.push();
 
-        //Do the rotation thing
+        // Do the rotation thing
         // translate(self.centerX, self.centerY)
         double secRads = radians(map(fTime.wSecond, 0, 59, 0, 354));
         if (fTime.wSecond != fLastSec) {
@@ -285,7 +284,7 @@ public:
 
         ctx.rotate(secRads);
 
-        //Draw the indicator line
+        // Draw the indicator line
         ctx.strokeWeight(1);
         ctx.stroke(255, 0, 0);
         ctx.line(-8, 0, fRadius - 10, 0);
@@ -315,7 +314,6 @@ public:
         gradient.addStop(0, color(220, 127));     // center
         gradient.addStop(0.20, color(fBackgroundColor.r, fBackgroundColor.g, fBackgroundColor.b, 127));     // center
         gradient.addStop(0.80, fBackgroundColor);
-        //gradient.addStop(0.90, color(127,127));
         gradient.addStop(1.0, color(65, 127));              // edge
         ctx.fill(gradient);
         //ctx.fill(fBackgroundColor);

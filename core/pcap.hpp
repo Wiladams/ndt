@@ -1,0 +1,234 @@
+#pragma once
+
+#include <cstdint>
+#include <cstdio>
+#include "binstream.hpp"
+#include "binops.hpp"
+
+/*
+Useful References
+Ethernet Header
+https://en.wikipedia.org/wiki/Ethernet_frame#Header
+
+Network packet parsing
+    http://yuba.stanford.edu/~nickm/papers/ancs48-gibb.pdf
+*/
+
+namespace pcap {
+typedef enum {
+    PCAP_D_INOUT = 0,
+    PCAP_D_IN,
+    PCAP_D_OUT
+} pcap_direction_t;
+
+// http://www.tcpdump.org/linktypes.html
+typedef enum {
+    LINKTYPE_NULL = 0,
+    LINKTYPE_ETHERNET = 1,
+    LINKTYPE_AX25 = 3,
+    LINKTYPE_IEEE802_5 = 6,
+    LINKTYPE_ARCNET_BSD = 7,
+    LINKTYPE_SLIP       = 8,
+    LINKTYPE_PPP        = 9,
+    LINKTYPE_FDDI       = 10,
+    LINKTYPE_PPP_HDLC   = 50,
+    LINKTYPE_PPP_ETHER  = 51,
+    LINKTYPE_ATM_RFC1483 = 100,
+    LINKTYPE_RAW        = 101,
+
+    LINKTYPE_LOOP       = 108,
+} LINKTYPE;
+
+// Global/File Header
+typedef struct pcap_file_header_t {
+        uint32_t magic;         // magic number 
+        uint16_t version_major;  // major version number 
+        uint16_t version_minor;  // minor version number 
+        int32_t  thiszone;       // GMT to local correction 
+        uint32_t sigfigs;        // accuracy of timestamps 
+        uint32_t snaplen;        // max length of captured packets, in octets 
+        uint32_t linktype;        // data link type 
+} pcap_hdr;
+
+// Record (Packet) Header
+typedef struct pcaprec_hdr_s {
+        uint32_t ts_sec;         /* timestamp seconds */
+        uint32_t ts_usec;        /* timestamp microseconds */
+        uint32_t incl_len;       /* number of octets of packet saved in file */
+        uint32_t orig_len;       /* actual length of packet */
+} pcaprec_hdr_t;
+
+// Ethernet link layer
+    //uint8_t Preamble[7];
+    //uint8_t Delimeter;
+// Ethernet data link layer
+typedef struct ethernet_hdr_s {
+    uint8_t MACDestination[6];
+    uint8_t MACSource[6];
+    uint8_t tag[4];     // Optional
+    uint8_t TypeOrLength[2];
+    // Followed by payload, 46 - 1500 octets
+    // Followed by Frame check sequence (32-bit CRC)
+    // Followed by interpacket gap (12 octets)
+} ethernet_hdr_t;
+
+// Here's how you figure out what you're looking at
+// This data structure is not what's on the wire, it is
+// meant to be easy to handle in code, so something 
+// else has to parse the content and stick it in here
+typedef struct ip_hdr
+{
+    // byte offset - 0
+    uint8_t     Version;    // 4-bit, IPv4 version
+    uint8_t     IHL;        // 4-bit, Internet Header Length (in 32-bit words)
+
+    // byte - 1
+    uint8_t     DSCP;       // Differentiated Services Codepoint
+    uint8_t     ECN;        // Explicit Congestion Notification
+
+    // byte 2 - 3
+    uint16_t    TotalLength;    // Entire packet size, including header + data
+
+    // byte 4 - 5
+    uint16_t    ID;             // Unique Identifier
+    
+    // byte 6 - 7
+    bool Flags_reserved;           // reserved
+    bool DF;                    // Dont fragment
+    bool MF;                    // More Fragments
+    uint16_t    FragmentOffset; // Fragment Offset
+
+    uint8_t  TimeToLive;           // Time to live
+    uint8_t  Protocol;      // Protocol(TCP,UDP etc)
+    uint16_t HeaderChecksum;      // IP checksum
+    uint32_t SourceIPAddress;       // Source address
+    uint32_t DestinationIPAddress;      // Source address
+}   IPV4_HDR;
+
+
+typedef struct udp_hdr
+{
+ unsigned short source_port;     // Source port no.
+ unsigned short dest_port;       // Dest. port no.
+ unsigned short udp_length;      // Udp packet length
+ unsigned short udp_checksum;    // Udp checksum (optional)
+}   UDP_HDR;
+
+typedef struct tcp_header
+{
+ unsigned short source_port;  // source port
+ unsigned short dest_port;    // destination port
+ unsigned int   sequence;     // sequence number - 32 bits
+ unsigned int   acknowledge;  // acknowledgement number - 32 bits
+ 
+ unsigned char  ns   :1;          //Nonce Sum Flag Added in RFC 3540.
+ unsigned char  reserved_part1:3; //according to rfc
+ unsigned char  data_offset:4;    //number of dwords in the TCP header.
+ 
+ unsigned char  fin  :1;      //Finish Flag
+ unsigned char  syn  :1;      //Synchronise Flag
+ unsigned char  rst  :1;      //Reset Flag
+ unsigned char  psh  :1;      //Push Flag
+ unsigned char  ack  :1;      //Acknowledgement Flag
+ unsigned char  urg  :1;      //Urgent Flag
+ 
+ unsigned char  ecn  :1;      //ECN-Echo Flag
+ unsigned char  cwr  :1;      //Congestion Window Reduced Flag
+ 
+ unsigned short window;          // window
+ unsigned short checksum;        // checksum
+ unsigned short urgent_pointer;  // urgent pointer
+}   TCP_HDR;
+
+typedef struct icmp_hdr
+{
+ uint8_t type;          // ICMP Error type
+ uint8_t code;          // Type sub code
+ uint16_t checksum;
+ uint16_t id;
+ uint16_t seq;
+}   ICMP_HDR;
+
+bool readFileHeader(BinStream &bs, pcap_hdr &hdr)
+{
+
+    hdr.magic = bs.readUInt32();
+    hdr.version_major = bs.readUInt16();
+    hdr.version_minor = bs.readUInt16();
+    hdr.thiszone = bs.readInt32();
+    hdr.sigfigs = bs.readUInt32();
+    hdr.snaplen = bs.readUInt32();
+    hdr.linktype = bs.readUInt32();
+
+    return true;
+}
+
+
+bool readRecordHeader(BinStream &bs, pcaprec_hdr_t &hdr)
+{
+    bs.readBytes((uint8_t *)&hdr, sizeof(hdr));
+/*
+    hdr.ts_sec = bs.readUInt32();
+    hdr.ts_usec = bs.readUInt32();
+    hdr.incl_len = bs.readUInt32();
+    hdr.orig_len = bs.readUInt32();
+*/
+    return true;
+}
+
+// https://en.wikipedia.org/wiki/Ethernet_frame#Header
+// Careful to read starting at the packet layer, not the 
+// link layer
+bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
+{
+    bs.readBytes((uint8_t *)&pkt.MACDestination, 6);
+    bs.readBytes((uint8_t *)&pkt.MACSource, 6);
+    
+    // Read a couple of bytes to figure out the tag
+    uint16_t tag = bops::bswap16(bs.readUInt16());
+    printf("TAG: 0x%04x\n", tag);
+
+    //uint8_t buff[2];
+    //bs.readBytes(buff, 2);
+    //printf("TAG: %02x:%02x\n", buff[0], buff[1]);
+
+    return true;
+}
+//
+// https://en.wikipedia.org/wiki/IPv4#Header
+//
+bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
+{
+    //uint8_t buff[20];
+    
+    // Read an initial 20 bytes, so we can start reading
+    // values from there
+    //bs.readBytes(buff, 20);
+
+    uint8_t abyte = bs.readOctet();
+    printf("Ver/IHL: 0x%x\n", abyte);
+    /*
+    hdr.Version = bitsValueFromBytes(buff, 0, 4, false);
+    hdr.IHL = bitsValueFromBytes(buff, 4, 4, true);
+
+    hdr.DSCP = bitsValueFromBytes(buff, 8,6, true);
+    hdr.ECN = bitsValueFromBytes(buff, 14,2, true);
+    hdr.TotalLength = bitsValueFromBytes(buff, 16,16, true);
+
+    hdr.ID = bitsValueFromBytes(buff, 32,16, true);
+    hdr.Flags_reserved = bitsValueFromBytes(buff, 48,1, true);
+    hdr.DF = bitsValueFromBytes(buff, 49,1, true);
+    hdr.MF = bitsValueFromBytes(buff, 50,1, true);
+    hdr.FragmentOffset = bitsValueFromBytes(buff, 51,13, true);
+
+    hdr.TimeToLive = bitsValueFromBytes(buff, 64,8, true);
+    hdr.Protocol = bitsValueFromBytes(buff, 72,8, true);
+    hdr.HeaderChecksum = bitsValueFromBytes(buff, 80,16, true);
+
+    hdr.SourceIPAddress = bitsValueFromBytes(buff, 96,32, true);
+    hdr.DestinationIPAddress = bitsValueFromBytes(buff, 128,32, true);
+*/
+    return true;
+}
+
+}        // namespace pcap

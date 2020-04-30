@@ -51,7 +51,8 @@ public:
 
     // report whether we've reached the end of the stream yet
     bool isEOF() {return (remaining() < 1);}
-
+    void setBigEndian(bool isBig) {fbigend = isBig;}
+    
     uint8_t * data() {return fdata;}
     size_t size() {return fsize;}
     

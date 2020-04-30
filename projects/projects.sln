@@ -52,6 +52,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "analogclock", "analogclock\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "remoter", "remoter\remoter.vcxproj", "{180306ED-6115-4BF8-A07C-6741B9BF5AFF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lsystem", "lsystem\lsystem.vcxproj", "{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -220,6 +222,14 @@ Global
 		{180306ED-6115-4BF8-A07C-6741B9BF5AFF}.Release|x64.Build.0 = Release|x64
 		{180306ED-6115-4BF8-A07C-6741B9BF5AFF}.Release|x86.ActiveCfg = Release|Win32
 		{180306ED-6115-4BF8-A07C-6741B9BF5AFF}.Release|x86.Build.0 = Release|Win32
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Debug|x64.ActiveCfg = Debug|x64
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Debug|x64.Build.0 = Debug|x64
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Debug|x86.ActiveCfg = Debug|Win32
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Debug|x86.Build.0 = Debug|Win32
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Release|x64.ActiveCfg = Release|x64
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Release|x64.Build.0 = Release|x64
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Release|x86.ActiveCfg = Release|Win32
+		{9AFBEAFC-62BA-418D-BC26-72F31CAB9CCE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

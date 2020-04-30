@@ -3,6 +3,8 @@
 #include "definitions.hpp"
 
 #include <math.h>
+#include <cstdio>
+
 
 namespace bitbang {
 
@@ -60,6 +62,52 @@ static inline  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
 {
     return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
 }
+
+// Given a bit number, calculate which byte
+// it would be in, and which bit within that
+// byte.
+static inline void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
+{
+    byteoffset = floor(bitnumber / 8);
+    bitoffset = bitnumber % 8;
+}
+
+
+static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, size_t startbit, size_t bitcount, bool bigendian = false)
+{
+    // Sanity check
+    if (nullptr == bytes)
+        return 0;
+
+    uint64_t value = 0;
+
+    if (bigendian) {
+	    for (int i=bitcount; i>= 0; i--) {
+		    size_t byteoffset=0;
+            size_t bitoffset=0;
+            getbitbyteoffset(startbit+i, byteoffset, bitoffset);
+		    bool bitval = isset(bytes[byteoffset], bitoffset);
+//printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
+		    if (bitval) {
+			    value = setbit(value, i);
+            }
+        }
+    } else {
+	    for (int i=0; i<bitcount; i++) {
+		    size_t byteoffset=0;
+            size_t bitoffset=0;
+            getbitbyteoffset(startbit+i, byteoffset, bitoffset);
+		    bool bitval = isset(bytes[byteoffset], bitoffset);
+//printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
+		    if (bitval) {
+			    value = setbit(value, i);
+            }
+        }
+    }
+
+    return value;
+}
+
 
 // Determine at runtime if the CPU is little-endian (intel standard)
 static inline bool isLE () {

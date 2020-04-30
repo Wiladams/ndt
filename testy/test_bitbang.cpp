@@ -33,9 +33,20 @@ void test_bitshift()
 
 }
 
+void test_bitbytes()
+{
+    uint8_t bytes[] = {0xE5,0x9d,0x03,0x04};
+
+    printf("0,3[%x]: %Ix\n", bytes[0], bitsValueFromBytes(bytes, 0, 3));
+    printf("3,13[%x]: %Ix\n", bytes[1], bitsValueFromBytes(bytes, 3, 13));
+    printf("16,8[%x]: %Ix\n", bytes[2], bitsValueFromBytes(bytes, 16, 8));
+    printf("24,8[%x]: %Ix\n", bytes[3], bitsValueFromBytes(bytes, 24, 8));
+}
+
 void main()
 {
     //test_bitshift();
     //test_BIT64();
-    test_BITMASK();
+    //test_BITMASK();
+    test_bitbytes();
 }

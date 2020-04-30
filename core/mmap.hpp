@@ -15,16 +15,18 @@
 #include <windows.h>
 #include <cstdio>
 #include <string>
+#include <cstdint>
 
 class mmap
 {
     HANDLE fFileHandle;
     HANDLE fMapHandle;
-    bool fIsValid;
     size_t fSize;
     void * fData;
 
-    mmap() 
+    bool fIsValid;
+
+    mmap()
         : fFileHandle(nullptr),
         fMapHandle(nullptr),
         fIsValid(false),
@@ -32,12 +34,13 @@ class mmap
         fData(nullptr)
     {}
 
-    mmap(HANDLE filehandle, HANDLE maphandle, void *data)
+    mmap(HANDLE filehandle, HANDLE maphandle, void *data, size_t length)
         :fFileHandle(filehandle),
         fMapHandle(maphandle),
-        fData(data)
+        fData(data),
+        fSize(length)
     {
-		fSize = ::GetFileSize(filehandle, nullptr);
+        fIsValid = true;
     }
 
 public:
@@ -142,10 +145,9 @@ public:
     // desiredAccess - GENERIC_READ, GENERIC_WRITE, GENERIC_EXECUTE
     // shareMode - FILE_SHARE_READ, FILE_SHARE_WRITE
     // creationDisposition - CREATE_ALWAYS, CREATE_NEW, OPEN_ALWAYS, OPEN_EXISTING, TRUNCATE_EXISTING
-    static mmap create(const string &filename, uint32_t desiredAccess=GENERIC_READ, uint32_t shareMode=FILE_SHARE_READ, uint32_t disposition= OPEN_EXISTING)
+    static mmap create(const std::string &filename, uint32_t desiredAccess=GENERIC_READ, uint32_t shareMode=FILE_SHARE_READ, uint32_t disposition= OPEN_EXISTING)
     {
         uint32_t flagsAndAttributes = (FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS);
-
 
         HANDLE filehandle = CreateFileA(filename.c_str(), 
             desiredAccess, 
@@ -163,49 +165,35 @@ public:
             return {};
         }
 	
-        // Set file size if new
-        // print("GET File Size")
-        bool exists = filehandle != INVALID_HANDLE_VALUE;
-
-        if (exists) {
-		    size_t fsize = GetFileSize(filehandle, nullptr);
-
-		    if (fsize == 0) {
-			    // Windows will error if mapping a 0-length file, fake a new one
-			    exists = false;
-                return;
-            } else {
-			    size = fsize;
-            }
-	    } else {
-		    return;
-	    }
+        uint64_t size = ::GetFileSize(filehandle, nullptr);
 
 	    // Open mapping
-        maphandle = CreateFileMappingA(filehandle, nullptr, PAGE_READONLY, 0, size, nullptr);
+        HANDLE maphandle = CreateFileMappingA(filehandle, nullptr, PAGE_READONLY, 0, size, nullptr);
         //printf("CREATE File Mapping: ", maphandle)
 	    
-        if (maphandle == INVALID_HANDLE_VALUE) {
+        if (maphandle == INVALID_HANDLE_VALUE) 
+        {
 		    //error("Could not create file map: "..tostring(ffi.C.GetLastError()))
             // close file handle and set it to invalid
             CloseHandle(filehandle);
             filehandle = INVALID_HANDLE_VALUE;
 
-            return ;
+            return {} ;
         }
 	
 	    // Open view
-	    data = (uint8_t *)MapViewOfFile(maphandle, FILE_MAP_READ, 0, 0, 0);
+	    void * data = MapViewOfFile(maphandle, FILE_MAP_READ, 0, 0, 0);
 	    //print("MAP VIEW: ", m.map)
-	    if (data == nullptr) {
+	    
+        if (data == nullptr) {
             CloseHandle(maphandle);
             CloseHandle(filehandle);
             maphandle = INVALID_HANDLE_VALUE;
             filehandle = INVALID_HANDLE_VALUE;
 
-            return ;
+            return {};
         }
 
-        return mmap(filename);
+        return mmap(filehandle, maphandle, data, size);
     }
 };
