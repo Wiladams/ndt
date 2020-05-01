@@ -9,9 +9,14 @@
 Useful References
 Ethernet Header
 https://en.wikipedia.org/wiki/Ethernet_frame#Header
+https://en.wikipedia.org/wiki/EtherType
 
 Network packet parsing
     http://yuba.stanford.edu/~nickm/papers/ancs48-gibb.pdf
+    
+Design of EBF
+    https://sharkfestus.wireshark.org/sharkfest.11/presentations/McCanne-Sharkfest'11_Keynote_Address.pdf
+
 */
 
 namespace pcap {
@@ -62,14 +67,33 @@ typedef struct pcaprec_hdr_s {
     //uint8_t Preamble[7];
     //uint8_t Delimeter;
 // Ethernet data link layer
+typedef enum {
+    IPV4 = 0x0800,
+    ARP = 0x0842,
+    WakeOnLAN = 0x0842,
+    AVTP = 0x22F0,  // Audio Video Transport Protocol
+    IETF_TRILL = 0x22F3,
+    SRP = 0x22EA,   // Stream Reservation Protocol
+    DEC_MOP_RC = 0x6002,    // DEC MOP RC
+    DECnet = 0x6003,        // DECnet Phase IV, DNA Routing
+    DEC_LAT = 0x6004,
+    RARP = 0x8035,
+
+    VLAN = 0x8100,          // IEEE 802.1Q
+
+    IPV6 = 0x86DD,
+
+    S_Tag = 0x88A8,         // IEEE 802.1ad
+} EtherType;
+
 typedef struct ethernet_hdr_s {
     uint8_t MACDestination[6];
     uint8_t MACSource[6];
-    uint8_t tag[4];     // Optional
-    uint8_t TypeOrLength[2];
-    // Followed by payload, 46 - 1500 octets
-    // Followed by Frame check sequence (32-bit CRC)
-    // Followed by interpacket gap (12 octets)
+    uint16_t TPID;          // Tag Protocol IDentifier
+
+    uint8_t Payload[1500];  // 42 to 1500 octets long
+    uint32_t Checksum;      // 32-bit CRC-32
+
 } ethernet_hdr_t;
 
 // Here's how you figure out what you're looking at
@@ -167,12 +191,7 @@ bool readFileHeader(BinStream &bs, pcap_hdr &hdr)
 bool readRecordHeader(BinStream &bs, pcaprec_hdr_t &hdr)
 {
     bs.readBytes((uint8_t *)&hdr, sizeof(hdr));
-/*
-    hdr.ts_sec = bs.readUInt32();
-    hdr.ts_usec = bs.readUInt32();
-    hdr.incl_len = bs.readUInt32();
-    hdr.orig_len = bs.readUInt32();
-*/
+
     return true;
 }
 
@@ -187,10 +206,25 @@ bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
     // Read a couple of bytes to figure out the tag
     uint16_t tag = bops::bswap16(bs.readUInt16());
     printf("TAG: 0x%04x\n", tag);
+    pkt.TPID = tag;
 
-    //uint8_t buff[2];
-    //bs.readBytes(buff, 2);
-    //printf("TAG: %02x:%02x\n", buff[0], buff[1]);
+    if (pkt.TPID <= 1500) {
+        // If the TPID is less than 1500, it indicates
+        // a length of the payload.  We load that amount
+        // load the checksum, and return 
+
+        bs.readBytes(pkt.Payload, pkt.TPID);
+        pkt.Checksum = bs.readUInt32();
+
+        return true;
+    }
+
+    // So, we have an EtherType
+    // We proceed according to the type
+    // 0x0800   - IPV4 packet, most common
+    // 0x88DD   - IPV6 packet
+    // others
+
 
     return true;
 }
