@@ -5,7 +5,7 @@
 void printx32(uint32_t x)
 {
     char buff[9];
-    if (!bops::tohex32(x, buff, 9))
+    if (!binops::tohex32(x, buff, 9))
         return;
 
     buff[8]=0;
@@ -36,7 +36,7 @@ void test_tobin32()
     char buff[33];
 
     for (int i=0;i<256;i++) {
-        if (!bops::tobin32(i, buff, 33)) {
+        if (!binops::tobin32(i, buff, 33)) {
             printf("tobin32 failed\n");
             continue;
         }
@@ -47,13 +47,13 @@ void test_tobin32()
 
 void test_arshift16()
 {
-    printf("arshift(256, 8): %d\n", bops::arshift16(256,8));
-    printf("arshift(-256, 8): %d\n", bops::arshift16(-256,8));
+    printf("arshift(256, 8): %d\n", binops::arshift16(256,8));
+    printf("arshift(-256, 8): %d\n", binops::arshift16(-256,8));
 }
 
 void test_bswap32()
 {
-    printf("bswap32(0xaabbccdd): %lx\n", bops::bswap32(0xaabbccdd));
+    printf("bswap32(0xaabbccdd): %lx\n", binops::bswap32(0xaabbccdd));
 }
 
 void main()

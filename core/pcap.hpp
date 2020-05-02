@@ -4,6 +4,10 @@
 #include <cstdio>
 #include "binstream.hpp"
 #include "binops.hpp"
+#include "bitbang.hpp"
+
+using namespace bitbang;
+using namespace binops;
 
 /*
 Useful References
@@ -200,13 +204,17 @@ bool readRecordHeader(BinStream &bs, pcaprec_hdr_t &hdr)
 // https://en.wikipedia.org/wiki/Ethernet_frame#Header
 // Careful to read starting at the packet layer, not the 
 // link layer
+// Ethernet frames are always displayed from most significant 
+// bit to to least significant bit.  In actual transmission, each
+// octet is transmitted from least significant bit to most significant
+// bit.  
 bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
 {
     bs.readBytes((uint8_t *)&pkt.MACDestination, 6);
     bs.readBytes((uint8_t *)&pkt.MACSource, 6);
     
     // Read a couple of bytes to figure out the tag
-    pkt.TPID = bops::bswap16(bs.readUInt16());
+    pkt.TPID = binops::bswap16(bs.readUInt16());
 
     if (pkt.TPID <= 1500) {
         // If the TPID is less than 1500, it indicates
@@ -233,8 +241,6 @@ bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
 //
 bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
 {
-
-    
     // Read an initial 20 bytes, so we can start reading
     // values from there
     uint8_t buff[20];
@@ -242,13 +248,16 @@ bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
 
     //uint8_t abyte = bs.readOctet();
     //printf("Ver/IHL: 0x%x\n", abyte);
-    
-    hdr.Version = bitsValueFromBytes(buff, 0, 4, true);
-    hdr.IHL = bitsValueFromBytes(buff, 4, 4, true);
+    BinStream rs(buff, 20);
+
+    hdr.Version = bitsValueFromBytes(buff, 4, 4);
+    hdr.IHL = bitsValueFromBytes(buff, 0, 4);
 
     hdr.DSCP = bitsValueFromBytes(buff, 8,6, true);
     hdr.ECN = bitsValueFromBytes(buff, 14,2, true);
-    hdr.TotalLength = bitsValueFromBytes(buff, 16,16, true);
+    
+    rs.seek(2);
+    hdr.TotalLength = binops::bswap16(rs.readUInt16()); // bitsValueFromBytes(buff, 16,16, true);
 
     hdr.ID = bitsValueFromBytes(buff, 32,16, true);
     hdr.Flags_reserved = bitsValueFromBytes(buff, 48,1, true);
@@ -262,7 +271,7 @@ bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
 
     hdr.SourceIPAddress = bitsValueFromBytes(buff, 96,32, true);
     hdr.DestinationIPAddress = bitsValueFromBytes(buff, 128,32, true);
-*/
+
     return true;
 }
 

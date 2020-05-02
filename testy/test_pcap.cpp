@@ -3,9 +3,25 @@
 #include "binstream.hpp"
 #include "bitbang.hpp"
 #include "binops.hpp"
+#include <unordered_map>
+#include <string>
 
 using namespace bitbang;
 using namespace pcap;
+
+std::unordered_map<int, std::string> IPProtocols;
+
+void preload()
+{
+    https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
+    IPProtocols[6] = std::string("TCP");
+    IPProtocols[17] = std::string("UDP");
+    IPProtocols[27] = std::string("RDP");
+    IPProtocols[36] = std::string("XTP");
+    IPProtocols[41] = std::string("IPV6");  // IP V6 Encapsulation
+    IPProtocols[113] = std::string("PGM");  // PGM Reliable Transport Protocol
+
+}
 
 void printFileHeader(const pcap_hdr &hdr)
 {
@@ -35,7 +51,6 @@ void printRecordHeader(const pcaprec_hdr_t &hdr)
     printf(" ts_usec: %d\n", hdr.ts_usec);
     printf("incl_len: %d\n", hdr.incl_len);
     printf("orig_len: %d\n", hdr.orig_len);
-    printf("---------------\n");
 }
 
 void printMAC(const uint8_t *MAC)
@@ -47,6 +62,7 @@ void printMAC(const uint8_t *MAC)
 
 void printEthernetPacket(const ethernet_hdr_t &pkt)
 {
+    printf("-- Ethernet --\n");
     printf("MAC Source: ");
     printMAC(pkt.MACSource);
     printf("\n");
@@ -61,12 +77,16 @@ void printIPV4Header(const IPV4_HDR &hdr)
 {
     struct in_addr srcAddr;
     srcAddr.S_un.S_addr = hdr.SourceIPAddress;
+    struct in_addr dstAddr;
+    dstAddr.S_un.S_addr = hdr.DestinationIPAddress;
 
     printf("-- IPV4 Header --\n");
-    printf("  Version: %d\n", hdr.Version);
-    printf("   Length: %d\n", hdr.TotalLength);
-    printf("      TTL: %d\n", hdr.TimeToLive);
-    printf("   Source: %s\n", inet_ntoa(srcAddr) );
+    printf("    Version: %d\n", hdr.Version);
+    printf("     Length: %d\n", hdr.TotalLength);
+    printf("        TTL: %d\n", hdr.TimeToLive);
+    printf("   Protocol: [%d] %s\n", hdr.Protocol, IPProtocols[hdr.Protocol].c_str());
+    printf("     Source: %s\n", inet_ntoa(srcAddr) );
+    printf("Destination: %s\n", inet_ntoa(dstAddr) );
 }
 
 
@@ -75,9 +95,9 @@ void printIPV4Header(const IPV4_HDR &hdr)
 
 
 
-void test_file()
+void test_file(const char *filename)
 {
-    mmap m = mmap::create(".\\data\\netdump.pcap");
+    mmap m = mmap::create(filename);
     BinStream bs = BinStream(m.data(), m.size());
     if (!bs.isValid())
         return ;
@@ -89,7 +109,10 @@ void test_file()
 
     // Now read all the packets
     uint8_t buff[256*1024];
-    while(!bs.isEOF()) {
+    int recCount = 0;
+    while(!bs.isEOF() && (recCount < 1000)) {
+        recCount++;
+
         // First read a packet header
         pcaprec_hdr_t recHdr;
         readRecordHeader(bs, recHdr);
@@ -113,6 +136,7 @@ void test_file()
             break;
 
             default:
+                printf("-- Unknown --\n");
                 printf("TPID: 0x%04x\n", pkt.TPID);
             break;
         }
@@ -126,7 +150,16 @@ void test_file()
 
 }
 
-void main()
+int main(int argc, char **argv)
 {
-    test_file();
+    if (argc < 2) {
+        printf("Usage:  test_pcap <filename.pcap>\n");
+        return -1;
+    }
+
+    preload();
+
+    test_file(argv[1]);
+
+    return 0;
 }

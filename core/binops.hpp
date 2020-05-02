@@ -25,7 +25,7 @@
     tobit
     tohex
 */
-namespace bops {
+namespace binops {
 static const char *hexdigits = "0123456789abcdef";
 
 // tohex32
@@ -117,4 +117,4 @@ inline static uint64_t ror32(uint64_t a, unsigned int n) {return ((a << (64-n)) 
 inline static uint64_t bswap64(uint64_t a) {return _byteswap_uint64(a);}
 
 
-}   // end of bops namespace
+}   // end of binops namespace
