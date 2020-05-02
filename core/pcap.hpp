@@ -29,19 +29,19 @@ typedef enum {
 // http://www.tcpdump.org/linktypes.html
 typedef enum {
     LINKTYPE_NULL = 0,
-    LINKTYPE_ETHERNET = 1,
-    LINKTYPE_AX25 = 3,
-    LINKTYPE_IEEE802_5 = 6,
-    LINKTYPE_ARCNET_BSD = 7,
-    LINKTYPE_SLIP       = 8,
-    LINKTYPE_PPP        = 9,
-    LINKTYPE_FDDI       = 10,
-    LINKTYPE_PPP_HDLC   = 50,
-    LINKTYPE_PPP_ETHER  = 51,
-    LINKTYPE_ATM_RFC1483 = 100,
-    LINKTYPE_RAW        = 101,
+    LINKTYPE_ETHERNET       = 1,
+    LINKTYPE_AX25           = 3,
+    LINKTYPE_IEEE802_5      = 6,
+    LINKTYPE_ARCNET_BSD     = 7,
+    LINKTYPE_SLIP           = 8,
+    LINKTYPE_PPP            = 9,
+    LINKTYPE_FDDI           = 10,
+    LINKTYPE_PPP_HDLC       = 50,
+    LINKTYPE_PPP_ETHER      = 51,
+    LINKTYPE_ATM_RFC1483    = 100,
+    LINKTYPE_RAW            = 101,
 
-    LINKTYPE_LOOP       = 108,
+    LINKTYPE_LOOP           = 108,
 } LINKTYPE;
 
 // Global/File Header
@@ -67,39 +67,41 @@ typedef struct pcaprec_hdr_s {
     //uint8_t Preamble[7];
     //uint8_t Delimeter;
 // Ethernet data link layer
+// On the wire, this value is big-endian
+// So, the field needs to be converted appropriately depending
+// on the platform that's doing the reading.
 typedef enum {
-    IPV4 = 0x0800,
-    ARP = 0x0842,
-    WakeOnLAN = 0x0842,
-    AVTP = 0x22F0,  // Audio Video Transport Protocol
-    IETF_TRILL = 0x22F3,
-    SRP = 0x22EA,   // Stream Reservation Protocol
-    DEC_MOP_RC = 0x6002,    // DEC MOP RC
-    DECnet = 0x6003,        // DECnet Phase IV, DNA Routing
-    DEC_LAT = 0x6004,
-    RARP = 0x8035,
+    IPV4        = 0x0800,
+    ARP         = 0x0842,
+    WakeOnLAN   = 0x0842,
+    AVTP        = 0x22F0,  // Audio Video Transport Protocol
+    IETF_TRILL  = 0x22F3,
+    SRP         = 0x22EA,   // Stream Reservation Protocol
+    DEC_MOP_RC  = 0x6002,    // DEC MOP RC
+    DECnet      = 0x6003,        // DECnet Phase IV, DNA Routing
+    DEC_LAT     = 0x6004,
+    RARP        = 0x8035,
 
-    VLAN = 0x8100,          // IEEE 802.1Q
+    VLAN        = 0x8100,          // IEEE 802.1Q
 
-    IPV6 = 0x86DD,
+    IPV6        = 0x86DD,
 
-    S_Tag = 0x88A8,         // IEEE 802.1ad
+    S_Tag       = 0x88A8,         // IEEE 802.1ad
 } EtherType;
 
 typedef struct ethernet_hdr_s {
-    uint8_t MACDestination[6];
+    uint8_t MACDestination[6];  // MAC address is straight bytes
     uint8_t MACSource[6];
     uint16_t TPID;          // Tag Protocol IDentifier
 
     uint8_t Payload[1500];  // 42 to 1500 octets long
     uint32_t Checksum;      // 32-bit CRC-32
-
 } ethernet_hdr_t;
 
 // Here's how you figure out what you're looking at
 // This data structure is not what's on the wire, it is
 // meant to be easy to handle in code, so something 
-// else has to parse the content and stick it in here
+// else has to parse the content and stick it in this format
 typedef struct ip_hdr
 {
     // byte offset - 0
@@ -204,9 +206,7 @@ bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
     bs.readBytes((uint8_t *)&pkt.MACSource, 6);
     
     // Read a couple of bytes to figure out the tag
-    uint16_t tag = bops::bswap16(bs.readUInt16());
-    printf("TAG: 0x%04x\n", tag);
-    pkt.TPID = tag;
+    pkt.TPID = bops::bswap16(bs.readUInt16());
 
     if (pkt.TPID <= 1500) {
         // If the TPID is less than 1500, it indicates
@@ -233,16 +233,17 @@ bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
 //
 bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
 {
-    //uint8_t buff[20];
+
     
     // Read an initial 20 bytes, so we can start reading
     // values from there
-    //bs.readBytes(buff, 20);
+    uint8_t buff[20];
+    bs.readBytes(buff, 20);
 
-    uint8_t abyte = bs.readOctet();
-    printf("Ver/IHL: 0x%x\n", abyte);
-    /*
-    hdr.Version = bitsValueFromBytes(buff, 0, 4, false);
+    //uint8_t abyte = bs.readOctet();
+    //printf("Ver/IHL: 0x%x\n", abyte);
+    
+    hdr.Version = bitsValueFromBytes(buff, 0, 4, true);
     hdr.IHL = bitsValueFromBytes(buff, 4, 4, true);
 
     hdr.DSCP = bitsValueFromBytes(buff, 8,6, true);

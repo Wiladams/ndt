@@ -104,6 +104,18 @@ void test_file()
         readEthernetPacket(bs, pkt);
         printEthernetPacket(pkt);
 
+        switch (pkt.TPID) {
+            case IPV4: {
+                IPV4_HDR ipv4pkt;
+                readIPV4Header(bs, ipv4pkt);
+                printIPV4Header(ipv4pkt);
+            }
+            break;
+
+            default:
+                printf("TPID: 0x%04x\n", pkt.TPID);
+            break;
+        }
         //IPV4_HDR iphdr;
         //readIPV4Header(bs, iphdr);
         //printIPV4Header(iphdr);
