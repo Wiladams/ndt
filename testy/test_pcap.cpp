@@ -82,11 +82,12 @@ void printIPV4Header(const IPV4_HDR &hdr)
 
     printf("-- IPV4 Header --\n");
     printf("    Version: %d\n", hdr.Version);
-    printf("     Length: %d\n", hdr.TotalLength);
-    printf("        TTL: %d\n", hdr.TimeToLive);
-    printf("   Protocol: [%d] %s\n", hdr.Protocol, IPProtocols[hdr.Protocol].c_str());
-    printf("     Source: %s\n", inet_ntoa(srcAddr) );
-    printf("Destination: %s\n", inet_ntoa(dstAddr) );
+    printf("Header Length: %d (%d)\n", hdr.IHL*4, hdr.IHL);
+    printf(" Total Length: %d\n", hdr.TotalLength);
+    printf("          TTL: %d\n", hdr.TimeToLive);
+    printf("     Protocol: %s (%d) \n", IPProtocols[hdr.Protocol].c_str(), hdr.Protocol);
+    printf("       Source: %s\n", inet_ntoa(srcAddr) );
+    printf("  Destination: %s\n", inet_ntoa(dstAddr) );
 }
 
 
@@ -150,16 +151,47 @@ void test_file(const char *filename)
 
 }
 
+void test_net_nibbles()
+{
+        uint8_t bytes[20]={0x45};
+    uint8_t version = bitsValueFromNetBytes(bytes, 0, 4);
+    uint8_t length = bitsValueFromNetBytes(bytes, 4, 4);
+
+    printf("Version: %d\n", version);
+    printf("length: %d\n", length);
+}
+
+void test_netbits()
+{
+    uint8_t bytes[20]={0x00, 0x45};
+
+    uint16_t length = bitsValueFromNetBytes(bytes, 0, 16);
+    printf("length: %d 0x%2x\n", length, bswap16(length));
+}
+
+int bytesNeeded(int bitscount)
+{
+    return (bitscount * .125 == floor(bitscount *.125)) ? (bitscount *.125) : ((int)(bitscount * .125))+1;
+}
+
+void test_bits()
+{
+    for (int i=0; i<=17; i++) 
+        printf("Needed: [%d] => %d\n", i, bytesNeeded(i));
+}
+
 int main(int argc, char **argv)
 {
-    if (argc < 2) {
-        printf("Usage:  test_pcap <filename.pcap>\n");
-        return -1;
-    }
+    //if (argc < 2) {
+    //    printf("Usage:  test_pcap <filename.pcap>\n");
+    //    return -1;
+    //}
 
     preload();
 
-    test_file(argv[1]);
+    //test_file(argv[1]);
+    //test_netbits();
+    test_bits();
 
     return 0;
 }

@@ -179,6 +179,45 @@ typedef struct icmp_hdr
  uint16_t seq;
 }   ICMP_HDR;
 
+//
+// Netbits are those written in a spec with the '0' bit on the
+// left being the high order bit (like IP Packet spec)
+// but, the packets are delivered as regular bytes, with low 
+// order bit delivered first
+// This routine allows you to go straight from the spec to 
+// host order values
+static inline void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
+{
+    byteoffset = floor(bitnumber / 8);
+    bitoffset = bitnumber % 8;
+}
+
+
+static inline uint64_t bitsValueFromNetBytes(const uint8_t *bytes, size_t startbit, size_t bitcount)
+{
+    // Sanity check
+    if (nullptr == bytes)
+        return 0;
+
+    uint64_t value = 0;
+
+	for (int i=bitcount-1; i >= 0; i--) 
+    {
+        size_t srcbyteoffset = (startbit+bitcount-1-i)/8;
+        uint8_t bitoffset = (uint8_t)((7-(startbit+i) % 8));
+        bool bitval = isset(bytes[srcbyteoffset], bitoffset);
+printf("[%2d], srcbyteoffset: %zd  bitoffset: %d  bit: %d\n", i, srcbyteoffset, bitoffset, bitval);
+//printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
+		if (bitval) {
+            value = setbit(value, bitcount-1-i);
+//            value = setbit(value, i);
+        }
+    }
+printf("bitsValueFromNetBytes(): 0x%Ix\n", value);
+    return value;
+}
+
+
 bool readFileHeader(BinStream &bs, pcap_hdr &hdr)
 {
 
@@ -246,31 +285,27 @@ bool readIPV4Header(BinStream &bs, IPV4_HDR &hdr)
     uint8_t buff[20];
     bs.readBytes(buff, 20);
 
-    //uint8_t abyte = bs.readOctet();
-    //printf("Ver/IHL: 0x%x\n", abyte);
     BinStream rs(buff, 20);
 
-    hdr.Version = bitsValueFromBytes(buff, 4, 4);
-    hdr.IHL = bitsValueFromBytes(buff, 0, 4);
+    hdr.Version = bitsValueFromNetBytes(buff, 0, 4);
+    hdr.IHL = bitsValueFromNetBytes(buff, 4, 4);
 
-    hdr.DSCP = bitsValueFromBytes(buff, 8,6, true);
-    hdr.ECN = bitsValueFromBytes(buff, 14,2, true);
+    hdr.DSCP = bitsValueFromNetBytes(buff, 8,6);
+    hdr.ECN = bitsValueFromNetBytes(buff, 14,2);
     
-    rs.seek(2);
-    hdr.TotalLength = binops::bswap16(rs.readUInt16()); // bitsValueFromBytes(buff, 16,16, true);
+    hdr.TotalLength = bitsValueFromNetBytes(buff, 16,16);
+    hdr.ID = bswap16(bitsValueFromNetBytes(buff, 32,16));
+    hdr.Flags_reserved = bitsValueFromNetBytes(buff, 48,1);
+    hdr.DF = 1 == bitsValueFromNetBytes(buff, 49,1);
+    hdr.MF = 1 == bitsValueFromNetBytes(buff, 50,1);
+    hdr.FragmentOffset = bswap16(bitsValueFromNetBytes(buff, 51,13));
 
-    hdr.ID = bitsValueFromBytes(buff, 32,16, true);
-    hdr.Flags_reserved = bitsValueFromBytes(buff, 48,1, true);
-    hdr.DF = bitsValueFromBytes(buff, 49,1, true);
-    hdr.MF = bitsValueFromBytes(buff, 50,1, true);
-    hdr.FragmentOffset = bitsValueFromBytes(buff, 51,13, true);
+    hdr.TimeToLive = bitsValueFromNetBytes(buff, 64,8);
+    hdr.Protocol = bitsValueFromNetBytes(buff, 72,8);
+    hdr.HeaderChecksum = bswap16(bitsValueFromNetBytes(buff, 80,16));
 
-    hdr.TimeToLive = bitsValueFromBytes(buff, 64,8, true);
-    hdr.Protocol = bitsValueFromBytes(buff, 72,8, true);
-    hdr.HeaderChecksum = bitsValueFromBytes(buff, 80,16, true);
-
-    hdr.SourceIPAddress = bitsValueFromBytes(buff, 96,32, true);
-    hdr.DestinationIPAddress = bitsValueFromBytes(buff, 128,32, true);
+    hdr.SourceIPAddress = bitsValueFromNetBytes(buff, 96,32);
+    hdr.DestinationIPAddress = bitsValueFromNetBytes(buff, 128,32);
 
     return true;
 }
