@@ -102,7 +102,7 @@ void HID_RegisterDevice(HWND hTarget, USHORT usage, USHORT usagePage = 1)
     UINT uiNumDevices = 1;
 
     BOOL bResult = ::RegisterRawInputDevices(hid, uiNumDevices, sizeof(RAWINPUTDEVICE));
-    printf("HID_RegisterDevice: HWND: 0x%p,  %d  %d\n", hTarget, bResult, ::GetLastError());
+    //printf("HID_RegisterDevice: HWND: 0x%p,  %d  %d\n", hTarget, bResult, ::GetLastError());
 }
 
 void HID_UnregisterDevice(USHORT usage)

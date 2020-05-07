@@ -10,6 +10,11 @@
     P5 uses the apphost routines to connect to the local window
     system to display graphics on the screen, and receive mouse
     and keyboard events.
+
+    References
+    Colorspace conversions
+    http://www.chilliant.com/rgb2hsv.html
+
 */
 
 #include <stdlib.h>
@@ -29,6 +34,51 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+struct P5Vector {
+    double x;
+    double y;
+
+    P5Vector() :x(0), y(0) {}
+    P5Vector(double x, double y) : x(x), y(y) {}
+
+
+    // Some simple arithmetic
+    P5Vector& add(const P5Vector& other) {
+        return add(other.x, other.y);
+    }
+
+    P5Vector& add(const double x, const double y)
+    {
+        this->x = this->x + x;
+        this->y = this->y + y;
+
+        return *this;
+    }
+
+
+    P5Vector operator *(const double sxy)
+    {
+        return { x * sxy, y * sxy };
+    }
+
+    P5Vector& mul(const double x, const double y)
+    {
+        this->x = this->x * x;
+        this->y = this->y * y;
+
+        return *this;
+    }
+    
+    P5Vector& mul(const P5Vector& other) {
+        return mul(other.x, other.y);
+    }
+
+    P5Vector& mul(const double sxy) {
+        return mul(sxy, sxy);
+    }
+};
+
 
     // Specifying a color using a 32-bit integer
     // 0xAARRGGBB
@@ -66,6 +116,7 @@ extern "C" {
         const Color midRed{ 0xffC00000 };
         const Color midMagenta{ 0xffC00C0 };
     };
+
 
 
 

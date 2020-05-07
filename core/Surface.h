@@ -83,6 +83,9 @@ public:
     long getHeight() { return fHeight; }
     Color * getData() { return (Color *)fData; }
 
+    // Calculate whether a point is whithin our bounds
+    bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
+
     BITMAPINFO getBitmapInfo()
     {
         return fBMInfo;

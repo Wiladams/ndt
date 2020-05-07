@@ -326,6 +326,14 @@ public:
         incrCmd();
     }
 
+    virtual void path(const BLPath& path)
+    {
+        fCtx.fillPath(path);
+        fCtx.strokePath(path);
+
+        incrCmd();
+    }
+
     // Bitmaps
     virtual void image(BLImage& img, int x, int y)
     {

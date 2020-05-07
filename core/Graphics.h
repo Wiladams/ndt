@@ -38,11 +38,11 @@ GCMD_BACKGROUND=23,
 GCMD_CLIP,
 GCMD_NOCLIP,
 
-GCMD_SET=26,
+GCMD_SET,
 GCMD_POINT,
-GCMD_LINE=28,
-GCMD_RECT=29,
-GCMD_ROUNDRECT=30,
+GCMD_LINE,
+GCMD_RECT,
+GCMD_ROUNDRECT,
 GCMD_ELLIPSE,
 GCMD_CIRCLE,
 GCMD_TRIANGLE,
@@ -50,11 +50,12 @@ GCMD_BEZIER,
 GCMD_POLYLINE,
 GCMD_POLYGON,
 GCMD_QUAD,
+GCMD_PATH,
 
-GCMD_IMAGE=38,
+GCMD_IMAGE,
 GCMD_IMAGE_SCALE,
 
-GCMD_TEXTALIGN=40,
+GCMD_TEXTALIGN,
 GCMD_TEXTFONT,
 GCMD_TEXTSIZE,
 GCMD_TEXT,
@@ -65,14 +66,16 @@ GCMD_ENDSHAPE,
 };
 
 // RectMode
-enum class RECTMODE {
+enum class RECTMODE : unsigned
+{
     CORNER,
     CORNERS,
     CENTER,
 };
 
 // EllipseMode
-enum class ELLIPSEMODE {
+enum class ELLIPSEMODE : unsigned
+{
     CORNER,
     CORNERS,
     CENTER,
@@ -80,7 +83,8 @@ enum class ELLIPSEMODE {
 };
 
 // Text Alignment
-enum class ALIGNMENT {
+enum class ALIGNMENT : unsigned
+{
     CENTER = 0x01,
 
     LEFT = 0x02,
@@ -94,12 +98,14 @@ enum class ALIGNMENT {
 
 // are angles specified in degrees
 // or in radians
-enum ANGLEMODE {
+enum ANGLEMODE : unsigned
+{
     DEGREES,
     RADIANS
 };
 
-enum class SHAPEMODE {
+enum class SHAPEMODE : unsigned
+{
     NONE = -1,
     OPEN = 0,
     POINTS = 1,
@@ -113,9 +119,18 @@ enum class SHAPEMODE {
 };
 
 
-enum class SHAPEEND {
+enum class SHAPEEND : unsigned
+{
     STROKE = 0,
     CLOSE = 1,
+};
+
+enum class DRAWSTYLE : unsigned
+{
+  Fill,
+  Stroke,
+  FillAndStroke,
+  StrokeAndFill
 };
 
 
@@ -203,6 +218,7 @@ struct IGraphics
     virtual void polyline(const BLPoint* pts, size_t n) = 0;
     virtual void polygon(const BLPoint* pts, size_t n) = 0;
     virtual void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) = 0;
+    virtual void path(const BLPath& path) = 0;
 
     virtual void beginShape(SHAPEMODE shapeKind) = 0;
     virtual void vertex(double x, double y) = 0;
