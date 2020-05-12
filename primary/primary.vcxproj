@@ -150,7 +150,6 @@
     <ClInclude Include="codec_targa.hpp" />
     <ClInclude Include="computicle.hpp" />
     <ClInclude Include="definitions.hpp" />
-    <ClInclude Include="drawicle.hpp" />
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="functor.hpp" />
     <ClInclude Include="graphic.hpp" />

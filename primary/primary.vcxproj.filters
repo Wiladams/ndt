@@ -45,9 +45,6 @@
     <ClInclude Include="definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawicle.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -8,6 +8,11 @@ using namespace p5;
 
 
 std::vector<CalendarMonthTile> months;
+static const int numColumns = 3;
+static const int numRows = 4;
+static const int edgeMargin = 4;
+static const int lineGap = 4;
+
 
 void keyReleased(const KeyEvent &e)
 {
@@ -18,11 +23,10 @@ void keyReleased(const KeyEvent &e)
 
 void draw()
 {
-	if (gIsLayered) {
+	if (isLayered()) {
 		clear();
 		//background(255, 10);
-	}
-	else
+	} else
 		background(0xff);
 
 	for (size_t i = 0; i < months.size();i++) {
@@ -31,15 +35,13 @@ void draw()
 
 }
 
+
+
 void setup()
 {
 	auto cellSize = CalendarMonthTile::getClassPreferredSize();
 
-	createCanvas(cellSize.w*4+(4*3), 800);
-	//scale(0.75, 0.75);
-
-	int edgeMargin = 4;
-	int lineGap = 4;
+	createCanvas(cellSize.w*numColumns+(edgeMargin *numColumns-1), cellSize.h*numRows+(edgeMargin *numRows-1));
 
 	int xoffset = edgeMargin;
 	int yoffset = lineGap;
@@ -47,7 +49,7 @@ void setup()
 	// Setup 12 monthly tiles for this calendar
 	for (int month = 1; month <= 12; month++) {
 		months.push_back(CalendarMonthTile(2020, month, xoffset, yoffset));
-		if (month % 4 > 0) {
+		if (month % 3 > 0) {
 			// continue advancing
 			xoffset += cellSize.w + edgeMargin;
 		}
@@ -59,6 +61,7 @@ void setup()
 	}
 
 	layered();
+	setWindowPosition(148, 64);
 	noLoop();
 }
 

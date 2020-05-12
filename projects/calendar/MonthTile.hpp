@@ -41,6 +41,9 @@ public:
 
 	void drawDayNumbers(IGraphics* ctx)
 	{
+		SYSTEMTIME sysTime;
+		GetLocalTime(&sysTime);
+
 		char buff[8];
 		int dayCode = fCalendar.dayCodeForMonth(fMonth);
 		int days = fCalendar.getDaysInMonth(fMonth);
@@ -55,6 +58,12 @@ public:
 
 		for (int day = 1; day <= days; day++) {
 			sprintf_s(buff, 8, "%2d", day);
+		
+			if ((sysTime.wDay == day) && (sysTime.wMonth == fMonth))
+				fill(255);
+			else
+				fill(0);
+
 			text(buff, xoffset, yoffset);
 
 			if ((day + dayCode) % 7 > 0) {
