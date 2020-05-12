@@ -11,7 +11,7 @@
 #include <vector>
 
 
-class BLGraphics : public IGraphics
+class BLGraphics : public virtual IGraphics
 {
     int fCommandCount = 0;  // How many commands since last flush
     int fCommandThreshold = 256;
@@ -121,6 +121,10 @@ public:
         ,fAngleMode(RADIANS)
     {
         initialize();
+    }
+
+    virtual ~BLGraphics() {
+          // do nothing
     }
 
     BLContext& getBlend2dContext()

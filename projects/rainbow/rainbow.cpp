@@ -40,20 +40,22 @@ void draw()
 		strokeWeight(thickness);
 		bezier(
 			100+xoffset, height+thickness, 
-			width * 0.5, yoffset, 
+			width * 0.3, yoffset, 
 			width * 0.666, yoffset, 
-			width - 100-xoffset, height+thickness);
+			width - 100-xoffset, height+thickness
+		);
 
-/*
+
 		stroke(0);
 		noFill();
 		strokeWeight(1);
 		quad(
-			100 + xoffset, height - 100,
-			width * 0.333, 100 + yoffset,
-			width * 0.666, 100 + yoffset,
-			width - 100 - xoffset, height - 100);
-*/
+			100 + xoffset, height+thickness,
+			width * 0.3, yoffset,
+			width * 0.666, yoffset,
+			width - 100 - xoffset, height+thickness
+		);
+
 		xoffset += thickness+(thickness/2);
 		yoffset += thickness+(thickness/3);
 
@@ -64,7 +66,9 @@ void draw()
 
 void setup()
 {
-	createCanvas(displayWidth, displayHeight);
-	layered();
-	setWindowPosition(0, 0);
+
+	createCanvas(1024, 768);
+	//createCanvas(displayWidth, displayHeight);
+	//layered();
+	//setWindowPosition(0, 0);
 }

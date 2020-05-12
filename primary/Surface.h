@@ -11,7 +11,7 @@
 
 
 
-class Surface : public BLGraphics
+class Surface : public virtual BLGraphics
 {
     // for interacting with win32
     BITMAPINFO fBMInfo{0};

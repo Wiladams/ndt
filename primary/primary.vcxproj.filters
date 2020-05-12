@@ -129,9 +129,6 @@
     <ClInclude Include="VfwCaptureDevice.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawable.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gview.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

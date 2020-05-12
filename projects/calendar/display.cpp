@@ -26,14 +26,14 @@ void draw()
 		background(0xff);
 
 	for (size_t i = 0; i < months.size();i++) {
-		months[i].draw(*gAppSurface);
+		months[i].draw(gAppSurface);
 	}
 
 }
 
 void setup()
 {
-	auto cellSize = CalendarMonthTile::getPreferredSize();
+	auto cellSize = CalendarMonthTile::getClassPreferredSize();
 
 	createCanvas(cellSize.w*4+(4*3), 800);
 	//scale(0.75, 0.75);

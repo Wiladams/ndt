@@ -142,8 +142,11 @@ typedef BLRgba32 Color;
     This is a pure virtual interface for the most part, so a sub-class must 
     implement a fair bit of stuff.
 */
-struct IGraphics
+class IGraphics
 {
+public:
+    virtual ~IGraphics() {}
+
     virtual void angleMode(int newMode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
     virtual void rectMode(const RECTMODE mode) = 0;
@@ -186,7 +189,7 @@ struct IGraphics
     virtual void fill(int r, int g, int b, int a) {fill(color(r,g,b,a));}
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
-    virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
+    void fill(int gray) { fill(color(gray, gray, gray, 255)); }
     virtual void noFill() = 0;
 
     virtual void stroke(const Color& c) = 0;

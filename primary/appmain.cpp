@@ -728,14 +728,12 @@ void run()
     gAppWindow->show();
 
     while (true) {
-        //printf("run(), looping: %d\n", gLooping);
 
         if (gLooping && (gLoopHandler != nullptr)) {
             gLoopHandler();
         }
 
         // we use peekmessage, so we don't stall on a GetMessage
-        //while (C.PeekMessageA(msg, nil, 0, 0, C.PM_REMOVE) ~= 0) do
         BOOL bResult = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
         
         if (bResult > 0) {

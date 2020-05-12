@@ -1,7 +1,17 @@
 #pragma once
 
 #include "p5.hpp"
-#include "drawable.hpp"
+
+
+class IDrawable 
+{
+protected:
+	virtual ~IDrawable() {}
+
+public:
+
+	virtual void draw(IGraphics* ctx) = 0;
+};
 
 /*
 	A Graphic is something that has a preferred
@@ -12,24 +22,33 @@
 	Frame - The location, within the bounds of the parent frame
 	
 */
-struct IGraphic {
-	virtual BLSize getPreferredSize() = 0;
-	virtual BLRectI getBounds() = 0;
-	virtual BLRectI getFrame() = 0;
-};
-
-class Graphic : IDrawable, IGraphic
+class IGraphic : public IDrawable 
 {
-	BLRectI fFrame;
-	BLRectI fBounds;
+protected:
+	virtual ~IGraphic() {};
 
 public:
-	Graphic(BLRectI bounds) 
-		:fBounds(bounds)
+	virtual BLRectI getBounds() const = 0;
+};
+
+class Graphic : public IGraphic
+{
+	BLRectI fBounds{};
+
+protected:
+	void setBounds(const BLRectI& bounds) { fBounds = bounds; }
+
+public:
+	Graphic(const BLRectI& bounds) 
+		:fBounds(bounds) 
+	{}
+
+
+	BLRectI getBounds() const { return fBounds; }
+
+	virtual void draw(IGraphics* surf)
 	{
-
+		// Do nothing in particular
 	}
-
-	virtual void draw(Surface* surf) = 0;
 
 };
