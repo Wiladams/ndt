@@ -15,6 +15,7 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 // Application routines
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gLoopHandler = nullptr;
+static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gPreloadHandler = nullptr;
 static VOIDROUTINE gSetupHandler = nullptr;
 static VOIDROUTINE gPreSetupHandler = nullptr;
@@ -51,6 +52,7 @@ TimeTicker *gAppTicker = nullptr;
 int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
+
 
 UINT_PTR gAppTimerID = 0;
 bool gLooping = true;
@@ -126,6 +128,10 @@ void fakeRedraw(void* param, int64_t tickCount)
 
 void forceRedraw(void* param, int64_t tickCount)
 {
+    if (gFrameHandler != nullptr) {
+        gFrameHandler();
+    }
+
     if (gDrawHandler != nullptr) {
         gDrawHandler();
     }
@@ -290,6 +296,11 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             if (gMouseMovedHandler != nullptr) {
                 gMouseMovedHandler(e);
+            }
+
+            if (mouseIsPressed && (gMouseDraggedHandler != nullptr)) {
+                e.activity = MOUSEDRAGGED;
+                gMouseDraggedHandler(e);
             }
             break;
 
@@ -471,6 +482,7 @@ void setupHandlers()
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
     gLoopHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoop");
+    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
 
     // The user can specify their own handlers for io and
     // painting
@@ -704,7 +716,7 @@ void run()
     }
 
     // do drawing at least once in case
-    // the user calls noLoot() within 
+    // the user calls noLoop() within 
     // the setup() routine
     forceRedraw(nullptr, 0);
 
@@ -749,16 +761,6 @@ void run()
 // Declare some standard Window Kinds we'll be using
 User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);
 
-HHOOK mouseHook = nullptr;
-
-LRESULT CALLBACK MouseHooker(int hookCode, WPARAM wParam, LPARAM lParam)
-{
-    printf("MouseHooker\n");
-    // After we're done with our processing, pass it along like
-    // a nice person
-    //if (hookCode < 0)
-        return CallNextHookEx(nullptr, hookCode, wParam, lParam);
-}
 
 // do any initialization that needs to occur 
 // in the very beginning
@@ -792,12 +794,6 @@ bool prolog()
     clientLeft = cRect.left;
     clientTop = cRect.top;
 
-    rawInput();
-
-    // Setup any hooks for keyboard and mouse events
-    //mouseHook = SetWindowsHookExA(WH_MOUSE, MouseHooker, nullptr, 0);
-    //printf("mouseHook: %p  Error: %d\n", mouseHook, GetLastError());
-
     return true;
 }
 
@@ -806,10 +802,6 @@ bool prolog()
 void epilog()
 {
     WSACleanup();
-
-    noRawInput();
-    // Release the mouse hook 
-    //UnhookWindowsHookEx(mouseHook);
 }
 
 

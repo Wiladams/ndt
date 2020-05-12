@@ -15,15 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\core\appmain.cpp">
+    <ClCompile Include="screenplanes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="screenplanes.cpp">
+    <ClCompile Include="..\..\primary\appmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\primary\p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\core\screensnapshot.hpp">
+    <ClInclude Include="..\..\primary\screensnapshot.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

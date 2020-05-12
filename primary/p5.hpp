@@ -31,6 +31,12 @@ extern "C" {
 #endif
     EXPORT extern int width;
     EXPORT extern int height;
+    EXPORT extern int frameCount;
+
+    EXPORT extern Color* pixels;
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -4,8 +4,12 @@
 
 namespace p5 {
 
-    int width = 0;
-    int height = 0;
+    int width = 0;              // width of the canvas
+    int height = 0;             // height of the canvas
+    int frameCount = 0;         // how many frames drawn so far
+
+    Color* pixels = nullptr;    // a pointer to the raw pixels of app canvas
+
 
     static StopWatch SWatch;    // Stopwatch used for time 
 
@@ -313,12 +317,12 @@ namespace p5 {
     // You can set a single pixel, but this is an extremely expensive
     // operation.  It would be better to get a pointer to the data
     // and set the pixel directly.
-    void set(double x1, double y1, const Color& c) noexcept
+    void set(int x1, int y1, const Color& c) noexcept
     {
         gAppSurface->set(x1, y1, c);
     }
 
-    Color get(double x, double y) noexcept
+    Color get(int x, int y) noexcept
     {
         return gAppSurface->get(x, y);
     }
@@ -484,11 +488,14 @@ namespace p5 {
     void loadPixels() noexcept
     {
         gAppSurface->loadPixels();
+        pixels = gAppSurface->getData();
     }
 
     void updatePixels() noexcept
     {
         gAppSurface->updatePixels();
+        //gAppSurface->setData(pixels);
+        //pixels = nullptr;
     }
 
 
@@ -510,3 +517,8 @@ namespace p5 {
         return mRandomNumberGenerator.next(0, high);
     }
 };  // namespace p5
+
+void onFrame()
+{
+    p5::frameCount = p5::frameCount + 1;
+}

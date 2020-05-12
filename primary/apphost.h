@@ -86,7 +86,8 @@ EXPORT extern char **gargv;
 EXPORT extern int gFPS;   // Frames per second
 EXPORT extern User32Window * gAppWindow;
 EXPORT extern Surface * gAppSurface;
-//EXPORT extern BLContext gAppDC;
+
+
 EXPORT extern UINT_PTR gAppTimerID;
 EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
@@ -116,15 +117,18 @@ EXPORT extern int rawMouseX;
 EXPORT extern int rawMouseY;
 
 
+// These are typically implemented by
+// an app framework
+EXPORT void onFrame();
+EXPORT void onLoop();
+//EXPORT LRESULT onPaintHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//EXPORT LRESULT onKeyboardHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//EXPORT LRESULT onMouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // These should be implemented by a module to be loaded
 EXPORT void draw();
-EXPORT void onLoop();
 EXPORT void setup();
 
-//EXPORT LRESULT onPaintHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-//EXPORT LRESULT keyboardHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-//EXPORT LRESULT mouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // IO Event Handlers
 EXPORT void keyPressed(const KeyEvent &e);
@@ -148,6 +152,7 @@ EXPORT void noLoop();
 EXPORT void layered();
 EXPORT void noLayered();
 EXPORT bool isLayered();
+
 EXPORT void rawInput();
 EXPORT void noRawInput();
 

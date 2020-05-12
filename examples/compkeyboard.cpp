@@ -193,15 +193,13 @@ void draw()
 
     drawNeutral();
     drawKeyStates();
-
-    //noLoop();
 }
 
 void setup()
 {
     createCanvas(800, 600);
 
-    scale(0.5, 0.5);
+    //scale(0.5, 0.5);
     //scale(0.25, 0.25);
     //scale(2, 2);
 

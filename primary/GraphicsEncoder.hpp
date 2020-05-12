@@ -288,6 +288,11 @@ public:
         writeCoord(x4, y4);
     }
 
+    virtual void path(const BLPath& path)
+    {
+        writeCommand(GCMD_PATH);
+    }
+
     // Bitmaps
     virtual void image(BLImage& img, int x, int y)
     {

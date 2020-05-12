@@ -101,16 +101,22 @@ public:
         return fImage;
     }
 
-    void set(double x, double y, const Color& c)
+    void set(int x, int y, const Color& c)
     {
+        x = (int)constrain(x, 0, fWidth - 1);
+        y = (int)constrain(y, 0, fHeight - 1);
+
         int offset = (int)(y * fWidth) + (int)x;
         ((Color *)fData)[offset] = c;
     }
 
-    Color get(double x, double y)
+    Color get(int x, int y)
     {
+        x = (int)constrain(x, 0, fWidth - 1);
+        y = (int)constrain(y, 0, fHeight - 1);
+
         // Get data from BLContext
-        int offset = (int)(y * fWidth) + (int)x;
+        int offset = (y * fWidth) + x;
         return ((Color *)fData)[offset];
     }
  };

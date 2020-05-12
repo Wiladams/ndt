@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <array>
-#include "p5.h"
+#include "p5.hpp"
 
 //******************************************************************************
 enum TextOutFormat : unsigned

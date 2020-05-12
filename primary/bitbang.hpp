@@ -11,19 +11,19 @@ namespace bitbang {
 // Return various forms of pow(2,bitnum)
 // There are different ones, which allow the user to specify how
 // many bits they want
-static inline uint8_t BIT8(unsigned int bitnum) {return (uint8_t)1 << bitnum; }
-static inline uint16_t BIT16(unsigned int bitnum) {return (uint16_t)1 << bitnum; }
-static inline uint32_t BIT32(unsigned int bitnum) {return (uint32_t)1 << bitnum; }
-static inline uint64_t BIT64(unsigned int bitnum) {return (uint64_t)1 << bitnum; }
+static inline uint8_t BIT8(size_t bitnum) {return (uint8_t)1 << bitnum; }
+static inline uint16_t BIT16(size_t bitnum) {return (uint16_t)1 << bitnum; }
+static inline uint32_t BIT32(size_t bitnum) {return (uint32_t)1 << bitnum; }
+static inline uint64_t BIT64(size_t bitnum) {return (uint64_t)1 << bitnum; }
 
 // One general purpose which will default to BIT64
 //static inline uint64_t BIT(unsigned int bitnum) {return BIT64(bitnum);}
 
 // return true if the specified bit is set in the value
-static inline bool isset(const uint64_t value, const unsigned int bitnum) {return (value & BIT64(bitnum)) > 0; }
+static inline bool isset(const uint64_t value, const size_t bitnum) {return (value & BIT64(bitnum)) > 0; }
 
 // set a specific bit within a value
-static inline uint64_t setbit(const uint64_t value, const unsigned int bitnum) {return (value | BIT64(bitnum));}
+static inline uint64_t setbit(const uint64_t value, const size_t bitnum) {return (value | BIT64(bitnum));}
 
 // BITMASK64
 // A bitmask is an integer where all the bits from the 
@@ -68,7 +68,7 @@ static inline  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
 // byte.
 static inline void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
 {
-    byteoffset = floor(bitnumber / 8);
+    byteoffset = (int)(bitnumber / 8);
     bitoffset = bitnumber % 8;
 }
 
@@ -82,7 +82,7 @@ static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, size_t startbit,
     uint64_t value = 0;
 
     if (bigendian) {
-	    for (int i=bitcount; i>= 0; i--) {
+	    for (size_t i=bitcount; i>= 0; i--) {
 		    size_t byteoffset=0;
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);

@@ -34,6 +34,10 @@ class BLGraphics : public IGraphics
     SHAPEMODE fShapeMode = SHAPEMODE::NONE;
     std::vector<BLPoint> fShapeVertices;
 
+    Color fFillColor = BLRgba32(0, 0, 0, 255);
+    Color fStrokeColor = BLRgba32(0, 0, 0, 255);
+    Color fTextFillColor = BLRgba32(0, 0, 0, 255);
+
 private:
     static BLEllipse calcEllipseParams(ELLIPSEMODE mode, double& a, double& b, double& c, double& d)
     {
@@ -296,7 +300,7 @@ public:
     {
         BLPath path;
         path.moveTo(x1, y1);
-        path.cubicTo(x2, y2, x2, y3, x4, y4);
+        path.cubicTo(x2, y2, x3, y3, x4, y4);
         fCtx.strokePath(path);
 
         incrCmd();
@@ -435,7 +439,8 @@ public:
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
         fCtx.fillUtf8Text(xy, fFont, txt);
-        
+        fCtx.strokeUtf8Text(xy, fFont, txt);
+
         incrCmd();
     }
 

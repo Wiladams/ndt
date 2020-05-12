@@ -2,6 +2,8 @@
 #include "screensnapshot.hpp"
 #include <cstdio>
 
+using namespace p5;
+
 ScreenSnapshot* ss = nullptr;
 
 int captureWidth = 800;

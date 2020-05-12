@@ -1,3 +1,4 @@
+
 /*
 	
 	Adapted From: https://thecodingtrain.com/CodingChallenges/001-starfield.html
@@ -17,14 +18,23 @@ static const int bottomMargin = 160;
 
 int centerX;
 int centerY;
-
+int posOffsetX = 0;
+int posOffsetY = 0;
 
 std::array<Star, MaxStars> stars;
 
 void keyReleased(const KeyEvent& event)
 {
-	if (keyCode == VK_ESCAPE) {
+	switch (keyCode) {
+	case VK_ESCAPE: {
 		halt();
+	} break;
+	case VK_RIGHT:
+		posOffsetX += 10;
+		break;
+	case VK_LEFT:
+		posOffsetX -= 10;
+		break;
 	}
 }
 
@@ -44,12 +54,22 @@ void mouseWheel(const MouseEvent& e)
 
 void draw()
 {
-	centerX = map(mouseX, 0,width-1, width-1, 0);
-	//centerX = mouseX;
-	centerY = map(mouseY, height - bottomMargin, height, height - bottomMargin, 0);
-
 
 	clear();
+
+	// When the mouse drives where you're looking
+	// you want to use this inverse relationaship between its
+	// position and where the center is.
+	int mx = (int)map(mouseX, 0,width-1, width-1, 0);
+	int my = (int)map(mouseY, height - bottomMargin, height, height - bottomMargin, 0);
+
+	// When you want to use the position for steering
+	// you'll want to center to track the mouse position
+
+
+
+	centerX = mx + posOffsetX;
+	centerY = my + posOffsetY;
 
 	push();
 	translate(centerX, centerY);

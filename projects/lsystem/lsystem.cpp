@@ -115,20 +115,17 @@ void draw()
 
 void setup()
 {
-    //theRules.push_back({ 'A', "-BF+AFA+FB-" });
-    //theRules.push_back({ 'B', "+AF-BFB-FA+" });
-    
-    theRules.push_back({ 'F', "F+F-F-F+F" }); // Koch curve
-
+    theRules.push_back({ 'A', "-BF+AFA+FB-" });
+    theRules.push_back({ 'B', "+AF-BFB-FA+" });
 
 	createCanvas(displayWidth, displayHeight);
-    frameRate(60);
+    frameRate(30);
 	//background(255);
 
 
 	x = 0;
-	//y = height - 1;
-    y = 0;
+	y = height - 1;
+    //y = 0;
 	// Compute the L-System
 	for (int i = 0; i < numLoops; i++) {
 		theString = lindenmayer(theString);

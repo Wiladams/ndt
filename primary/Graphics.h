@@ -106,15 +106,15 @@ enum ANGLEMODE : unsigned
 
 enum class SHAPEMODE : unsigned
 {
-    NONE = -1,
-    OPEN = 0,
-    POINTS = 1,
-    LINES = 2,
-    TRIANGLES = 3,
-    TRIANGLE_STRIP = 4,
-    TRIANGLE_FAN = 5,
-    QUADS = 6,
-    QUAD_STRIP=7,
+    NONE = 0,
+    OPEN = 1,
+    POINTS = 2,
+    LINES = 3,
+    TRIANGLES = 4,
+    TRIANGLE_STRIP = 5,
+    TRIANGLE_FAN = 6,
+    QUADS = 7,
+    QUAD_STRIP=8,
 
 };
 
