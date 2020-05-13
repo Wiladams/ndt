@@ -15,7 +15,7 @@ int ITERATIONS = 10000;
 
 void draw()
 {
-    background(255);
+    //background(255);
     //clear();
 
     BLRgba32 from = color(255, 0, 0, (int)(0.2 * 255));
@@ -64,6 +64,10 @@ void draw()
             random(500, 760), random(height)
         );
 
+        // the command queue can get too big and 
+        // eat up lots of memory.  A flush will clear
+        // the commands, but slow things down a lot
+        //gAppSurface->flush();
     }
 
 }

@@ -128,6 +128,7 @@ EXPORT void onLoop();
 // These should be implemented by a module to be loaded
 EXPORT void draw();
 EXPORT void setup();
+EXPORT void preload();
 
 
 // IO Event Handlers

@@ -11,7 +11,7 @@ std::vector<CalendarMonthTile> months;
 static const int numColumns = 3;
 static const int numRows = 4;
 static const int edgeMargin = 4;
-static const int lineGap = 4;
+static const int lineGap = 8;
 
 
 void keyReleased(const KeyEvent &e)
@@ -61,7 +61,7 @@ void setup()
 	}
 
 	layered();
-	setWindowPosition(148, 64);
+	setWindowPosition(100, 48);
 	noLoop();
 }
 
