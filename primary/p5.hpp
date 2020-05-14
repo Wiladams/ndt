@@ -134,7 +134,10 @@ struct P5Vector {
     void strokeJoin(int join) noexcept;
     void strokeWeight(int weight) noexcept;
 
+    // clearing command cache
+    void flush() noexcept;
 
+    // coordinate transform
     void push() noexcept;
     void pop() noexcept;
     void translate(double dx, double dy) noexcept;

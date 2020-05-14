@@ -132,6 +132,15 @@
     <ClInclude Include="graphic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sampler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colorsampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bezier.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

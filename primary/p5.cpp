@@ -485,6 +485,11 @@ namespace p5 {
         gAppWindow->show();
     }
 
+    void flush() noexcept
+    {
+        gAppSurface->flush();
+    }
+
     void loadPixels() noexcept
     {
         gAppSurface->loadPixels();

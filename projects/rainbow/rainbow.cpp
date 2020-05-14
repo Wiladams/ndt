@@ -1,60 +1,71 @@
 #include "p5.hpp"
+#include "sampler.hpp"
+#include "colorsampler.h"
+#include "graphic.hpp"
+#include "bezier.hpp"
 
 using namespace p5;
 
+
+// Colors of the rainbow
+uint8_t gAlpha = 255;
 Color rColors[] = {
-	{255,0,0,127},
-	{255,165,0, 127},
-	{255, 255,0,127},
-	{0,255,0,127},
-	{0,0,255,127},
-	{93,118,203,127},
-	{143,94,154,127},
+	{255,0,0,gAlpha},
+	{255,165,0, gAlpha},
+	{255, 255,0,gAlpha},
+	{0,255,0,gAlpha},
+	{0,0,255,gAlpha},
+	{93,118,203,gAlpha},
+	{143,94,154,gAlpha},
 };
 int nColors = sizeof(rColors) / sizeof(Color);
 
 BLGradient gradient(BLLinearGradientValues(0, 0, 0, 0));
 BLImage potOfGold;
 
-// Given an array of gradient stops, return the highest index that is
-// lower than the specified offset
-static inline size_t searchClosestLast(const BLGradientStop* array, size_t size, const double& value) noexcept 
+class GradientBezier : public virtual IDrawable
 {
-	if (!size)
-		return 0;
+	GradientSampler1D fSampler;
+	BLPoint p1;
+	BLPoint p2;
+	BLPoint p3;
+	BLPoint p4;
+	size_t fSegments;
 
-	const BLGradientStop* base = array;
-	while (size_t half = size / 2u) {
-		const BLGradientStop* middle = base + half;
-		size -= half;
-		if (middle[0].offset <= value)
-			base = middle;
+public:
+	GradientBezier(const BLGradient& grad, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, size_t segments=60)
+		:fSampler(grad),
+		p1(x1, y1),
+		p2(x2, y2),
+		p3(x3, y3),
+		p4(x4, y4),
+		fSegments(segments)
+	{
 	}
 
-	return size_t(base - array);
-}
+	virtual void draw(IGraphics* ctx)
+	{
+		// Get starting point
+		BLPoint lp = ndt::bezier_point(0, p1, p2, p3, p4);
 
-// Given a list of gradient stops
-// return a color value at a specific
-// offset
-Color getGradientValue(const BLGradient &grad, double offset)
-{
-	auto stops = grad.stops();
-	size_t nStops = grad.size();
+		int i = 1;
+		while (i <= fSegments) {
+			double u = (double)i / fSegments;
 
-	// ensure we're in the range 0..1 inclusive
-	offset = constrain(offset, 0, 1.0);
+			BLPoint p = ndt::bezier_point(u, p1, p2, p3, p4);
 
-	size_t lowIndex = searchClosestLast(stops, nStops, offset);
-	size_t highIndex = lowIndex < nStops - 1 ? lowIndex + 1: lowIndex;
+			// draw line segment from last point to current point
+			// figure out color for segment
+			stroke(fSampler(u));
+			ctx->line(lp.x, lp.y, p.x, p.y);
 
-	//printf("lowIndex: %zd  highIndex: %zd\n", lowIndex, highIndex);
-	Color from = BLRgba32(stops[lowIndex].rgba);
-	Color to = BLRgba32(stops[highIndex].rgba);
-	double f = map(offset, stops[lowIndex].offset, stops[highIndex].offset, 0, 1);
+			// Assign current to last
+			lp = p;
 
-	return lerpColor(from, to, f);
-}
+			i = i + 1;
+		}
+	}
+};
 
 void preload()
 {
@@ -78,7 +89,7 @@ void keyReleased(const KeyEvent& e)
 
 void draw()
 {
-	static const int baseSize = 400;
+	static const int baseSize = 300;
 
 
 	if (isLayered()) {
@@ -95,27 +106,40 @@ void draw()
 
 	// Draw the actual rainbow
 	int yoffset = 0;
-
+	GradientSampler1D colorSampler(gradient);
+	strokeWeight(2);
 	for (int x = 0; x <= baseSize; x++) {
 		double offset = map(x, 0, baseSize, 0, 1);
 
-		auto c = getGradientValue(gradient, offset);
+		auto c0 = colorSampler(offset);
+		auto c1 = c0;
+		c0.a = 10;
 
-		stroke(c);
-		strokeWeight(1);
-		
-		int finalX = map(x, 0, baseSize, width, width - potOfGold.width());
-		int finalY = height - potOfGold.height()+16;
+		// calculate stops along the curve
+		BLGradient grad(BLLinearGradientValues(0, 0, 0, 0));
+		grad.addStop(0, c0);
+		grad.addStop(0.20, c1);
+		grad.addStop(0.80, c1);
+		grad.addStop(1.0, c0);
 
+		int finalX = map(x, 0, baseSize, width-20, width - potOfGold.width()+30);
+		int finalY = height - potOfGold.height()+46;
+
+		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY, 1200);
+		bez.draw(gAppSurface);
+
+		/*
+		// This one deposits in the pot of gold, using regular bezier
 		bezier(
 			x, height, 
 			width * 0.3, yoffset,
 			width * 0.6, yoffset,
 			finalX, finalY
 		);
-
+		*/
 		/*
-				bezier(
+		// This one goes to edge of screen, nothing fancy
+		bezier(
 			x, height, 
 			width * 0.3, yoffset,
 			width * 0.6, yoffset,

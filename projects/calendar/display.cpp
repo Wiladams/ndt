@@ -1,17 +1,12 @@
 #include "p5.hpp"
 #include "MonthTile.hpp"
+#include "DayTile.hpp"
 
 #include <cstdio>
 #include <vector>
 
 using namespace p5;
 
-
-std::vector<CalendarMonthTile> months;
-static const int numColumns = 3;
-static const int numRows = 4;
-static const int edgeMargin = 4;
-static const int lineGap = 8;
 
 
 void keyReleased(const KeyEvent &e)
@@ -21,27 +16,16 @@ void keyReleased(const KeyEvent &e)
 	}
 }
 
-void draw()
+void drawYearOfMonths(IGraphics *ctx)
 {
-	if (isLayered()) {
-		clear();
-		//background(255, 10);
-	} else
-		background(0xff);
+	static const int numColumns = 3;
+	static const int numRows = 4;
+	static const int edgeMargin = 4;
+	static const int lineGap = 8;
 
-	for (size_t i = 0; i < months.size();i++) {
-		months[i].draw(gAppSurface);
-	}
+	std::vector<CalendarMonthTile> months;
 
-}
-
-
-
-void setup()
-{
 	auto cellSize = CalendarMonthTile::getClassPreferredSize();
-
-	createCanvas(cellSize.w*numColumns+(edgeMargin *numColumns-1), cellSize.h*numRows+(edgeMargin *numRows-1));
 
 	int xoffset = edgeMargin;
 	int yoffset = lineGap;
@@ -60,8 +44,50 @@ void setup()
 		}
 	}
 
-	layered();
-	setWindowPosition(100, 48);
+	
+	for (size_t i = 0; i < months.size(); i++) {
+		months[i].draw(ctx);
+	}
+}
+
+void drawDayTiles(IGraphics* ctx)
+{
+	DayTile dt(0);
+	
+	ctx->push();
+	ctx->translate(600, 4);
+	dt.draw(ctx);
+	ctx->pop();
+}
+
+void draw()
+{
+	if (isLayered()) {
+		clear();
+		//background(255, 10);
+	} else
+		background(0xc0);
+
+	push();
+	scale(.618, 0.618);
+	drawYearOfMonths(gAppSurface);
+	pop();
+
+
+	drawDayTiles(gAppSurface);
+}
+
+
+
+
+void setup()
+{
+
+	//createCanvas(cellSize.w*numColumns+(edgeMargin *numColumns-1), cellSize.h*numRows+(edgeMargin *numRows-1));
+	createCanvas(1024, 768);
+
+	//layered();
+	//setWindowPosition(100, 48);
 	noLoop();
 }
 

@@ -6,6 +6,14 @@
 
 using namespace p5;
 
+//
+// This MonthTile can show a monthly calendar at varying levels of detail
+// The level of detail is on a scale from 
+// 0.0 - least detail, to 
+// 1.0 - most detail
+// The amount of detail just changes the rendering, not the size
+// it is up to the user to display in the appropriate size
+
 class CalendarMonthTile : Graphic
 {
 	static const int colWidth = 28;
@@ -15,6 +23,7 @@ class CalendarMonthTile : Graphic
 	int fMonth;
 	int fOriginX;
 	int fOriginY;
+	float fLevelOfDetail;
 	BLRectI fBounds;
 	BLRectI fFrame;
 	Color fBackgroundColor;
@@ -83,7 +92,7 @@ public:
 		int xoffset = 4;
 
 		ctx->noStroke();
-		ctx->fill(0xbe);
+		ctx->fill(0x5e);
 		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
 
 		for (int i = 0; i < 7; i++) {

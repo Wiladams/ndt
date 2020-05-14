@@ -142,12 +142,14 @@
   <ItemGroup>
     <ClInclude Include="appconfig.hpp" />
     <ClInclude Include="apphost.h" />
+    <ClInclude Include="bezier.hpp" />
     <ClInclude Include="binops.hpp" />
     <ClInclude Include="binstream.hpp" />
     <ClInclude Include="bitbang.hpp" />
     <ClInclude Include="blend2d.h" />
     <ClInclude Include="BLGraphics.h" />
     <ClInclude Include="codec_targa.hpp" />
+    <ClInclude Include="colorsampler.h" />
     <ClInclude Include="computicle.hpp" />
     <ClInclude Include="definitions.hpp" />
     <ClInclude Include="Event.hpp" />
@@ -168,6 +170,7 @@
     <ClInclude Include="pcap.hpp" />
     <ClInclude Include="random.hpp" />
     <ClInclude Include="Recorder.hpp" />
+    <ClInclude Include="sampler.hpp" />
     <ClInclude Include="screensnapshot.hpp" />
     <ClInclude Include="Stack.hpp" />
     <ClInclude Include="stopwatch.hpp" />

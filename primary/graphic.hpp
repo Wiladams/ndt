@@ -22,7 +22,7 @@ public:
 	Frame - The location, within the bounds of the parent frame
 	
 */
-class IGraphic : public IDrawable 
+class IGraphic : public virtual IDrawable 
 {
 protected:
 	virtual ~IGraphic() {};
@@ -31,7 +31,7 @@ public:
 	virtual BLRectI getBounds() const = 0;
 };
 
-class Graphic : public IGraphic
+class Graphic : public virtual IGraphic
 {
 	BLRectI fBounds{};
 
