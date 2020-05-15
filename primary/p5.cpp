@@ -426,6 +426,16 @@ namespace p5 {
     }
     */
 
+    BLImage loadImage(const char* filename) noexcept
+    {
+        BLImage img;
+        auto err = img.readFromFile(filename);
+
+        if (err)
+            printf("could not load pot of gold (%d)\n", err);
+        
+        return img;
+    }
 
     // Text Handling
     void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) noexcept
@@ -499,8 +509,6 @@ namespace p5 {
     void updatePixels() noexcept
     {
         gAppSurface->updatePixels();
-        //gAppSurface->setData(pixels);
-        //pixels = nullptr;
     }
 
 

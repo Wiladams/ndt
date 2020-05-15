@@ -190,7 +190,7 @@ struct P5Vector {
     void noClip() noexcept;
 
 
-    void set(double x1, double y1, const Color& c) noexcept;
+    void set(int x1, int y1, const Color& c) noexcept;
     Color get(double x, double y) noexcept;
 
     void point(double x, double y) noexcept;
@@ -209,7 +209,7 @@ struct P5Vector {
 
 
     void image(BLImage& img, int x, int y) noexcept;
-
+    BLImage loadImage(const char* filename) noexcept;
 
     void scaleImage(BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,

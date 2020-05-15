@@ -52,7 +52,8 @@ namespace Calendar {
         "December"
     };
 
-    static const std::string MonthsShort[] = {
+    static const std::string MonthsShort[] =
+    {
     "",
     "JAN",
     "FEB",
@@ -145,5 +146,5 @@ namespace Calendar {
         uint64_t JDN = (1461 * (Y + 4800 + (M - 14) / 12)) / 4 + (367 * (M - 2 - 12 * ((M - 14) / 12))) / 12 - (3 * ((Y + 4900 + (M - 14) / 12) / 100)) / 4 + D - 32075;
         return JDN;
     }
-} // namespace Gregorian
+} // namespace Calendar
 

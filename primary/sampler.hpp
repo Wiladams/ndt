@@ -1,19 +1,19 @@
 #pragma once
 
 template <typename T>
-class ISampler1D
+struct ISampler1D
 {
-	virtual T operator()(double u) = 0;
+	virtual T operator()(double u) const = 0;
 };
 
 template <typename T>
-class ISampler2D
+struct ISampler2D
 {
-	virtual T operator()(double u, double v) = 0;
+	virtual T operator()(double u, double v) const = 0;
 };
 
 template <typename T>
-class ISampler3D
+struct ISampler3D
 {
-	virtual T operator()(double u, double v, double w) = 0;
+	virtual T operator()(double u, double v, double w) const = 0;
 };

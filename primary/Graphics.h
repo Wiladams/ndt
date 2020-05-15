@@ -153,7 +153,7 @@ public:
     virtual void blendMode(int mode) = 0;
     virtual void strokeCaps(int caps) = 0;
     virtual void strokeJoin(int join) = 0;
-    virtual void strokeWeight(int weight) = 0;
+    virtual void strokeWeight(double weight) = 0;
 
     virtual void push()=0;
     virtual void pop()=0;

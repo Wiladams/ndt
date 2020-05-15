@@ -17,6 +17,8 @@ class BLGraphics : public virtual IGraphics
     int fCommandThreshold = 256;
 
     BLContext fCtx;
+    BLImageData fImageData;
+
     int fAngleMode = RADIANS;
     ELLIPSEMODE fEllipseMode = ELLIPSEMODE::RADIUS;
     RECTMODE fRectMode = RECTMODE::CORNER;
@@ -100,6 +102,7 @@ private:
 
         // Start with a default font so we can start drawing text
         textFont("c:\\windows\\fonts\\segoeui.ttf");
+
     }
 
 
@@ -144,7 +147,7 @@ public:
     // stroking attributes
     virtual void strokeCaps(int caps) { fCtx.setStrokeCaps(caps); }
     virtual void strokeJoin(int style) { fCtx.setStrokeJoin(style); }
-    virtual void strokeWeight(int weight) { fCtx.setStrokeWidth(weight); }
+    virtual void strokeWeight(double weight) { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
     virtual void push() { fCtx.save(); }
@@ -170,21 +173,36 @@ public:
 
 
     // Synchronization
+    // Wait for any outstanding drawing commands to be applied
+    //
     virtual void flush()
     {
-        //printf("BLGraphics.flush()\n");
         fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         resetCommandCount();
     }
 
     virtual void loadPixels()
     {
+        // First, flush all queued commands
         flush();
+
+        // The get a hold of the pixels from the image
+        // if one exists
+        BLImage* img = fCtx.targetImage();
+        if (nullptr == img)
+            return;
+
+        // We have the image, so get the image data so 
+        // we can get a pointer to the pixel data
+        BLResult err = img->getData(&fImageData);
+        if (BL_SUCCESS != err)
+            return;
     }
 
     virtual void updatePixels()
     {
         flush();
+        fImageData.reset();
     }
 
     // Background management
@@ -213,12 +231,10 @@ public:
     // hard set a specfic pixel value
     virtual void set(double x, double y, const Color& c)
     {
-        push();
-        fill(c);
-        rect(x, y, 1, 1);
-        pop();
-
-        incrCmd();
+        if (nullptr == fImageData.pixelData)
+            return;
+        
+        ((BLRgba32 *)(fImageData.pixelData))[(int)y * fImageData.stride + (int)x] = c;
     }
     
 
@@ -226,13 +242,11 @@ public:
     virtual void point(double x, double y) 
     { 
         line(x, y, x+1, y);
-        // set(x, y, color(0)); 
     }
 
     virtual void line(double x1, double y1, double x2, double y2) 
     {
         BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
-        //printf("BLGraphics.line(%d): %f %f %f %f\n", bResult, x1, y1, x2, y2);
 
         incrCmd();
     }
@@ -443,6 +457,8 @@ public:
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
         fCtx.fillUtf8Text(xy, fFont, txt);
+
+        
         fCtx.strokeUtf8Text(xy, fFont, txt);
 
         incrCmd();

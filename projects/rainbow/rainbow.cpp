@@ -76,7 +76,9 @@ void preload()
 	}
 
 	// Load the various images
-	auto err = potOfGold.readFromFile("potofgold.jpg");
+	//auto err = potOfGold.readFromFile("potofgold.jpg");
+	auto err = potOfGold.readFromFile("potofgold.png");
+
 	if (err)
 		printf("could not load pot of gold (%d)\n", err);
 }
@@ -101,7 +103,10 @@ void draw()
 
 
 	// draw pot of gold at end of rainbow
-	p5::image(potOfGold, width - potOfGold.width(), height - potOfGold.height());
+	int potX = width - potOfGold.width() - 200;
+	int potY = height - potOfGold.height() - 300;
+
+	p5::image(potOfGold, potX, potY);
 	gAppSurface->flush();
 
 	// Draw the actual rainbow
@@ -122,8 +127,11 @@ void draw()
 		grad.addStop(0.80, c1);
 		grad.addStop(1.0, c0);
 
-		int finalX = map(x, 0, baseSize, width-20, width - potOfGold.width()+30);
-		int finalY = height - potOfGold.height()+46;
+		//int finalX = map(x, 0, baseSize, width - 20, width - potOfGold.width() + 30);
+		//int finalY = height - potOfGold.height() + 46;
+
+		int finalX = map(x, 0, baseSize, potX+potOfGold.width()-10, potX+30);
+		int finalY = potY+36;
 
 		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY, 1200);
 		bez.draw(gAppSurface);

@@ -45,7 +45,7 @@ public:
 		: fGradient(grad)
 	{}
 
-	BLRgba32 operator()(double u)
+	BLRgba32 operator()(double u) const
 	{
 		// ensure we're in the range 0..1 inclusive
 		u = constrain(u, 0, 1.0);

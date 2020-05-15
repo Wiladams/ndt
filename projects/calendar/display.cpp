@@ -52,10 +52,13 @@ void drawYearOfMonths(IGraphics *ctx)
 
 void drawDayTiles(IGraphics* ctx)
 {
-	DayTile dt(0);
+	DayTile dt;
+	
+	dt.setDate(2020, 5, 14);
 	
 	ctx->push();
-	ctx->translate(600, 4);
+	ctx->translate(500, 72);
+
 	dt.draw(ctx);
 	ctx->pop();
 }

@@ -153,6 +153,7 @@
     <ClInclude Include="computicle.hpp" />
     <ClInclude Include="definitions.hpp" />
     <ClInclude Include="Event.hpp" />
+    <ClInclude Include="FastNoise.h" />
     <ClInclude Include="functor.hpp" />
     <ClInclude Include="graphic.hpp" />
     <ClInclude Include="Graphics.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="GraphicsEncoder.hpp" />
     <ClInclude Include="guistyle.hpp" />
     <ClInclude Include="gview.hpp" />
+    <ClInclude Include="imagesampler.h" />
     <ClInclude Include="LayeredWindow.hpp" />
     <ClInclude Include="List.hpp" />
     <ClInclude Include="maths.hpp" />
@@ -185,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
+    <ClCompile Include="FastNoise.cpp" />
     <ClCompile Include="p5.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
