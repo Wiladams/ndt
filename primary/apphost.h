@@ -109,6 +109,7 @@ EXPORT extern int keyChar;
 EXPORT extern bool mouseIsPressed;
 EXPORT extern int mouseX;
 EXPORT extern int mouseY;
+EXPORT extern int mouseDelta;
 EXPORT extern int pmouseX;
 EXPORT extern int pmouseY;
 

@@ -77,6 +77,7 @@ int keyChar = 0;
 bool mouseIsPressed = false;
 int mouseX = 0;
 int mouseY = 0;
+int mouseDelta = 0;
 int pmouseX = 0;
 int pmouseY = 0;
 
@@ -250,14 +251,7 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    // First get screen location of mouse
-    //POINT mousePT;
-    //auto bResult = GetCursorPos(&mousePT);
-    //screenMouseX = mousePT.x;
-    //screenMouseY = mousePT.y;
-
-    
+{   
     LRESULT res = 0;
     MouseEvent e;
 
@@ -331,7 +325,7 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_MOUSEWHEEL:
             e.activity = MOUSEWHEEL;
             e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
-
+            mouseDelta = e.delta;
             if (gMouseWheelHandler != nullptr) {
                 gMouseWheelHandler(e);
             }

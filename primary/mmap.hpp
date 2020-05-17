@@ -145,7 +145,10 @@ public:
     // desiredAccess - GENERIC_READ, GENERIC_WRITE, GENERIC_EXECUTE
     // shareMode - FILE_SHARE_READ, FILE_SHARE_WRITE
     // creationDisposition - CREATE_ALWAYS, CREATE_NEW, OPEN_ALWAYS, OPEN_EXISTING, TRUNCATE_EXISTING
-    static mmap create(const std::string &filename, uint32_t desiredAccess=GENERIC_READ, uint32_t shareMode=FILE_SHARE_READ, uint32_t disposition= OPEN_EXISTING)
+    static mmap create(const std::string &filename, 
+        uint32_t desiredAccess=GENERIC_READ, 
+        uint32_t shareMode=FILE_SHARE_READ, 
+        uint32_t disposition= OPEN_EXISTING)
     {
         uint32_t flagsAndAttributes = (FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS);
 
@@ -165,10 +168,16 @@ public:
             return {};
         }
 	
-        uint64_t size = ::GetFileSize(filehandle, nullptr);
+        // BUGBUG
+        // Need to check whether we're opening for writing or not
+        // if we're opening for writing, then we don't want to 
+        // limit the size in CreateFileMappingA
+        LARGE_INTEGER psize;
+        BOOL bResult = GetFileSizeEx(filehandle, &psize);
+        int64_t size = psize.QuadPart;
 
 	    // Open mapping
-        HANDLE maphandle = CreateFileMappingA(filehandle, nullptr, PAGE_READONLY, 0, size, nullptr);
+        HANDLE maphandle = CreateFileMappingA(filehandle, nullptr, PAGE_READONLY, psize.HighPart, psize.LowPart, nullptr);
         //printf("CREATE File Mapping: ", maphandle)
 	    
         if (maphandle == INVALID_HANDLE_VALUE) 

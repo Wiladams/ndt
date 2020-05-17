@@ -8,22 +8,46 @@ namespace ndt
 	// This assumes the BLImage is in the PRGBA32 format
 	class ImageSampler : public virtual ISampler2D<BLRgba32>
 	{
-		const BLImage& fImage;
+		BLImage * fImage;
 		BLImageData fImageData;
+		bool fFlipVertical;
 
 	public:
-		ImageSampler(const BLImage &img)
-			:fImage(img)
+		ImageSampler()
+			:fImage(nullptr),
+			fFlipVertical(false)
+		{}
+
+		ImageSampler(BLImage *img, const bool flipVertical = false)
+			: fImage(nullptr),
+			fFlipVertical(false)
 		{
-			fImage.getData(&fImageData);
+			init(img, flipVertical);
+		}
+
+		bool init(BLImage* img, const bool flipVertical = false)
+		{
+			if (nullptr == img)
+				return false;
+
+			fImage = img;
+			fFlipVertical = flipVertical;
+			fImage->getData(&fImageData);
+		
+			return true;
 		}
 
 		BLRgba32 operator()(double u, double v)  const
 		{
-			int x = map(u, 0, 1, 0, fImage.width() - 1, true);
-			int y = map(v, 0, 1, 0, fImage.height() - 1, true);
-
-			int offset = y * fImage.width() + x;
+			int x = int(map(u, 0, 1, 0, (double)fImage->width() - 1, true)+0.5);
+			int y;
+			if (fFlipVertical)
+				y = int(map(v, 0, 1, (double)fImage->height() - 1, 0 , true)+0.5);	// flip vertically
+			else
+				y = int(map(v, 0, 1, 0, (double)fImage->height() - 1, true)+0.5);
+			
+			int offset = y * fImage->width() + x;
+			
 			return ((BLRgba32*)fImageData.pixelData)[offset];
 		}
 	};

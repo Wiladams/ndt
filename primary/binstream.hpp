@@ -461,7 +461,7 @@ size_t readLine(char* buff, const size_t bufflen)
         uint16_t decimal = readInt16();
         uint16_t fraction = readUInt16();
 
-        return decimal + (fraction / 0xffff);
+        return (float)decimal + ((float)fraction / 0xffff);
     }
 
     // fixed 2_30 numbers
