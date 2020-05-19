@@ -10,7 +10,6 @@
 #include "codec_targa.hpp"
 #include "imagesampler.h"
 
-//using namespace geometry;
 
 class GMesh
 {
@@ -107,6 +106,9 @@ public:
 	// Get the normal for a specific face and vertex
 	Vec3f normal(int iface, int nthvert) 
 	{
+		if (norms_.size() == 0)
+			return {};
+
 		int idx = faces_[iface][nthvert][2];
 		return norms_[idx].normalize();
 	}
@@ -120,6 +122,9 @@ public:
 	}
 
 	Vec2f uv(int iface, int nthvert) {
+		if (uv_.size() == 0)
+			return {};
+
 		return uv_[faces_[iface][nthvert][1]];
 	}
 

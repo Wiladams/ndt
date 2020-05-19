@@ -39,6 +39,13 @@ static MouseEventHandler gMouseReleasedHandler = nullptr;
 static MouseEventHandler gMouseWheelHandler = nullptr;
 static MouseEventHandler gMouseDraggedHandler = nullptr;
 
+// Joystick
+static WinMSGObserver gJoystickHandler = nullptr;
+static JoystickEventHandler gJoystickPressedHandler = nullptr;
+static JoystickEventHandler gJoystickReleasedHandler = nullptr;
+static JoystickEventHandler gJoystickMovedHandler = nullptr;
+static JoystickEventHandler gJoystickMovedZHandler = nullptr;
+
 // Touch
 static WinMSGObserver gTouchHandler = nullptr;
 
@@ -91,6 +98,8 @@ int rawMouseY = 0;
 //
 //Raw input utility functions
 static const USHORT HID_MOUSE = 2;
+static const USHORT HID_JOYSTICK = 4;
+static const USHORT HID_GAMEPAD = 5;
 static const USHORT HID_KEYBOARD = 6;
 
 // Register for mouseand keyboard
@@ -250,6 +259,7 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 
+
 LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {   
     LRESULT res = 0;
@@ -336,6 +346,51 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             
         break;
     }
+
+    return res;
+}
+
+
+
+LRESULT HandleJoystickEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    LRESULT res = 0;
+
+    JoystickEvent e;
+    e.buttons = (int)wParam;
+    e.x = LOWORD(lParam);
+    e.y = HIWORD(lParam);
+
+    switch (msg) {
+    case MM_JOY1BUTTONDOWN:
+    case MM_JOY2BUTTONDOWN:
+        e.activity = JOYPRESSED;
+        if (gJoystickPressedHandler)
+            gJoystickPressedHandler(e);
+        break;
+
+    case MM_JOY1BUTTONUP:
+    case MM_JOY2BUTTONUP:
+        e.activity = JOYRELEASED;
+        if (gJoystickReleasedHandler != nullptr)
+            gJoystickReleasedHandler(e);
+        break;
+
+    case MM_JOY1MOVE:
+    case MM_JOY2MOVE:
+        e.activity = JOYMOVED;
+        if (gJoystickMovedHandler)
+            gJoystickMovedHandler(e);
+        break;
+
+    case MM_JOY1ZMOVE:
+    case MM_JOY2ZMOVE:
+        e.activity = JOYZMOVED;
+        if (gJoystickMovedZHandler)
+            gJoystickMovedZHandler(e);
+        break;
+    }
+
 
     return res;
 }
@@ -435,26 +490,6 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-/*
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// These should be implemented by a module to be loaded
-EXPORT LRESULT onPaintHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-EXPORT LRESULT keyboardHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-EXPORT LRESULT mouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-#ifdef __cplusplus
-}
-#endif
-*/
-
-
-
-
-
-
 
 // Setup the routines that will handle
 // keyboard and mouse events
@@ -467,6 +502,7 @@ void setupHandlers()
     // Start with our default handlers
     gKeyboardHandler = HandleKeyboardEvent;
     gMouseHandler = HandleMouseEvent;
+    gJoystickHandler = HandleJoystickEvent;
     gTouchHandler = HandleTouchEvent;
     gPaintHandler = HandlePaintEvent;
 
@@ -497,10 +533,10 @@ void setupHandlers()
             gMouseHandler = handler;
     }
 
-    handler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
-    if (handler != nullptr) {
-            gTouchHandler = handler;
-    }
+    gJoystickHandler = (WinMSGObserver)GetProcAddress(hInst, "joystickHandler");
+
+    gTouchHandler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
+
 
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 
@@ -516,6 +552,12 @@ void setupHandlers()
     gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
     gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
     gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+
+    // Joystick
+    gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
+    gJoystickReleasedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyReleased");
+    gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
+    gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
 
     // Touch event handling
 
@@ -581,7 +623,14 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (gKeyboardHandler != nullptr) {
             gKeyboardHandler(hWnd, msg, wParam, lParam);
         }
-    } else if (msg == WM_TOUCH) {
+    }
+    else if (msg >= MM_JOY1MOVE && msg <= MM_JOY2BUTTONUP) {
+        printf("appmain.MsgHandler, MM_JOY: %d\n", msg);
+        if (gJoystickHandler != nullptr) {
+            gJoystickHandler(hWnd, msg, wParam, lParam);
+        }
+    }
+    else if (msg == WM_TOUCH) {
         // Handle touch specific messages
         if (gTouchHandler != nullptr) {
             gTouchHandler(hWnd, msg, wParam, lParam);

@@ -8,11 +8,12 @@
 #include <windowsx.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <mmsystem.h>
 
 #include "bitbang.hpp"
 #include "NativeWindow.hpp"
 #include "Surface.h"
-
+#include "joystick.h"
 
 
 #include <stdio.h>
@@ -26,11 +27,7 @@
 
 
 // Basic type to encapsulate a mouse event
-enum {
-    KEYPRESSED,
-    KEYRELEASED,
-    KEYTYPED
-};
+
 
 
 enum {
@@ -58,6 +55,12 @@ struct MouseEvent {
     bool xbutton2;
 };
 
+enum {
+    KEYPRESSED,
+    KEYRELEASED,
+    KEYTYPED
+};
+
 struct KeyEvent {
     int activity;
     int keyCode;        // wparam
@@ -68,6 +71,8 @@ struct KeyEvent {
 };
 
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -75,6 +80,8 @@ extern "C" {
 // Some generic function signatures
 typedef void (* KeyEventHandler)(const KeyEvent &e);
 typedef void (* MouseEventHandler)(const MouseEvent &e);
+typedef void (*JoystickEventHandler)(const JoystickEvent& e);
+
 typedef void (* VOIDROUTINE)();
 
 
@@ -128,9 +135,9 @@ EXPORT void onLoop();
 
 // These should be implemented by a module to be loaded
 EXPORT void draw();
-EXPORT void setup();
 EXPORT void preload();
-
+EXPORT void setup();
+EXPORT void update(double dt);
 
 // IO Event Handlers
 EXPORT void keyPressed(const KeyEvent &e);
@@ -145,6 +152,10 @@ EXPORT void mousePressed(const MouseEvent &e);
 EXPORT void mouseReleased(const MouseEvent &e);
 EXPORT void mouseWheel(const MouseEvent &e);
 
+EXPORT void joyPressed(const JoystickEvent& e);
+EXPORT void joyReleased(const JoystickEvent& e);
+EXPORT void joyMoved(const JoystickEvent& e);
+EXPORT void joyMovedZ(const JoystickEvent& e);
 
 // Controlling the runtime
 EXPORT void halt();

@@ -13,7 +13,6 @@
 #include "geometry.h"
 #include "dproc_gl.h"
 #include "diffuseshader.h"
-#include "flatshader.hpp"
 #include "quaternion.h"
 #include "MonthTile.hpp"
 
@@ -40,11 +39,13 @@ CalendarMonthTile juneTile(2020, 6, 212, 8);
 
 void loadModels()
 {
-	floorModel = Model::loadModel("models/floor.obj");
+	floorModel = ObjModel::loadModel("models/floor.obj");
 
-	models.push_back(Model::loadModel("models/african_head/african_head.obj"));
-	models.push_back(Model::loadModel("models/diablo3_pose/diablo3_pose.obj"));
-	models.push_back(Model::loadModel("models/boggie/body.obj"));
+	models.push_back(ObjModel::loadModel("models/african_head/african_head.obj"));
+	models.push_back(ObjModel::loadModel("models/diablo3_pose/diablo3_pose.obj"));
+	models.push_back(ObjModel::loadModel("models/boggie/body.obj"));
+	//models.push_back(ObjModel::loadModel("models/suzanne.obj"));
+
 	//models.push_back(new Model("obj/Vanquish/vanquish.obj"));
 
 	model = models.at(0);
@@ -164,6 +165,4 @@ void setup()
 	Viewport = ogl_viewport(width / 8, height / 8, width * 3 / 4, height * 3 / 4);
 	onCameraChange();
 	light_dir = proj<3>((Projection*ModelView*embed<4>(light_dir, 0.f))).normalize();
-
-
 }
