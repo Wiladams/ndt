@@ -5,10 +5,11 @@
 #include <stdio.h>
 
 #include "p5.hpp"
-#include "GMesh.h"
+#include "TriangleMesh.h"
 #include "geometry.h"
 #include "dproc_gl.h"
 #include "diffuseshader.h"
+#include "flatshader.h"
 
 using namespace p5;
 
@@ -69,14 +70,15 @@ public:
 		ogl_clearzbuffer(zbuffer, width, height);
 	}
 
-	void renderMesh(GMesh* aModel)
+	void renderMesh(TriangleMesh &aModel)
 	{
-		DiffuseShader shader(aModel, fLightDirection, ModelView, Projection, Viewport);
+		//DiffuseShader shader(aModel, fLightDirection, ModelView, Projection, Viewport);
+		FlatShader shader(aModel, *this);
 
 		// Assume each face consists of 3 vertices (triangles)
 		// This can generalize to more vertices, but limiting
 		// to three makes things much easier
-		for (int i = 0; i < aModel->nfaces(); i++) {
+		for (int i = 0; i < aModel.nfaces(); i++) {
 			for (int j = 0; j < 3; j++) {
 				// use the vertex shader to calculate positions
 				// this is great for doing vertex shader manipulations

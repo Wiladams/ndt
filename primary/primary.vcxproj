@@ -193,6 +193,7 @@
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="FastNoise.cpp" />
     <ClCompile Include="p5.cpp" />
+    <ClCompile Include="waveobjloader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
