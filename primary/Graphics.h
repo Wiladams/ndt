@@ -201,6 +201,7 @@ public:
 
     // Background management
     virtual void clear() = 0;
+    virtual void clearRect(double x, double y, double w, double h) = 0;
     virtual void background(const Color& c) = 0;
 
     // Clipping

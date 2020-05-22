@@ -83,7 +83,7 @@ typedef void (* MouseEventHandler)(const MouseEvent &e);
 typedef void (*JoystickEventHandler)(const JoystickEvent& e);
 
 typedef void (* VOIDROUTINE)();
-
+typedef void (*PFNDOUBLE1)(const double param);
 
 // Miscellaneous globals
 EXPORT extern int gargc;
@@ -137,7 +137,7 @@ EXPORT void onLoop();
 EXPORT void draw();
 EXPORT void preload();
 EXPORT void setup();
-EXPORT void update(double dt);
+EXPORT void update(const double dt);
 
 // IO Event Handlers
 EXPORT void keyPressed(const KeyEvent &e);
@@ -168,6 +168,8 @@ EXPORT bool isLayered();
 
 EXPORT void rawInput();
 EXPORT void noRawInput();
+EXPORT void joystick();
+EXPORT void noJoystick();
 
 EXPORT void cursor();
 EXPORT void noCursor();

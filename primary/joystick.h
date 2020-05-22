@@ -14,6 +14,7 @@ enum {
 };
 
 struct JoystickEvent {
+	unsigned int ID;
 	int activity;			// What kind of joystick action is it
 	int buttons;			// Bitfield of buttons being pressed
 	int numButtonsPressed;	// total number of buttons currently pressed
@@ -34,6 +35,7 @@ struct Joystick {
 	JOYINFOEX fInfo{};
 	JOYCAPSA fCaps{};
 	bool fIsValid;
+	HWND fAttachedWindow;
 
 	static bool isValid(UINT id)
 	{
@@ -46,11 +48,16 @@ struct Joystick {
 	Joystick(unsigned int id)
 		:fID(id),
 		fInfo(),
-		fIsValid(false)
+		fIsValid(false),
+		fAttachedWindow(nullptr)
 	{
 		fInfo.dwSize = sizeof(JOYINFOEX);
 		fIsValid = getCaps();
 	}
+
+	Joystick()
+		:Joystick(JOYSTICKID1)
+	{}
 
 	bool isValid() const { return fIsValid; }
 	bool getCaps()
@@ -75,7 +82,7 @@ struct Joystick {
 
 	bool getPosition(JoystickEvent& res)
 	{
-		JOYINFOEX info;
+		JOYINFOEX info{0};
 		info.dwSize = sizeof(info);
 		info.dwFlags = JOY_RETURNALL;
 
@@ -84,12 +91,13 @@ struct Joystick {
 			return false;
 		}
 
+		res.ID = fID;
 		res.flags = info.dwFlags;
 
 		// Map the relatively raw axes value 
 		// to be within a range (-1.0 .. 1.0 typically)
 		res.x = map(info.dwXpos, fCaps.wXmin, fCaps.wXmax, -1, 1);
-		res.y = map(info.dwYpos, fCaps.wYmin, fCaps.wYmax, -1, 1);
+		res.y = map(info.dwYpos, fCaps.wYmin, fCaps.wYmax, 1, -1);
 		res.z = map(info.dwZpos, fCaps.wZmin, fCaps.wZmax, 1, 0); //throttle reverse
 		res.r = map(info.dwRpos, fCaps.wRmin, fCaps.wRmax, -1, 1);
 		res.u = map(info.dwUpos, fCaps.wUmin, fCaps.wUmax, -1, 1);
@@ -107,4 +115,13 @@ struct Joystick {
 		return true;
 	}
 
+	bool attachToWindow(HWND hWnd)
+	{
+		return (JOYERR_NOERROR == joySetCapture(hWnd,fID,0,1));
+	}
+
+	bool detachFromWindow()
+	{
+		return (JOYERR_NOERROR == joyReleaseCapture(fID));
+	}
 };

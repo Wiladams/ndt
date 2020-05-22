@@ -215,6 +215,25 @@ public:
         flush();
     }
 
+    virtual void clearRect(double x, double y, double w, double h)
+    {
+        //printf("clearRect: %f %f, %f %f\n", x, y, w, h);
+        BLImage* img = fCtx.targetImage();
+        BLImageData info;
+
+        img->getData(&info);
+
+        for (int row = (int)y; row < y+h; row++) {
+            for (int col = (int)x; col < x+w; col++) {
+                int offset = (row * info.size.w) + col;
+                //printf("set: %d, %d\n", col, row);
+                ((uint32_t *)info.pixelData)[offset] = 0x00000000;
+            }
+        }
+        //fCtx.clearRect(x, y, w, h);
+
+    }
+
     virtual void background(const Color& c)
     {
         fCtx.save();

@@ -8,26 +8,19 @@
 #include "geometry.h"
 #include "dproc_gl.h"
 #include "diffuseshader.h"
-#include "quaternion.h"
 #include "MonthTile.hpp"
+#include "threed.h"
 
 using namespace p5;
 
-Matrix ModelView;
-Matrix Projection;
-Matrix Viewport;
+ThreeD* D = nullptr;
+
 
 size_t modelIndex = 0;
 GMesh* model = nullptr;
 GMesh* floorModel = nullptr;
 
 std::vector<GMesh*> models;
-float* zbuffer = nullptr;
-
-Vec3f light_dir(1, 1, 1);
-Vec3f       eye(1, 1, 3);
-Vec3f    center(0, 0, 0);
-Vec3f        up(0, -1, 0);
 
 CalendarMonthTile mayTile(2020, 5, 8, 8);
 CalendarMonthTile juneTile(2020, 6, 212, 8);
@@ -35,10 +28,15 @@ CalendarMonthTile juneTile(2020, 6, 212, 8);
 void setup()
 {
 	createCanvas(800, 800);
+	D = new ThreeD(gAppSurface->getBlend2dImage());
+	
+	model->addVert({ -1,-1,-1 });
+	model->addVert({ 1,-1,-1 });
+	model->addVert({ 1,-1,0 });
 }
 
 void draw()
 {
-
+	D->renderMesh(model);
 }
 

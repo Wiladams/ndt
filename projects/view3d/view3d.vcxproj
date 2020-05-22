@@ -157,6 +157,8 @@
     <ClInclude Include="..\..\primary\binops.hpp" />
     <ClInclude Include="..\..\primary\bitbang.hpp" />
     <ClInclude Include="..\..\primary\codec_targa.hpp" />
+    <ClInclude Include="..\..\primary\diffuseshader.h" />
+    <ClInclude Include="..\..\primary\GMesh.h" />
     <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\imagesampler.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
@@ -165,6 +167,7 @@
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="calendar.hpp" />
     <ClInclude Include="enumerable.hpp" />
+    <ClInclude Include="flatshader.hpp" />
     <ClInclude Include="MonthTile.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

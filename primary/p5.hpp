@@ -181,6 +181,8 @@ struct P5Vector {
 
 
     void clear() noexcept;
+    void clearRect(double x, double y, double w, double h) noexcept;
+
     void background(const Color& pix) noexcept;
     void background(int a, int b, int c, int d) noexcept;
     void background(int gray, int alpha) noexcept;

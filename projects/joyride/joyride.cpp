@@ -1,9 +1,17 @@
+/*
+	Test out the standard joystick messaging
+	this is limited by the Windows messages that
+	target joysticks.  This does not use DirectInput,
+	which would give a wider variety of inputs.
+*/
 #include "p5.hpp"
-#include "joystick.h"
+
+#include "graphic.hpp"
 
 using namespace p5;
 
-Joystick joy1(0);
+int joyX;
+int joyY;
 
 void printJoystick(const Joystick& j)
 {
@@ -12,8 +20,8 @@ void printJoystick(const Joystick& j)
 	printf("        VxD: %s\n", j.oemVxD());
 	//printf("MID: 0x%x", j.MID());
 	printf("      valid: %d\n", j.isValid());
-	printf("    buttons: %d\n", j.numButtons());
-	printf("       axes: %d\n", j.numAxes());
+	printf("    buttons: %zd\n", j.numButtons());
+	printf("       axes: %zd\n", j.numAxes());
 	printf("      has Z: %d\n", j.hasZ());
 	printf("    has POV: %d\n", j.hasPOV());
 	printf("  has 4 DIR: %d\n", j.hasPOV4DIR());
@@ -30,26 +38,47 @@ void printJoystickPosition(const JoystickEvent& e)
 	printf("State: 0x%x\n", e.buttons);
 }
 
+void joyPressed(const JoystickEvent& e)
+{
+	printf("joyPressed: 0x%x  %3.2f, %3.2f\n", e.buttons, e.x, e.y);
+}
+
+void joyReleased(const JoystickEvent& e)
+{
+	printf("joyReleased: 0x%x  %3.2f, %3.2f\n", e.buttons, e.x, e.y);
+}
+
+void joyMoved(const JoystickEvent& e)
+{
+	printf("joyMoved: (%d) %32.f, %3.2f\n", e.ID, e.x, e.y);
+	joyX = map(e.x, -1, 1, 0, width - 1);
+	joyY = map(e.y, -1, 1, height-1, 0);
+}
+
+void joyMovedZ(const JoystickEvent& e)
+{
+	printf("joyMovedZ: %3.2f\n", e.z);
+}
+
+void keyReleased(const KeyEvent& e)
+{
+	if (e.keyCode == VK_ESCAPE)
+		halt();
+}
+
 void setup()
 {
-	createCanvas(600, 600);
-	
-	printJoystick(joy1);
+	createCanvas(400, 400);
 
-	frameRate(4);
+	//frameRate(1);
+	joystick();		// turn on joystick messages
 }
 
 void draw()
 {
 	background(0xc0);
-
-
-	if (!joy1.isValid())
-		return;
-
-	// get the joystick status/position
-	JoystickEvent je;
-	joy1.getPosition(je);
-
-	printJoystickPosition(je);
+	
+	stroke(0);
+	fill(255);
+	circle(joyX, joyY, 20);
 }

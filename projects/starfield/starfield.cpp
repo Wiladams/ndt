@@ -52,20 +52,7 @@ void mouseWheel(const MouseEvent& e)
 	}
 }
 
-void joyPressed(const JoystickEvent& e)
-{
-	printf("joyPressed: %d  %d, %d\n", e.buttons, e.x, e.y);
-}
 
-void joyMoved(const JoystickEvent& e)
-{
-	printf("joyMoved: %d, %d\n", e.x, e.y);
-}
-
-void joyMovedZ(const JoystickEvent& e)
-{
-	printf("joyMovedZ: %d, %d", e.x, e.y);
-}
 
 void draw()
 {

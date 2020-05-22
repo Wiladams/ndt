@@ -149,7 +149,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\primary\GMesh.h" />
     <ClInclude Include="..\..\primary\model.h" />
+    <ClInclude Include="..\..\primary\threed.h" />
     <ClInclude Include="cube.h" />
+    <ClInclude Include="flatshader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

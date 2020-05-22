@@ -77,5 +77,14 @@
     <ClInclude Include="..\..\primary\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="flatshader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\diffuseshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\GMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

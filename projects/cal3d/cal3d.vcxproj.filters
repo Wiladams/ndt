@@ -38,5 +38,11 @@
     <ClInclude Include="cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\threed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flatshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

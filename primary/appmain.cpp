@@ -4,6 +4,8 @@
 
 #include "LayeredWindow.hpp"
 #include "TimeTicker.hpp"
+#include "joystick.h"
+#include "stopwatch.hpp"
 
 #include <cstdio>
 #include <array>
@@ -19,7 +21,7 @@ static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gPreloadHandler = nullptr;
 static VOIDROUTINE gSetupHandler = nullptr;
 static VOIDROUTINE gPreSetupHandler = nullptr;
-
+static PFNDOUBLE1 gUpdateHandler = nullptr;
 
 // Painting
 static WinMSGObserver gPaintHandler = nullptr;
@@ -54,7 +56,9 @@ int gargc;
 char **gargv;
 
 TimeTicker *gAppTicker = nullptr;
-
+StopWatch appStopWatch;
+double deltaTime = 0;
+double gAppLastTime = 0;
 
 int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
@@ -92,6 +96,9 @@ int pmouseY = 0;
 int rawMouseX = 0;
 int rawMouseY = 0;
 
+// Joystick
+static Joystick gJoystick1(JOYSTICKID1);
+static Joystick gJoystick2(JOYSTICKID2);
 
 //
 //    https://docs.microsoft.com/en-us/windows/desktop/inputdev/using-raw-input
@@ -351,40 +358,73 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-
+// 
+// Handling the joystick messages through the Windows
+// Messaging method is very limited.  It will only 
+// trigger for a limited set of buttons and axes movements
+// This handler is here for a complete API.  If the user app
+// wants to get more out of the joystick, it can access the
+// joystick directly with 'gJoystick1' or 'gJoystick2' and
+// call getPosition() at any time.  Typically during 'update()'
+// or 'draw()'
 LRESULT HandleJoystickEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
-    JoystickEvent e;
-    e.buttons = (int)wParam;
-    e.x = LOWORD(lParam);
-    e.y = HIWORD(lParam);
 
+    JoystickEvent e;
+
+    // We can handle up to two joysticks using
+    // this mechanism
     switch (msg) {
     case MM_JOY1BUTTONDOWN:
+        gJoystick1.getPosition(e);
+        e.activity = JOYPRESSED;
+        if (gJoystickPressedHandler)
+            gJoystickPressedHandler(e);
+        break;
+
     case MM_JOY2BUTTONDOWN:
+        gJoystick2.getPosition(e);
         e.activity = JOYPRESSED;
         if (gJoystickPressedHandler)
             gJoystickPressedHandler(e);
         break;
 
     case MM_JOY1BUTTONUP:
+        gJoystick1.getPosition(e);
+        e.activity = JOYRELEASED;
+        if (gJoystickReleasedHandler != nullptr)
+            gJoystickReleasedHandler(e);
+        break;
     case MM_JOY2BUTTONUP:
+        gJoystick2.getPosition(e);
         e.activity = JOYRELEASED;
         if (gJoystickReleasedHandler != nullptr)
             gJoystickReleasedHandler(e);
         break;
 
     case MM_JOY1MOVE:
+        gJoystick1.getPosition(e);
+        e.activity = JOYMOVED;
+        if (gJoystickMovedHandler)
+            gJoystickMovedHandler(e);
+        break;
     case MM_JOY2MOVE:
+        gJoystick2.getPosition(e);
         e.activity = JOYMOVED;
         if (gJoystickMovedHandler)
             gJoystickMovedHandler(e);
         break;
 
     case MM_JOY1ZMOVE:
+        gJoystick1.getPosition(e);
+        e.activity = JOYZMOVED;
+        if (gJoystickMovedZHandler)
+            gJoystickMovedZHandler(e);
+    break;
     case MM_JOY2ZMOVE:
+        gJoystick2.getPosition(e);
         e.activity = JOYZMOVED;
         if (gJoystickMovedZHandler)
             gJoystickMovedZHandler(e);
@@ -511,11 +551,12 @@ void setupHandlers()
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
-    gLoopHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoop");
+    gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
     gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
 
     // The user can specify their own handlers for io and
-    // painting
+    // painting.  If they don't specify a handler, then use
+    // the one that's inbuilt.
     WinMSGObserver handler = (WinMSGObserver)GetProcAddress(hInst, "onPaint");
     if (handler != nullptr) {
             gPaintHandler = handler;
@@ -524,19 +565,23 @@ void setupHandlers()
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "keyboardHandler");
     if (handler != nullptr) {
-                    printf("key handler: %p\n", handler);
-            gKeyboardHandler = handler;
+        gKeyboardHandler = handler;
     }
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
     if (handler != nullptr) {
-            gMouseHandler = handler;
+        gMouseHandler = handler;
     }
 
-    gJoystickHandler = (WinMSGObserver)GetProcAddress(hInst, "joystickHandler");
+    handler = (WinMSGObserver)GetProcAddress(hInst, "joystickHandler");
+    if (handler != nullptr) {
+        gJoystickHandler = handler;
+    }
 
-    gTouchHandler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
-
+    handler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
+    if (handler != nullptr) {
+        gTouchHandler = handler;
+    }
 
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 
@@ -623,9 +668,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (gKeyboardHandler != nullptr) {
             gKeyboardHandler(hWnd, msg, wParam, lParam);
         }
-    }
-    else if (msg >= MM_JOY1MOVE && msg <= MM_JOY2BUTTONUP) {
-        printf("appmain.MsgHandler, MM_JOY: %d\n", msg);
+    } else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
+        //printf("MM_JOYxxx: %p\n", gJoystickHandler);
         if (gJoystickHandler != nullptr) {
             gJoystickHandler(hWnd, msg, wParam, lParam);
         }
@@ -701,6 +745,21 @@ void noRawInput()
     HID_UnregisterDevice(HID_KEYBOARD);
 }
 
+void joystick()
+{
+    gJoystick1.attachToWindow(gAppWindow->getHandle());
+    gJoystick2.attachToWindow(gAppWindow->getHandle());
+}
+
+void noJoystick()
+{
+    gJoystick1.detachFromWindow();
+    gJoystick2.detachFromWindow();
+}
+
+//
+// Window management
+//
 static LONG gLastWindowStyle=0;
 
 void layered()
@@ -769,14 +828,24 @@ void run()
     LRESULT res;
 
     gAppWindow->show();
+    deltaTime = appStopWatch.seconds();
 
     while (true) {
+        if (gUpdateHandler != nullptr) {
 
-        if (gLooping && (gLoopHandler != nullptr)) {
-            gLoopHandler();
+            double currentTime = appStopWatch.seconds();
+            deltaTime = currentTime- gAppLastTime;
+            gAppLastTime = currentTime;
+            gUpdateHandler(deltaTime);
         }
 
+        // dealing with loop(), noLoop(), typically 'draw()'
+        //if (gLooping && (gLoopHandler != nullptr)) {
+        //    gLoopHandler();
+        //}
+
         // we use peekmessage, so we don't stall on a GetMessage
+        // should probably throw a wait here
         BOOL bResult = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
         
         if (bResult > 0) {

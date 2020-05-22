@@ -278,6 +278,11 @@ namespace p5 {
         gAppSurface->clear();
     }
 
+    void clearRect(double x, double y, double w, double h) noexcept
+    {
+        gAppSurface->clearRect(x, y, w, h);
+    }
+
     // Background will do a fillAll() to set the background
     // to a particular color
     void background(const Color& pix) noexcept
