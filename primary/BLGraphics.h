@@ -77,6 +77,36 @@ private:
         return { cx, cy, rx, ry };
     }
 
+    static BLRect calcRectParams(RECTMODE mode, double& a, double& b, double& c, double& d)
+    {
+        double x = 0;
+        double y = 0;
+        double w = 0;
+        double h = 0;
+
+        switch (mode) {
+        case RECTMODE::CORNER:
+            x = a;
+            y = b;
+            w = c;
+            h = d;
+            break;
+        case RECTMODE::CORNERS:
+            x = a;
+            y = b;
+            w = c-a;
+            h = d-b;
+            break;
+        case RECTMODE::CENTER:
+            x = a - (c / 2);
+            y = b - (d / 2);
+            w = c;
+            h = d;
+            break;
+        }
+
+        return { x, y, w, h };
+    }
 
     // Increment command count since last flush
 // We track number of commands since last flush so that
@@ -217,21 +247,8 @@ public:
 
     virtual void clearRect(double x, double y, double w, double h)
     {
-        //printf("clearRect: %f %f, %f %f\n", x, y, w, h);
-        BLImage* img = fCtx.targetImage();
-        BLImageData info;
-
-        img->getData(&info);
-
-        for (int row = (int)y; row < y+h; row++) {
-            for (int col = (int)x; col < x+w; col++) {
-                int offset = (row * info.size.w) + col;
-                //printf("set: %d, %d\n", col, row);
-                ((uint32_t *)info.pixelData)[offset] = 0x00000000;
-            }
-        }
-        //fCtx.clearRect(x, y, w, h);
-
+        fCtx.clearRect(x, y, w, h);
+        incrCmd();
     }
 
     virtual void background(const Color& c)
@@ -253,7 +270,7 @@ public:
         if (nullptr == fImageData.pixelData)
             return;
         
-        ((BLRgba32 *)(fImageData.pixelData))[(int)y * fImageData.stride + (int)x] = c;
+        ((BLRgba32 *)(fImageData.pixelData))[(int)y * fImageData.size.w + (int)x] = c;
     }
     
 
@@ -272,7 +289,7 @@ public:
 
     virtual void rect(const BLRect& rr)
     {
-        printf("BLGraphics.rect( %f %f %f %f);\n", rr.x, rr.y, rr.w, rr.h);
+        //printf("BLGraphics.rect( %f %f %f %f);\n", rr.x, rr.y, rr.w, rr.h);
         BLResult bResult = fCtx.fillRect(rr);
         bResult = fCtx.strokeRect(rr);
 
@@ -281,7 +298,7 @@ public:
 
     virtual void rect(double x, double y, double width, double height, double xradius, double yradius)
     {
-        printf("BLGraphics.rrect( %f %f %f %f %f %f);\n", x, y, width, height, xradius, yradius);
+        //printf("BLGraphics.rrect( %f %f %f %f %f %f);\n", x, y, width, height, xradius, yradius);
 
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
@@ -289,6 +306,13 @@ public:
         incrCmd();
     }
 
+    
+    virtual void rect(double a, double b, double c, double d)
+    {
+            BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
+            rect(params);
+    }
+    /*
     virtual void rect(double x, double y, double width, double height)
     {
         if (fUseFill) {
@@ -301,7 +325,7 @@ public:
 
         incrCmd();
     }
-
+    */
     virtual void ellipse(double a, double b, double c, double d) {
         BLEllipse params = BLGraphics::calcEllipseParams(fEllipseMode, a, b, c, d);
 
@@ -309,9 +333,7 @@ public:
             fCtx.fillEllipse(params);
         }
 
-
-            fCtx.strokeEllipse(params);
-
+        fCtx.strokeEllipse(params);
 
         incrCmd();
     }

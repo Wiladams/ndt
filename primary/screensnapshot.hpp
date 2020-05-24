@@ -31,8 +31,8 @@ class ScreenSnapshot //: public IEnumerator<PixelBufferRGBA32>
     int fOriginY;
 
 public:
-    ScreenSnapshot(int x, int y, int awidth, int aheight)
-        : fImage(awidth, aheight),
+    ScreenSnapshot(int x, int y, int awidth, int aheight, uint32_t threadCount=0)
+        : fImage(awidth, aheight, threadCount),
         fOriginX(x),
         fOriginY(y)
     {

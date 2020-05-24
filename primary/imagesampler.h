@@ -37,8 +37,13 @@ namespace ndt
 			return true;
 		}
 
+		bool isValid() const { return fImage != nullptr; }
+
 		BLRgba32 operator()(double u, double v)  const
 		{
+			if (nullptr == fImage)
+				return {};
+
 			int x = int(map(u, 0, 1, 0, (double)fImage->width() - 1, true)+0.5);
 			int y;
 			if (fFlipVertical)

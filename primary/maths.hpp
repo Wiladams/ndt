@@ -118,7 +118,6 @@ inline double mag(double x, double y)
 }
 
 
-
 #ifdef __cplusplus
 }
 #endif

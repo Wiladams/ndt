@@ -2,13 +2,10 @@
 #include "diffuseshader.h"
 #include "maths.hpp"
 
-void DiffuseShader::onViewChange(Matrix &modelview, Matrix &projection, Matrix &viewport)
+void DiffuseShader::onViewChange(MVP3D &mvp)
 {
-	ModelView = modelview;
-	Projection = projection;
-	Viewport = viewport;
-
-	ModelProjection = Projection*ModelView;
+	fMVP = mvp;
+	ModelProjection = mvp.fProjection*mvp.fModelView;
 }
 
 Vec4f DiffuseShader::vertex(int iface, int nthvert)
@@ -24,7 +21,6 @@ Vec4f DiffuseShader::vertex(int iface, int nthvert)
 inline static BLRgba32 colormul(const BLRgba32& c, float intensity)
 {
 	intensity = (float)constrain(intensity, 0, 1);
-	//return { (uint32_t)(c.r * intensity), (uint32_t)(c.g * intensity), (uint32_t)(c.b * intensity),(uint32_t)(c.a*intensity) };
 	return { (uint32_t)(c.r * intensity), (uint32_t)(c.g * intensity), (uint32_t)(c.b * intensity)};
 }
 
@@ -48,9 +44,10 @@ bool DiffuseShader::fragment(Vec3f bar, BLRgba32 &ocolor)
 	B.set_col(1, j.normalize());
 	B.set_col(2, bn);
 
+	// get the normal for the location
 	Vec3f n = (B*model->normal(uv)).normalize();
 
-	// BUGBUG, trying to figure out color
+	// figure out the color for the location
 	float diff = MAX(0.f, n*light_dir);
 	ocolor = model->diffuse(uv);
 	ocolor = colormul(ocolor,diff);

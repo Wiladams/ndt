@@ -1,6 +1,7 @@
 #pragma once
 #include "IShader.h"
-#include "GMesh.h"
+#include "TriangleMesh.h"
+#include "MVP3D.h"
 
 struct DiffuseShader : public IShader {
 	mat<2, 3, float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
@@ -8,24 +9,23 @@ struct DiffuseShader : public IShader {
 	mat<3, 3, float> varying_nrm; // normal per vertex to be interpolated by FS
 	mat<3, 3, float> ndc_tri;     // triangle in normalized device coordinates
 	
-	
-	GMesh *model;
-	Vec3f light_dir;
-	Matrix ModelView;
-	Matrix Projection;
+	MVP3D fMVP;
 	Matrix ModelProjection;
 
-	Matrix Viewport;
+	TriangleMesh *model;
+	
+	Vec3f light_dir;
 
-	DiffuseShader(GMesh *aModel, Vec3f &light, Matrix &modelview, Matrix &projection, Matrix &viewport)
+
+	DiffuseShader(TriangleMesh *aModel, Vec3f &light, MVP3D &mvp)
 	{
 		model = aModel;
 		light_dir = light;
 
-		onViewChange(modelview, projection, viewport);
+		onViewChange(mvp);
 	}
 
-	void onViewChange(Matrix &modelview, Matrix &projection, Matrix &viewport);
+	void onViewChange(MVP3D &mvp);
 
 	// vertex shader
 	virtual Vec4f vertex(int iface, int nthvert);

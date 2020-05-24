@@ -176,7 +176,7 @@ void keyReleased(const KeyEvent& event)
     // toggle layered
     //printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
     if (event.keyCode == VK_ESCAPE) {
-        if (gIsLayered)
+        if (isLayered())
             noLayered();
         else
             layered();
@@ -198,6 +198,7 @@ void draw()
 void setup()
 {
     createCanvas(800, 600);
+    layered();
 
     //scale(0.5, 0.5);
     //scale(0.25, 0.25);

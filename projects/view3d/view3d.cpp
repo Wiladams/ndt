@@ -1,17 +1,15 @@
 // view3d.cpp : Defines the exported functions for the DLL application.
 //
 
-
-
 #include <vector>
 #include <limits>
 #include <iostream>
 #include <stdio.h>
 
 #include "p5.hpp"
-#include "model.h"
 #include "MonthTile.hpp"
 #include "threed.h"
+#include "waveobjloader.h"
 
 using namespace p5;
 
@@ -19,21 +17,21 @@ ThreeD *D = nullptr;
 
 
 size_t modelIndex = 0;
-GMesh *model = nullptr;
-GMesh *floorModel = nullptr;
+TriangleMesh* model = nullptr;
+TriangleMesh* floorModel = nullptr;
 
-std::vector<GMesh *> models;
+std::vector<TriangleMesh *> models;
 
 CalendarMonthTile mayTile(2020, 5, 8, 8);
 CalendarMonthTile juneTile(2020, 6, 212, 8);
 
 void loadModels()
 {
-	floorModel = ObjModel::loadModel("models/floor.obj");
+	floorModel = aliaswave::loadModel("models/floor.obj");
 
-	models.push_back(ObjModel::loadModel("models/african_head/african_head.obj"));
-	models.push_back(ObjModel::loadModel("models/diablo3_pose/diablo3_pose.obj"));
-	models.push_back(ObjModel::loadModel("models/boggie/body.obj"));
+	models.push_back(aliaswave::loadModel("models/african_head/african_head.obj"));
+	models.push_back(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"));
+	models.push_back(aliaswave::loadModel("models/boggie/body.obj"));
 	//models.push_back(ObjModel::loadModel("models/suzanne.obj"));
 
 	//models.push_back(new Model("obj/Vanquish/vanquish.obj"));
@@ -110,25 +108,27 @@ void draw()
 	else
 		background(120);
 
+	// Clear out zbuffer each time through
 	D->clearZBuffer();
 
-
+	// Make sure there are no outstanding 2D calls
+	// and get a handle in the pixel pointer
 	loadPixels();
 	D->renderMesh(floorModel);
 	D->renderMesh(model);
 	updatePixels();
 
+	// Draw whatever 2D stuff we want on top
 	mayTile.draw(gAppSurface);
 	juneTile.draw(gAppSurface);
-	//noLoop();
 }
 
 void setup()
 {
 	createCanvas(800, 800);
 	//layered();
-	setWindowPosition(48, displayHeight - height);
-	D = new ThreeD(gAppSurface->getBlend2dImage());
+	//setWindowPosition(48, displayHeight - height);
+	D = new ThreeD(gAppSurface, width, height);
 
 	loadModels();
 }

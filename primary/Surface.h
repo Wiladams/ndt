@@ -27,7 +27,7 @@ class Surface : public virtual BLGraphics
 
 
 public:
-    Surface(long awidth, long aheight)
+    Surface(long awidth, long aheight, uint32_t threadCount=4)
         : fWidth(awidth),
         fHeight(aheight)
     {
@@ -66,7 +66,7 @@ public:
 
         // Initialize the BLContext
         BLContextCreateInfo createInfo{};
-        createInfo.threadCount = 4;
+        createInfo.threadCount = threadCount;
         bResult = getBlend2dContext().begin(fImage, createInfo);
 
 

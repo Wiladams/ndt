@@ -224,6 +224,7 @@ void drawEntry(ColorEntry acolor, int column, int row)
 {
     double lum = (0.2125 * acolor.value.r) + (0.7154 * acolor.value.g) + (0.0721 * acolor.value.b);
 
+    noStroke();
     fill(acolor.value);
 
     auto frame = frameForCell(column, row);
@@ -239,6 +240,7 @@ void drawEntry(ColorEntry acolor, int column, int row)
 
     double cx = frame.x + (frame.w / 2);
     double cy = frame.y + frame.h - 12;
+    noStroke();
     text(acolor.name, cx, cy);
 }
 
@@ -247,7 +249,6 @@ void drawForeground()
 {
     if (hoverGraphic == SVGGraphic::empty)
         return;
-
 
     auto frame = frameForCell(hoverGraphic.column, hoverGraphic.row);
     strokeWeight(3);
@@ -265,8 +266,6 @@ void drawBackground()
 
     textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
     textSize(fontSize);
-    stroke(0);
-    strokeWeight(1);
 
     for (int i = 0; i < nColors; i++)
     {

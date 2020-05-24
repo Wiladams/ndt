@@ -152,9 +152,11 @@
     <ClInclude Include="colorsampler.h" />
     <ClInclude Include="computicle.hpp" />
     <ClInclude Include="definitions.hpp" />
+    <ClInclude Include="dproc_gl.h" />
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="FastNoise.h" />
     <ClInclude Include="functor.hpp" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="GMesh.h" />
     <ClInclude Include="graphic.hpp" />
     <ClInclude Include="Graphics.h" />
@@ -163,11 +165,14 @@
     <ClInclude Include="guistyle.hpp" />
     <ClInclude Include="gview.hpp" />
     <ClInclude Include="imagesampler.h" />
+    <ClInclude Include="IShader.h" />
     <ClInclude Include="LayeredWindow.hpp" />
     <ClInclude Include="List.hpp" />
     <ClInclude Include="maths.hpp" />
     <ClInclude Include="mmap.hpp" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="MotionConstraint.h" />
+    <ClInclude Include="MVP3D.h" />
     <ClInclude Include="NativeWindow.hpp" />
     <ClInclude Include="Network.hpp" />
     <ClInclude Include="p5.hpp" />
@@ -176,6 +181,7 @@
     <ClInclude Include="Recorder.hpp" />
     <ClInclude Include="sampler.hpp" />
     <ClInclude Include="screensnapshot.hpp" />
+    <ClInclude Include="slider.h" />
     <ClInclude Include="Stack.hpp" />
     <ClInclude Include="stopwatch.hpp" />
     <ClInclude Include="Surface.h" />
@@ -188,9 +194,11 @@
     <ClInclude Include="trianglemesh.h" />
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
+    <ClInclude Include="waveobjloader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
+    <ClCompile Include="dproc_gl.cpp" />
     <ClCompile Include="FastNoise.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="waveobjloader.cpp" />
