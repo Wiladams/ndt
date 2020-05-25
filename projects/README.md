@@ -87,3 +87,6 @@ These dactions were created using a programming environment called 'ndt', which 
 https://github.com/wiladams/ndt
 
 The environment is meant to be used as part of a programming educational curriculum.  Otherwise, these are just fun little programs to play with.
+
+References
+http://www.martinreddy.net/gfx/

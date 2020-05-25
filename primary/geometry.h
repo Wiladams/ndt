@@ -399,6 +399,7 @@
 	typedef vec<2, int>   Vec2i;
 	typedef vec<3, float> Vec3f;
 	typedef vec<3, int>   Vec3i;
+	typedef vec<4, uint8_t> Vec4b;
 	typedef vec<4, float> Vec4f;
 	typedef mat<4, 4, float> Matrix;
 	typedef mat<3, 3, float> Matrix3;

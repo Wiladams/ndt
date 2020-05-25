@@ -2,12 +2,15 @@
 #include "diffuseshader.h"
 #include "maths.hpp"
 
-void DiffuseShader::onViewChange(MVP3D &mvp)
-{
-	fMVP = mvp;
-	ModelProjection = mvp.fProjection*mvp.fModelView;
-}
 
+//
+// Vertex shader
+// When calculating a vertex, we want to determine the 
+// uv component for texture mapping, 
+// the normal for the affect of lighting
+// the actual 'vertex', which might be displaced
+// we return the gl_Vertex, in case anyone wants to consume
+// that directly.
 Vec4f DiffuseShader::vertex(int iface, int nthvert)
 {
 	varying_uv.set_col(nthvert, model->uv(iface, nthvert));
@@ -15,14 +18,11 @@ Vec4f DiffuseShader::vertex(int iface, int nthvert)
 	Vec4f gl_Vertex = ModelProjection*embed<4>(model->vert(iface, nthvert));
 	varying_tri.set_col(nthvert, gl_Vertex);
 	ndc_tri.set_col(nthvert, proj<3>(gl_Vertex / gl_Vertex[3]));
+	
 	return gl_Vertex;
 }
 
-inline static BLRgba32 colormul(const BLRgba32& c, float intensity)
-{
-	intensity = (float)constrain(intensity, 0, 1);
-	return { (uint32_t)(c.r * intensity), (uint32_t)(c.g * intensity), (uint32_t)(c.b * intensity)};
-}
+
 
 bool DiffuseShader::fragment(Vec3f bar, BLRgba32 &ocolor)
 {

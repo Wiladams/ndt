@@ -1,5 +1,10 @@
 #pragma once
 
+/*
+	References:
+	http://www.martinreddy.net/gfx/3d/OBJ.spec
+	https://github.com/bitnenfer/objpar
+*/
 #include "trianglemesh.h"
 
 

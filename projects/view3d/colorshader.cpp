@@ -1,22 +1,12 @@
 
-#include "flatshader.hpp"
+#include "colorshader.hpp"
 #include "maths.hpp"
 
-void FlatShader::onViewChange(Matrix& modelview, Matrix& projection, Matrix& viewport)
-{
-	ModelView = modelview;
-	Projection = projection;
-	Viewport = viewport;
-
-	ModelProjection = Projection * ModelView;
-}
 
 // Vertext Shader
 // figues out the vertex of the given face and vertex
-Vec4f FlatShader::vertex(int iface, int nthvert)
+Vec4f ColorShader::vertex(int iface, int nthvert)
 {
-	//printf("FlatShader::vertex: %d %d\n", iface, nthvert);
-
 	varying_uv.set_col(nthvert, model->uv(iface, nthvert));
 	varying_nrm.set_col(nthvert, proj<3>(ModelProjection.invert_transpose() * embed<4>(model->normal(iface, nthvert), 0.f)));
 	Vec4f gl_Vertex = ModelProjection * embed<4>(model->vert(iface, nthvert));
@@ -26,16 +16,8 @@ Vec4f FlatShader::vertex(int iface, int nthvert)
 	return gl_Vertex;
 }
 
-inline static BLRgba32 colormul(const BLRgba32& c, const float fac)
-{
-	uint32_t r = constrain((double)c.r * fac, 0, 255);
-	uint32_t g = constrain((double)c.g * fac, 0, 255);
-	uint32_t b = constrain((double)c.b * fac, 0, 255);
 
-	return { r,g,b };
-}
-
-bool FlatShader::fragment(Vec3f bar, BLRgba32& ocolor)
+bool ColorShader::fragment(Vec3f bar, BLRgba32& ocolor)
 {
 	Vec3f bn = (varying_nrm * bar).normalize();
 	Vec2f uv = varying_uv * bar;
@@ -57,11 +39,11 @@ bool FlatShader::fragment(Vec3f bar, BLRgba32& ocolor)
 
 	Vec3f n = (B * model->normal(uv)).normalize();
 
-	// BUGBUG, trying to figure out color
-	//printf("FlatShader::fragment.uv: %3.2f %3.2f\n", uv[0], uv[1]);
 
+	// figure out the color for the location
 	float diff = MAX(0.f, n * light_dir);
-	ocolor = model->diffuse(uv);
+	//float diff = MAX(0.f, bn * light_dir);
+	ocolor = fColor;
 	ocolor = colormul(ocolor, diff);
 
 	return false;

@@ -115,6 +115,9 @@ public:
 		fLightDirection = proj<3>((fMVP.fProjection* fMVP.fModelView*embed<4>(fLightDirection, 0.f))).normalize();
 	}
 
+	Vec3f &getLightDirection() { return fLightDirection; }
+	MVP3D &getMVP() { return fMVP; }
+
 	void lookAt(float x, float y, float z)
 	{
 		fCenter = { x,y,z };
@@ -190,12 +193,12 @@ public:
 		}
 	}
 
-	bool renderMesh(TriangleMesh *aModel)
+	bool renderMesh(TriangleMesh *aModel, IShader &shader)
 	{
 		if (nullptr == aModel)
 			return false;
 
-		DiffuseShader shader(aModel, fLightDirection, fMVP);
+		shader.init(aModel, getLightDirection(), getMVP());
 
 		// Assume each face consists of 3 vertices (triangles)
 		// This can generalize to more vertices, but limiting

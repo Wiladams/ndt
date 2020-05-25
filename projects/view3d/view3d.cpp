@@ -10,31 +10,48 @@
 #include "MonthTile.hpp"
 #include "threed.h"
 #include "waveobjloader.h"
+#include "colorshader.hpp"
+#include "flatshader.h"
 
 using namespace p5;
 
 ThreeD *D = nullptr;
 
+struct ModelShader {
+	TriangleMesh* fModel;
+	IShader* fShader;
+
+	ModelShader(TriangleMesh* model, IShader* shader)
+		:fModel(model),
+		fShader(shader)
+	{}
+};
+
 
 size_t modelIndex = 0;
-TriangleMesh* model = nullptr;
+ModelShader *model = nullptr;
 TriangleMesh* floorModel = nullptr;
 
-std::vector<TriangleMesh *> models;
+
+
+std::vector<ModelShader *> models;
 
 CalendarMonthTile mayTile(2020, 5, 8, 8);
 CalendarMonthTile juneTile(2020, 6, 212, 8);
+
+
+
 
 void loadModels()
 {
 	floorModel = aliaswave::loadModel("models/floor.obj");
 
-	models.push_back(aliaswave::loadModel("models/african_head/african_head.obj"));
-	models.push_back(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"));
-	models.push_back(aliaswave::loadModel("models/boggie/body.obj"));
-	//models.push_back(ObjModel::loadModel("models/suzanne.obj"));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new DiffuseShader()));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new ColorShader(BLRgba32(220, 190, 68))));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new FlatShader(BLRgba32(220, 190, 68))));
 
-	//models.push_back(new Model("obj/Vanquish/vanquish.obj"));
+	//models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
+	//models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new FlatShader(BLRgba32(220, 190, 68))));
 
 	model = models.at(0);
 }
@@ -63,7 +80,6 @@ void keyReleased(const KeyEvent& e)
 
 void keyPressed(const KeyEvent &e)
 {
-
 	switch (keyCode) {
 	case VK_RIGHT:
 	case VK_LEFT:
@@ -111,11 +127,16 @@ void draw()
 	// Clear out zbuffer each time through
 	D->clearZBuffer();
 
+	DiffuseShader dshader;
+
+
 	// Make sure there are no outstanding 2D calls
 	// and get a handle in the pixel pointer
 	loadPixels();
-	D->renderMesh(floorModel);
-	D->renderMesh(model);
+	
+	D->renderMesh(floorModel, dshader);
+	D->renderMesh(model->fModel, *model->fShader);
+
 	updatePixels();
 
 	// Draw whatever 2D stuff we want on top
