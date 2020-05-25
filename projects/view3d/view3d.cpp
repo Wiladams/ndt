@@ -31,16 +31,14 @@ struct ModelShader {
 size_t modelIndex = 0;
 ModelShader *model = nullptr;
 TriangleMesh* floorModel = nullptr;
-
-
+float viewAngle = 0;
+float viewRadius = 3;
+float viewHeight = 1;
 
 std::vector<ModelShader *> models;
 
 CalendarMonthTile mayTile(2020, 5, 8, 8);
 CalendarMonthTile juneTile(2020, 6, 212, 8);
-
-
-
 
 void loadModels()
 {
@@ -56,6 +54,13 @@ void loadModels()
 	model = models.at(0);
 }
 
+
+void changePosition(float angle, float radius, float height)
+{
+	float x = radius * cos(radians(angle));
+	float z = radius * sin(radians(angle));
+	D->moveCameraTo(x, height, z);
+}
 
 void keyReleased(const KeyEvent& e)
 {
@@ -81,40 +86,44 @@ void keyReleased(const KeyEvent& e)
 void keyPressed(const KeyEvent &e)
 {
 	switch (keyCode) {
-	case VK_RIGHT:
-	case VK_LEFT:
-		if (keyCode == VK_LEFT) {
-			D->moveCameraBy(0.2f, 0, 0);
-		}
-		else if (keyCode == VK_RIGHT) {
-			D->moveCameraBy(-0.2f, 0, 0);
-		}
+	case VK_RIGHT: {
+		viewAngle += 10;
+		auto loc = D->getCameraLocation();
+		changePosition(viewAngle, viewRadius, loc.y);
+	}
+	break;
+	case VK_LEFT: {
+		viewAngle -= 10;
+		auto loc = D->getCameraLocation();
+		changePosition(viewAngle, viewRadius, loc.y);
+	}
+	break;
 
-		D->onCameraChange();
-
+	case VK_UP: {
+		viewHeight += 0.2;
+		changePosition(viewAngle, viewRadius, viewHeight);
+	}
+	break;
+		case VK_DOWN: {
+			viewHeight -= 0.2;
+			changePosition(viewAngle, viewRadius, viewHeight);
+		}
 		break;
-
-	case VK_UP:
-	case VK_DOWN:
-		if (keyCode == VK_UP) {
-			D->moveCameraBy(0, 0.2f, 0);
-		}
-		else if (keyCode == VK_DOWN) {
-			D->moveCameraBy(0, -0.2f, 0);
-		}
-		D->onCameraChange();
 	}
 }
 
 void mouseWheel(const MouseEvent &e)
 {
-	if (mouseDelta > 0)
-		D->moveCameraBy(0, 0, -0.2f);
-	else if (mouseDelta < 0) 
-		D->moveCameraBy(0, 0, 0.2f);
+	if (mouseDelta > 0) {
+		viewRadius -= 0.25;
+		changePosition(viewAngle, viewRadius, viewHeight);
+	} else if (mouseDelta < 0) {
+		viewRadius += 0.25;
+		changePosition(viewAngle, viewRadius, viewHeight);
+	}
 
 	mouseDelta = 0;
-	D->onCameraChange();
+
 }
 
 void draw()
@@ -150,6 +159,7 @@ void setup()
 	//layered();
 	//setWindowPosition(48, displayHeight - height);
 	D = new ThreeD(gAppSurface, width, height);
+	changePosition(viewAngle, viewRadius, viewHeight);
 
 	loadModels();
 }

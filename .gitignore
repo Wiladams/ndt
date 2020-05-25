@@ -49,3 +49,5 @@
 
 .suo
 *.sqlite
+projects/.vs/projects/v16/Solution.VC.db-shm
+projects/.vs/projects/v16/Solution.VC.db-wal

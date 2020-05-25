@@ -117,6 +117,8 @@ public:
 
 	Vec3f &getLightDirection() { return fLightDirection; }
 	MVP3D &getMVP() { return fMVP; }
+	Vec3f& getCameraLocation() { return fEye; }
+
 
 	void lookAt(float x, float y, float z)
 	{
@@ -129,12 +131,18 @@ public:
 		onCameraChange();
 	}
 
+	void moveCameraTo(float x, float y, float z)
+	{
+		fEye = { x,y,z };
+		onCameraChange();
+	}
+	/*
 	void setCameraLocation(float x, float y, float z)
 	{
 		fEye = { x, y, z };
 		onCameraChange();
 	}
-
+	*/
 	void onCameraChange()
 	{
 		fMVP.fModelView = ogl_lookat(fEye, fCenter, fUp);
