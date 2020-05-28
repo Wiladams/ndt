@@ -27,7 +27,7 @@ int height;
 
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1200;
+const int image_width = 320;    // 1200;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
 const int samples_per_pixel = 10;
 const int max_depth = 50;
@@ -61,7 +61,7 @@ color ray_color(const ray& r, const hittable& world, int depth) {
     }
 
     vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5 * (unit_direction.y() + 1.0);
+    auto t = 0.5 * (unit_direction.y + 1.0);
     return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
@@ -116,9 +116,9 @@ hittable_list random_scene() {
 
 void set(const BLImageData &info, int x, int y, const color& c)
 {
-    auto r = c.x();
-    auto g = c.y();
-    auto b = c.z();
+    auto r = c.r;
+    auto g = c.g;
+    auto b = c.b;
 
     // Replace NaN components with zero. See explanation in Ray Tracing: The Rest of Your Life.
     if (r != r) r = 0.0;
@@ -147,12 +147,12 @@ void draw()
     BLImageData info;
     gAppSurface->getBlend2dImage().getData(&info);
 
-    //printf("row: %d\n", row);
+    // Render a single row at a time
     for (int i = 0; i < image_width; ++i) {
         color pixel_color;
         for (int s = 0; s < samples_per_pixel; ++s) {
-            auto u = (i + random_double()) / (width - 1);
-            auto v = (row + random_double()) / (height - 1);
+            auto u = (i + random_double()) / ((double)width - 1);
+            auto v = (row + random_double()) / ((double)height - 1);
             ray r = cam->get_ray(u, v);
             pixel_color += ray_color(r, world, max_depth);
         }
@@ -178,21 +178,5 @@ void setup()
     cam = new camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
     row = image_height - 1;
-/*
-    // Do the rendering
-    for (int j = image_height - 1; j >= 0; --j) {
-        printf("row: %d\n", j);
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color;
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
-            }
-            set(info, i, j, pixel_color);     // Set pixel
-        }
-    }
-*/
 
 }
