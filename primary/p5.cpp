@@ -8,7 +8,7 @@ namespace p5 {
     int height = 0;             // height of the canvas
     int frameCount = 0;         // how many frames drawn so far
 
-    Color* pixels = nullptr;    // a pointer to the raw pixels of app canvas
+    Pixel* pixels = nullptr;    // a pointer to the raw pixels of app canvas
 
 
     static StopWatch SWatch;    // Stopwatch used for time 
@@ -62,6 +62,10 @@ namespace p5 {
         gAppSurface->strokeWeight(weight);
     }
 
+    void redraw() noexcept
+    {
+        forceRedraw(nullptr, 0);
+    }
 
     // State management
     void push() noexcept
@@ -104,31 +108,31 @@ namespace p5 {
 
     // Drawing attributes
 
-    // Color parts
-    int blue(const Color& c) noexcept
+    // Pixel parts
+    int blue(const Pixel& c) noexcept
     {
         return c.b;
     }
 
-    int green(const Color& c) noexcept
+    int green(const Pixel& c) noexcept
     {
         return c.g;
     }
 
-    int red(const Color& c) noexcept
+    int red(const Pixel& c) noexcept
     {
         return c.r;
     }
 
-    int alpha(const Color& c) noexcept
+    int alpha(const Pixel& c) noexcept
     {
         return c.a;
     }
 
     // general color construction from components
-    Color color(int a, int b, int c, int d) noexcept
+    Pixel color(int a, int b, int c, int d) noexcept
     {
-        Color pix;
+        Pixel pix;
         pix.r = a;
         pix.g = b;
         pix.b = c;
@@ -137,23 +141,23 @@ namespace p5 {
         return pix;
     }
 
-    Color color(int r, int g, int b) noexcept
+    Pixel color(int r, int g, int b) noexcept
     {
         return color(r, g, b, 255);
     }
 
-    Color color(int gray, int alpha) noexcept
+    Pixel color(int gray, int alpha) noexcept
     {
         return color(gray, gray, gray, alpha);
     }
 
-    Color color(int gray) noexcept
+    Pixel color(int gray) noexcept
     {
         return color(gray, gray, gray, 255);
     }
 
 
-    Color lerpColor(const Color& from, const Color& to, double f) noexcept
+    Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept
     {
         uint8_t r = (uint8_t)lerp(from.r, to.r, f);
         uint8_t g = (uint8_t)lerp(from.g, to.g, f);
@@ -170,14 +174,14 @@ namespace p5 {
         gAppSurface->fill(g);
     }
 
-    void fill(const Color& pix) noexcept
+    void fill(const Pixel& pix) noexcept
     {
         gAppSurface->fill(pix);
     }
 
     void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept
     {
-        Color c;
+        Pixel c;
         c.r = r;
         c.g = g;
         c.b = b;
@@ -185,16 +189,16 @@ namespace p5 {
         fill(c);
     }
 
-    void fill(Color pix, uint8_t alpha) noexcept
+    void fill(Pixel pix, uint8_t alpha) noexcept
     {
-        Color c = pix;
+        Pixel c = pix;
         c.a = alpha;
         fill(c);
     }
 
     void fill(uint8_t r, uint8_t g, uint8_t b) noexcept
     {
-        Color c;
+        Pixel c;
         c.r = r;
         c.g = g;
         c.b = b;
@@ -204,7 +208,7 @@ namespace p5 {
 
     void fill(uint8_t gray, uint8_t alpha) noexcept
     {
-        Color c;
+        Pixel c;
         c.r = gray;
         c.g = gray;
         c.b = gray;
@@ -224,38 +228,38 @@ namespace p5 {
 
 
     // Setting Stroke
-    void stroke(const Color& pix) noexcept
+    void stroke(const Pixel& pix) noexcept
     {
         gAppSurface->stroke(pix);
     }
 
     // Change the alpha of an existing color
-    void stroke(Color pix, int alpha) noexcept
+    void stroke(Pixel pix, int alpha) noexcept
     {
-        Color c = pix;
+        Pixel c = pix;
         c.a = alpha;
         stroke(c);
     }
 
     void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept
     {
-        stroke(Color(r, g, b, alpha));
+        stroke(Pixel(r, g, b, alpha));
     }
 
     void stroke(uint8_t r, uint8_t g, uint8_t b) noexcept
     {
-        stroke(Color(r, g, b, 255));
+        stroke(Pixel(r, g, b, 255));
     }
 
     // create color with gray and alpha
     void stroke(uint8_t gray, uint8_t alpha) noexcept
     {
-        stroke(Color(gray, gray, gray, alpha));
+        stroke(Pixel(gray, gray, gray, alpha));
     }
 
     void stroke(uint8_t gray) noexcept
     {
-        stroke(Color(gray, gray, gray, 255));
+        stroke(Pixel(gray, gray, gray, 255));
     }
 
     void noStroke() noexcept
@@ -285,7 +289,7 @@ namespace p5 {
 
     // Background will do a fillAll() to set the background
     // to a particular color
-    void background(const Color& pix) noexcept
+    void background(const Pixel& pix) noexcept
     {
         gAppSurface->background(pix);
     }
@@ -322,12 +326,12 @@ namespace p5 {
     // You can set a single pixel, but this is an extremely expensive
     // operation.  It would be better to get a pointer to the data
     // and set the pixel directly.
-    void set(int x1, int y1, const Color& c) noexcept
+    void set(int x1, int y1, const Pixel& c) noexcept
     {
         gAppSurface->set(x1, y1, c);
     }
 
-    Color get(int x, int y) noexcept
+    Pixel get(int x, int y) noexcept
     {
         return gAppSurface->get(x, y);
     }

@@ -160,6 +160,11 @@
 			return res;
 		}
 
+		double length_squared() const
+		{
+			return (x * x + y * y + z * z);
+		}
+
 		float norm() const
 		{
 			return std::sqrt(x * x + y * y + z * z);

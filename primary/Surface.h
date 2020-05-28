@@ -81,7 +81,7 @@ public:
 
     long getWidth() { return fWidth; }
     long getHeight() { return fHeight; }
-    Color * getData() { return (Color *)fData; }
+    Pixel * getData() { return (Pixel *)fData; }
 
     // Calculate whether a point is whithin our bounds
     bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
@@ -101,22 +101,22 @@ public:
         return fImage;
     }
 
-    void set(int x, int y, const Color& c)
+    void set(int x, int y, const Pixel& c)
     {
         x = (int)constrain(x, 0, fWidth - 1);
         y = (int)constrain(y, 0, fHeight - 1);
 
         int offset = (int)(y * fWidth) + (int)x;
-        ((Color *)fData)[offset] = c;
+        ((Pixel *)fData)[offset] = c;
     }
 
-    Color get(int x, int y)
+    Pixel get(int x, int y)
     {
         x = (int)constrain(x, 0, fWidth - 1);
         y = (int)constrain(y, 0, fHeight - 1);
 
         // Get data from BLContext
         int offset = (y * fWidth) + x;
-        return ((Color *)fData)[offset];
+        return ((Pixel *)fData)[offset];
     }
  };

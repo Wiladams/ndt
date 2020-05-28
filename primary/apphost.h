@@ -161,6 +161,7 @@ EXPORT void joyMovedZ(const JoystickEvent& e);
 EXPORT void halt();
 EXPORT void loop();
 EXPORT void noLoop();
+EXPORT void forceRedraw(void* param, int64_t tickCount);
 
 EXPORT void layered();
 EXPORT void noLayered();

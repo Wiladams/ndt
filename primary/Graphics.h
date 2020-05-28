@@ -134,7 +134,7 @@ enum class DRAWSTYLE : unsigned
 };
 
 
-typedef BLRgba32 Color;
+typedef BLRgba32 Pixel;
 
 
 /*
@@ -164,35 +164,35 @@ public:
     virtual void rotate(double angle, double cx, double cy) = 0;
     virtual void rotate(double angle) { rotate(angle, 0, 0); }
 
-    virtual int blue(const Color& c) { return c.b; }
-    virtual int green(const Color& c) {return c.g;}
-    virtual int red(const Color& c) {return c.r;}
-    virtual int alpha(const Color& c) {return c.a;}
+    virtual int blue(const Pixel& c) { return c.b; }
+    virtual int green(const Pixel& c) {return c.g;}
+    virtual int red(const Pixel& c) {return c.r;}
+    virtual int alpha(const Pixel& c) {return c.a;}
 
     // BUGBUG, only handles RGB mode, not HSL
-    virtual Color color(int a, int b, int c, int d) { return BLRgba32(a, b, c, d); }
-    virtual Color color(int r, int g, int b) {return color(r, g, b, 255);}
-    virtual Color color(int gray, int alpha) {return color(gray, gray, gray, alpha);}
-    virtual Color color(int gray) {return color(gray, gray, gray, 255);}
+    virtual Pixel color(int a, int b, int c, int d) { return BLRgba32(a, b, c, d); }
+    virtual Pixel color(int r, int g, int b) {return color(r, g, b, 255);}
+    virtual Pixel color(int gray, int alpha) {return color(gray, gray, gray, alpha);}
+    virtual Pixel color(int gray) {return color(gray, gray, gray, 255);}
 
-    virtual Color lerpColor(const Color& from, const Color& to, double f) {
+    virtual Pixel lerpColor(const Pixel& from, const Pixel& to, double f) {
         uint8_t r = (uint8_t)lerp(from.r, to.r, f);
         uint8_t g = (uint8_t)lerp(from.g, to.g, f);
         uint8_t b = (uint8_t)lerp(from.b, to.b, f);
         uint8_t a = (uint8_t)lerp(from.a, to.a, f);
 
-        return Color((int)r, (int)g, (int)b, (int)a);
+        return Pixel((int)r, (int)g, (int)b, (int)a);
     }
 
     virtual void fill(const BLGradient& g) = 0;
-    virtual void fill(const Color &c) = 0;
+    virtual void fill(const Pixel &c) = 0;
     virtual void fill(int r, int g, int b, int a) {fill(color(r,g,b,a));}
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
     void fill(int gray) { fill(color(gray, gray, gray, 255)); }
     virtual void noFill() = 0;
 
-    virtual void stroke(const Color& c) = 0;
+    virtual void stroke(const Pixel& c) = 0;
     virtual void stroke(int r, int g, int b, int a) { stroke(color(r, g, b, a)); }
     virtual void stroke(int r, int g, int b) { stroke(color(r, g, b, 255)); }
     virtual void stroke(int gray, int alpha) { stroke(color(gray, gray, gray, alpha)); }
@@ -202,7 +202,7 @@ public:
     // Background management
     virtual void clear() = 0;
     virtual void clearRect(double x, double y, double w, double h) = 0;
-    virtual void background(const Color& c) = 0;
+    virtual void background(const Pixel& c) = 0;
 
     // Clipping
     virtual void clip(double x, double y, double w, double h) = 0;
@@ -210,7 +210,7 @@ public:
 
     // Geometry
     // hard set a specfic pixel value
-    virtual void set(double x, double y, const Color& c) = 0;
+    virtual void set(double x, double y, const Pixel& c) = 0;
     virtual void point(double x, double y) = 0;
     virtual void line(double x1, double y1, double x2, double y2) = 0;
     virtual void rect(double x, double y, double width, double height) { rect(x, y, width, height, 1, 1); }

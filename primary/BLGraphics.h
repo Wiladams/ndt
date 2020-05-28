@@ -36,9 +36,9 @@ class BLGraphics : public virtual IGraphics
     SHAPEMODE fShapeMode = SHAPEMODE::NONE;
     std::vector<BLPoint> fShapeVertices;
 
-    Color fFillColor = BLRgba32(0, 0, 0, 255);
-    Color fStrokeColor = BLRgba32(0, 0, 0, 255);
-    Color fTextFillColor = BLRgba32(0, 0, 0, 255);
+    Pixel fFillColor = BLRgba32(0, 0, 0, 255);
+    Pixel fStrokeColor = BLRgba32(0, 0, 0, 255);
+    Pixel fTextFillColor = BLRgba32(0, 0, 0, 255);
 
 private:
     static BLEllipse calcEllipseParams(ELLIPSEMODE mode, double& a, double& b, double& c, double& d)
@@ -125,10 +125,10 @@ private:
     void initialize()
     {
         // white fill
-        fill(Color(255, 255, 255, 255));
+        fill(Pixel(255, 255, 255, 255));
 
         // black stroke
-        stroke(Color(0, 0, 0, 255));
+        stroke(Pixel(0, 0, 0, 255));
 
         // Start with a default font so we can start drawing text
         textFont("c:\\windows\\fonts\\segoeui.ttf");
@@ -191,12 +191,12 @@ public:
     virtual void rotate(double angle) { rotate(angle, 0, 0); }
 
 
-    // Color management
+    // Pixel management
     virtual void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
-    virtual void fill(const Color& c) { fUseFill = true; fCtx.setFillStyle(c); }
+    virtual void fill(const Pixel& c) { fUseFill = true; fCtx.setFillStyle(c); }
     virtual void noFill() { fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); fUseFill = false; }
 
-    virtual void stroke(const Color& c) {
+    virtual void stroke(const Pixel& c) {
         fCtx.setStrokeStyle(c); 
     }
     virtual void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
@@ -251,7 +251,7 @@ public:
         incrCmd();
     }
 
-    virtual void background(const Color& c)
+    virtual void background(const Pixel& c)
     {
         fCtx.save();
         fCtx.setFillStyle(c);
@@ -265,7 +265,7 @@ public:
 
     // Geometry
     // hard set a specfic pixel value
-    virtual void set(double x, double y, const Color& c)
+    virtual void set(double x, double y, const Pixel& c)
     {
         if (nullptr == fImageData.pixelData)
             return;

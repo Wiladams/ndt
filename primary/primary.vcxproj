@@ -200,6 +200,7 @@
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="dproc_gl.cpp" />
     <ClCompile Include="FastNoise.cpp" />
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="waveobjloader.cpp" />
   </ItemGroup>

@@ -33,7 +33,7 @@ extern "C" {
     EXPORT extern int height;
     EXPORT extern int frameCount;
 
-    EXPORT extern Color* pixels;
+    EXPORT extern Pixel* pixels;
 
 
 
@@ -90,37 +90,37 @@ struct P5Vector {
     // 0xAARRGGBB
     class colors {
     public:
-        const Color transparent{ 0x00000000 };
-        const Color black{ 0xff000000 };
-        const Color white{ 0xffffffff };
+        const Pixel transparent{ 0x00000000 };
+        const Pixel black{ 0xff000000 };
+        const Pixel white{ 0xffffffff };
 
         // RGB primaries
-        const Color red{ 0xffff0000 };
-        const Color green{ 0xff00ff00 };
-        const Color blue{ 0xff0000ff };
+        const Pixel red{ 0xffff0000 };
+        const Pixel green{ 0xff00ff00 };
+        const Pixel blue{ 0xff0000ff };
 
         // CYMK primaries
-        const Color cyan{ 0xff00ffff };
-        const Color magenta{ 0xffff00ff };
-        const Color yellow{ 0xffffff00 };
+        const Pixel cyan{ 0xff00ffff };
+        const Pixel magenta{ 0xffff00ff };
+        const Pixel yellow{ 0xffffff00 };
 
         // grays
-        const Color ltGray{ 0xffc0c0c0 };
-        const Color midGray{ 0xff7f7f7f };
-        const Color darkGray{ 0xff404040 };
+        const Pixel ltGray{ 0xffc0c0c0 };
+        const Pixel midGray{ 0xff7f7f7f };
+        const Pixel darkGray{ 0xff404040 };
 
 
         // other colors
-        const Color pink{ 0xffffc0cb };
-        const Color darkBlue{ 0xff00007f };
-        const Color darkGreen{ 0xff007f00 };
-        const Color darkRed{ 0xff7f0000 };
-        const Color darkCyan{ 0xff008080 };
+        const Pixel pink{ 0xffffc0cb };
+        const Pixel darkBlue{ 0xff00007f };
+        const Pixel darkGreen{ 0xff007f00 };
+        const Pixel darkRed{ 0xff7f0000 };
+        const Pixel darkCyan{ 0xff008080 };
 
-        const Color midGreen{ 0xff00C000 };
-        const Color midBlue{ 0xff0000C0 };
-        const Color midRed{ 0xffC00000 };
-        const Color midMagenta{ 0xffC00C0 };
+        const Pixel midGreen{ 0xff00C000 };
+        const Pixel midBlue{ 0xff0000C0 };
+        const Pixel midRed{ 0xffC00000 };
+        const Pixel midMagenta{ 0xffC00C0 };
     };
 
 
@@ -137,6 +137,8 @@ struct P5Vector {
     // clearing command cache
     void flush() noexcept;
 
+    void redraw() noexcept;
+
     // coordinate transform
     void push() noexcept;
     void pop() noexcept;
@@ -146,32 +148,32 @@ struct P5Vector {
     void rotate(double angle, double cx, double cy) noexcept;
     void rotate(double angle) noexcept;
 
-    int red(const Color& c) noexcept;
-    int green(const Color& c) noexcept;
-    int blue(const Color& c) noexcept;
-    int alpha(const Color& c) noexcept;
+    int red(const Pixel& c) noexcept;
+    int green(const Pixel& c) noexcept;
+    int blue(const Pixel& c) noexcept;
+    int alpha(const Pixel& c) noexcept;
 
 
-    Color color(int a, int b, int c, int d) noexcept;
-    Color color(int r, int g, int b) noexcept;
-    Color color(int gray, int alpha) noexcept;
-    Color color(int gray) noexcept;
+    Pixel color(int a, int b, int c, int d) noexcept;
+    Pixel color(int r, int g, int b) noexcept;
+    Pixel color(int gray, int alpha) noexcept;
+    Pixel color(int gray) noexcept;
 
-    Color lerpColor(const Color& from, const Color& to, double f) noexcept;
+    Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept;
 
 
     void fill(const BLGradient& g) noexcept;
-    void fill(const Color& pix) noexcept;
+    void fill(const Pixel& pix) noexcept;
     void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
-    void fill(Color pix, uint8_t alpha) noexcept;
+    void fill(Pixel pix, uint8_t alpha) noexcept;
     void fill(uint8_t r, uint8_t g, uint8_t b) noexcept;
     void fill(uint8_t gray, uint8_t alpha) noexcept;
     void fill(uint8_t gray) noexcept;
     void noFill() noexcept;
 
 
-    void stroke(const Color& pix) noexcept;
-    void stroke(Color pix, int alpha) noexcept;
+    void stroke(const Pixel& pix) noexcept;
+    void stroke(Pixel pix, int alpha) noexcept;
     void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
     void stroke(uint8_t r, uint8_t g, uint8_t b) noexcept;
     void stroke(uint8_t gray, uint8_t alpha = 255) noexcept;
@@ -183,7 +185,7 @@ struct P5Vector {
     void clear() noexcept;
     void clearRect(double x, double y, double w, double h) noexcept;
 
-    void background(const Color& pix) noexcept;
+    void background(const Pixel& pix) noexcept;
     void background(int a, int b, int c, int d) noexcept;
     void background(int gray, int alpha) noexcept;
     void background(int gray) noexcept;
@@ -192,8 +194,8 @@ struct P5Vector {
     void noClip() noexcept;
 
 
-    void set(int x1, int y1, const Color& c) noexcept;
-    Color get(double x, double y) noexcept;
+    void set(int x1, int y1, const Pixel& c) noexcept;
+    Pixel get(double x, double y) noexcept;
 
     void point(double x, double y) noexcept;
     void line(double x1, double y1, double x2, double y2) noexcept;

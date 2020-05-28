@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
+#include <limits>
 
 #include "geometry.h"
 #include "imagesampler.h"
@@ -10,6 +12,11 @@
 // vector[0] - index of vertex
 // vector[1] - index of uv
 // vector[2] - index of normal
+
+#ifdef max
+#undef max
+#undef min
+#endif
 
 struct TriangleFace
 {
@@ -24,6 +31,7 @@ struct TriangleFace
 	Vec3i fUV;
 
 	Vec3f fFaceNormal;
+
 
 
 
@@ -51,6 +59,14 @@ struct TriangleMesh
 	ndt::ImageSampler fNormalSampler = nullptr;
 	ndt::ImageSampler fSpecularSampler = nullptr;
 
+	Vec3f fVertSmallest;
+	Vec3f fVertLargest;
+
+	TriangleMesh()
+	{
+		resetExtent();
+	}
+
 	bool setDiffuseMap(BLImage *img)
 	{
 		return fDiffuseSampler.init(img, true);
@@ -66,20 +82,90 @@ struct TriangleMesh
 		return fSpecularSampler.init(img, true);
 	}
 
-	void addVertex(const Vec3f &vert)
+	void resetExtent()
 	{
-		fVertices.push_back(vert);
+		fVertSmallest.x = std::numeric_limits<float>::max();
+		fVertSmallest.y = std::numeric_limits<float>::max();
+		fVertSmallest.z = std::numeric_limits<float>::max();
+
+		fVertLargest.x = std::numeric_limits<float>::min();
+		fVertLargest.y = std::numeric_limits<float>::min();
+		fVertLargest.z = std::numeric_limits<float>::min();
 	}
 
-	void addNormal(const Vec3f& n)
+	void extendRange(const Vec3f& vert)
+	{
+		fVertSmallest.x = MIN(vert.x, fVertSmallest.x);
+		fVertSmallest.y = MIN(vert.y, fVertSmallest.y);
+		fVertSmallest.z = MIN(vert.z, fVertSmallest.z);
+
+		fVertLargest.x = MAX(vert.x, fVertLargest.x);
+		fVertLargest.y = MAX(vert.y, fVertLargest.y);
+		fVertLargest.z = MAX(vert.z, fVertLargest.z);
+	}
+
+	void calcExtent()
+	{
+		//printf("==== calcExtent ====\n");
+		resetExtent();
+		for (size_t i = 0; i < fVertices.size(); i++)
+			extendRange(fVertices[i]);
+
+		//printf("SMALLEST: %f, %f, %f\n", fVertSmallest.x, fVertSmallest.y, fVertSmallest.z);
+		//printf("LARGEST: %f, %f, %f\n", fVertLargest.x, fVertLargest.y, fVertLargest.z);
+	}
+
+	void normalizeVertices()
+	{
+		//printf("==== normalizeVertices ====\n");
+		calcExtent();
+
+		Vec3f diff = fVertLargest - fVertSmallest;
+		float extent = diff.norm();
+
+		//printf("DIFF: %f, %f, %f\n", diff.x, diff.y, diff.z);
+		//printf("EXTENT: %f\n", extent);
+
+		for (size_t n = 0; n < nverts(); n++) {
+			fVertices[n] = fVertices[n] / extent;
+		}
+	}
+
+	void centerMesh()
+	{
+		//printf("==== centerMesh ====\n");
+		calcExtent();
+		Vec3f center;
+		center.x = lerp(fVertSmallest.x, fVertLargest.x, 0.5);
+		center.y = lerp(fVertSmallest.y, fVertLargest.y, 0.5);
+		center.z = lerp(fVertSmallest.z, fVertLargest.z, 0.5);
+
+		//printf("CENTER: %f,%f,%f\n", center.x, center.y, center.z);
+
+
+		for (size_t n = 0; n < nverts(); n++) {
+			fVertices[n] = fVertices[n] - center;
+		}
+	}
+
+	size_t addVertex(const Vec3f &vert)
+	{
+		extendRange(vert);
+		fVertices.push_back(vert);
+		return fVertices.size()-1;
+	}
+
+	size_t addNormal(const Vec3f& n)
 	{
 		Vec3f aNormal(n);
 		fNormals.push_back(aNormal.normalize());
+		return fNormals.size();
 	}
 
-	void addUV(const Vec2f& uv)
+	size_t addUV(const Vec2f& uv)
 	{
 		fUV.push_back(uv);
+		return fUV.size();
 	}
 
 	// A face is indicated by 3 indices of vertices

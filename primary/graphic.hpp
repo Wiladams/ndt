@@ -34,17 +34,35 @@ public:
 class Graphic : public virtual IGraphic
 {
 	BLRectI fBounds{};
+	BLRectI fFrame{};
+	std::vector<IGraphic*> fChildren;
 
 protected:
 	void setBounds(const BLRectI& bounds) { fBounds = bounds; }
 
+
 public:
+	Graphic()
+	{}
+
 	Graphic(const BLRectI& bounds) 
-		:fBounds(bounds) 
+		:fBounds(bounds) ,
+		fFrame(bounds)
 	{}
 
 
 	BLRectI getBounds() const { return fBounds; }
+	
+	void addChild(IGraphic* child)
+	{
+		fChildren.push_back(child);
+	}
+
+	void moveTo(double x, double y)
+	{
+		fFrame.x = x;
+		fFrame.y = y;
+	}
 
 	virtual void draw(IGraphics* surf)
 	{

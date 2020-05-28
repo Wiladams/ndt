@@ -16,7 +16,6 @@
 
 */
 
-//local GraphicGroup = require("GraphicGroup")
 #include "graphic.hpp"
 #include "MotionConstraint.h"
 //local SliderThumb = require("SliderThumb")
@@ -28,27 +27,31 @@
 //
 // Slider Class
 //
-class Slider : public virtual GraphicGroup
+class Slider : public virtual Graphic
 {
     static const int trackThickness = 4;
-    double lowValue;
-    double highValue;
-    Vec2f position;
-    
-    Slider(obj)
-        :GraphicGroup(obj),
-        dragging(false)
+    double fLowValue;
+    double fHighValue;
+    Vec2f fPosition;
+    Vec2f fLastlocation;
+
+    bool fDragging;
+    Graphic* fThumb;
+    MotionConstraint constraint;
+
+public:
+    Slider(double lowValue, double highValue, Vec2f pos, Graphic* thumb)
+        :Graphic(),
+        fLowValue(lowValue),
+        fHighValue(highValue),
+        fThumb(thumb),
+        fDragging(false)
     {
-        //lowValue = obj.lowValue or 0
-        //highValue = obj.highValue or 255
-        //position = obj.position or {x = 0, y = 0};
-
-
-        add(obj.thumb);
-        setPosition(obj.position);
+        addChild(thumb);
+        setPosition(pos);
     }
 
-    static Slider create(params)
+    static Slider * create(double lowValue = 0, double highValue = 255, Vec2f pos = { 0,0 }, Graphic* thumb = nullptr)
     {
         if not params.startPoint or not params.endPoint then
             return nil, "must specify startPoint and endPoint"
@@ -102,7 +105,7 @@ class Slider : public virtual GraphicGroup
         end
 
 
-            local sliderParams = {
+        local sliderParams = {
                 title = params.title,
                 trackColor = params.trackColor or color(0xff,0,0);
                 position = {x = 0,y = 0};
@@ -113,12 +116,12 @@ class Slider : public virtual GraphicGroup
                 thumb = sliderThumb;
         }
 
-        local slider = Slider:new(sliderParams);
+        Slider * slider = new Slider(sliderParams);
 
         return slider;
     }
 
-    void drawBackground(IGraphics *ctx)
+    void drawBackground(IGraphics* ctx)
     {
         //print("slider.drawBackground: ", self.frame.x, self.frame.y, self.frame.width, self.frame.height)
         //draw line between endpoints
@@ -139,62 +142,65 @@ class Slider : public virtual GraphicGroup
     //
     Vec2f getPosition()
     {
-        return position;
+        return fPosition;
         //return map(self.thumb.frame.x, self.constraint.minX, self.constraint.maxX, 0, 1)
     }
 
-    void setPosition(const Vec2f &pos)
+    void setPosition(const Vec2f& pos)
     {
-        position.x = constrain(pos.x, 0, 1);
-        position.y = constrain(pos.y, 0, 1);
+        fPosition.x = constrain(pos.x, 0, 1);
+        fPosition.y = constrain(pos.y, 0, 1);
 
         auto locY = map(pos.y, 0, 1, constraint.minY, constraint.maxY);
         auto locX = map(pos.x, 0, 1, constraint.minX, constraint.maxX);
 
 
-        thumb.moveTo(locX, locY);
+        fThumb->moveTo(locX, locY);
 
-        lastLocation = { thumb.frame.x, thumb.frame.y };
+        fLastLocation = { fThumb->fFrame.x, fThumb->fFrame.y };
     }
 
-                        function Slider.getValue(self)
-                        return map(self:getPosition(), 0, 1, self.lowValue, self.highValue);
-                    end
+    Vec2f getValue()
+    {
+        return map(self:getPosition(), 0, 1, self.lowValue, self.highValue);
+    }
 
-                        function Slider.changeThumbLocation(self, change)
-                        local movement = self.constraint:tryChange(self.thumb.frame, change)
-                        --print("movement: ", movement.dx, movement.dy)
+    void changeThumbLocation(Vec2f &change)
+    {
+        local movement = self.constraint:tryChange(self.thumb.frame, change)
+            --print("movement: ", movement.dx, movement.dy)
 
-                        self.thumb : moveBy(movement.dx, movement.dy)
+            self.thumb : moveBy(movement.dx, movement.dy)
 
-                        local position = self.constraint : calcPosition(self.thumb.frame)
-                        self.position = position;
+            local position = self.constraint : calcPosition(self.thumb.frame)
+            self.position = position;
 
-                    --tell anyone who's interested that something has changed
-                        signalAll(self, self, "changeposition")
-                        end
+        --tell anyone who's interested that something has changed
+            signalAll(self, self, "changeposition")
+    }
 
-                        function Slider.mouseDown(self, event)
-                        self.dragging = true;
-                    self.lastLocation = { x = event.x, y = event.y };
-                    end
+    void mouseDown(const MouseEvent& e)
+    {
+        fDragging = true;
+        fLastlocation = { e.x, e.y };
+    }
 
-                        function Slider.mouseUp(self, event)
-                        self.dragging = false;
-                    end
+    void mouseUp(const MouseEvent& e)
+    {
+        fDragging = false;
+    }
 
-                        function Slider.mouseMove(self, event)
-                        --print("Slider.mouseMove: ", event.x, event.y, self.dragging)
+    void mouseMove(const MouseEvent& e)
+    {
+        // printf("Slider.mouseMove: ", event.x, event.y, self.dragging)
 
-                        if self.dragging then
-                            local change = {
-                                dy = event.y - self.lastLocation.y;
-                                dx = event.x - self.lastLocation.x;
-                        }
-                        self:changeThumbLocation(change)
-                            end
-                            self.lastLocation = { x = event.x, y = event.y }
-                            end
-
-                            return Slider
-
+        if (fDragging) {
+            local change = {
+                dy = event.y - self.lastLocation.y;
+                dx = event.x - self.lastLocation.x;
+            }
+            changeThumbLocation(change);
+        }
+        fLastlocation = { e.x, e.y };
+    }
+};
