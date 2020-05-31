@@ -493,7 +493,7 @@ namespace p5 {
 
     // Canvas management
 
-    void createCanvas(long aWidth, long aHeight) noexcept
+    void createCanvas(long aWidth, long aHeight, const char *title) noexcept
     {
         width = aWidth;
         height = aHeight;

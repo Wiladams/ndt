@@ -56,6 +56,14 @@ static const double TAU = 6.28318530717958647693;
 extern "C" {
 #endif
 
+// clamp() and constrain() do the exact same thing
+inline double clamp(double x, double min, double max) 
+{
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
+}
+
 inline double constrain(double x, double low, double high)
 {
     return MIN(MAX(x, low), high);
@@ -68,19 +76,6 @@ inline double map(double x, double olow, double ohigh, double rlow, double rhigh
     }
 
     return rlow + (x-olow)*((rhigh-rlow)/(ohigh-olow));
-}
-
-// The value of 't' ranges from 0..1 inclusive
-// the return value will be between a (at t == 0)
-// and b (at t==1), inclusive
-inline double LERP(double t, double a, double b)
-{
-    // first constrain
-    if (t<=0) return a;
-    if (t>=1) return b;
-    
-    // linear interpolation
-    return a + (t*(b-a)); 
 }
 
 
@@ -107,17 +102,25 @@ inline double dist(double x1, double y1, double x2, double y2)
     return sqrt(sq(x2-x1) + sq(y2-y1));
 }
 
-inline double lerp(double low, double high, double x)
+// This lerp is the more traditional way of doing it 
+// for graphics routines.  No constraint/clamp
+// typically a t ranges [0..1], but it does not
+// need to be limited to those values.
+inline double lerp(const double startValue, const double endValue, const double t)
 {
-    return low + x*(high-low);
+    return (1 - t) * startValue + t * endValue;
+    //return low + x*(high-low);
 }
 
-inline double mag(double x, double y)
+inline double mag2(double x, double y)
 {
     return sqrt(x*x +y*y);
 }
 
-
+inline double mag3(double a, double b, double c)
+{
+    return sqrt(a*a + b*b + c*c);
+}
 #ifdef __cplusplus
 }
 #endif

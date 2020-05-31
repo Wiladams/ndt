@@ -157,6 +157,10 @@
 		vec<3, T> lerp(const vec<3, T>& other, float t) const
 		{
 			vec<3, T> res();
+			res.x = lerp(t, x, other.x);
+			res.y = lerp(t, y, other.y);
+			res.z = lerp(t, z, other.z);
+
 			return res;
 		}
 
@@ -212,6 +216,12 @@
 	}
 
 	template<size_t DIM, typename T, typename U> vec<DIM, T> operator*(vec<DIM, T> lhs, const U& rhs) {
+		for (size_t i = DIM; i--; lhs[i] *= rhs);
+
+		return lhs;
+	}
+
+	template<size_t DIM, typename T, typename U> vec<DIM, T> operator*(const U& rhs, vec<DIM, T> lhs) {
 		for (size_t i = DIM; i--; lhs[i] *= rhs);
 
 		return lhs;
@@ -402,6 +412,7 @@
 	// Some concrete types
 	typedef vec<2, float> Vec2f;
 	typedef vec<2, int>   Vec2i;
+	typedef vec<3, double> Vec3;
 	typedef vec<3, float> Vec3f;
 	typedef vec<3, int>   Vec3i;
 	typedef vec<4, uint8_t> Vec4b;

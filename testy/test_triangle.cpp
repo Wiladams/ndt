@@ -1,4 +1,15 @@
 #include "p5.hpp"
+#include "geometry.h"
+
+using namespace p5;
+
+void preload()
+{
+    Vec3 v1 = { 10,20,30 };
+    Vec3 v2 = .5 * v1;
+    Vec3 v3 = v1 * 2;
+
+}
 
 void draw()
 {

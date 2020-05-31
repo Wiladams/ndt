@@ -92,7 +92,7 @@
       <AdditionalIncludeDirectories>..\..\primary</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -142,20 +142,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
+    <ClCompile Include="..\..\primary\p5.cpp" />
     <ClCompile Include="ratiow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="aabb.h" />
+    <ClInclude Include="aarect.h" />
+    <ClInclude Include="box.h" />
+    <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="color.h" />
+    <ClInclude Include="constant_medium.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="hittable_list.h" />
     <ClInclude Include="material.h" />
+    <ClInclude Include="moving_sphere.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtweekend.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

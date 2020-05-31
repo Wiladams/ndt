@@ -20,7 +20,7 @@ public:
     perlin() {
         ranvec = new vec3[point_count];
         for (int i = 0; i < point_count; ++i) {
-            ranvec[i] = unit_vector(vec3::random(-1, 1));
+            ranvec[i] = vec3::random(-1, 1).unit();
         }
 
         perm_x = perlin_generate_perm();

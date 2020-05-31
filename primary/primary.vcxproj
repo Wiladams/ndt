@@ -192,6 +192,7 @@
     <ClInclude Include="threed.h" />
     <ClInclude Include="TimeTicker.hpp" />
     <ClInclude Include="trianglemesh.h" />
+    <ClInclude Include="vec3.h" />
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
     <ClInclude Include="waveobjloader.h" />

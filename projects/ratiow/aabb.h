@@ -13,6 +13,10 @@
 
 #include "rtweekend.h"
 
+#ifdef min
+#undef min
+#undef max
+#endif
 
 class aabb {
 public:
@@ -30,6 +34,7 @@ public:
     point3 min() const { return _min; }
     point3 max() const { return _max; }
 
+    // Determine whether a ray hits anywhere in the box
     bool hit(const ray& r, double tmin, double tmax) const {
         for (int a = 0; a < 3; a++) {
             auto t0 = fmin((_min[a] - r.origin()[a]) / r.direction()[a],
@@ -44,6 +49,7 @@ public:
         return true;
     }
 
+    // Area of the surface of the box
     double area() const {
         auto a = _max.x - _min.x;
         auto b = _max.y - _min.y;
@@ -51,7 +57,11 @@ public:
         return 2 * (a * b + b * c + c * a);
     }
 
-    int longest_axis() const {
+    //
+    // 0 - x-axis
+    // 1 - y-axis
+    // 2 - z-axis
+    int longestAxis() const {
         auto a = _max.x - _min.x;
         auto b = _max.y - _min.y;
         auto c = _max.z - _min.z;
