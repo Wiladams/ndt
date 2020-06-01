@@ -86,7 +86,7 @@ struct Spring2D {
 
 const Spring2D Spring2D::empty;
 
-Color  randomColor()
+Pixel  randomColor()
 {
     uint8_t r = (uint8_t)random(30,255);
     uint8_t g = (uint8_t)random(30,255);

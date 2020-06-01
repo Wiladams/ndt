@@ -55,7 +55,7 @@ class AnalogClock {
     double fCenterY;
     double fRadius;
     double fCenterRadius;
-    Color fBackgroundColor;
+    Pixel fBackgroundColor;
 
     bool fDrivenExternally;
     SYSTEMTIME fTime;
@@ -124,7 +124,7 @@ public:
 
     }
 
-    void setColor(const Color& c)
+    void setColor(const Pixel& c)
     {
         fBackgroundColor = c;
     }

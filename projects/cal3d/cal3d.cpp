@@ -29,7 +29,7 @@ TriangleMesh model;
 void setup()
 {
 	createCanvas(800, 800);
-	D = new ThreeD(gAppSurface->getBlend2dImage());
+	D = new ThreeD(gAppSurface, width, height);
 	
 	// Vertices
 	model.addVertex({ -1,-1,-1 });

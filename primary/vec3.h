@@ -70,6 +70,7 @@ public:
 
     vec3 unit() {
         double len = length();
+        //return *this / len;
         return vec3(x / len, y / len, z / len);
     }
 
@@ -138,7 +139,7 @@ inline vec3 operator*(const vec3& v, double t) {
     return t * v;
 }
 
-inline vec3 operator/(vec3 v, double t) {
+inline vec3 operator/(const vec3 &v, const double t) {
     return (1 / t) * v;
 }
 

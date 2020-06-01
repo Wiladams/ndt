@@ -54,7 +54,7 @@ void setup()
 void draw()
 {
 	// Chain two samplers together
-	ndt::ImageSampler srcSampler(img);
+	ndt::ImageSampler srcSampler(&img);
 	ImageTinter effect({ 100,65,0 }, srcSampler);
 
 	int xskip = 1;
@@ -63,9 +63,9 @@ void draw()
 	loadPixels();
 
 	for (int y = 0; y < height; y += yskip) {
-		double v = (double)y / (height-1);
+		double v = (double)y / ((double)height-1);
 		for (int x = 0; x < width; x += xskip) {
-			double u = (double)x / (width-1);
+			double u = (double)x / ((double)width-1);
 
 			set(x, y, effect(u, v));
 		}

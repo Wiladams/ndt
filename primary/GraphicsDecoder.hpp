@@ -45,9 +45,9 @@ class GraphicsDecoder
         return {x,y,w,h};
     }
 
-    Color readColor()
+    Pixel readColor()
     {
-        Color c;
+        Pixel c;
         c.value = fBS.readUInt32();
 
         return c;
@@ -107,7 +107,7 @@ public:
             }
             break;
             case GCMD_STROKEWEIGHT: {
-                fGraphics->strokeWeight((int)readUInt());
+                fGraphics->strokeWeight((double)readFloat());
             }
             break;
 
@@ -189,7 +189,7 @@ public:
             break;
 
             case GCMD_BACKGROUND: {
-                Color c = readColor();
+                Pixel c = readColor();
                 fGraphics->background(c);
             }
             break;
@@ -205,7 +205,7 @@ public:
 
             case GCMD_SET:{
                 BLPoint xy = readCoord();
-                Color c = readColor();
+                Pixel c = readColor();
                 fGraphics->set(xy.x, xy.y, c);
             }
             break;

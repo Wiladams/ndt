@@ -9,7 +9,7 @@ using namespace p5;
 
 // Colors of the rainbow
 uint8_t gAlpha = 255;
-Color rColors[] = {
+Pixel rColors[] = {
 	{255,0,0,gAlpha},
 	{255,165,0, gAlpha},
 	{255, 255,0,gAlpha},
@@ -18,7 +18,7 @@ Color rColors[] = {
 	{93,118,203,gAlpha},
 	{143,94,154,gAlpha},
 };
-int nColors = sizeof(rColors) / sizeof(Color);
+int nColors = sizeof(rColors) / sizeof(Pixel);
 
 BLGradient gradient(BLLinearGradientValues(0, 0, 0, 0));
 BLImage potOfGold;

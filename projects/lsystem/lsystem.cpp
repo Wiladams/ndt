@@ -50,7 +50,7 @@ std::string lindenmayer(const std::string s)
     return outputstring; // send out the modified string
 }
 
-Color randomColor()
+Pixel randomColor()
 {
     // give me some random color values:
     uint32_t r = (uint32_t)random(128, 255);
@@ -58,7 +58,7 @@ Color randomColor()
     uint32_t b = (uint32_t)random(0, 50);
     uint32_t a = (uint32_t)random(50, 100);
 
-    return Color(r,g,b,a);
+    return Pixel(r,g,b,a);
 }
 // this is a custom function that draws turtle commands
 void drawIt(const char k) 

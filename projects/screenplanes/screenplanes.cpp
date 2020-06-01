@@ -18,7 +18,7 @@ Surface redPlane(fragmentWidth, captureHeight/2);
 Surface greenPlane(fragmentWidth, captureHeight/2);
 Surface bluePlane(fragmentWidth, captureHeight/2);
 
-inline uint8_t toGray(const Color &pix)
+inline uint8_t toGray(const Pixel &pix)
 {
     return (0.2125 * pix.r) + (0.7154 * pix.g) + (0.0721 * pix.b);
 }
@@ -30,9 +30,9 @@ void grayFilter(Surface& src, Surface &dst)
 
     for (int y = 0; y < dst.getHeight(); y++)
         for (int x = 0; x < dst.getWidth(); x++) {
-            Color srcColor = src.get(x, y);
+            Pixel srcColor = src.get(x, y);
             uint8_t gr = toGray(srcColor);
-            Color newColor = color(gr, gr,gr);
+            Pixel newColor = Pixel(gr, gr,gr);
             
             dst.set(x, y, newColor);            
         }
@@ -48,7 +48,7 @@ bool rgbSplitter(Surface& src, Surface& redSurface, Surface &greenSurface, Surfa
 
     for (int y = 0; y < src.getHeight(); y++)
         for (int x = 0; x < src.getWidth(); x++) {
-            Color srcColor = src.get(x, y);
+            Pixel srcColor = src.get(x, y);
             redSurface.set(x, y, color(red(srcColor), 0, 0));
             greenSurface.set(x, y, color(0,green(srcColor), 0));            
             blueSurface.set(x, y, color(0, 0, blue(srcColor)));

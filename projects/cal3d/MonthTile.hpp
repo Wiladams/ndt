@@ -26,7 +26,7 @@ class CalendarMonthTile : Graphic
 	float fLevelOfDetail;
 	BLRectI fBounds;
 	BLRectI fFrame;
-	Color fBackgroundColor;
+	Pixel fBackgroundColor;
 
 	char  fTitle[64];
 
@@ -34,7 +34,7 @@ public:
 	static BLSizeI getClassPreferredSize() { return { 200,200 }; }
 
 
-	CalendarMonthTile(int year, int month, int x = 0, int y = 0, const Color& bkg = { 0xf0, 0xf0, 0xf0, 127 })
+	CalendarMonthTile(int year, int month, int x = 0, int y = 0, const Pixel& bkg = { 0xf0, 0xf0, 0xf0, 127 })
 		: Graphic({ 0,0,200,200 }),
 		fCalendar(year),
 		fMonth(month),

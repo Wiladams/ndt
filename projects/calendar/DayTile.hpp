@@ -17,7 +17,7 @@ class DayTile : Graphic
 	int fDay;
 	int fDayOfWeek;	// which day of the week
 	
-	Color fBackgroundColor{ 0xf0, 0xf0, 0xf0, 127 };
+	Pixel fBackgroundColor{ 0xf0, 0xf0, 0xf0, 127 };
 	float fLevelOfDetail;
 	
 	// Return the size we prefer to be
@@ -60,8 +60,8 @@ public:
 		auto bounds = getBounds();
 		char buff[32];
 		int buffLen = 32;
-		Color hourColor(140, 213, 240);
-		Color halfHourColor(155, 223, 250);
+		Pixel hourColor(140, 213, 240);
+		Pixel halfHourColor(155, 223, 250);
 
 		// Draw background for hourly text
 //ctx->fill(230, 230, 220);	// color used when hours not available

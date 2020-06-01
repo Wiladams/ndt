@@ -74,7 +74,7 @@ private:
         return true;
     }
     
-    bool writeColor(const Color &c)
+    bool writeColor(const Pixel &c)
     {
         writeUInt(c.value);
 
@@ -100,7 +100,10 @@ public:
     // stroking attributes
     virtual void strokeCaps(int caps) {writeEnum(GCMD_STROKECAPS, caps);}
     virtual void strokeJoin(int style) { writeEnum(GCMD_STROKEJOIN, style); }
-    virtual void strokeWeight(int weight) { writeEnum(GCMD_STROKEWEIGHT, weight); }
+    virtual void strokeWeight(double weight) { 
+        writeCommand(GCMD_STROKEWEIGHT);
+        writeFloat((float)weight);
+    }
 
     // Attribute State Stack
     virtual void push() { writeCommand(GCMD_PUSH); }
@@ -128,13 +131,13 @@ public:
 
 
 
-    // Color management
+    // Pixel management
     virtual void fill(const BLGradient& g) 
     { 
         writeCommand(GCMD_FILL_GRADIENT);
         // BUGBUG - serialize gradient
     }
-    virtual void fill(const Color& c) 
+    virtual void fill(const Pixel& c) 
     { 
         writeCommand(GCMD_FILL_COLOR);
         writeColor(c);
@@ -142,7 +145,7 @@ public:
     
     virtual void noFill() { writeCommand(GCMD_FILL_NONE); }
 
-    virtual void stroke(const Color& c) 
+    virtual void stroke(const Pixel& c) 
     {
         writeCommand(GCMD_STROKE); 
         writeColor(c);
@@ -173,7 +176,13 @@ public:
         writeCommand(GCMD_CLEAR);
     }
 
-    virtual void background(const Color& c)
+    virtual void clearRect(double x, double y, double w, double h)
+    {
+        writeCommand(GCMD_CLEARRECT);
+        writeRect(x, y, w, y);
+    }
+
+    virtual void background(const Pixel& c)
     {
         writeCommand(GCMD_BACKGROUND);
         writeColor(c);
@@ -189,7 +198,7 @@ public:
 
     // Geometry
     // hard set a specfic pixel value
-    virtual void set(double x, double y, const Color& c)
+    virtual void set(double x, double y, const Pixel& c)
     {
         writeCommand(GCMD_SET);
         writeCoord(x, y);

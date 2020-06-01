@@ -1,13 +1,15 @@
 #include "p5.hpp"
 #include "locations.h"
 
-Color  randomColor()
+using namespace p5;
+
+Pixel  randomColor()
 {
 	int r = (int)random(30, 255);
 	int g = (int)random(30, 255);
 	int b = (int)random(30, 255);
 
-	Color c;
+	Pixel c;
 	c.r = r;
 	c.g = g;
 	c.b = b;

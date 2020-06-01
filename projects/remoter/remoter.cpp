@@ -20,7 +20,7 @@ void drawRaw()
 void drawDirect()
 {
 	gAppSurface->background(color(0xc0));
-	gAppSurface->stroke(Color(255, 0, 0, 255));
+	gAppSurface->stroke(Pixel(255, 0, 0, 255));
 	gAppSurface->fill(color(0));
 	gAppSurface->rect(100, 100, 200, 200);
 	gAppSurface->stroke(color(255,255,0));

@@ -8,7 +8,7 @@ using namespace p5;
 std::vector<AnalogClock> clocks;
 
 
-Color  randomColor()
+Pixel  randomColor()
 {
     uint8_t r = (uint8_t)random(30, 255);
     uint8_t g = (uint8_t)random(30, 255);
