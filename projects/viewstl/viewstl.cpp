@@ -42,16 +42,16 @@ void loadModels()
 {
 	TriangleMesh* mesh1 = stl::readFromFile("models/se2.stl");
 	//TriangleMesh* mesh1 = stl::readFromFile("models/cube.stl");
-	//TriangleMesh* mesh2 = stl::readFromFile("models/uno-3083g.stl");
+	TriangleMesh* mesh2 = stl::readFromFile("models/uno-3083g.stl");
 	TriangleMesh* mesh3 = stl::readFromFile("models/mp01.stl");
-	//TriangleMesh* mesh4 = stl::readFromFile("models/tubeconnector.stl");
+	TriangleMesh* mesh4 = stl::readFromFile("models/tubeconnector.stl");
 	//TriangleMesh* mesh5 = stl::readFromFile("models/Seahorse.stl");
 	//TriangleMesh* mesh6 = stl::readFromFile("models/bent_plate.stl");
 
 	models.push_back(new ModelShader(mesh1, new FlatShader(BLRgba32(220, 190, 68))));
-	//models.push_back(new ModelShader(mesh2, new FlatShader(BLRgba32(220, 220, 220))));
+	models.push_back(new ModelShader(mesh2, new FlatShader(BLRgba32(220, 220, 220))));
 	models.push_back(new ModelShader(mesh3, new FlatShader(BLRgba32(220, 190, 68))));
-	//models.push_back(new ModelShader(mesh4, new FlatShader(BLRgba32(220, 190, 68))));
+	models.push_back(new ModelShader(mesh4, new FlatShader(BLRgba32(220, 190, 68))));
 	//models.push_back(new ModelShader(mesh5, new FlatShader(BLRgba32(220, 190, 68))));
 	//models.push_back(new ModelShader(mesh6, new FlatShader(BLRgba32(220, 190, 68))));
 

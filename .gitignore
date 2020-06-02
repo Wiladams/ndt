@@ -1,35 +1,36 @@
 # Prerequisites
-*.d
+#*.d
 
 # Compiled Object files
-*.slo
-*.lo
-*.o
+#*.slo
+#*.lo
+#*.o
 *.obj
 
 # Precompiled Headers
-*.gch
-*.pch
+#*.gch
+#*.pch
 
 # Compiled Dynamic libraries
-*.so
-*.dylib
+#*.so
+#*.dylib
 *.dll
 
 # Fortran module files
-*.mod
-*.smod
+#*.mod
+#*.smod
 
 # Compiled Static libraries
-*.lai
-*.la
-*.a
+#*.lai
+#*.la
+#*.a
 *.lib
+
 
 # Executables
 *.exe
-*.out
-*.app
+#*.out
+#*.app
 *.exp
 
 # random other stuff
@@ -37,7 +38,7 @@
 *.ilk
 
 *.user
-*.dylib
+#*.dylib
 *.ipch
 *.db 
 *.idb
@@ -51,3 +52,9 @@
 *.sqlite
 projects/.vs/projects/v16/Solution.VC.db-shm
 projects/.vs/projects/v16/Solution.VC.db-wal
+
+
+# Inclusions
+!lib/Release/blend2d.dll
+!lib/Release/blend2d.lib
+!projects/x64/Release/blend2d.dll

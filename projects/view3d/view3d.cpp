@@ -45,11 +45,11 @@ void loadModels()
 	floorModel = aliaswave::loadModel("models/floor.obj");
 
 	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new DiffuseShader()));
-	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new ColorShader(BLRgba32(220, 190, 68))));
-	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new FlatShader(BLRgba32(220, 190, 68))));
+	//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new ColorShader(BLRgba32(220, 190, 68))));
+	//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new FlatShader(BLRgba32(220, 190, 68))));
 
-	//models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
-	//models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new FlatShader(BLRgba32(220, 190, 68))));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new FlatShader(BLRgba32(220, 190, 68))));
 
 	model = models.at(0);
 }
@@ -87,13 +87,13 @@ void keyPressed(const KeyEvent &e)
 {
 	switch (keyCode) {
 	case VK_RIGHT: {
-		viewAngle += 10;
+		viewAngle += 15;
 		auto loc = D->getCameraLocation();
 		changePosition(viewAngle, viewRadius, loc.y);
 	}
 	break;
 	case VK_LEFT: {
-		viewAngle -= 10;
+		viewAngle -= 15;
 		auto loc = D->getCameraLocation();
 		changePosition(viewAngle, viewRadius, loc.y);
 	}
