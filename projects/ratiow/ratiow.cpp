@@ -35,7 +35,9 @@ const auto aspect_ratio = 4.0 / 3.0;
 const int image_width = 640;    // 1200;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
 
-const int samples_per_pixel = 100;
+int lowSamples = 10;
+int highSamples = 5000;
+int samples_per_pixel = lowSamples;
 const int max_depth = 50;
 rtcolor bkgnd = rtcolor(0.0, 0.80, 1.00);
 
@@ -391,6 +393,16 @@ void keyReleased(const KeyEvent& e)
     bkgnd = rtcolor(0, 0, 0);
 
     switch (e.keyCode) {
+    case VK_ADD:
+    case VK_OEM_PLUS:
+        samples_per_pixel += 100;
+        return;
+        break;
+
+    case VK_SUBTRACT:
+    case VK_OEM_MINUS:
+        samples_per_pixel = (samples_per_pixel > 100) ? samples_per_pixel - 100 : samples_per_pixel;
+        return;
     case VK_F1:
         world = random_scene();
         lookfrom = point3(13, 2, 3);
@@ -465,6 +477,9 @@ void keyReleased(const KeyEvent& e)
         lookat = point3(278, 278, 0);
         vfov = 40.0;
         break;
+
+    default:
+        return;
     }
 
     // reset the camera, and reset
@@ -472,6 +487,18 @@ void keyReleased(const KeyEvent& e)
     cam = camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     row = image_height - 1;
 
+}
+
+void keyPressed(const KeyEvent& e)
+{
+    switch (e.keyCode) {
+        case 's':
+        case 'S':
+            BLImageCodec codec;
+            codec.findByName("BMP");
+            gAppSurface->getBlend2dImage().writeToFile("ratiow.bmp", codec);
+        break;
+    }
 }
 
 void set(const BLImageData& info, int x, int y, const rtcolor& c)
@@ -504,12 +531,18 @@ void draw()
 {   
     // if we've already rendered every row
     // don't bother doing any more rendering
+        // Doing a variable number of samples deapending on where
+        // we are in the image
+    double frac = map(row, image_height - 1, 0, 0, 1);
+    //samples_per_pixel = (int)lerp(lowSamples, highSamples, frac);
+
+
     imageSurface->loadPixels();
     if (row >= 0) {
 
         BLImageData info;
         imageSurface->getBlend2dImage().getData(&info);
-
+        
         for (int i = 0; i < image_width; ++i)
         {
             rtcolor pixel_color;
@@ -535,16 +568,27 @@ void draw()
 
     
     hudSurface->fill(Pixel(0, 0, 0));
+    // First row
     hudSurface->text("F1 - Random", 0, 14);
     hudSurface->text("F2 - Two Spheres", 120, 14);
     hudSurface->text("F3 - Perlin Spheres", 240, 14);
     hudSurface->text("F4 - Earth", 360, 14);
     hudSurface->text("F5 - Simple Light", 480, 14);
-    hudSurface->text("F6 - Cornell Box", 0, 40);
-    hudSurface->text("F7 - Cornell Balls", 120, 40);
-    hudSurface->text("F8 - Cornell Smoke", 240, 40);
-    hudSurface->text("F9 - Cornell Final", 360, 40);
-    hudSurface->text("F10 - Final Scene", 480, 40);
+
+    // Second row
+    hudSurface->text("F6 - Cornell Box", 0, 28);
+    hudSurface->text("F7 - Cornell Balls", 120, 28);
+    hudSurface->text("F8 - Cornell Smoke", 240, 28);
+    hudSurface->text("F9 - Cornell Final", 360, 28);
+    hudSurface->text("F10 - Final Scene", 480, 28);
+
+    // Third Row - commands
+    hudSurface->text(" S - Save", 0, 40);
+    char buff[32];
+    int buffLen = 32;
+    sprintf_s(buff, buffLen, "+/-  Samples (%d)", samples_per_pixel);
+    hudSurface->text(buff, 120, 40);
+    hudSurface->text("+/-  Samples", 120, 40);
 
     hudSurface->pop();
 
