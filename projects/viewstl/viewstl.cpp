@@ -153,7 +153,7 @@ void draw()
 	D->renderMesh(model->fModel, *model->fShader);
 	updatePixels();
 
-	noLoop();
+	//noLoop();
 }
 
 void setup()

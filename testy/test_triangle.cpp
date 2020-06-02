@@ -1,22 +1,23 @@
 #include "p5.hpp"
-#include "geometry.h"
+//#include "geometry.h"
 
 using namespace p5;
 
-void preload()
-{
-    Vec3 v1 = { 10,20,30 };
-    Vec3 v2 = .5 * v1;
-    Vec3 v3 = v1 * 2;
 
-}
 
 void draw()
 {
+    scale(1, -1);
+    translate(0, -height - 1);
+
     triangle(10,10, 200,200, 100,200);
-    
+
+    fill(255, 0, 0);
+    circle(width/2, height/2, 400);
+
     noLoop();
 }
+
 
 void setup()
 {

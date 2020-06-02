@@ -291,5 +291,5 @@ void setup()
     auto size = getPreferredSize();
     createCanvas((long)size.w, (long)size.h);
 
-    textFont("c:\\windows\\fonts\\segoeui.ttf");
+    //textFont("c:\\windows\\fonts\\segoeui.ttf");
 }
