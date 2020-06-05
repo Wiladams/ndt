@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B597E143-AF83-47B2-B3D3-676453D317A6}"
+	ProjectSection(SolutionItems) = preProject
+		..\primary\grmath.h = ..\primary\grmath.h
+		..\testy\test_grmath.cpp = ..\testy\test_grmath.cpp
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_triangle", "test_triangle\test_triangle.vcxproj", "{1DF52B2D-1679-44A1-8102-BDC35D888FDE}"
 EndProject
@@ -81,6 +85,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snapview", "snapview\snapview.vcxproj", "{7BA2A981-49B7-4653-8404-E89753A58E27}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_blimage", "..\testy\test_blimage\test_blimage.vcxproj", "{E3570619-ADAF-46B3-88EA-CA9855EF233A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sketchy", "sketchy\sketchy.vcxproj", "{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -370,6 +376,14 @@ Global
 		{E3570619-ADAF-46B3-88EA-CA9855EF233A}.Release|x64.Build.0 = Release|x64
 		{E3570619-ADAF-46B3-88EA-CA9855EF233A}.Release|x86.ActiveCfg = Release|Win32
 		{E3570619-ADAF-46B3-88EA-CA9855EF233A}.Release|x86.Build.0 = Release|Win32
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Debug|x64.ActiveCfg = Debug|x64
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Debug|x64.Build.0 = Debug|x64
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Debug|x86.ActiveCfg = Debug|Win32
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Debug|x86.Build.0 = Debug|Win32
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Release|x64.ActiveCfg = Release|x64
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Release|x64.Build.0 = Release|x64
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Release|x86.ActiveCfg = Release|Win32
+		{1B40AEF6-DFC1-49BC-B1CD-B9CFBBDB20A7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

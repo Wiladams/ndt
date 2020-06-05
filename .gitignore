@@ -36,7 +36,7 @@
 # random other stuff
 *.pdb
 *.ilk
-
+*.nativecodeanalysis.*
 *.user
 #*.dylib
 *.ipch

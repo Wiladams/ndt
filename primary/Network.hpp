@@ -8,12 +8,17 @@ https://www.winsocketdotnetworkprogramming.com/winsock2programming/winsock2advan
 #include <cstdio>
 #include <vector>
 
-#include "w32_socket.hpp"
+#define WIN32_LEAN_AND_MEAN
+#include <windowsx.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
 
 
 // Implementation of network byte ordering functions
 // These routines are typically provided by the OS
 // these routines here just show you how they can be implemented
+/*
 namespace IPUtils {
 
 inline int16_t htons(int16_t value) {return isLE() ? swapUInt16((uint16_t)value) : value;}
@@ -23,7 +28,7 @@ inline int32_t htonl(int32_t value) {return isLE() ? swapUInt32((uint32_t)value)
 inline int32_t ntohl(int32_t value) {return isLE() ? swapUInt32((uint32_t)value) : value;}
 
 };
-
+*/
 
 
 
@@ -31,18 +36,19 @@ inline int32_t ntohl(int32_t value) {return isLE() ? swapUInt32((uint32_t)value)
     This should live somewhere else, higher in the stack
 */
 struct BufferChunk {
-    size_t fSize;
-    char *fData;
     bool fIOwnData;
+    size_t fSize;
+    void* fData;
 
-    BufferChunk(void *buff, const int size)
+
+    BufferChunk(void *data, const size_t size)
+        :fData(data),
+        fSize(size),
+        fIOwnData(false)
     {
-        fData = (char *)buff;
-        fSize = size;
-        fIOwnData = false;
     }
 
-    BufferChunk(int size)
+    BufferChunk(const size_t size)
     {
         fData = {new char[size]{}};
         fSize = size;
@@ -57,7 +63,7 @@ struct BufferChunk {
         fSize = 0;
     }
 
-    char * getDataPointer() {return fData;}
+    void* data() { return fData; }
     size_t size() {return fSize;}
 };
 

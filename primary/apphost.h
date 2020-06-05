@@ -104,6 +104,8 @@ EXPORT extern bool gIsLayered;
 EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
 EXPORT extern unsigned int displayDpi;
+EXPORT extern int canvasWidth;
+EXPORT extern int canvasHeight;
 
 EXPORT extern int clientLeft;
 EXPORT extern int clientTop;
@@ -175,7 +177,8 @@ EXPORT void noJoystick();
 EXPORT void cursor();
 EXPORT void noCursor();
 
-
+EXPORT void show();
+EXPORT void hide();
 
 
 EXPORT void setFrameRate(int newRate);

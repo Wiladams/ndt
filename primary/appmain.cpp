@@ -64,7 +64,6 @@ int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
 
-
 UINT_PTR gAppTimerID = 0;
 bool gLooping = true;
 bool gRunning = true;
@@ -72,6 +71,9 @@ bool gIsLayered = false;
 
 // Some globals friendly to the p5 environment
 // Display Globals
+int canvasWidth = 0;
+int canvasHeight = 0;
+
 int displayWidth = 0;
 int displayHeight= 0;
 unsigned int displayDpi = 0;
@@ -173,6 +175,16 @@ void forceRedraw(void* param, int64_t tickCount)
 /*
     Environment
 */
+void show()
+{
+    gAppWindow->show();
+}
+
+void hide()
+{
+    gAppWindow->hide();
+}
+
 void cursor()
 {
     int count = ShowCursor(1);
@@ -797,6 +809,8 @@ bool setCanvasSize(long aWidth, long aHeight)
     }
 
     gAppSurface = new Surface(aWidth, aHeight);
+    canvasWidth = aWidth;
+    canvasHeight = aHeight;
 
     return true;
 }

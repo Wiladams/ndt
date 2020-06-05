@@ -2,6 +2,7 @@
 
 #include "p5.hpp"
 
+
 /*
 * <dt> base
 * <dd> The base color is the color that is used as the "dominant" color 
@@ -39,26 +40,25 @@
 
 
 
-#define byte(value) (floor(value+0.5))
+#define byte(v) (floor(v+0.5))
+const Pixel ltGray{ 0xffc0c0c0 };
 
-#define clamp constrain
-
-PixRGBA brighter(const PixRGBA &value)
+Pixel brighter(const Pixel&value)
 {
-    uint8_t red = byte(clamp(value.red *(1/0.80), 0, 255));
-    uint8_t green = byte(clamp(value.green * (1.0/0.85), 0, 255));
-    uint8_t blue = byte(clamp(value.blue * (1.0/0.80), 0,255));
+    uint8_t red = byte(constrain(value.r *(1/0.80), 0, 255));
+    uint8_t green = byte(constrain(value.g * (1.0/0.85), 0, 255));
+    uint8_t blue = byte(constrain(value.b * (1.0/0.80), 0,255));
 
-    return PixRGBA(red, green, blue, value.alpha);
+    return Pixel(red, green, blue, value.a);
 }
 
-PixRGBA darker(const PixRGBA &value)
+Pixel darker(const Pixel&value)
 {
-    uint8_t red = byte(value.red *0.60);
-    uint8_t green = byte(value.green * 0.60);
-    uint8_t blue = byte(value.blue * 0.60);
+    uint8_t red = byte(value.r *0.60);
+    uint8_t green = byte(value.g * 0.60);
+    uint8_t blue = byte(value.b * 0.60);
 
-    return PixRGBA(red, green, blue, value.alpha);
+    return Pixel(red, green, blue, value.a);
 }
 
 
@@ -76,26 +76,26 @@ protected:
     size_t fBorderWidth;
 
 
-    PixRGBA fBaseColor;
-    PixRGBA fForeground;
-    PixRGBA fTextBackground;
-    PixRGBA fHighlightColor;
-    PixRGBA fShadowColor;
-    PixRGBA fBackground;
-    PixRGBA fBottomShadow;
-    PixRGBA fBottomShadowTopLiner;
-    PixRGBA fBottomShadowBottomLiner;
-    PixRGBA fTopShadow;
+    Pixel fBaseColor;
+    Pixel fForeground;
+    Pixel fTextBackground;
+    Pixel fHighlightColor;
+    Pixel fShadowColor;
+    Pixel fBackground;
+    Pixel fBottomShadow;
+    Pixel fBottomShadowTopLiner;
+    Pixel fBottomShadowBottomLiner;
+    Pixel fTopShadow;
 
 
 
 public:
-    GUIStyle(const PixRGBA &baseColor, const int borderWidth)
+    GUIStyle(const Pixel&baseColor, const int borderWidth)
         : fBorderWidth(borderWidth)
     {
         setBaseColor(baseColor);
 
-        fForeground = colors.ltGray;
+        fForeground =  ltGray;
 
 
         fBottomShadow = darker(fForeground); // 0x00616161;
@@ -108,10 +108,10 @@ public:
     GUIStyle()
         : fBorderWidth(2)
     {
-        setBaseColor(colors.ltGray);
+        setBaseColor(ltGray);
 
 
-        fForeground = colors.ltGray;
+        fForeground = ltGray;
 
 
         fBottomShadow = darker(fForeground); // 0x00616161;
@@ -120,12 +120,12 @@ public:
         fTopShadow = brighter(fForeground);  // 0x00cbcbcb;
     }
 
-    PixRGBA getSunkenColor() {return fForeground;}
-    PixRGBA getRaisedColor() {return fForeground;}
-    PixRGBA getBackground() {return fBackground;}
+    Pixel getSunkenColor() {return fForeground;}
+    Pixel getRaisedColor() {return fForeground;}
+    Pixel getBackground() {return fBackground;}
 
-    PixRGBA getBaseColor() { return fBaseColor;}
-    void setBaseColor(const PixRGBA &value)
+    Pixel getBaseColor() { return fBaseColor;}
+    void setBaseColor(const Pixel&value)
     {
 	    fBaseColor = value;
 	    fTextBackground =   fBaseColor;
@@ -134,66 +134,66 @@ public:
 	    fBackground = brighter(fHighlightColor);
     }
 
-    PixRGBA getForeground() { return fForeground;}
-    void setForeground(const PixRGBA &value){fForeground = value;}
+    Pixel getForeground() { return fForeground;}
+    void setForeground(const Pixel&value){fForeground = value;}
 
     int getBorderWidth(){return fBorderWidth;}
     void setBorderWidth(const int value) {fBorderWidth = value;}
 
-    PixRGBA getPadding() {return 2; }
+    int getPadding() {return 2; }
 
-    void drawFrame(int x, int y, int w, int h, int style)
+    void drawFrame(IGraphics *ctx, int x, int y, int w, int h, int style)
     {
         if (style == GUIStyle::Sunken) {
-            stroke(fHighlightColor);
+            ctx->stroke(fHighlightColor);
             for (int n=0; n<getBorderWidth(); n++) {
-                line(x+n, y+h-n, x+w-n, y+h-n);    // bottom shadow
-                line(x + w - n, y + n, x + w - n, y + h);	    // right shadow
+                ctx->line(x+n, y+h-n, x+w-n, y+h-n);    // bottom shadow
+                ctx->line(x + w - n, y + n, x + w - n, y + h);	    // right shadow
             }
 
-            stroke(fShadowColor);
+            ctx->stroke(fShadowColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                line(x+n, y+n, x+w-n, y+n);     // top edge
-                line(x+n, y+n, x+n, y+h-n);     // left edge
+                ctx->line(x+n, y+n, x+w-n, y+n);     // top edge
+                ctx->line(x+n, y+n, x+n, y+h-n);     // left edge
             }
 
         } else if (style == GUIStyle::Raised) {	
 
-            stroke(fShadowColor);
+            ctx->stroke(fShadowColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                line(x+n, y+h-n, x+w-n, y+h-n);      // bottom shadow
-                line(x+w-n, y+n, x+w-n, y+h);	    // right shadow
+                ctx->line(x+n, y+h-n, x+w-n, y+h-n);      // bottom shadow
+                ctx->line(x+w-n, y+n, x+w-n, y+h);	    // right shadow
             }
 
             if (getBorderWidth() > 0) {
-                stroke(fBottomShadowBottomLiner);
-                line(x, y + h, x + w, y + h);				// bottom shadow
-                line(x + w, y, x + w, y + h);				// right shadow
+                ctx->stroke(fBottomShadowBottomLiner);
+                ctx->line(x, y + h, x + w, y + h);				// bottom shadow
+                ctx->line(x + w, y, x + w, y + h);				// right shadow
             }
 
-            stroke(fHighlightColor);
+            ctx->stroke(fHighlightColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                line(x+n,y+n, x+w-n, y+n);	    // top edge
-                line(x+n, y+n, x+n, y+h-n);	    // left edge
+                ctx->line(x+n,y+n, x+w-n, y+n);	    // top edge
+                ctx->line(x+n, y+n, x+n, y+h-n);	    // left edge
             }
         }
     }
 
-    void drawSunkenRect(int x, int y, int w, int h)
+    void drawSunkenRect(IGraphics* ctx, int x, int y, int w, int h)
     {
-        fill(fBaseColor);
-        noStroke();
-        rect(x,y,w,h);
+        ctx->fill(fBaseColor);
+        ctx->noStroke();
+        ctx->rect(x,y,w,h);
 
-        drawFrame(x, y, w, h, GUIStyle::Sunken);
+        drawFrame(ctx, x, y, w, h, GUIStyle::Sunken);
     }
 
-    void drawRaisedRect(int x, int y, int w, int h)
+    void drawRaisedRect(IGraphics* ctx, int x, int y, int w, int h)
     {
-        noStroke();
-        fill(fBaseColor);
-        rect(x,y,w,h);
-        drawFrame(x, y, w, h, GUIStyle::Raised);
+        ctx->noStroke();
+        ctx->fill(fBaseColor);
+        ctx->rect(x,y,w,h);
+        drawFrame(ctx, x, y, w, h, GUIStyle::Raised);
     }
 
 };

@@ -14,8 +14,6 @@
 #include <limits>
 #include <memory>
 
-#include "maths.hpp"
-
 // Usings
 using std::shared_ptr;
 using std::make_shared;
@@ -43,6 +41,7 @@ inline int random_int(int low, int high) {
 // Common Headers
 
 #include "vec3.h"
+//#include "grmath.h"
 #include "ray.h"
 
 

@@ -23,6 +23,7 @@
 #include "moving_sphere.h"
 #include "sphere.h"
 #include "texture.h"
+#include "guistyle.hpp"
 
 #include "p5.hpp"
 //#include "MonthTile.hpp"
@@ -49,6 +50,8 @@ hittable_list world;
 camera cam;
 
 //CalendarMonthTile mayTile(2020, 5, 8, 8);
+
+GUIStyle gs;
 
 ImageTexture createImageTexture(const char* filename)
 {
@@ -193,11 +196,13 @@ hittable_list cornell_box() {
 
     auto red = make_shared<lambertian>(make_shared<solid_color>(.65, .05, .05));
     auto white = make_shared<lambertian>(make_shared<solid_color>(.73, .73, .73));
-    auto green = make_shared<lambertian>(make_shared<solid_color>(.12, .45, .15));
+    //auto green = make_shared<lambertian>(make_shared<solid_color>(.12, .45, .15));
+    auto green = make_shared<dielectric>(1.25);
     auto light = make_shared<diffuse_light>(make_shared<solid_color>(7, 7, 7));
     auto b2dlogo = make_shared<ImageTexture>("blend2d_logo_flipped.png");
     auto b2dlogo_surface = make_shared<lambertian>(b2dlogo);
 
+    
     objects.add(make_shared<flip_face>(make_shared<yz_rect>(0, 555, 0, 555, 555, green)));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
 
@@ -526,6 +531,27 @@ void set(const BLImageData& info, int x, int y, const rtcolor& c)
     ((BLRgba32*)info.pixelData)[(y * info.size.w) + x] = BLRgba32(ri, gi, bi);
 }
 
+void textRaised(IGraphics *ctx, const char * txt, int x, int y, int w, int h)
+{
+    ctx->push();
+    ctx->translate(x, y);
+    gs.drawRaisedRect(ctx, 0, 0, w, h);
+    ctx->noStroke();
+    ctx->fill(0, 0, 0);
+    ctx->text(txt, 4, h-6);
+    ctx->pop();
+}
+
+void textSunken(IGraphics* ctx, const char* txt, int x, int y, int w, int h)
+{
+    ctx->push();
+    ctx->translate(x, y);
+    gs.drawSunkenRect(ctx, 0, 0, w, h);
+    ctx->noStroke();
+    ctx->fill(0, 0, 0);
+    ctx->text(txt, 4, h - 6);
+    ctx->pop();
+}
 
 void draw()
 {   
@@ -563,32 +589,32 @@ void draw()
     hudSurface->clear();
     hudSurface->noStroke();
     hudSurface->fill(Pixel(220, 220, 220, 180));
-    hudSurface->translate(2, (double)p5::height - 48-1);
-    hudSurface->rect(0, 0, (double)p5::width - 4, 46, 2, 2);
+    hudSurface->translate(2, (double)p5::height - 62-1);
+    hudSurface->rect(0, 0, (double)p5::width - 6, 60, 2, 2);
 
-    
+    hudSurface->translate(2, 2);
     hudSurface->fill(Pixel(0, 0, 0));
     // First row
-    hudSurface->text("F1 - Random", 0, 14);
-    hudSurface->text("F2 - Two Spheres", 120, 14);
-    hudSurface->text("F3 - Perlin Spheres", 240, 14);
-    hudSurface->text("F4 - Earth", 360, 14);
-    hudSurface->text("F5 - Simple Light", 480, 14);
+    textRaised(hudSurface, "F1 - Random", 0, 2, 116, 18);
+    textRaised(hudSurface, "F2 - Two Spheres", 120, 2, 116, 18);
+    textRaised(hudSurface, "F3 - Perlin Spheres", 240, 2, 116, 18);
+    textRaised(hudSurface, "F4 - Earth", 360, 2, 116, 18);
+    textRaised(hudSurface, "F5 - Simple Light", 480, 2, 116, 18);
 
     // Second row
-    hudSurface->text("F6 - Cornell Box", 0, 28);
-    hudSurface->text("F7 - Cornell Balls", 120, 28);
-    hudSurface->text("F8 - Cornell Smoke", 240, 28);
-    hudSurface->text("F9 - Cornell Final", 360, 28);
-    hudSurface->text("F10 - Final Scene", 480, 28);
+    textSunken(hudSurface, "F6 - Cornell Box", 0, 24, 116, 18);
+    textRaised(hudSurface, "F7 - Cornell Balls", 120, 24, 116, 18);
+    textRaised(hudSurface, "F8 - Cornell Smoke", 240, 24, 116, 18);
+    textRaised(hudSurface, "F9 - Cornell Final", 360, 24, 116, 18);
+    textRaised(hudSurface, "F10 - Final Scene", 480, 24, 116, 18);
+
 
     // Third Row - commands
-    hudSurface->text(" S - Save", 0, 40);
+    hudSurface->text(" S - Save", 0, 54);
     char buff[32];
     int buffLen = 32;
     sprintf_s(buff, buffLen, "+/-  Samples (%d)", samples_per_pixel);
-    hudSurface->text(buff, 120, 40);
-    hudSurface->text("+/-  Samples", 120, 40);
+    hudSurface->text(buff, 120, 54);
 
     hudSurface->pop();
 
