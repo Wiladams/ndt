@@ -1,45 +1,39 @@
 #include "p5.hpp"
 #include "imagesampler.h"
+#include "texture.h"
 
 using namespace p5;
 using namespace ndt;
 
-BLImage img;
+shared_ptr<ImageTexture> imgTexture = make_shared<ImageTexture>("breakfast_small.jpg");
+shared_ptr<checker_texture> checker = make_shared<checker_texture>(make_shared<solid_color>(1, 0, 0), make_shared<solid_color>(0, 1, 0));
 
-class ImageTinter : public virtual ISampler2D<BLRgba32>
+shared_ptr<Texture> tex = imgTexture;
+
+
+
+class Tinter : public Texture
 {
-	const ISampler2D<BLRgba32>& fSource;
-	BLRgba fTint;
+	shared_ptr<Texture> fSource;
+	vec3 fTint;
 
 public:
-	ImageTinter(const BLRgba& tint, ISampler2D<BLRgba32>& src)
+	Tinter(const vec3& tint, shared_ptr<Texture> src)
 		:fSource(src),
 		fTint(tint)
 	{
 	}
 
-	BLRgba32 operator()(double u, double v) const
+	virtual rtcolor value(double u, double v, const vec3& p) const
 	{
 		// get pixel from source
-		BLRgba32 srcC = fSource(u, v);
+		auto srcC = fSource->value(u, v, p);
 
 		// add tint
-		BLRgba32 c;
-		c.r = constrain(srcC.r + fTint.r, 0, 255);
-		c.g = constrain(srcC.g + fTint.g, 0, 255);
-		c.b = constrain(srcC.b + fTint.b, 0, 255);
-		c.a = srcC.a;
-
-		// return that value
-		return c;
+		return vec3(constrain((srcC.r + fTint.r), 0, 1.0f), constrain((srcC.g + fTint.g), 0, 1.0f), constrain((srcC.b + fTint.b), 0, 1.0f));
 	}
 };
 
-void preload()
-{
-	// Load the various images
-	img = loadImage("breakfast_small.jpg");
-}
 
 void setup()
 {
@@ -47,27 +41,27 @@ void setup()
 	// size of the window.
 	// the image sampler will make it work
 	//createCanvas(displayWidth, displayHeight);
-	createCanvas(320, 240);
+	createCanvas(640, 480);
 	noLoop();
 }
 
 void draw()
 {
 	// Chain two samplers together
-	ndt::ImageSampler srcSampler(&img);
-	ImageTinter effect({ 100,65,0 }, srcSampler);
+	shared_ptr<Tinter> effect = make_shared<Tinter>(vec3( 100.0f/255,65.0f/255,0), imgTexture);
 
 	int xskip = 1;
 	int yskip = 1;
 
 	loadPixels();
-
 	for (int y = 0; y < height; y += yskip) {
-		double v = (double)y / ((double)height-1);
+		double v = (float)(height-1-y) / ((float)height-1);
 		for (int x = 0; x < width; x += xskip) {
-			double u = (double)x / ((double)width-1);
+			double u = (float)x / ((float)width-1);
+			auto c = effect->value(u, v, {(float)x,(float)y,0});
 
-			set(x, y, effect(u, v));
+			set(x, y, BLRgba32(c.r*255, c.g*255,c.b*255));
 		}
 	}
+	updatePixels();
 }

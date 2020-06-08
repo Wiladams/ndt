@@ -104,7 +104,8 @@ hittable_list random_scene() {
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = rtcolor::random() * rtcolor::random();
+                    //auto albedo = rtcolor::random() * rtcolor::random();
+                    auto albedo = random_vec3() * random_vec3();
                     sphere_material = make_shared<lambertian>(make_shared<solid_color>(albedo));
                     auto center2 = center + vec3(0, random_double_range(0, .5), 0);
                     world.add(make_shared<moving_sphere>(
@@ -112,7 +113,8 @@ hittable_list random_scene() {
                 }
                 else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = rtcolor::random(0.5, 1);
+                    //auto albedo = rtcolor::random(0.5, 1);
+                    auto albedo = random_vec3_range(0.5, 1);
                     auto fuzz = random_double_range(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
@@ -373,7 +375,7 @@ hittable_list final_scene() {
     auto white = make_shared<lambertian>(make_shared<solid_color>(.73, .73, .73));
     int ns = 1000;
     for (int j = 0; j < ns; j++) {
-        boxes2.add(make_shared<sphere>(point3::random(0, 165), 10, white));
+        boxes2.add(make_shared<sphere>(random_vec3_range(0, 165), 10, white));
     }
 
     objects.add(make_shared<translate>(

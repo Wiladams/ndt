@@ -13,9 +13,10 @@
 
 #include <cmath>
 #include <iostream>
+//#include "maths.hpp"
 
 using std::sqrt;
-typedef double real_t;
+typedef float real_t;
 
 class vec3 {
 public:
@@ -70,38 +71,7 @@ public:
 
     vec3 unit() {
         double len = length();
-        //return *this / len;
         return vec3(x / len, y / len, z / len);
-    }
-
-    /*
-    void write_color(std::ostream& out, int samples_per_pixel) {
-        // Replace NaN component values with zero.
-        // See explanation in Ray Tracing: The Rest of Your Life.
-        if (e[0] != e[0]) e[0] = 0.0;
-        if (e[1] != e[1]) e[1] = 0.0;
-        if (e[2] != e[2]) e[2] = 0.0;
-
-        // Divide the color total by the number of samples and gamma-correct
-        // for a gamma value of 2.0.
-        auto scale = 1.0 / samples_per_pixel;
-        auto r = sqrt(scale * e[0]);
-        auto g = sqrt(scale * e[1]);
-        auto b = sqrt(scale * e[2]);
-
-        // Write the translated [0,255] value of each color component.
-        out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
-    }
-    */
-
-    inline static vec3 random() {
-        return vec3(random_double(), random_double(), random_double());
-    }
-
-    inline static vec3 random(real_t min, real_t max) {
-        return vec3(random_double_range(min, max), random_double_range(min, max), random_double_range(min, max));
     }
 
 
@@ -156,6 +126,30 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 }
 
 
+// Utility Functions
+inline double random_double() {
+    return rand() / (RAND_MAX + 1.0);
+}
+
+inline double random_double_range(double min, double max) {
+    // Returns a random real in [min,max).
+    return min + (max - min) * random_double();
+}
+
+inline int random_int(int low, int high) {
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_double_range(low, high + 1));
+}
+
+
+inline vec3 random_vec3() {
+    return vec3(random_double(), random_double(), random_double());
+}
+
+inline vec3 random_vec3_range(real_t min, real_t max) {
+    return vec3(random_double_range(min, max), random_double_range(min, max), random_double_range(min, max));
+}
+
 
 vec3 random_in_unit_disk() {
     while (true) {
@@ -174,7 +168,8 @@ vec3 random_unit_vector() {
 
 vec3 random_in_unit_sphere() {
     while (true) {
-        auto p = vec3::random(-1, 1);
+        //auto p = vec3::random(-1, 1);
+        auto p = random_vec3_range(-1, 1);
         if (p.lengthSquared() >= 1) continue;
         return p;
     }

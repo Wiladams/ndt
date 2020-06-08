@@ -38,6 +38,9 @@ public:
 
 class dielectric : public material {
 public:
+    double ref_idx;
+
+public:
     dielectric(double ri) : ref_idx(ri) {}
 
     virtual bool scatter(
@@ -68,8 +71,7 @@ public:
         return true;
     }
 
-public:
-    double ref_idx;
+
 };
 
 

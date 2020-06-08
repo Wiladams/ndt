@@ -11,16 +11,18 @@
 // along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
-#include "rtweekend.h"
 
 
+//#include "vec3.h"
+#include "grmath.h"
 
 class perlin {
 public:
     perlin() {
         ranvec = new vec3[point_count];
         for (int i = 0; i < point_count; ++i) {
-            ranvec[i] = vec3::random(-1, 1).unit();
+            //ranvec[i] = vec3::random(-1, 1).unit();
+            ranvec[i] = random_vec3_range(-1, 1).unit();
         }
 
         perm_x = perlin_generate_perm();

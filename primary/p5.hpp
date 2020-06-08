@@ -210,7 +210,7 @@ struct P5Vector {
     void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept;
     void polyline(const BLPoint* pts, size_t n) noexcept;
     void polygon(const BLPoint* pts, size_t n) noexcept;
-
+    void path(const BLPath& p) noexcept;
 
     void image(BLImage& img, int x, int y) noexcept;
     BLImage loadImage(const char* filename) noexcept;

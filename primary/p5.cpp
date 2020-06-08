@@ -408,6 +408,11 @@ namespace p5 {
         gAppSurface->polygon(pts, n);
     }
 
+    // Paths
+    void path(const BLPath& p) noexcept
+    {
+        gAppSurface->path(p);
+    }
 
     void image(BLImage& img, int x, int y) noexcept
     {

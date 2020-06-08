@@ -11,12 +11,13 @@
 // along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
-#include "rtweekend.h"
-
 #include "perlin.h"
 #include "blend2d.h"
 
 #include <iostream>
+
+using std::shared_ptr;
+using std::make_shared;
 
 
 class Texture {
@@ -48,6 +49,7 @@ public:
     checker_texture(shared_ptr<Texture> t0, shared_ptr<Texture> t1) : even(t0), odd(t1) {}
 
     virtual rtcolor value(double u, double v, const vec3& p) const {
+        //printf("%3.2f, %3.2f\n", u,v);
         auto sines = sin(10 * p.x) * sin(10 * p.y) * sin(10 * p.z);
         if (sines < 0)
             return odd->value(u, v, p);
@@ -152,12 +154,12 @@ public:
         if (i >= fWidth)  i = fWidth - 1;
         if (j >= fHeight) j = fHeight - 1;
 
-        const auto rtcolor_scale = 1.0 / 255.0;
+        const auto color_scale = 1.0 / 255.0;
         auto pixel = pixelData + j * fStride + i * bytes_per_pixel;
 
         // We need to turn pixel values [0..255] into
         // rtcolor components [0..1]
-        return rtcolor(rtcolor_scale * pixel[2], rtcolor_scale * pixel[1], rtcolor_scale * pixel[0]);
+        return rtcolor(color_scale * pixel[2], color_scale * pixel[1], color_scale * pixel[0]);
     }
 
 

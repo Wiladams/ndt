@@ -11,8 +11,8 @@
 // along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
-#include "vec3.h"
-//#include "grmath.h"
+//#include "vec3.h"
+#include "grmath.h"
 
 class ray
 {

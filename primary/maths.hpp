@@ -19,8 +19,7 @@
 #include "random.hpp"
 
 #include <stdlib.h>
-#include <math.h>
-
+#include <cmath>
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
@@ -121,6 +120,9 @@ inline double mag3(double a, double b, double c)
 {
     return sqrt(a*a + b*b + c*c);
 }
+
+
+
 #ifdef __cplusplus
 }
 #endif

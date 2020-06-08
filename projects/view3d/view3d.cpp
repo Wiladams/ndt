@@ -50,7 +50,7 @@ void loadModels()
 
 	models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new DiffuseShader()));
 	//models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
-	models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new FlatShader(BLRgba32(220, 190, 68))));
+	models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new DiffuseShader()));
 
 	model = models.at(0);
 }
@@ -150,15 +150,15 @@ void draw()
 	updatePixels();
 
 	// Draw whatever 2D stuff we want on top
-	mayTile.draw(gAppSurface);
-	juneTile.draw(gAppSurface);
+	//mayTile.draw(gAppSurface);
+	//juneTile.draw(gAppSurface);
 }
 
 void setup()
 {
 	createCanvas(800, 800);
-	layered();
-	setWindowPosition(48, displayHeight - height);
+	//layered();
+	//setWindowPosition(48, displayHeight - height);
 	D = new ThreeD(gAppSurface, width, height);
 	changePosition(viewAngle, viewRadius, viewHeight);
 

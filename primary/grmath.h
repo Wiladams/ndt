@@ -1,41 +1,20 @@
 #pragma once
 
-#include <DirectXMath.h>
-
-using namespace DirectX;
-
-using vec3 = XMFLOAT3;
-using point3 = XMFLOAT3;    // 3D point
-using rtcolor = XMFLOAT3;   // RGB Color
-
-//using vec3 = XMVECTORF32;      // general vector
-//using point3 = XMVECTORF32;    // 3D point
-//using rtcolor = XMVECTORF32;   // RGB Color
-
-
-
 /*
-#ifdef min
-#undef min
-#undef max
-#endif
-
-
 //
 //    grmath.h
 //
 //    This file contains the data types and math routines
-//    that are typically used in the creation of various 
+//    that are typically used in the creation of various
 //    kinds of graphics.
+*/
 
-//    The data structures are C++, and templatized where it 
-//    makes sense.
+#include <cmath>
+#include <cassert>
+#include <iostream>
 
 
-
-
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+using std::sqrt;
 
 
 // pre-define matrix type so vector routines can use them
@@ -53,7 +32,7 @@ template <size_t DIM, typename T>
 struct vec
 {
 private:
-    T fData[DIM];
+    T data[DIM];
 
 public:
     // default constructor, sets data values to 
@@ -61,7 +40,7 @@ public:
     vec() 
     {
         for (size_t i = 0; i < DIM; i++)
-            fData[i] = T();
+            data[i] = T();
     }
 
     // operator returning reference allows for 
@@ -70,7 +49,7 @@ public:
     T& operator[](const size_t i) 
     {
         assert(i < DIM);
-        return fData[i];
+        return data[i];
     }
 
     // operator returning value based on index
@@ -78,14 +57,14 @@ public:
     const T& operator[](const size_t i) const 
     {
         assert(i < DIM);
-        return data_[i];
+        return data[i];
     }
 
     const double lengthSquared() const
     {
         double res=0;
-        for (size_t i=0; i<DIMS; i++){
-            res += fData[i]*fData[i];
+        for (size_t i=0; i<DIM; i++){
+            res += data[i]* data[i];
         }
 
         return res;
@@ -170,6 +149,8 @@ struct vec<3, T>
     // Copy constructor
     //template <class U> vec<3, T>(const vec<3, U>& v);
 
+    //real_t operator[](int i) const { return e[i]; }
+    //real_t& operator[](int i) { return e[i]; }
     // setting value
     T& operator[](const size_t i)
     {
@@ -183,6 +164,13 @@ struct vec<3, T>
         assert(i < 3);
         return i <= 0 ? x : (1 == i ? y : z);
     }
+
+    // Negation
+    vec<3, T> operator-() const
+    { 
+        return vec<3, T>(-data[0], -data[1], -data[2]);
+    }
+
 
     vec<3, T>& operator +=(const vec<3, T>& rhs)
     {
@@ -240,24 +228,82 @@ struct vec<3, T>
         return res;
     }
 
-    double length_squared() const
+    double lengthSquared() const
     {
         return (x * x + y * y + z * z);
     }
 
     float length() const
     {
-        return std::sqrt(x * x + y * y + z * z);
+        return std::sqrt(lengthSquared());
     }
 
+    // Normalize the current vector in place
     vec<3, T>& normalize(T l = 1)
     {
-        *this = (*this) * (l / norm()); return *this;
+        *this = (*this) * (l / length()); 
+        return *this;
+    }
+
+    // Return the normalized version of the current vector
+    vec<3,T> unit() const 
+    {
+        vec<3, T> res(*this);
+        return res.normalize();
+        //double len = length();
+        //return vec3(x / len, y / len, z / len);
     }
 };
 
 
+using vec3 = vec<3, float>;
+using point3 = vec3;
+using rtcolor = vec3;
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& out, const vec<3,T>& v) {
+    return out << v.data[0] << ' ' << v.data[1] << ' ' << v.data[2];
+}
+
+// Simple arithmetic operators
+template <typename T>
+inline vec<3,T> operator*(const double t, const vec<3,T> & v) {
+    return vec<3,T>(t * v.data[0], t * v.data[1], t * v.data[2]);
+}
+
+template <typename T>
+inline vec<3, T> operator*(const vec<3, T>& v, const double t) 
+{
+    return vec<3, T>(t * v.data[0], t * v.data[1], t * v.data[2]);
+}
+
+template <typename T>
+inline vec<3,T> operator*(const vec<3, T>& u, const vec<3, T>& v) {
+    return vec3(u.data[0] * v.data[0], u.data[1] * v.data[1], u.data[2] * v.data[2]);
+}
+
+template <typename T>
+inline vec<3,T> operator/(const vec<3, T>& v, const double t) 
+{
+    return (1 / t) * v;
+}
+
+template <typename T>
+inline vec<3, T> operator +(const vec<3, T>& a, const vec<3, T>& b)
+{
+    vec<3,T> res(a);
+    return res += b;
+}
+
+template <typename T>
+inline vec<3, T> operator -(const vec<3, T>& a, const vec<3, T>& b)
+{
+    vec<3, T> res(a);
+    return res -= b;
+}
+
 // Math constants
+/*
 static const float  PI32 = 3.14159265359f;
 
 static const double QUARTER_PI = 0.7853982;
@@ -303,15 +349,86 @@ static const double TAU = 6.28318530717958647693;
     tex3D       transpose       trunc
 
 */
-/*
+
+
 template <typename T>
-inline T clamp(T x, T minValue, T maxValue) noexcept
+inline T Max(const T a, const T b)
 {
-    return MIN(MAX(x,minValue), maxValue);
+    return a < b ? b : a;
 }
 
 template <typename T>
-inline double degrees(T x) { return x * 57.29577951308232; }
+inline T Min(const T a, const T b)
+{
+    return a > b ? b : a;
+}
+
+
+template <typename T>
+inline T Abs(const T v)
+{
+    return v < 0 ? -v : v;
+}
+
+template <typename T>
+inline T Add(const T a, T b)
+{
+    return a + b;
+}
+
+template <typename T>
+inline T ACos(const T a)
+{
+    return (T)acos(a);
+}
+
+template <typename T>
+inline T ASin(const T a)
+{
+    return (T)asin(a);
+}
+
+template <typename T>
+inline T Ceil(const T a)
+{
+    return (T)ceil(a);
+}
+
+template <typename T>
+inline T Clamp(T x, T minValue, T maxValue) noexcept
+{
+    return Min(Max(x, minValue), maxValue);
+}
+
+template <typename T>
+inline T Cos(const T a)
+{
+    return (T)cos(a);
+}
+
+template <typename T>
+inline T Cosh(const T a)
+{
+    return (T)cosh(a);
+}
+
+template <typename T>
+inline T Degrees(T a) { return a * 57.29577951308232; }
+
+template <typename T>
+inline T Divide(const T a, const T b)
+{
+    return (T)a / b;
+}
+
+// Exp
+
+template <typename T>
+inline T Floor(const T a)
+{
+    return floor(a);
+}
+
 
 // This lerp is the more traditional way of doing it 
 // for graphics routines.  No constraint/clamp
@@ -321,11 +438,137 @@ template <typename T>
 inline T lerp(const T startValue, const T endValue, const float t)
 {
     //return (1 - t) * startValue + t * endValue;
-    return startValue + t*(endValue-startValue);
+    return startValue + t * (endValue - startValue);
 }
 
-int mul(const int a, const int b) {return a*b;}
-float mul(const float a, const float b) {return a*b;}
+
+template <typename T>
+inline T Multiply(const T a, const T b)
+{
+    return (T)(a * b);
+}
+
+template <typename T>
+inline T Pow(const T a, const T b)
+{
+    return pow(a, b);
+}
+
+template <typename T>
+inline double Radians(T a) { return a * 0.017453292519943295; }
+
+template <typename T>
+inline int Sign(T val) { return ((0 < val) - (val < 0)); }
+
+template <typename T>
+inline T SmoothStep(const T mn, const T mx)
+{
+
+}
+
+template <typename T>
+inline T Subtract(const T a, const T b)
+{
+    return a - b;
+}
+
+template <typename T>
+inline T Tan(const T a)
+{
+    return (T)tan(a);
+}
+
+template <typename T>
+inline T Tanh(const T a)
+{
+    return (T)tanh(a);
+}
+
+
+
+inline double dot(const vec3& u, const vec3& v) {
+    return u.data[0] * v.data[0]
+        + u.data[1] * v.data[1]
+        + u.data[2] * v.data[2];
+}
+
+// Vector operations
+inline vec3 cross(const vec3& u, const vec3& v) {
+    return vec3(u.data[1] * v.data[2] - u.data[2] * v.data[1],
+        u.data[2] * v.data[0] - u.data[0] * v.data[2],
+        u.data[0] * v.data[1] - u.data[1] * v.data[0]);
+}
+
+// Utility Functions
+inline double random_double() {
+    return rand() / (RAND_MAX + 1.0);
+}
+
+inline double random_double_range(double min, double max) {
+    // Returns a random real in [min,max).
+    return min + (max - min) * random_double();
+}
+
+inline int random_int(int low, int high) {
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_double_range(low, high + 1));
+}
+
+inline vec3 random_vec3() {
+    return vec3(random_double(), random_double(), random_double());
+}
+
+inline vec3 random_vec3_range(float min, float max) {
+    return vec3(random_double_range(min, max), random_double_range(min, max), random_double_range(min, max));
+}
+
+
+vec3 random_in_unit_disk() {
+    while (true) {
+        auto p = vec3(random_double_range(-1, 1), random_double_range(-1, 1), 0);
+        if (p.lengthSquared() >= 1) continue;
+        return p;
+    }
+}
+
+vec3 random_unit_vector() {
+    auto a = random_double_range(0, 2 * PI);
+    auto z = random_double_range(-1, 1);
+    auto r = sqrt(1 - z * z);
+    return vec3(r * cos(a), r * sin(a), z);
+}
+
+vec3 random_in_unit_sphere() {
+    while (true) {
+        //auto p = vec3::random(-1, 1);
+        auto p = random_vec3_range(-1, 1);
+        if (p.lengthSquared() >= 1) continue;
+        return p;
+    }
+}
+
+vec3 random_in_hemisphere(const vec3& normal) {
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2 * dot(v, n) * n;
+}
+
+vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    auto cos_theta = fmin(dot(-uv, n), 1.0);
+    vec3 r_out_parallel = etai_over_etat * (uv + cos_theta * n);
+    vec3 r_out_perp = -sqrt(1.0 - r_out_parallel.lengthSquared()) * n;
+    return r_out_parallel + r_out_perp;
+}
+
+
+/*
+
 
 template <typename T>
 vec<3,T> mul(const float a, const vec<3,T> &v)
@@ -333,10 +576,5 @@ vec<3,T> mul(const float a, const vec<3,T> &v)
     vec<3,T> res(v);
     return res *= a;
 }
-
-template <typename T>
-inline double radians(T x) { return x * 0.017453292519943295; }
-
-inline int sign(double val) { return ((0 < val) - (val < 0)); }
 
 */

@@ -17,31 +17,16 @@
 // Usings
 using std::shared_ptr;
 using std::make_shared;
-using std::sqrt;
+
 
 // Constants
 const double INFD = std::numeric_limits<double>::infinity();
 
 
-// Utility Functions
-inline double random_double() {
-    return rand() / (RAND_MAX + 1.0);
-}
-
-inline double random_double_range(double min, double max) {
-    // Returns a random real in [min,max).
-    return min + (max - min) * random_double();
-}
-
-inline int random_int(int low, int high) {
-    // Returns a random integer in [min,max].
-    return static_cast<int>(random_double_range(low, high + 1));
-}
-
 // Common Headers
 
-#include "vec3.h"
-//#include "grmath.h"
+//#include "vec3.h"
+#include "grmath.h"
 #include "ray.h"
 
 

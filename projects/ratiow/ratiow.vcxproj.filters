@@ -80,5 +80,8 @@
     <ClInclude Include="..\..\primary\grmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tabview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

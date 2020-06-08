@@ -11,6 +11,8 @@
 // along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 #include <algorithm>
+#include <iostream>
+
 #include "rtweekend.h"
 
 #include "hittable.h"
@@ -23,7 +25,7 @@ inline bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable>
     if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
         std::cerr << "No bounding box in bvh_node constructor.\n";
 
-    return box_a.min().e[axis] < box_b.min().e[axis];
+    return box_a.min().data[axis] < box_b.min().data[axis];
 }
 
 

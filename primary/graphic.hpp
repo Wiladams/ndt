@@ -22,36 +22,35 @@ public:
 	Frame - The location, within the bounds of the parent frame
 	
 */
-class IGraphic : public virtual IDrawable 
+class IGraphic : public IDrawable 
 {
 protected:
 	virtual ~IGraphic() {};
 
 public:
-	virtual BLRectI getBounds() const = 0;
+	virtual BLRect getFrame() const = 0;
 };
 
-class Graphic : public virtual IGraphic
+class Graphic : public IGraphic
 {
-	BLRectI fBounds{};
-	BLRectI fFrame{};
+	BLRect fBounds{};
+	BLRect fFrame{};
 	std::vector<IGraphic*> fChildren;
 
 protected:
-	void setBounds(const BLRectI& bounds) { fBounds = bounds; }
+	void setFrame(const BLRect& frame) { fFrame = frame; }
 
 
 public:
 	Graphic()
 	{}
 
-	Graphic(const BLRectI& bounds) 
-		:fBounds(bounds) ,
-		fFrame(bounds)
+	Graphic(const BLRect& frame) 
+		:fFrame(frame)
 	{}
 
 
-	BLRectI getBounds() const { return fBounds; }
+	BLRect getFrame() const { return fFrame; }
 	
 	void addChild(IGraphic* child)
 	{
@@ -64,9 +63,36 @@ public:
 		fFrame.y = y;
 	}
 
-	virtual void draw(IGraphics* surf)
+	virtual void drawBackground(IGraphics* ctx)
 	{
-		// Do nothing in particular
+		// here for sub-classes
+	}
+
+	virtual void drawChildren(IGraphics* ctx)
+	{
+		for (size_t i = 0; i < fChildren.size(); i++)
+		{
+			fChildren[i]->draw(ctx);
+		}
+	}
+
+	virtual void drawSelf(IGraphics* ctx)
+	{
+		// this one sub-classes should implement
+		// if they like
+	}
+
+	virtual void drawForeground(IGraphics* ctx)
+	{
+		// do whatever for the foreground
+	}
+
+	virtual void draw(IGraphics* ctx)
+	{
+		drawBackground(ctx);
+		drawChildren(ctx);
+		drawSelf(ctx);
+		drawForeground(ctx);
 	}
 
 };
