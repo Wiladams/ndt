@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
     <ClInclude Include="appconfig.hpp" />
     <ClInclude Include="apphost.h" />
     <ClInclude Include="arcball.h" />

@@ -1,5 +1,5 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
+#pragma once
+
 //==============================================================================================
 // Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
 //
@@ -26,7 +26,7 @@ public:
     void clear() { objects.clear(); }
     void add(shared_ptr<hittable> object) { objects.push_back(object); }
 
-    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec) const;
+    virtual bool hit(const Ray& r, double tmin, double tmax, hit_record& rec) const;
     virtual bool bounding_box(double t0, double t1, aabb& output_box) const;
 
 public:
@@ -34,7 +34,7 @@ public:
 };
 
 
-bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool hittable_list::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
     hit_record temp_rec;
     auto hit_anything = false;
     auto closest_so_far = t_max;
@@ -59,12 +59,10 @@ bool hittable_list::bounding_box(double t0, double t1, aabb& output_box) const {
 
     for (const auto& object : objects) {
         if (!object->bounding_box(t0, t1, temp_box)) return false;
-        output_box = first_box ? temp_box : surrounding_box(output_box, temp_box);
+        output_box = first_box ? temp_box : SurroundingBox(output_box, temp_box);
         first_box = false;
     }
 
     return true;
 }
 
-
-#endif

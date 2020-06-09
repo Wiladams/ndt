@@ -31,7 +31,7 @@ public:
         phase_function = make_shared<isotropic>(a);
     }
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const;
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const;
 
     virtual bool bounding_box(double t0, double t1, aabb& output_box) const {
         return boundary->bounding_box(t0, t1, output_box);
@@ -41,7 +41,7 @@ public:
 };
 
 
-bool constant_medium::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool constant_medium::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
     // Print occasional samples when debugging. To enable, set enableDebug true.
     const bool enableDebug = false;
     const bool debugging = enableDebug && random_double() < 0.00001;

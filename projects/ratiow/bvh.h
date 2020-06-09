@@ -25,7 +25,7 @@ inline bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable>
     if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
         std::cerr << "No bounding box in bvh_node constructor.\n";
 
-    return box_a.min().data[axis] < box_b.min().data[axis];
+    return box_a.Min().data[axis] < box_b.Min().data[axis];
 }
 
 
@@ -94,11 +94,11 @@ public:
             )
             std::cerr << "No bounding box in bvh_node constructor.\n";
 
-        box = surrounding_box(box_left, box_right);
+        box = SurroundingBox(box_left, box_right);
     }
 
     //virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const;
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const 
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const
     {
         if (!box.hit(r, t_min, t_max))
             return false;

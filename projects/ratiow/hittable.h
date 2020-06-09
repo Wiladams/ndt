@@ -17,13 +17,7 @@
 
 class material;
 
-void get_sphere_uv(const point3& p, double& u, double& v) 
-{
-    auto phi = atan2(p.z, p.x);
-    auto theta = asin(p.y);
-    u = 1 - (phi + PI) / (2 * PI);
-    v = (theta + PI / 2) / PI;
-}
+
 
 struct hit_record {
     point3 p;
@@ -35,7 +29,7 @@ struct hit_record {
 
     bool front_face;
 
-    inline void set_face_normal(const ray& r, const vec3& outward_normal) {
+    inline void set_face_normal(const Ray& r, const vec3& outward_normal) {
         front_face = dot(r.direction(), outward_normal) < 0;
         
         normal = front_face ? outward_normal : -outward_normal;
@@ -45,7 +39,7 @@ struct hit_record {
 
 class hittable {
 public:
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const = 0;
     virtual bool bounding_box(double t0, double t1, aabb& output_box) const = 0;
 
 };
@@ -54,7 +48,7 @@ class flip_face : public hittable {
 public:
     flip_face(shared_ptr<hittable> p) : ptr(p) {}
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
         if (!ptr->hit(r, t_min, t_max, rec))
             return false;
 
@@ -76,7 +70,7 @@ public:
     translate(shared_ptr<hittable> p, const vec3& displacement)
         : ptr(p), offset(displacement) {}
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const;
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const;
     virtual bool bounding_box(double t0, double t1, aabb& output_box) const;
 
 public:
@@ -84,8 +78,8 @@ public:
     vec3 offset;
 };
 
-bool translate::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
-    ray moved_r(r.origin() - offset, r.direction(), r.time());
+bool translate::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
+    Ray moved_r(r.origin() - offset, r.direction(), r.time());
     if (!ptr->hit(moved_r, t_min, t_max, rec))
         return false;
 
@@ -101,8 +95,8 @@ bool translate::bounding_box(double t0, double t1, aabb& output_box) const {
         return false;
 
     output_box = aabb(
-        output_box.min() + offset,
-        output_box.max() + offset);
+        output_box.Min() + offset,
+        output_box.Max() + offset);
 
     return true;
 }
@@ -112,7 +106,7 @@ class rotate_y : public hittable {
 public:
     rotate_y(shared_ptr<hittable> p, double angle);
 
-    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const;
+    virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const;
     virtual bool bounding_box(double t0, double t1, aabb& output_box) const {
         output_box = bbox;
         return hasbox;
@@ -139,9 +133,9 @@ rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p) {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 2; k++) {
-                auto x = i * bbox.max().x + (1 - i) * bbox.min().x;
-                auto y = j * bbox.max().y + (1 - j) * bbox.min().y;
-                auto z = k * bbox.max().z + (1 - k) * bbox.min().z;
+                auto x = i * bbox.Max().x + (1 - i) * bbox.Min().x;
+                auto y = j * bbox.Max().y + (1 - j) * bbox.Min().y;
+                auto z = k * bbox.Max().z + (1 - k) * bbox.Min().z;
 
                 auto newx = cos_theta * x + sin_theta * z;
                 auto newz = -sin_theta * x + cos_theta * z;
@@ -160,7 +154,7 @@ rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p) {
 }
 
 
-bool rotate_y::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+bool rotate_y::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
     point3 origin = r.origin();
     vec3 direction = r.direction();
 
@@ -170,7 +164,7 @@ bool rotate_y::hit(const ray& r, double t_min, double t_max, hit_record& rec) co
     direction[0] = cos_theta * r.direction()[0] - sin_theta * r.direction()[2];
     direction[2] = sin_theta * r.direction()[0] + cos_theta * r.direction()[2];
 
-    ray rotated_r(origin, direction, r.time());
+    Ray rotated_r(origin, direction, r.time());
 
     if (!ptr->hit(rotated_r, t_min, t_max, rec))
         return false;

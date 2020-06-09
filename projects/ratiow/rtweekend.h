@@ -24,10 +24,5 @@ const double INFD = std::numeric_limits<double>::infinity();
 
 
 // Common Headers
-
-//#include "vec3.h"
 #include "grmath.h"
 #include "ray.h"
-
-
-

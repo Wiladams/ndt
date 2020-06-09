@@ -1,16 +1,5 @@
 #pragma once
 
-//==============================================================================================
-// Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
-//
-// To the extent possible under law, the author(s) have dedicated all copyright and related and
-// neighboring rights to this software to the public domain worldwide. This software is
-// distributed without any warranty.
-//
-// You should have received a copy (see file COPYING.txt) of the CC0 Public Domain Dedication
-// along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
-//==============================================================================================
-
 #include "perlin.h"
 #include "blend2d.h"
 
@@ -22,24 +11,24 @@ using std::make_shared;
 
 class Texture {
 public:
-    virtual rtcolor value(double u, double v, const vec3& p) const = 0;
+    virtual vec3 value(double u, double v, const vec3& p) const = 0;
 };
 
 
-class solid_color : public Texture {
-public:
-    solid_color() {}
-    solid_color(rtcolor c) : color_value(c) {}
+class SolidColorTexture : public Texture {
+private:
+    vec3 fColor; 
 
-    solid_color(double red, double green, double blue)
-        : solid_color(rtcolor(red, green, blue)) {}
+public:
+    SolidColorTexture() {}
+    SolidColorTexture(vec3 c) : fColor(c) {}
+
+    SolidColorTexture(double red, double green, double blue)
+        : SolidColorTexture(vec3(red, green, blue)) {}
 
     virtual rtcolor value(double u, double v, const vec3& p) const {
-        return color_value;
+        return fColor;
     }
-
-private:
-    rtcolor color_value;
 };
 
 
@@ -65,7 +54,11 @@ public:
 
 class noise_texture : public Texture {
 public:
-    noise_texture() {}
+    perlin noise;
+    double scale; 
+
+public:
+    noise_texture() :scale(0) {}
     noise_texture(double sc) : scale(sc) {}
 
     virtual rtcolor value(double u, double v, const vec3& p) const {
@@ -73,10 +66,6 @@ public:
         // return rtcolor(1,1,1)*noise.turb(scale * p);
         return rtcolor(1, 1, 1) * 0.5 * (1 + sin(scale * p.z + 10 * noise.turb(p)));
     }
-
-public:
-    perlin noise;
-    double scale;
 };
 
 

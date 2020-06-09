@@ -11,12 +11,8 @@
 // along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
-#include "rtweekend.h"
+#include "grmath.h"
 
-#ifdef min
-#undef min
-#undef max
-#endif
 
 class aabb {
 public:
@@ -31,11 +27,11 @@ public:
         _max = b; 
     }
 
-    point3 min() const { return _min; }
-    point3 max() const { return _max; }
+    point3 Min() const { return _min; }
+    point3 Max() const { return _max; }
 
     // Determine whether a ray hits anywhere in the box
-    bool hit(const ray& r, double tmin, double tmax) const {
+    bool hit(const Ray& r, double tmin, double tmax) const {
         for (int a = 0; a < 3; a++) {
             auto t0 = fmin((_min[a] - r.origin()[a]) / r.direction()[a],
                 (_max[a] - r.origin()[a]) / r.direction()[a]);
@@ -76,14 +72,15 @@ public:
 
 };
 
-aabb surrounding_box(aabb box0, aabb box1) {
-    vec3 small(fmin(box0.min().x, box1.min().x),
-        fmin(box0.min().y, box1.min().y),
-        fmin(box0.min().z, box1.min().z));
+// Create an AABB that is the union of the two specified boxes
+aabb SurroundingBox(aabb box0, aabb box1) {
+    vec3 small(fmin(box0.Min().x, box1.Min().x),
+        fmin(box0.Min().y, box1.Min().y),
+        fmin(box0.Min().z, box1.Min().z));
 
-    vec3 big(fmax(box0.max().x, box1.max().x),
-        fmax(box0.max().y, box1.max().y),
-        fmax(box0.max().z, box1.max().z));
+    vec3 big(fmax(box0.Max().x, box1.Max().x),
+        fmax(box0.Max().y, box1.Max().y),
+        fmax(box0.Max().z, box1.Max().z));
 
     return aabb(small, big);
 }

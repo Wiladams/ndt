@@ -146,10 +146,11 @@
     <ClCompile Include="ratiow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\aabb.h" />
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\grmath.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
-    <ClInclude Include="aabb.h" />
+    <ClInclude Include="..\..\primary\ray.h" />
     <ClInclude Include="aarect.h" />
     <ClInclude Include="box.h" />
     <ClInclude Include="bvh.h" />
@@ -160,11 +161,10 @@
     <ClInclude Include="material.h" />
     <ClInclude Include="moving_sphere.h" />
     <ClInclude Include="perlin.h" />
-    <ClInclude Include="ray.h" />
+    <ClInclude Include="raytracehud.h" />
+    <ClInclude Include="raytracer.h" />
     <ClInclude Include="rtweekend.h" />
     <ClInclude Include="sphere.h" />
-    <ClInclude Include="tabview.h" />
-    <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

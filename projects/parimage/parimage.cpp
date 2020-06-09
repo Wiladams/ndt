@@ -48,7 +48,9 @@ void setup()
 void draw()
 {
 	// Chain two samplers together
-	shared_ptr<Tinter> effect = make_shared<Tinter>(vec3( 100.0f/255,65.0f/255,0), imgTexture);
+	//shared_ptr<Tinter> effect = make_shared<Tinter>(vec3( 100.0f/255,65.0f/255,0), imgTexture);
+	shared_ptr<Tinter> effect = make_shared<Tinter>(vec3(.41f, .31f, .19f), imgTexture);
+	//shared_ptr<Tinter> effect = make_shared<Tinter>(vec3(100.0f / 255, 65.0f / 255, 0), checker);
 
 	int xskip = 1;
 	int yskip = 1;
@@ -58,7 +60,8 @@ void draw()
 		double v = (float)(height-1-y) / ((float)height-1);
 		for (int x = 0; x < width; x += xskip) {
 			double u = (float)x / ((float)width-1);
-			auto c = effect->value(u, v, {(float)x,(float)y,0});
+			auto c = effect->value(u, v, {float(x%(width/8)),float(y%(height/8)),1.0f});
+			//auto c = checker->value(u, v, { float(x % (width / 8)),float(y % (height / 8)),1.0f });
 
 			set(x, y, BLRgba32(c.r*255, c.g*255,c.b*255));
 		}
