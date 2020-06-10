@@ -1,5 +1,7 @@
 #include "p5.hpp"
 #include "graphic.hpp"
+#include "tabbedview.h"
+
 
 using namespace p5;
 
@@ -150,61 +152,23 @@ void shape11()
 	endShape(SHAPEEND::CLOSE);
 }
 
-class TabbedView : public Graphic {
-	int fTabHeight;
-	int fTabOffset;
-	int fTabLength;
-	int fTabRadius;
-	BLRect fFrame;
-	BLPath fPath;
 
-public:
-	TabbedView(const BLRect &frame, int tabHeight, int tabOffset, int tabLength, int tabRadius)
-		: fFrame(frame),
-		fTabHeight(tabHeight),
-		fTabOffset(tabOffset),
-		fTabLength(tabLength),
-		fTabRadius(tabRadius)
-	{
-		fPath.moveTo(fFrame.x, fFrame.y+tabHeight);
-		fPath.lineTo(fFrame.x+tabOffset, tabHeight);
-		fPath.cubicTo(fFrame.x + tabOffset + tabRadius, tabHeight, fFrame.x + tabOffset + tabRadius, 0, fFrame.x + tabOffset + tabRadius + tabRadius, 0);
-		fPath.lineTo(fFrame.x + tabOffset + tabRadius * 2 + tabLength, 0);
-		fPath.cubicTo(fFrame.x + tabOffset + tabRadius * 2 + tabLength + tabRadius, 0, fFrame.x + tabOffset + tabRadius * 2 + tabLength + tabRadius, tabHeight, fFrame.x + tabOffset + tabRadius * 2 + tabLength + tabRadius + tabRadius, tabHeight);
-		fPath.lineTo(fFrame.x+fFrame.w, tabHeight);
-		fPath.lineTo(fFrame.x + fFrame.w, tabHeight + fFrame.h - tabHeight);
-		fPath.lineTo(fFrame.x, tabHeight + fFrame.h - tabHeight);
-		fPath.close();
-	}
-
-	void drawBackground(IGraphics* ctx)
-	{
-		ctx->path(fPath);
-	}
-};
 
 void shape12()
 {
 	// https://flatuicolors.com/palette/us
-	TabbedView tview1(BLRect(8, 0, width - 16, 200), 24, 16, 96, 4);
-	TabbedView tview2(BLRect(8, 0, width-16, 200), 24, 48, 96, 10);
-	TabbedView tview3(BLRect(8, 0, width - 16, 200), 24, 120, 96, 10);
-	TabbedView tview4(BLRect(8, 0, width - 16, 200), 24, 210, 96, 10);
+	TabbedView tview1(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195));
+	TabbedView tview2(BLRect(8, 0, (double)width-16, 300), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117));
+	TabbedView tview3(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148));
+	TabbedView tview4(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227));
 
-	stroke(0);
-	strokeWeight(1.0);
-	fill(178, 190, 195);
+
+
 	tview1.draw(gAppSurface);
-
-	fill(255, 118, 117);
 	tview2.draw(gAppSurface);
-
-	fill(0, 184, 148);
 	tview3.draw(gAppSurface);
-
-	stroke(0);
-	fill(9, 132, 227);
 	tview4.draw(gAppSurface);
+
 }
 
 void draw()
