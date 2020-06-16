@@ -5,6 +5,11 @@
 
 using namespace p5;
 
+// A set of tabs
+TabViewSet tabSet;
+
+
+
 void shape1()
 {
 	stroke(0);
@@ -152,23 +157,12 @@ void shape11()
 	endShape(SHAPEEND::CLOSE);
 }
 
-
-
+// For the color schemes
+// https://flatuicolors.com/palette/us
+// 
 void shape12()
 {
-	// https://flatuicolors.com/palette/us
-	TabbedView tview1(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195));
-	TabbedView tview2(BLRect(8, 0, (double)width-16, 300), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117));
-	TabbedView tview3(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148));
-	TabbedView tview4(BLRect(8, 0, (double)width - 16, 300), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227));
-
-
-
-	tview1.draw(gAppSurface);
-	tview2.draw(gAppSurface);
-	tview3.draw(gAppSurface);
-	tview4.draw(gAppSurface);
-
+	tabSet.draw(gAppSurface);
 }
 
 void draw()
@@ -233,4 +227,10 @@ void draw()
 void setup()
 {
 	createCanvas(800, 600);
+
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
+
 }

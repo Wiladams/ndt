@@ -167,8 +167,8 @@ void forceRedraw(void* param, int64_t tickCount)
         }
 
         gAppSurface->flush();
-        LayeredWindowInfo lw(gAppSurface->getWidth(), gAppSurface->getHeight());
-        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
+        LayeredWindowInfo lw(canvasWidth, canvasHeight);
+        lw.display(gAppWindow->getHandle(), ((Surface *)gAppSurface)->getDC());
     }
 }
 
@@ -516,12 +516,12 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         
     int xDest = 0;
     int yDest = 0;
-    int DestWidth = gAppSurface->getWidth();
-    int DestHeight = gAppSurface->getHeight();
+    int DestWidth = canvasWidth;
+    int DestHeight = canvasHeight;
     int xSrc = 0;
     int ySrc = 0;
-    int SrcWidth = gAppSurface->getWidth();
-    int SrcHeight = gAppSurface->getHeight();
+    int SrcWidth = canvasWidth;
+    int SrcHeight = canvasHeight;
 
     BITMAPINFO info = gAppSurface->getBitmapInfo();
     
@@ -558,22 +558,13 @@ void setupHandlers()
     gTouchHandler = HandleTouchEvent;
     gPaintHandler = HandlePaintEvent;
 
-    // Get the general app routines
-    gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
-    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
-    gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
-    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
-    gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
-    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
-
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
-    // the one that's inbuilt.
+    // the one that are inbuilt.
     WinMSGObserver handler = (WinMSGObserver)GetProcAddress(hInst, "onPaint");
     if (handler != nullptr) {
-            gPaintHandler = handler;
+        gPaintHandler = handler;
     }
-
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "keyboardHandler");
     if (handler != nullptr) {
@@ -594,6 +585,16 @@ void setupHandlers()
     if (handler != nullptr) {
         gTouchHandler = handler;
     }
+
+    // Get the general app routines
+    gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
+    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+    gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
+    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
+    gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
+    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
+
+
 
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 

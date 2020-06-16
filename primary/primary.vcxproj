@@ -160,6 +160,7 @@
     <ClInclude Include="functor.hpp" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="GMesh.h" />
+    <ClInclude Include="gpath.h" />
     <ClInclude Include="graphic.hpp" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GraphicsDecoder.hpp" />

@@ -106,7 +106,7 @@ namespace stl {
 
 			tok = nextToken(ls);		// normal
 
-			Vec3f n;
+			vec3f n;
 			tok = nextToken(ls);		// f1
 			n[0] = tok.toFloat();
 			tok = nextToken(ls);		// f2
@@ -117,11 +117,11 @@ namespace stl {
 			// Add the normal to the mesh
 			size_t nOffset = mesh->addNormal(n)-1;
 
-			Vec3i fNorms;
+			vec3i fNorms;
 			fNorms[0] = nOffset;
 			fNorms[1] = nOffset;
 			fNorms[2] = nOffset;
-			Vec3i fVerts;
+			vec3i fVerts;
 			
 			bs.readLine(buff, buffLen);		// outer loop
 			//printf("Outer Loop: %s\n", buff);
@@ -132,7 +132,7 @@ namespace stl {
 				BinStream ls(buff, strlen(buff));
 				Token tok = nextToken(ls);		// 'vertex'
 				
-				Vec3f vert;
+				vec3f vert;
 				tok = nextToken(ls);
 				vert.x = tok.toFloat();
 				tok = nextToken(ls);
@@ -168,7 +168,7 @@ namespace stl {
 		{
 			// for each triangle
 			// Face normal
-			Vec3f fn;
+			vec3f fn;
 			fn.x = bs.readFloat();
 			fn.y = bs.readFloat();
 			fn.z = bs.readFloat();
@@ -177,15 +177,15 @@ namespace stl {
 			size_t nOffset = mesh->addNormal(fn) - 1;
 			//printf("NORMAL(%d): %f, %f, %f\n", nOffset, fn.x, fn.y, fn.z);
 
-			Vec3i fNorms;
+			vec3i fNorms;
 			fNorms[0] = nOffset;
 			fNorms[1] = nOffset;
 			fNorms[2] = nOffset;
 
-			Vec3i fVerts;
+			vec3i fVerts;
 			// read vertices
 			for (size_t n = 0; n < 3; n++) {
-				Vec3f v;
+				vec3f v;
 				v.x = bs.readFloat();
 				v.y = bs.readFloat();
 				v.z = bs.readFloat();

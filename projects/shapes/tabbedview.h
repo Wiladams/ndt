@@ -1,63 +1,13 @@
 #pragma once
 
-#include "graphic.hpp"
 #include "blend2d.h"
+#include "graphic.hpp"
+#include "gpath.h"
+
 #include <string>
 
-class GPath {
-	BLPath fPath;
-	BLPoint fLastPoint;
 
-	BLPoint getLastVertex()
-	{
-		BLPoint vtxOut;
-		BLResult bResult = fPath.getLastVertex(&vtxOut);
-		return vtxOut;
-	}
 
-public:
-	operator BLPath &() { return fPath; }
-
-	void close()
-	{
-		fPath.close();
-	}
-
-	void cubicTo(double x1, double y1, double x2, double y2, double x3, double y3)
-	{
-		fPath.cubicTo(x1, y1, x2, y2, x3, y3);
-		fLastPoint = { x3,y3 };
-	}
-	
-	void cubicBy(double x1, double y1, double x2, double y2, double x3, double y3)
-	{
-		cubicTo(fLastPoint.x + x1, fLastPoint.y + y1,
-			fLastPoint.x + x1 + x2, fLastPoint.y + y1 + y2,
-			fLastPoint.x + x1 + x2 + x3, fLastPoint.y + y1 + y2 + y3);
-	}
-
-	void lineTo(double x, double y)
-	{
-		fPath.lineTo(x, y);
-		fLastPoint = { x,y };
-	}
-
-	void lineBy(double x, double y)
-	{
-		lineTo(fLastPoint.x + x, fLastPoint.y + y);
-	}
-
-	void moveTo(double x, double y)
-	{
-		fPath.moveTo(x, y);
-		fLastPoint = { x,y };
-	}
-
-	void moveBy(double x, double y)
-	{
-		moveTo(fLastPoint.x + x, fLastPoint.y + y);
-	}
-};
 
 class TabbedView : public Graphic {
 
@@ -65,22 +15,25 @@ class TabbedView : public Graphic {
 	
 	// Content Area details
 	GPath fWholePath;
-	BLRgba32 fBackgroundColor = { 255, 234, 167 };
+	BLRgba32 fBackgroundColor;
 	BLRect fContentArea;
 
 	// Tab details
 	BLRoundRect fTabParam;
 	GPath fTabPath;
-	BLRgba32 fTabColor = { 255,255,255 };
+	BLRgba32 fTabColor;
 	BLRect fTabContentArea;
 	std::string fTabTitle;
 
+	static const int ContentMargin=4;
+
 public:
-	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = {255,255,255})
+	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = {255,255,255}, const Pixel& bColor = {255, 234, 167})
 		: fFrame(frame),
 		fTabParam(tParam),
 		fTabColor(tColor),
-		fTabTitle(title)
+		fTabTitle(title),
+		fBackgroundColor(bColor)
 	{
 		fTabPath.moveTo(fFrame.x+fTabParam.x, fFrame.y + fTabParam.h);
 		fTabPath.cubicBy(fTabParam.rx, 0, 0, -fTabParam.h, fTabParam.rx, 0);
@@ -98,7 +51,7 @@ public:
 		fWholePath.lineTo(fFrame.x + fFrame.w, fTabParam.h + fFrame.h - fTabParam.h);
 		fWholePath.lineTo(fFrame.x, fTabParam.h + fFrame.h - fTabParam.h);
 		fWholePath.close();
-		
+		fContentArea = { fFrame.x + ContentMargin, fFrame.y + fTabParam.h + ContentMargin, fFrame.w - ContentMargin*2, fFrame.h - fTabParam.h-ContentMargin*2 };
 	}
 
 	void setBackgroundColor(const Pixel& c) { fBackgroundColor = c; }
@@ -106,17 +59,28 @@ public:
 
 	void drawBackground(IGraphics* ctx)
 	{
-		ctx->clear();
-
-		ctx->stroke(0);
+		// Stroke the overall outline
+		// Stroke this first, and allow the filling to
+		// cover some of the stroke
 		ctx->blendMode(BL_COMP_OP_SRC_OVER);
+		ctx->stroke(0);
+		ctx->noFill();
+		ctx->path(fWholePath);
+
+		// Fill the overall background
+		ctx->blendMode(BL_COMP_OP_SRC_OVER);
+		ctx->noStroke();
 		ctx->fill(fBackgroundColor);
 		ctx->path(fWholePath);
 
+		// Fill the tab area
 		ctx->blendMode(BL_COMP_OP_SRC_OVER);
 		ctx->noStroke();
 		ctx->fill(fTabColor);
 		ctx->path(fTabPath);
+
+
+
 
 		// draw title centered on tab
 		double titleX = fTabContentArea.x + fTabContentArea.w / 2;
@@ -125,10 +89,31 @@ public:
 		// Just to check on the size of the tabContentArea
 		//ctx->stroke(255, 0, 0);
 		//ctx->rect(fTabContentArea.x, fTabContentArea.y, fTabContentArea.w, fTabContentArea.h);
+		
+		// Put the text on the label
 		ctx->noStroke();
 		ctx->fill(0);
 		ctx->textSize(fTabParam.h * .8);
 		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
 		ctx->text(fTabTitle.c_str(), titleX, titleY);
+
+
+		// check size of content area
+		//ctx->stroke(255, 0, 0);
+		//ctx->noFill();
+		//ctx->rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
+
+	}
+};
+
+class TabViewSet : public Graphic {
+public:
+	void mouseClicked(const MouseEvent& e)
+	{
+		// start from the back, go forward
+
+		// figure out which of the tabbed views
+		// has been clicked, and move that one
+		// to the front.
 	}
 };

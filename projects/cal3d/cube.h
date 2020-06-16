@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GMesh.h"
+#include "TriangleMesh.h"
 
-struct cube : public virtual GMesh {
+struct cube : public virtual TriangleMesh {
 	cube();
 };

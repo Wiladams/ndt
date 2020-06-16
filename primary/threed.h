@@ -7,7 +7,7 @@
 
 #include "p5.hpp"
 #include "TriangleMesh.h"
-#include "geometry.h"
+#include "grmath.h"
 #include "Surface.h"
 #include "diffuseshader.h"
 
@@ -29,20 +29,20 @@ class ThreeD {
 
 	MVP3D fMVP;
 
-	Vec3f fLightDirection{ 1, 1, 1 };
-	Vec3f fEye{ 1, 1, 3 };
-	Vec3f fCenter{ 0, 0, 0 };
-	Vec3f fUp{ 0, -1, 0 };
+	vec3f fLightDirection{ 1, 1, 1 };
+	vec3f fEye{ 1, 1, 3 };
+	vec3f fCenter{ 0, 0, 0 };
+	vec3f fUp{ 0, -1, 0 };
 
 	float* zbuffer = nullptr;
 
 	// OpenGL-like functions to do various
 	// calculations
-	static Matrix ogl_lookat(Vec3f& eye, Vec3f& center, Vec3f& up)
+	static Matrix ogl_lookat(vec3f& eye, vec3f& center, vec3f& up)
 	{
-		Vec3f z = (eye - center).normalize();
-		Vec3f x = cross(up, z).normalize();
-		Vec3f y = cross(z, x).normalize();
+		vec3f z = (eye - center).normalize();
+		vec3f x = cross(up, z).normalize();
+		vec3f y = cross(z, x).normalize();
 		Matrix Minv = Matrix::identity();
 		Matrix Tr = Matrix::identity();
 		for (int i = 0; i < 3; i++)
@@ -81,22 +81,22 @@ class ThreeD {
 	}
 
 
-	static Vec3f barycentric(const Vec2f &A, const Vec2f &B, const Vec2f &C, const Vec2f &P)
+	static vec3f barycentric(const vec2f &A, const vec2f &B, const vec2f &C, const vec2f &P)
 	{
-		Vec3f s[2];
+		vec3f s[2];
 		for (int i = 2; i--; )
 		{
 			s[i][0] = C[i] - A[i];
 			s[i][1] = B[i] - A[i];
 			s[i][2] = A[i] - P[i];
 		}
-		Vec3f u = cross(s[0], s[1]);
+		vec3f u = cross(s[0], s[1]);
 		if (std::abs(u[2]) > 1e-2) {
 			// dont forget that u[2] is integer. If it is zero then triangle ABC is degenerate
-			return Vec3f(1.f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
+			return vec3f(1.f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
 		}
 
-		return Vec3f(-1, 1, 1); // in this case generate negative coordinates, it will be thrown away by the rasterizer
+		return vec3f(-1, 1, 1); // in this case generate negative coordinates, it will be thrown away by the rasterizer
 	}
 
 
@@ -115,9 +115,9 @@ public:
 		fLightDirection = proj<3>((fMVP.fProjection* fMVP.fModelView*embed<4>(fLightDirection, 0.f))).normalize();
 	}
 
-	Vec3f &getLightDirection() { return fLightDirection; }
+	vec3f &getLightDirection() { return fLightDirection; }
 	MVP3D &getMVP() { return fMVP; }
-	Vec3f& getCameraLocation() { return fEye; }
+	vec3f& getCameraLocation() { return fEye; }
 
 
 	void lookAt(float x, float y, float z)
@@ -146,7 +146,7 @@ public:
 	void onCameraChange()
 	{
 		fMVP.fModelView = ogl_lookat(fEye, fCenter, fUp);
-		fMVP.fProjection = ogl_projection(-1.0f / (fEye - fCenter).norm());
+		fMVP.fProjection = ogl_projection(-1.0f / (fEye - fCenter).length());
 	}
 
 	void clearZBuffer()
@@ -167,9 +167,9 @@ public:
 		for (int i = 0; i < 3; i++)
 			pts2[i] = proj<2>(pts[i] / pts[i][3]);
 
-		Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-		Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-		Vec2f clamp(fWidth - 1, fHeight - 1);
+		vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+		vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+		vec2f clamp(fWidth - 1, fHeight - 1);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 2; j++) {
@@ -178,12 +178,12 @@ public:
 			}
 		}
 
-		Vec2i P;
+		vec2i P;
 		BLRgba32 fragcolor;
 		for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
 			for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
-				Vec3f bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
-				Vec3f bc_clip = Vec3f(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
+				vec3f bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
+				vec3f bc_clip = vec3f(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
 				bc_clip = bc_clip / (bc_clip.x + bc_clip.y + bc_clip.z);
 				float frag_depth = clipc[2] * bc_clip;
 

@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <limits>
 
-#include "geometry.h"
+
+#include "grmath.h"
 #include "imagesampler.h"
 
 // Each face consists of
@@ -26,22 +27,27 @@ struct TriangleFace
 	//	vertex normal index
 	//	vertex UV index
 	//
-	Vec3i fVertices;
-	Vec3i fNormals;
-	Vec3i fUV;
+	vec3i fVertices;
+	vec3i fNormals;
+	vec3i fUV;
 
-	Vec3f fFaceNormal;
-
-
+	vec3f fFaceNormal;
 
 
-	TriangleFace(const Vec3i &vertices, const Vec3i &normals, const Vec3i &uv)
+
+	TriangleFace(const size_t a, const size_t b, const size_t c)
+		:fVertices(a,b,c)
+	{
+
+	}
+
+	TriangleFace(const vec3i &vertices, const vec3i &normals, const vec3i &uv)
 		:fVertices(vertices),
 		fNormals(normals),
 		fUV(uv)
 	{
-		//Vec3f v1 = p1 - p0;
-		//Vec3f v2 = p2 - p0;
+		//vec3f v1 = p1 - p0;
+		//vec3f v2 = p2 - p0;
 
 		//fFaceNormal = cross(v1, v2);
 	}
@@ -50,17 +56,17 @@ struct TriangleFace
 
 struct TriangleMesh
 {
-	std::vector<Vec3f> fVertices;
-	std::vector<Vec3f> fNormals;
-	std::vector<Vec2f> fUV;
+	std::vector<vec3f> fVertices;
+	std::vector<vec3f> fNormals;
+	std::vector<vec2f> fUV;
 	std::vector<TriangleFace> fFaces;
 
 	ndt::ImageSampler fDiffuseSampler=nullptr;
 	ndt::ImageSampler fNormalSampler = nullptr;
 	ndt::ImageSampler fSpecularSampler = nullptr;
 
-	Vec3f fVertSmallest;
-	Vec3f fVertLargest;
+	vec3f fVertSmallest;
+	vec3f fVertLargest;
 
 	TriangleMesh()
 	{
@@ -93,7 +99,7 @@ struct TriangleMesh
 		fVertLargest.z = std::numeric_limits<float>::min();
 	}
 
-	void extendRange(const Vec3f& vert)
+	void extendRange(const vec3f& vert)
 	{
 		fVertSmallest.x = MIN(vert.x, fVertSmallest.x);
 		fVertSmallest.y = MIN(vert.y, fVertSmallest.y);
@@ -120,8 +126,8 @@ struct TriangleMesh
 		//printf("==== normalizeVertices ====\n");
 		calcExtent();
 
-		Vec3f diff = fVertLargest - fVertSmallest;
-		float extent = diff.norm();
+		vec3f diff = fVertLargest - fVertSmallest;
+		float extent = diff.length();
 
 		//printf("DIFF: %f, %f, %f\n", diff.x, diff.y, diff.z);
 		//printf("EXTENT: %f\n", extent);
@@ -135,10 +141,10 @@ struct TriangleMesh
 	{
 		//printf("==== centerMesh ====\n");
 		calcExtent();
-		Vec3f center;
-		center.x = lerp(fVertSmallest.x, fVertLargest.x, 0.5);
-		center.y = lerp(fVertSmallest.y, fVertLargest.y, 0.5);
-		center.z = lerp(fVertSmallest.z, fVertLargest.z, 0.5);
+		vec3f center;
+		center.x = lerp(fVertSmallest.x, fVertLargest.x, 0.5f);
+		center.y = lerp(fVertSmallest.y, fVertLargest.y, 0.5f);
+		center.z = lerp(fVertSmallest.z, fVertLargest.z, 0.5f);
 
 		//printf("CENTER: %f,%f,%f\n", center.x, center.y, center.z);
 
@@ -148,34 +154,51 @@ struct TriangleMesh
 		}
 	}
 
-	size_t addVertex(const Vec3f &vert)
+
+
+	size_t addVertex(const vec3f &vert)
 	{
 		extendRange(vert);
 		fVertices.push_back(vert);
 		return fVertices.size()-1;
 	}
 
-	size_t addNormal(const Vec3f& n)
+	size_t addVertex(const float x, const float y, const float z)
 	{
-		Vec3f aNormal(n);
-		fNormals.push_back(aNormal.normalize());
-		return fNormals.size();
+		return addVertex(vec3f(x, y, z));
 	}
 
-	size_t addUV(const Vec2f& uv)
+	// Normals
+	size_t addNormal(const vec3f& n)
+	{
+		vec3f aNormal(n);
+		fNormals.push_back(aNormal.normalize());
+		return fNormals.size()-1;
+	}
+
+	// Texture coordinate
+	size_t addUV(const vec2f& uv)
 	{
 		fUV.push_back(uv);
-		return fUV.size();
+		return fUV.size()-1;
+	}
+
+	size_t addFace(const size_t a, const size_t b, const size_t c)
+	{
+		TriangleFace face(a, b, c);
+		fFaces.push_back(face);
+
+		return fFaces.size() - 1;
 	}
 
 	// A face is indicated by 3 indices of vertices
 	// that are already in the mesh
-	size_t addFace(const Vec3i &verts, const Vec3i &norms, const Vec3i &uv)
+	size_t addFace(const vec3i &verts, const vec3i &norms, const vec3i &uv)
 	{
 		TriangleFace face(verts, norms, uv);
 		fFaces.push_back(face);
 
-		return fFaces.size();
+		return fFaces.size()-1;
 	}
 
 	size_t nverts() { return fVertices.size(); }
@@ -186,17 +209,17 @@ struct TriangleMesh
 	// Getting values out of the mesh
 
 	
-	Vec3f vert(int i) 
+	vec3f vert(int i) 
 	{
 		return fVertices[i];
 	}
 
-	Vec3f vert(int iface, int nthvert) 
+	vec3f vert(int iface, int nthvert) 
 	{
 		return fVertices[fFaces[iface].fVertices[nthvert]];
 	}
 
-	Vec2f uv(int iface, int nthvert) 
+	vec2f uv(int iface, int nthvert) 
 	{
 		if (nuvs() == 0)
 			return {};
@@ -204,7 +227,7 @@ struct TriangleMesh
 		return fUV[fFaces[iface].fUV[nthvert]];
 	}
 
-	Vec3f normal(int iface, int nthvert)
+	vec3f normal(int iface, int nthvert)
 	{
 		if (nnormals() == 0)
 			return {};
@@ -215,7 +238,7 @@ struct TriangleMesh
 
 
 	// Using Samplers
-	BLRgba32 diffuse(Vec2f uvf) {
+	BLRgba32 diffuse(vec2f uvf) {
 		if (!fDiffuseSampler.isValid())
 			return BLRgba32();
 
@@ -223,13 +246,13 @@ struct TriangleMesh
 		return c;
 	}
 
-	Vec3f normal(Vec2f uvf) {
+	vec3f normal(vec2f uvf) {
 		if (!fNormalSampler.isValid())
-			return Vec3f();
+			return vec3f();
 
 		auto c = fNormalSampler(uvf[0], uvf[1]);
 
-		Vec3f res;
+		vec3f res;
 		res[2] = (float)c.b / 255.f * 2.f - 1.f;
 		res[1] = (float)c.g / 255.f * 2.f - 1.f;
 		res[0] = (float)c.r / 255.f * 2.f - 1.f;
@@ -238,7 +261,7 @@ struct TriangleMesh
 	}
 
 
-	float specular(Vec2f uvf) {
+	float specular(vec2f uvf) {
 		if (!fSpecularSampler.isValid())
 			return 0.0;
 

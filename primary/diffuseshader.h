@@ -14,15 +14,15 @@ struct DiffuseShader : public IShader {
 		:IShader()
 	{}
 
-	DiffuseShader(TriangleMesh *aModel, Vec3f &light, MVP3D &mvp)
+	DiffuseShader(TriangleMesh *aModel, vec3f &light, MVP3D &mvp)
 	{
 		init(aModel, light, mvp);
 	}
 
 
 	// vertex shader
-	virtual Vec4f vertex(int iface, int nthvert);
+	virtual vec4f vertex(int iface, int nthvert);
 
 	// fragment shader
-	virtual bool fragment(Vec3f bar, BLRgba32 &color);
+	virtual bool fragment(vec3f bar, BLRgba32 &color);
 };

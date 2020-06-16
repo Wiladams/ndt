@@ -198,6 +198,9 @@
     <ClInclude Include="aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gpath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

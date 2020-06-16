@@ -1,7 +1,7 @@
 #pragma once
 
 #include "p5.hpp"
-
+#include <memory>
 
 class IDrawable 
 {
@@ -35,7 +35,7 @@ class Graphic : public IGraphic
 {
 	BLRect fBounds{};
 	BLRect fFrame{};
-	std::vector<IGraphic*> fChildren;
+	std::vector<std::shared_ptr<IGraphic> > fChildren;
 
 protected:
 	void setFrame(const BLRect& frame) { fFrame = frame; }
@@ -52,7 +52,7 @@ public:
 
 	BLRect getFrame() const { return fFrame; }
 	
-	void addChild(IGraphic* child)
+	void addChild(std::shared_ptr<IGraphic> child)
 	{
 		fChildren.push_back(child);
 	}

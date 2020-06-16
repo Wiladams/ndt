@@ -9,6 +9,24 @@ C++ language on the Windows platform.  Although the platform is
 Windows, the graphics subsystem is primarily supported by
 blend2d for vector graphics.
 
+In the directory structure, the '\primary' directory contains
+a bunch of very useful stuff that makes the programming super
+easy to play with.  Of particular note are 
+
+At a bare minimum, you should compile these into your application
+so that you can put a windows on the screen with one line of code.
+
+apphost.h
+appmain.cpp
+
+For even more convenience, you can include the p5 set of functions.  These two files make it possible to write programs that
+roughly follow the P5 model of programming.  Very easy to do fairly
+simple things.
+
+p5.hpp
+p5.cpp
+
+
 At the moment, the projects do not leverage much of WinRT, but
 it does not preclude its usage either.
 
@@ -30,18 +48,19 @@ gives you ready access to all the coded up examples.
 
 Compiling
 =========
-Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.
+Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.  Currently
+using Visual Studio 2019
 
-Open up the projects.sln file in the \projects directory
-build the entire solution, play with examples
+Open up the projects.sln file in the \projects\projects.sln
+Make sure you're in Release mode
+Build the entire solution, play with examples
 
 Creating a new project
 ======================
 Need to link in: ws2_32.lib, blend2d.lib
-Need to set Additional Lib Directories
+Need to set Additional Lib Directories to ..\..\lib\Release
 
-Need to set C/C++ Additional Include Directories
-Need to include projects\lib\Release in library path
+Need to set C/C++ Additional Include Directories - ..\..\primary
 Need to set C++ runtime to /Mt
 
 

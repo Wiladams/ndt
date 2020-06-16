@@ -11,7 +11,7 @@
 #include <vector>
 
 
-class BLGraphics : public virtual IGraphics
+class BLGraphics : public IGraphics
 {
     int fCommandCount = 0;  // How many commands since last flush
     int fCommandThreshold = 256;
@@ -391,7 +391,9 @@ public:
 
     virtual void path(const BLPath& path)
     {
-        fCtx.fillPath(path);
+        if (fUseFill) {
+            fCtx.fillPath(path);
+        }
         fCtx.strokePath(path);
 
         incrCmd();

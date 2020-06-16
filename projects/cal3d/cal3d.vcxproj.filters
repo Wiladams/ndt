@@ -18,20 +18,20 @@
     <ClCompile Include="cal3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\primary\appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\primary\p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\primary\geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\GMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\primary\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -41,7 +41,13 @@
     <ClInclude Include="..\..\primary\threed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="flatshader.h">
+    <ClInclude Include="..\..\primary\trianglemesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\flatshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="basecube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

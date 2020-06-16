@@ -256,9 +256,160 @@ struct vec<3, T>
 };
 
 
+/*
+    Data structure representing Determinant of a matrix
+*/
+template<size_t DIM, typename T> struct dt {
+    static T det(const mat<DIM, DIM, T>& src) {
+        T ret = 0;
+        for (size_t i = DIM; i--; ret += src[0][i] * src.cofactor(0, i));
+        return ret;
+    }
+};
+
+template<typename T> struct dt<1, T> {
+    static T det(const mat<1, 1, T>& src) {
+        return src[0][0];
+    }
+};
+
+
+/*
+    basis for matrix structure
+    You can create a type of matrix of particular dimensions like this:
+    typedef mat<4,4,double> Mat4x4;
+*/
+template<size_t DimRows, size_t DimCols, typename T>
+class mat {
+    vec<DimCols, T> rows[DimRows];
+public:
+    mat() {}
+
+    vec<DimCols, T>& operator[] (const size_t idx) {
+        assert(idx < DimRows);
+        return rows[idx];
+    }
+
+    const vec<DimCols, T>& operator[] (const size_t idx) const {
+        assert(idx < DimRows);
+        return rows[idx];
+    }
+
+    // Get a column value of a matrix
+    vec<DimRows, T> col(const size_t idx) const {
+        assert(idx < DimCols);
+        vec<DimRows, T> ret;
+        for (size_t i = DimRows; i--; ret[i] = rows[i][idx]);
+        return ret;
+    }
+
+    // Set a particular column of a matrix
+    // mat.set_col(1, vec);
+    //
+    void set_col(size_t idx, vec<DimRows, T> v) {
+        assert(idx < DimCols);
+        for (size_t i = DimRows; i--; rows[i][idx] = v[i]);
+    }
+
+    // create an identity matrix
+    // mat res = mat::identity();
+    //
+    static mat<DimRows, DimCols, T> identity() {
+        mat<DimRows, DimCols, T> ret;
+        for (size_t i = DimRows; i--; )
+            for (size_t j = DimCols; j--; ret[i][j] = (i == j));
+        return ret;
+    }
+
+    // Determinant of a matrix
+    T det() const {
+        return dt<DimCols, T>::det(*this);
+    }
+
+    mat<DimRows - 1, DimCols - 1, T> get_minor(size_t row, size_t col) const {
+        mat<DimRows - 1, DimCols - 1, T> ret;
+        for (size_t i = DimRows - 1; i--; )
+            for (size_t j = DimCols - 1; j--; ret[i][j] = rows[i < row ? i : i + 1][j < col ? j : j + 1]);
+        return ret;
+    }
+
+    // Cofactor matrix of a matrix
+    T cofactor(size_t row, size_t col) const {
+        return get_minor(row, col).det() * ((row + col) % 2 ? -1 : 1);
+    }
+
+    mat<DimRows, DimCols, T> adjugate() const {
+        mat<DimRows, DimCols, T> ret;
+        for (size_t i = DimRows; i--; )
+            for (size_t j = DimCols; j--; ret[i][j] = cofactor(i, j));
+        return ret;
+    }
+
+    mat<DimRows, DimCols, T> invert_transpose() {
+        mat<DimRows, DimCols, T> ret = adjugate();
+        T tmp = ret[0] * rows[0];
+        return ret / tmp;
+    }
+
+    mat<DimRows, DimCols, T> invert() {
+        return invert_transpose().transpose();
+    }
+
+    mat<DimCols, DimRows, T> transpose() {
+        mat<DimCols, DimRows, T> ret;
+        for (size_t i = DimCols; i--; ret[i] = this->col(i));
+        return ret;
+    }
+};
+
+
+/*
+    Some matrix arithmetic
+*/
+template<size_t DimRows, size_t DimCols, typename T> vec<DimRows, T> operator*(const mat<DimRows, DimCols, T>& lhs, const vec<DimCols, T>& rhs) {
+    vec<DimRows, T> ret;
+    for (size_t i = DimRows; i--; ret[i] = lhs[i] * rhs);
+    return ret;
+}
+
+template<size_t R1, size_t C1, size_t C2, typename T>mat<R1, C2, T> operator*(const mat<R1, C1, T>& lhs, const mat<C1, C2, T>& rhs) {
+    mat<R1, C2, T> result;
+    for (size_t i = R1; i--; )
+        for (size_t j = C2; j--; result[i][j] = lhs[i] * rhs.col(j));
+    return result;
+}
+
+template<size_t DimRows, size_t DimCols, typename T>mat<DimCols, DimRows, T> operator/(mat<DimRows, DimCols, T> lhs, const T& rhs) {
+    for (size_t i = DimRows; i--; lhs[i] = lhs[i] / rhs);
+    return lhs;
+}
+
+template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std::ostream& out, mat<DimRows, DimCols, T>& m) {
+    for (size_t i = 0; i < DimRows; i++) out << m[i] << std::endl;
+    return out;
+}
+
+// Some concrete types
+typedef vec<2, float> vec2f;
+typedef vec<2, int>   vec2i;
+
+//typedef vec<3, double> Vec3;
+//typedef vec<4, uint8_t> Vec4b;
+
+using vec3f = vec<3, float>;
+using vec3i =  vec<3, int>;
 using vec3 = vec<3, float>;
+
+using vec4f = vec<4, float>;
+using Matrix = mat<4, 4, float>;
+using Matrix3 = mat<3, 3, float>;
+
+
 using point3 = vec3;
 using rtcolor = vec3;
+
+
+
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& out, const vec<3,T>& v) {
@@ -301,6 +452,25 @@ inline vec<3, T> operator -(const vec<3, T>& a, const vec<3, T>& b)
     vec<3, T> res(a);
     return res -= b;
 }
+
+template<size_t LEN, size_t DIM, typename T> vec<LEN, T> embed(const vec<DIM, T>& v, T fill = 1) {
+    vec<LEN, T> ret;
+    for (size_t i = LEN; i--; ret[i] = (i < DIM ? v[i] : fill));
+
+    return ret;
+}
+
+template<size_t LEN, size_t DIM, typename T> 
+vec<LEN, T> proj(const vec<DIM, T>& v) 
+{
+    vec<LEN, T> ret;
+    for (size_t i = LEN; i--; ret[i] = v[i]);
+
+    return ret;
+}
+
+
+
 
 // Math constants
 /*

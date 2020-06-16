@@ -1,16 +1,15 @@
 #include "p5.hpp"
 
+// Show a MIP Map of a screen capture
+// There's nothing special about the screen capture
+// in this case.  It's realll mipmap which is interesting
+// the screen capture just makes for a quick and easy source
+// of 2D graphics data
 #include "screensnapshot.hpp"
 
 using namespace p5;
 
 ScreenSnapshot *ss = nullptr;
-
-int gScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
-int gScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
-
-int captureWidth = gScreenWidth/2;
-int captureHeight = gScreenHeight /2;
 
 
 void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
@@ -18,25 +17,24 @@ void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
     // 1 full rectangle
     scaleImage(src, 0, 0, src.width(), src.height(), rect.x, rect.y, rect.w, rect.h);
 
-
-    // 3 - half sized
-    scaleImage(src, 0, 0, src.width(), src.height(), rect.x+rect.w/2, rect.y, rect.w/2, rect.h/2);
-    scaleImage(src, 0, 0, src.width(), src.height(), rect.x + rect.w / 2, rect.y+rect.h/2, rect.w / 2, rect.h / 2);
-    scaleImage(src, 0, 0, src.width(), src.height(), rect.x, rect.y + rect.h / 2, rect.w / 2, rect.h / 2);
-
-    lvl--;
-
-    if (lvl > 0) {
-        displayQuad(src, {rect.x+(int)(rect.w/2), (int)rect.y, (int)rect.w/2, (int)rect.h/2}, lvl-1);
-        displayQuad(src, { rect.x + (int)(rect.w / 2), (int)rect.y+(int)(rect.h/2), (int)rect.w / 2, (int)rect.h / 2 }, lvl-1);
+    int xoffset = src.width();
+    int yoffset = 0;
+    for (int iter = 1; iter <= lvl; iter++)
+    {
+        int yheight = src.height() / pow(2, iter);
+        int xwidth = src.width() / pow(2, iter);
+        scaleImage(src, 0, 0, src.width(), src.height(), xoffset, yoffset, xwidth, yheight);
+        
+        xoffset += 0;
+        yoffset += yheight;
     }
 }
 
 void draw()
 {
     ss->moveNext();
-    
-    displayQuad(ss->getCurrent().getBlend2dImage(), { 0,0,(int)width, (int)height }, 4);
+    auto src = ss->getCurrent().getBlend2dImage();
+    displayQuad(src, { 0,0,src.width(), src.height() }, 8);
 }
 
 int T_SP = ' ';
@@ -53,8 +51,8 @@ void keyTyped(const KeyEvent& event)
 
 void setup()
 {
-    createCanvas(displayWidth/4, displayHeight/4);
+    createCanvas(displayWidth/2, displayHeight/2);
     frameRate(30);
 
-    ss = new ScreenSnapshot(0, 0, captureWidth, captureHeight);
+    ss = new ScreenSnapshot(0, 0, displayWidth/3, displayHeight/2);
 }

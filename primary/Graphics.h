@@ -158,6 +158,7 @@ public:
 
     virtual void push()=0;
     virtual void pop()=0;
+    virtual void flush() = 0;
 
     virtual void translate(double dx, double dy)=0;
     virtual void scale(double sx, double sy)=0;
@@ -223,7 +224,10 @@ public:
     virtual void polyline(const BLPoint* pts, size_t n) = 0;
     virtual void polygon(const BLPoint* pts, size_t n) = 0;
     virtual void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) = 0;
+    
     virtual void path(const BLPath& path) = 0;
+    //virtual void strokePath(const BLPath& path) = 0;
+    //virtual void fillPath(const BLPath& path) = 0;
 
     virtual void beginShape(SHAPEMODE shapeKind) = 0;
     virtual void vertex(double x, double y) = 0;

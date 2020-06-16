@@ -147,7 +147,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
+    <ClInclude Include="..\..\primary\gpath.h" />
+    <ClInclude Include="..\..\primary\imagesampler.h" />
+    <ClInclude Include="..\..\primary\IShader.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
