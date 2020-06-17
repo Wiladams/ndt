@@ -35,7 +35,7 @@ https://homes.luddy.indiana.edu/kapadia/project2/node9.html
 typedef union {
     uint64_t u64;
     double d;
-} U64double;
+} UDouble;
 
 struct TausPRNG {
 private:
@@ -68,7 +68,7 @@ public:
         uint32_t r = 0x11090601;  // 64-k[i] as four 8 bit constants.
         int i;
         for (i = 0; i < 4; i++) {
-            U64double u;
+            UDouble u;
             uint32_t m = 1u << (r&255);
             r >>= 8;
             u.d = d = d * 3.14159265358979323846 + 2.7182818284590452354;
@@ -85,7 +85,7 @@ public:
     // Return a double value between 0..1, inclusive
     double next()
     {
-        U64double u;
+        UDouble u;
         double d;
         u.u64 = step();
         d = u.d - 1.0;

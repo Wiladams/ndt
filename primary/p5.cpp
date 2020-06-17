@@ -299,6 +299,11 @@ namespace p5 {
         background(color(a, b, c, d));
     }
 
+    void background(int a, int b, int c) noexcept
+    {
+        background(color(a, b, c, 255));
+    }
+
     void background(int gray, int alpha) noexcept
     {
         background(color(gray, alpha));

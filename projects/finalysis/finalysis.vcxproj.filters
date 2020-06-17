@@ -21,7 +21,7 @@
     <ClCompile Include="..\..\primary\p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sketchy.cpp">
+    <ClCompile Include="finalysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -31,21 +31,6 @@
     </ClInclude>
     <ClInclude Include="..\..\primary\p5.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\gpath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\imagesampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\IShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="drawingtool.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

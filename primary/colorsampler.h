@@ -36,7 +36,7 @@ namespace ndt {
 
 // Take a gradient, and do the interpolation to get a 
 // color for a specific parameter between 0..1
-class GradientSampler1D : public virtual ISampler1D<BLRgba32>
+class GradientSampler1D : public ISampler1D<BLRgba32>
 {
 	BLGradient fGradient;
 
@@ -63,7 +63,7 @@ public:
 	}
 };
 
-class GradientSampler2D : public virtual ISampler2D<BLRgba32>
+class GradientSampler2D : public ISampler2D<BLRgba32>
 {
 	BLGradient fGradient1;
 	BLGradient fGradient2;

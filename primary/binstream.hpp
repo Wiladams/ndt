@@ -2,16 +2,13 @@
 
 /*
     This file is a general memory stream interface.
-    The primary objective is to satisfy the needs of the 
-    truetype parser, but it can be used in general cases.
 
-    It differs from the MemoryStream object in that it can't
-    write, and it has more specific data type reading 
-    convenience calls.
-
-    More specifically, all of the numeric reading assumes the
-    data in the stream is formatted in 'big-endian' order.  That
-    is, the high order bytes come first.
+    If you really want to use the streaming features of
+    the C++ language, you should not use this file.  
+    
+    If, on the other hand, you want some simple straight
+    forward streaming capabilities, then this file is
+    for you. 
 */
 
 #include <stdint.h>
@@ -26,17 +23,35 @@ typedef union {
     float f;
 } U32float;
 
-/*
-    binstream(data, size, position)
-*/
-class BinStream
-{
-    bool fbigend;
-    uint8_t *fdata;
-    size_t fcursor;
-    size_t fsize;
+typedef union {
+    uint64_t u64;
+    double d;
+} U64double;
 
-    BinStream() : fdata(nullptr){}
+class IReadBinary
+{
+    virtual uint8_t readOctet() = 0;
+};
+
+class IWriteBinary
+{
+    virtual bool writeOctet(const uint8_t octet) = 0;
+};
+
+class BinStream : public IReadBinary, public IWriteBinary
+{
+    uint8_t *fdata;
+    size_t fsize;
+    size_t fcursor;
+    bool fbigend;
+
+protected:
+    BinStream() 
+        : fdata(nullptr),
+        fbigend(false),
+        fcursor(0),
+        fsize(0)
+    {}
 
 public:
 
@@ -53,6 +68,12 @@ public:
     bool isEOF() {return (remaining() < 1);}
     void setBigEndian(bool isBig) {fbigend = isBig;}
     
+    void setData(uint8_t* data, size_t size)
+    {
+        fdata = data;
+        fsize = size;
+    }
+
     uint8_t * data() {return fdata;}
     size_t size() {return fsize;}
     
@@ -145,7 +166,9 @@ public:
         }
 
         fcursor = fcursor + 1;
-    
+
+        //printf("readOctet() - fcursor: %d\n", fcursor);
+        
         return fdata[fcursor-1];
     }
 
@@ -327,13 +350,20 @@ size_t readLine(char* buff, const size_t bufflen)
         return f1.f;
     }
 
-
+    float readDouble()
+    {
+        U64double d1;
+        d1.u64 = readUInt64();
+        return d1.d;
+    }
 
     /*
         Writing to a binary stream
     */
+    // Write a single octet to the stream
     bool writeOctet(const uint8_t octet)
     {
+        // if we're already at capacity, then fail
         if (fcursor >= fsize) {
             return false;
         }
@@ -344,6 +374,7 @@ size_t readLine(char* buff, const size_t bufflen)
         return true;
     }
 
+    // Write the specified number of bytes
     bool writeBytes(const uint8_t *bytes, const size_t n)
     {
         if (bytes == nullptr) {
@@ -355,12 +386,14 @@ size_t readLine(char* buff, const size_t bufflen)
             return false;   //, "Not enough space"
         }
 
+        // Do a fast memory copy
         memcpy_s(fdata+fcursor, n, bytes, n);
         skip(n);
 
         return true;
     }
 
+    // Write a null terminated string
     bool writeStringZ(const char * str)
     {
         if (str == nullptr) {
@@ -376,7 +409,7 @@ size_t readLine(char* buff, const size_t bufflen)
         return success;
     }
 
-    size_t writeInt(const uint64_t value, size_t n)
+    size_t writeInt(const uint64_t value, const size_t n)
     {
         if (remaining() < n) {
             // BUGBUG - throw exception
@@ -389,14 +422,14 @@ size_t readLine(char* buff, const size_t bufflen)
                 i = i - 1;
             }
         } else {
-            size_t i = 0;
-            while  (i < n) {
-                writeOctet((value >> i*8) & 0xff);
-                i = i + 1;
+            size_t cnt = 0;
+            while  (cnt < n) {
+                writeOctet((value >> cnt*8) & 0xff);
+                cnt = cnt + 1;
             }
         }
 
-        return i+1;
+        return (size_t)i+1;
     }
 
     size_t writeInt8(const int8_t n)
@@ -439,13 +472,20 @@ size_t readLine(char* buff, const size_t bufflen)
         return writeInt(n, 8);
     }
 
-    void writeFloat(float value)
+    void writeFloat(const float value)
     {
         U32float f1;
         f1.f = value;
         writeUInt32(f1.u32);
     }
     
+    void writeFloat(const double value)
+    {
+        U64double d1;
+        d1.d = value;
+        writeUInt64(d1.u64);
+    }
+
     // various useful fixed formats
     // fixed 2_14 numbers
     // 16-bit

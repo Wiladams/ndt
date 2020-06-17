@@ -6,7 +6,7 @@
 namespace ndt 
 {
 	// This assumes the BLImage is in the PRGBA32 format
-	class ImageSampler : public virtual ISampler2D<BLRgba32>
+	class ImageSampler : public ISampler2D<BLRgba32>
 	{
 		BLImage * fImage;
 		BLImageData fImageData;

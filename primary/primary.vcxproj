@@ -157,6 +157,7 @@
     <ClInclude Include="dproc_gl.h" />
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="FastNoise.h" />
+    <ClInclude Include="filestream.h" />
     <ClInclude Include="functor.hpp" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="GMesh.h" />

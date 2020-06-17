@@ -28,7 +28,7 @@ class TabbedView : public Graphic {
 	static const int ContentMargin=4;
 
 public:
-	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = {255,255,255}, const Pixel& bColor = {255, 234, 167})
+	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
 		: fFrame(frame),
 		fTabParam(tParam),
 		fTabColor(tColor),

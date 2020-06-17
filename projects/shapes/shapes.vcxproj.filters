@@ -29,7 +29,7 @@
     <ClInclude Include="..\..\primary\graphic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tabbedview.h">
+    <ClInclude Include="..\..\primary\tabbedview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,11 +6,35 @@ using namespace p5;
 using namespace ndt;
 
 shared_ptr<ImageTexture> imgTexture = make_shared<ImageTexture>("breakfast_small.jpg");
-shared_ptr<checker_texture> checker = make_shared<checker_texture>(make_shared<solid_color>(1, 0, 0), make_shared<solid_color>(0, 1, 0));
+shared_ptr<checker_texture> checker = make_shared<checker_texture>(make_shared<SolidColorTexture>(1, 0, 0), make_shared<SolidColorTexture>(0, 1, 0));
 
 shared_ptr<Texture> tex = imgTexture;
 
+// Use a texture as a mask for a source
+class Masker : public Texture
+{
+	shared_ptr<Texture> fSource;
+	shared_ptr<Texture> fMask;
+	
+public:
+	Masker(shared_ptr<Texture> src, shared_ptr<Texture> mask)
+		:fSource(src),
+		fMask(mask)
+	{}
 
+	virtual rtcolor value(double u, double v, const vec3& p) const
+	{
+		// get pixel from source
+		auto srcC = fSource->value(u, v, p);
+		auto maskC = fMask->value(u, v, p);
+
+		// either do a blend, or a basic threshold
+		if (maskC.r == 0 && maskC.g == 0 && maskC.b == 0)
+			return maskC;
+
+		return srcC;
+	}
+};
 
 class Tinter : public Texture
 {

@@ -108,6 +108,47 @@ private:
         return { x, y, w, h };
     }
 
+    // Here we are crudely doing a minimal amount necessary
+// to see some text.  We should be using FontMonger to cache
+// font information so we're not reading it every time.
+    BLPoint calcTextPosition(const char* txt, double x, double y)
+    {
+        BLPoint txtSize = textWidth(txt);
+        double cx = txtSize.x;
+        double cy = txtSize.y;
+
+        switch (fTextHAlignment)
+        {
+        case ALIGNMENT::LEFT:
+            x = x;
+            break;
+        case ALIGNMENT::CENTER:
+            x = x - (cx / 2);
+            break;
+        case ALIGNMENT::RIGHT:
+            x = x - cx;
+            break;
+        }
+
+        switch (fTextVAlignment)
+        {
+        case ALIGNMENT::TOP:
+            y = y + cy;
+            break;
+        case ALIGNMENT::CENTER:
+            y = y + (cy / 2);
+            break;
+        case ALIGNMENT::BASELINE:
+            y = y;
+            break;
+        case ALIGNMENT::BOTTOM:
+            y = y;
+            break;
+        }
+
+        return BLPoint(x, y);
+    }
+
     // Increment command count since last flush
 // We track number of commands since last flush so that
 // we can flush after a certain limit
@@ -290,8 +331,8 @@ public:
     virtual void rect(const BLRect& rr)
     {
         //printf("BLGraphics.rect( %f %f %f %f);\n", rr.x, rr.y, rr.w, rr.h);
-        BLResult bResult = fCtx.fillRect(rr);
-        bResult = fCtx.strokeRect(rr);
+        BLResult bResult = fCtx.strokeRect(rr);
+        bResult = fCtx.fillRect(rr);
 
         incrCmd();
     }
@@ -416,46 +457,7 @@ public:
         fCtx.blitImage(dst, src, srcArea);
     }
 
-    // Here we are crudely doing a minimal amount necessary
-    // to see some text.  We should be using FontMonger to cache
-    // font information so we're not reading it every time.
-    BLPoint calcTextPosition(const char *txt, double x, double y)
-    {
-        BLPoint txtSize = textWidth(txt);
-        double cx = txtSize.x;
-        double cy = txtSize.y;
 
-        switch (fTextHAlignment)
-        {
-                case ALIGNMENT::LEFT:
-                    x = x;
-                    break;
-                case ALIGNMENT::CENTER:
-                    x = x - (cx / 2);
-                    break;
-                case ALIGNMENT::RIGHT:
-                    x = x - cx;
-                    break;
-        }
-
-        switch (fTextVAlignment)
-        {
-        case ALIGNMENT::TOP:
-            y = y + cy;
-            break;
-        case ALIGNMENT::CENTER:
-            y = y + (cy / 2);
-            break;
-        case ALIGNMENT::BASELINE:
-            y = y;
-            break;
-        case ALIGNMENT::BOTTOM:
-            y = y;
-            break;
-        }
-
-        return BLPoint(x, y);
-    }
 
     virtual void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
     {

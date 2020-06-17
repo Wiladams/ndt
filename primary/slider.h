@@ -27,7 +27,7 @@
 //
 // Slider Class
 //
-class Slider : public virtual Graphic
+class Slider : public Graphic
 {
     static const int trackThickness = 4;
     double fLowValue;

@@ -92,6 +92,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txtmania", "txtmania\txtman
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sinwave", "sinwave\sinwave.vcxproj", "{8B861196-7A03-4659-A6E7-12974A0130F6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "finalysis", "finalysis\finalysis.vcxproj", "{7EB6D097-364C-4273-8008-AE57CF95250C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -404,6 +406,14 @@ Global
 		{8B861196-7A03-4659-A6E7-12974A0130F6}.Release|x64.Build.0 = Release|x64
 		{8B861196-7A03-4659-A6E7-12974A0130F6}.Release|x86.ActiveCfg = Release|Win32
 		{8B861196-7A03-4659-A6E7-12974A0130F6}.Release|x86.Build.0 = Release|Win32
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Debug|x64.ActiveCfg = Debug|x64
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Debug|x64.Build.0 = Debug|x64
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Debug|x86.ActiveCfg = Debug|Win32
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Debug|x86.Build.0 = Debug|Win32
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Release|x64.ActiveCfg = Release|x64
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Release|x64.Build.0 = Release|x64
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Release|x86.ActiveCfg = Release|Win32
+		{7EB6D097-364C-4273-8008-AE57CF95250C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
