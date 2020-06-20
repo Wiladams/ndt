@@ -6,9 +6,6 @@
     User32 interface library.  The idea is, if you include this single header
     in your application .cpp file, you have everything you need to create 
     a window of a given size, do drawing, keyboard and mouse handling.
-
-    No need for any Windows specific headers or any other libraries.  This
-    single file (and it pulls in w32.hpp) contains everything you need.
 */
 
 

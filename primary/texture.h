@@ -2,6 +2,7 @@
 
 #include "perlin.h"
 #include "blend2d.h"
+#include "canvas.h"
 
 #include <iostream>
 
@@ -93,6 +94,11 @@ public:
     {
     }
 
+    ImageTexture(std::shared_ptr<GCanvas> canvas)
+    {
+
+    }
+
     ImageTexture(BLImage& img)
     {
         fImage = img;
@@ -149,6 +155,58 @@ public:
         // We need to turn pixel values [0..255] into
         // rtcolor components [0..1]
         return rtcolor(color_scale * pixel[2], color_scale * pixel[1], color_scale * pixel[0]);
+    }
+
+
+};
+
+
+class CanvasTexture : public Texture {
+private:
+    std::shared_ptr<GCanvas> fCanvas;
+    int fWidth;
+    int fHeight;
+
+public:
+
+    CanvasTexture()
+        : fCanvas(nullptr),
+        fWidth(0),
+        fHeight(0)
+    {}
+
+
+    CanvasTexture(std::shared_ptr<GCanvas> canvas)
+        : fCanvas(canvas)
+    {
+        fWidth = canvas->targetWidth();
+        fHeight = canvas->targetHeight();
+    }
+
+
+    virtual rtcolor value(double u, double v, const vec3& p) const
+    {
+        // If we have no texture data, then return solid cyan as a debugging aid.
+        if (nullptr == fCanvas)
+            return rtcolor(0, 1, 1);
+
+        // Clamp input texture coordinates to [0,1] x [1,0]
+        u = clamp(u, 0.0, 1.0);
+        v = 1.0 - clamp(v, 0.0, 1.0);  // Flip V to image coordinates
+
+        auto i = static_cast<int>(u * fWidth);
+        auto j = static_cast<int>(v * fCanvas->targetHeight());
+
+        // Clamp integer mapping, since actual coordinates should be less than 1.0
+        if (i >= fWidth)  i = fWidth - 1;
+        if (j >= fHeight) j = fHeight - 1;
+
+        constexpr auto color_scale = 1.0f / 255;
+        auto pixel = fCanvas->get(i, j);
+
+        // We need to turn pixel values [0..255] into
+        // rtcolor components [0..1]
+        return rtcolor(color_scale * pixel.r, color_scale * pixel.g, color_scale * pixel.b);
     }
 
 

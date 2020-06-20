@@ -204,6 +204,9 @@
     <ClInclude Include="filestream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="canvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

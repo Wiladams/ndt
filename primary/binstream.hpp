@@ -79,16 +79,16 @@ public:
     
     // report how many bytes remain to be read
     // from stream
-    int64_t remaining() {return fsize - fcursor;}
+    size_t remaining() {return fsize - fcursor;}
 
     // Report the current cursor position.
-    int64_t tell() {return fcursor;}
+    size_t tell() {return fcursor;}
 
 
 
     // get a subrange of the memory stream
     // returning a new memory stream
-    BinStream range(int64_t pos, int64_t size)
+    BinStream range(size_t pos, size_t size)
     {
         if (pos < 0 || (fsize < 0)) {
             // BUGBUG - throw exception
@@ -112,7 +112,7 @@ public:
 
 
     // move to an absolute position
-    bool seek(const int64_t pos)
+    bool seek(const size_t pos)
     {
         // if position specified outside of range
         // just set it past end of stream
@@ -250,7 +250,7 @@ size_t readLine(char* buff, const size_t bufflen)
                 break;
             }
         } else if (c == LF) {
-            src:skip(1);
+            skip(1);
             break;
         }
 
@@ -258,7 +258,7 @@ size_t readLine(char* buff, const size_t bufflen)
         ending = tell();
     }
 
-    int64_t len = ending - starting;
+    size_t len = ending - starting;
     len = BINMIN(len, bufflen-1);
 
     memcpy(buff, startPtr, len);
@@ -350,7 +350,7 @@ size_t readLine(char* buff, const size_t bufflen)
         return f1.f;
     }
 
-    float readDouble()
+    double readDouble()
     {
         U64double d1;
         d1.u64 = readUInt64();
@@ -415,7 +415,7 @@ size_t readLine(char* buff, const size_t bufflen)
             // BUGBUG - throw exception
         }
 
-        int i = n-1;
+        size_t i = n-1;
         if (fbigend) {
             while  (i >= 0) {
                 writeOctet(((value >> i*8) & 0xff));
