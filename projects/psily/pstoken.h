@@ -4,16 +4,15 @@
 #include <string>
 #include <cstdlib>
 #include <memory>
+#include <unordered_map>
 
 // Enumerate the kinds of tokens that we will see
 // This is used everywhere from the scanner to interpreter and VM
 enum class PSTokenType : uint32_t
 {
 	MARK,				// a noop
-	LITERAL_ARRAY,		// []
-	PROCEDURE,			// {}
-	OPERATOR,			// a function which has been bound
 
+	// lexical types
 	LITERAL_NAME,		// /name
 	EXECUTABLE_NAME,	// name
 
@@ -23,28 +22,49 @@ enum class PSTokenType : uint32_t
 	NUMBER_INT,			// int
 	NUMBER_FLOAT,		// float
 	BOOLEAN,			// true, false
-	COMMENT			// % to end of line
+	COMMENT,			// % to end of line
+
+	// Structural types
+
+	LITERAL_ARRAY,		// []
+	PROCEDURE,			// {}
+	OPERATOR,			// a function which has been bound
+	DICTIONARY,
 };
 
+// PSTokenData
+// The union data structure used to hold the actual
+// data associated with a token.  Doing it as a union
+// 'class' will use more storage, but greatly simplifies
+// the storage and usage.
 union PSTokenData
 {
-	double		asReal;
 	bool		asBool;
 	int			asInt;
+	uint64_t	asLongLong;
+
+	float		asFloat;
+	double		asReal;
+
+	intptr_t	asPointer;
+
 	std::string asString;
 
-	PSTokenData()
+	PSTokenData()		// Need a default constructor
 	{
 		asInt = 0;
 	}
 
-	~PSTokenData(){}
+	~PSTokenData(){}	// Need this destructor
 };
 
-// The PSToken holds an actual value
+// The PSToken holds the data type, the actual data
+// and any flags we want to associated with the token
+// such as whether it is executable or not
 struct PSToken
 {
 	PSTokenType fType;
+	uint32_t fFlags;
 	PSTokenData fData;
 	
 	PSToken()
@@ -72,6 +92,7 @@ struct PSToken
 
 	~PSToken() {}
 
+	operator int() { return fData.asInt; }
 
 	std::string toString()
 	{

@@ -263,8 +263,9 @@ void PSScanner::StaticConstructor()
 
 
 
-PSScanner::PSScanner(std::shared_ptr<BinStream> bs)
-	:fStream(bs)
+PSScanner::PSScanner(PSVM * vm, std::shared_ptr<BinStream> bs)
+	:fVM(vm),
+	fStream(bs)
 {
 	StaticConstructor();
 }

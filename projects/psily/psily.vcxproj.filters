@@ -44,6 +44,18 @@
     <ClInclude Include="psstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="psinterpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psvm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psdictionary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psoperators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="hello.ps" />

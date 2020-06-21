@@ -2,16 +2,12 @@
 #include "pstoken.h"
 #include "psscanner.h"
 #include "filestream.h"
+#include "psvm.h"
 
 
 #include "psstack.h"
 
 using namespace p5;
-
-void draw()
-{
-
-}
 
 void printStream(std::shared_ptr<BinStream> bs)
 {
@@ -33,20 +29,8 @@ void setup()
 {
 
 	std::shared_ptr<BinStream> fs = std::make_shared<FileStream>("hello.ps");
-	PSScanner scanner(fs);
-
-	PSStack pstack;
-
-	pstack.push(std::make_shared<PSToken>(PSTokenType::NUMBER, (double)1));
-	pstack.push(std::make_shared<PSToken>(PSTokenType::NUMBER, (double)2));
-	pstack.push(std::make_shared<PSToken>(PSTokenType::NUMBER, (double)3));
-	pstack.exch();
-	pstack.dup();
-	//pstack.mark();
-
-	//printf("pstack.countToMark(): %d\n", pstack.countToMark());
-	printStack(pstack);
-
 	
-	
+	PSVM vm;
+	 
+	vm.eval(fs);
 }
