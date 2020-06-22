@@ -8,7 +8,9 @@
 #include <functional>
 
 class PSArray;
+class PSDictionary;
 
+/*
 enum class PSTokenFlags : uint32_t
 {
 	NONE			= 0x00,
@@ -19,7 +21,7 @@ inline PSTokenFlags operator|(PSTokenFlags a, PSTokenFlags b)
 {
 	return static_cast<PSTokenFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
-
+*/
 // Enumerate the kinds of tokens that we will see
 // This is used everywhere from the scanner to interpreter and VM
 enum class PSTokenType : uint32_t
@@ -40,10 +42,9 @@ enum class PSTokenType : uint32_t
 	COMMENT,			// % to end of line
 
 	// Structural types
-
+	OPERATOR,			// a function which has been bound
 	LITERAL_ARRAY,		// []
 	PROCEDURE,			// {}
-	OPERATOR,			// a function which has been bound
 	DICTIONARY,
 };
 
@@ -67,6 +68,7 @@ union PSTokenData
 	
 	std::function<void(PSVM& vm)> asOperator;
 	std::shared_ptr<PSArray> asArray;
+	std::shared_ptr<PSDictionary> asDictionary;
 
 
 	PSTokenData()		// Need a default constructor
@@ -83,7 +85,7 @@ union PSTokenData
 struct PSToken
 {
 	PSTokenType fType;
-	PSTokenFlags fFlags;
+	bool isExecutable;
 	PSTokenData fData;
 	
 	PSToken()
@@ -113,6 +115,12 @@ struct PSToken
 		:fType(PSTokenType::LITERAL_ARRAY)
 	{
 		fData.asArray = value;
+	}
+
+	PSToken(std::shared_ptr<PSDictionary> d)
+		:fType(PSTokenType::DICTIONARY)
+	{
+		fData.asDictionary = d;
 	}
 
 	PSToken(std::function<void(PSVM& vm)> op)

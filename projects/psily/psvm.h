@@ -8,6 +8,7 @@
 #include "psstack.h"
 #include "psoperators.h"
 #include "psarray.h"
+#include "psdictionary.h"
 
 using std::shared_ptr;
 using std::make_shared;
@@ -15,6 +16,8 @@ using std::make_shared;
 class PSVM
 {
 	PSStack fOperandStack;
+	PSDictionaryStack fDictionaryStack;
+
 	int fBuildProcDepth = 0;
 
 public:
@@ -57,7 +60,7 @@ public:
 	{
 		endArray();
 		auto arr = popOperand();
-		arr->fFlags = arr->fFlags | PSTokenFlags::EXECUTABLE;
+		arr->isExecutable = true;
 		fBuildProcDepth -= 1;
 
 		return arr;
@@ -108,10 +111,10 @@ public:
 
 	void execName(shared_ptr<PSToken> tok)
 	{
-		auto op = fDictionaryStack.load(tok->asString);
+		auto op = fDictionaryStack.load(tok->fData.asString);
 
 		if (op == nullptr) {
-			printf("UNKNOWN EXECUTABLE NAME: %s\n", tok->asString.cs_str());
+			printf("UNKNOWN EXECUTABLE NAME: %s\n", tok->fData.asString.c_str());
 			return;
 		}
 
@@ -128,8 +131,8 @@ public:
 			break;
 
 		case PSTokenType::PROCEDURE:
-			if (op->fFlags & PSFlags::EXECUTABLE) {
-				execArray(op->fData.asArray);
+			if (op->isExecutable) {
+				execArray(op);
 			}
 			else{
 				pushOperand(op);
