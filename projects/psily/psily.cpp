@@ -5,16 +5,8 @@
 #include "psvm.h"
 
 
-#include "psstack.h"
-
 using namespace p5;
 
-void printStream(std::shared_ptr<BinStream> bs)
-{
-	while (!bs->isEOF()) {
-		printf("%c", bs->readOctet());
-	}
-}
 
 void printStack(PSStack& stk)
 {

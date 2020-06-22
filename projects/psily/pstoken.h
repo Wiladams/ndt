@@ -5,11 +5,26 @@
 #include <cstdlib>
 #include <memory>
 #include <unordered_map>
+#include <functional>
+
+class PSArray;
+
+enum class PSTokenFlags : uint32_t
+{
+	NONE			= 0x00,
+	EXECUTABLE		= 0x01,
+};
+
+inline PSTokenFlags operator|(PSTokenFlags a, PSTokenFlags b)
+{
+	return static_cast<PSTokenFlags>(static_cast<int>(a) | static_cast<int>(b));
+}
 
 // Enumerate the kinds of tokens that we will see
 // This is used everywhere from the scanner to interpreter and VM
 enum class PSTokenType : uint32_t
 {
+	nil,				// a null
 	MARK,				// a noop
 
 	// lexical types
@@ -49,6 +64,10 @@ union PSTokenData
 	intptr_t	asPointer;
 
 	std::string asString;
+	
+	std::function<void(PSVM& vm)> asOperator;
+	std::shared_ptr<PSArray> asArray;
+
 
 	PSTokenData()		// Need a default constructor
 	{
@@ -64,7 +83,7 @@ union PSTokenData
 struct PSToken
 {
 	PSTokenType fType;
-	uint32_t fFlags;
+	PSTokenFlags fFlags;
 	PSTokenData fData;
 	
 	PSToken()
@@ -84,10 +103,22 @@ struct PSToken
 		fData.asBool = aBool;
 	}
 
-	PSToken(PSTokenType t, double aReal)
-		:fType(t)
+	PSToken(double aReal)
+		:fType(PSTokenType::NUMBER)
 	{
 		fData.asReal = aReal;
+	}
+
+	PSToken(std::shared_ptr<PSArray> value)
+		:fType(PSTokenType::LITERAL_ARRAY)
+	{
+		fData.asArray = value;
+	}
+
+	PSToken(std::function<void(PSVM& vm)> op)
+		:fType(PSTokenType::OPERATOR)
+	{
+		fData.asOperator = op;
 	}
 
 	~PSToken() {}

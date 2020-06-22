@@ -24,13 +24,13 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	{"count", [](PSVM& vm) {
 		auto len = vm.operandStack().length();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)len);
+		auto tok = make_shared<PSToken>((double)len);
 		vm.operandStack().push(tok);
 	}},
 
 	{"counttomark", [](PSVM& vm) {
 		auto n = vm.operandStack().countToMark();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)n);
+		auto tok = make_shared<PSToken>((double)n);
 
 		vm.operandStack().push(tok);
 	}},
@@ -55,7 +55,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		vm.operandStack().roll(n->fData.asInt, j->fData.asInt); 
 	}},
 	
-	{"top", [](PSVM& vm) {vm.operandStack().top(); }},
+	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
 
 	
 
@@ -65,7 +65,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"add", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)num1->fData.asReal + num2->fData.asReal);
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal + num2->fData.asReal);
 
 		vm.operandStack().push(tok);
 	}},
@@ -73,7 +73,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"sub", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)num1->fData.asReal - num2->fData.asReal);
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal - num2->fData.asReal);
 
 		vm.operandStack().push(tok);
 	}},
@@ -81,7 +81,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"mul", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)num1->fData.asReal * num2->fData.asReal);
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal * num2->fData.asReal);
 
 		vm.operandStack().push(tok);
 	}},
@@ -89,7 +89,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"div", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, (double)num1->fData.asReal / num2->fData.asReal);
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal / num2->fData.asReal);
 
 		vm.operandStack().push(tok);
 	}},
@@ -104,7 +104,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		else {
 			q = ceil(q);
 		}
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, q);
+		auto tok = make_shared<PSToken>(q);
 
 		vm.operandStack().push(tok);
 	}},
@@ -114,7 +114,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		auto a = vm.operandStack().pop();
 		auto value = fmod(a->fData.asReal, b->fData.asReal);
 
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, value);
+		auto tok = make_shared<PSToken>(value);
 
 		vm.operandStack().push(tok);
 	}},
@@ -124,7 +124,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		auto a = vm.operandStack().pop();
 		auto value = std::max(a->fData.asReal, b->fData.asReal);
 
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, value);
+		auto tok = make_shared<PSToken>(value);
 
 		vm.operandStack().push(tok);
 	}},
@@ -134,7 +134,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		auto a = vm.operandStack().pop();
 		auto value = std::min(a->fData.asReal, b->fData.asReal);
 
-		auto tok = make_shared<PSToken>(PSTokenType::NUMBER, value);
+		auto tok = make_shared<PSToken>(value);
 
 		vm.operandStack().push(tok);
 	}},
