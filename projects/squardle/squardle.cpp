@@ -4,8 +4,14 @@ using namespace p5;
 
 
 Pixel appTabColor(255, 253, 205);
-//Pixel appTabColor(0);
+//Pixel appTabColor(0,0,0);
+//Pixel appTabColor(255,255,255);
+
+static const int maxLevels = 9;
 static const int maxShadowLength = 6;
+static const int nFlowers = 5;
+double startRadius = 186;
+double startSize = 100;
 
 Pixel randomColor(int alpha)
 {
@@ -20,7 +26,16 @@ void setup()
 
 void drawDiamonds(double radius, double size, int level, bool shadow = false)
 {
+	double segmentRads = radians(360 / 12);
 
+	if (level > 0) {
+		//bool doShadow = level > 5;
+		bool doShadow = true;
+		push();
+		rotate(segmentRads / 2.0);
+		drawDiamonds(radius * 0.705, size * 0.70, level - 1, doShadow);
+		pop();
+	}
 
 	// Diamond path
 	BLPath diamond;
@@ -31,11 +46,11 @@ void drawDiamonds(double radius, double size, int level, bool shadow = false)
 	diamond.close();
 
 
-	double segmentRads = radians(360 / 12);
+
 	double angle = 0;
 
 	push();
-	int alpha = map(level, 9, 0, 60, 200);
+	int alpha = map(level, maxLevels, 0, 60, 200);
 	fill(randomColor(alpha));
 	noStroke();
 
@@ -43,7 +58,7 @@ void drawDiamonds(double radius, double size, int level, bool shadow = false)
 		// Draw the drop-shadow diamond
 		push();
 		//int shadowLength = 4;
-		int shadowLength = map(level, 9, 0, maxShadowLength, 0);
+		int shadowLength = map(level, maxLevels, 0, maxShadowLength, 0);
 
 		for (int offset = 1; offset <= shadowLength; offset++) {
 			//fill(0xc0, lerp(220, 10, (double)offset / shadowLength));
@@ -82,13 +97,7 @@ void drawDiamonds(double radius, double size, int level, bool shadow = false)
 	}
 	pop();
 
-	if (level > 0) {
-		//bool doShadow = level > 5;
-		bool doShadow = true;
 
-		rotate(segmentRads / 2.0);
-		drawDiamonds(radius*0.705, size*0.70, level - 1, doShadow);
-	}
 }
 
 
@@ -100,14 +109,14 @@ void draw()
 
 	background(appTabColor);
 
-	int nFlowers = 5;
+
 	noStroke();
 	for (int i = 1; i <= nFlowers; i++) {
 		push();
 		//translate(width / 2.0, height / 2.0);
 		translate(random(0, width), random(0, height));
-		scale(random(0.125, 0.5));
-		drawDiamonds(186, 100, 9, true);
+		scale(random(0.0125, 0.5));
+		drawDiamonds(startRadius, startSize, 9, true);
 		pop();
 	}
 
