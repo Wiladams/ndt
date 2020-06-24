@@ -100,9 +100,12 @@ struct vec<2, T>
         : x(X), y(Y) 
     {}
 
-    //template <class U> 
-    //vec<2, T>(const vec<2, U>& v);
-    //template<class U> vec<2,T>(const vec<2, U> &v) : x(v[0]), y(v[1]) {}
+    template <class U> 
+    vec<2, T>(const vec<2, U>& v)
+    {
+        data[0] = (T)v.data[0];
+        data[1] = (T)v.data[1];
+    }
 
     // operator returning reference allows for 
     // the setting a value
@@ -259,7 +262,8 @@ struct vec<3, T>
 /*
     Data structure representing Determinant of a matrix
 */
-template<size_t DIM, typename T> struct dt {
+template<size_t DIM, typename T> 
+struct dt {
     static T det(const mat<DIM, DIM, T>& src) {
         T ret = 0;
         for (size_t i = DIM; i--; ret += src[0][i] * src.cofactor(0, i));
@@ -267,7 +271,8 @@ template<size_t DIM, typename T> struct dt {
     }
 };
 
-template<typename T> struct dt<1, T> {
+template<typename T> 
+struct dt<1, T> {
     static T det(const mat<1, 1, T>& src) {
         return src[0][0];
     }
@@ -390,23 +395,29 @@ template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std:
 }
 
 // Some concrete types
-typedef vec<2, float> vec2f;
-typedef vec<2, int>   vec2i;
+using vec2i = vec<2, int>; 
+using vec2f = vec<2, float>;
+using vec2  = vec<2, double>;
 
-//typedef vec<3, double> Vec3;
-//typedef vec<4, uint8_t> Vec4b;
-
+using vec3i = vec<3, int>;
 using vec3f = vec<3, float>;
-using vec3i =  vec<3, int>;
-using vec3 = vec<3, float>;
+using vec3  = vec<3, double>;
 
+using vec4i = vec<4, int>;
 using vec4f = vec<4, float>;
-using Matrix = mat<4, 4, float>;
-using Matrix3 = mat<3, 3, float>;
+using vec4  = vec<4, double>;
 
+using mat3f = mat<3, 3, float>;
+using mat3  = mat<3, 3, double>;
 
-using point3 = vec3;
-using rtcolor = vec3;
+using mat4f = mat<4, 4, float>;
+using mat4  = mat<4, 4, double>;
+
+//using Matrix3 = mat<3, 3, float>; 
+//using Matrix = mat<4, 4, float>;
+
+using point3 = vec3f;
+using rtcolor = vec3f;
 
 
 
@@ -655,16 +666,17 @@ inline T Tanh(const T a)
 }
 
 
-
-inline double dot(const vec3& u, const vec3& v) {
+template <typename T>
+inline T dot(const vec<3,T> & u, const vec<3,T> & v) {
     return u.data[0] * v.data[0]
         + u.data[1] * v.data[1]
         + u.data[2] * v.data[2];
 }
 
 // Vector operations
-inline vec3 cross(const vec3& u, const vec3& v) {
-    return vec3(u.data[1] * v.data[2] - u.data[2] * v.data[1],
+template <typename T>
+inline vec<3,T> cross(const vec<3,T> & u, const vec<3,T>& v) {
+    return vec<3,T>(u.data[1] * v.data[2] - u.data[2] * v.data[1],
         u.data[2] * v.data[0] - u.data[0] * v.data[2],
         u.data[0] * v.data[1] - u.data[1] * v.data[0]);
 }

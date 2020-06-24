@@ -143,7 +143,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\primary\fontmonger.h" />
     <ClInclude Include="..\..\primary\functor.hpp" />
-    <ClInclude Include="txtmania.h" />
+    <ClInclude Include="txtmania.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />

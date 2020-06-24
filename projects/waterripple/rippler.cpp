@@ -126,7 +126,7 @@ struct rippler {
         update();
 
         ctx.loadPixels();
-        Color* pixels = ctx.getData();
+        Pixel* pixels = ctx.getData();
         for (int y = 1; y < rows - 1; y++) {
             for (int x = 1; x < cols - 1; x++) {
                 int index = x + y * cols;
@@ -202,12 +202,11 @@ void draw()
             
             // get displacement for x,y
             r1->getDisplacement(x, y, dx, dy);
-            Color c = surf.get(dx, dy);
+            Pixel c = surf.get(dx, dy);
             pixels[y * width + x] = c;
             //set(x, y, c);
         }
     }
-
 }
 
 void setup()

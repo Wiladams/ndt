@@ -1,7 +1,7 @@
 #pragma once
 
-#include "grmath.h"
 #include "blend2d.h"
+#include "grmath.h"
 #include "trianglemesh.h"
 #include "MVP3D.h"
 
@@ -34,7 +34,7 @@ struct IFragmentShader {
 // Representation of a compound shader
 struct IShader : public IVertexShader, public IFragmentShader 
 {
-	Matrix ModelProjection;
+	mat4f ModelProjection;
 	vec3f light_dir;		// Need a more complex model of light
 
 	TriangleMesh* model;

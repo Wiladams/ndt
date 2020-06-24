@@ -15,11 +15,11 @@
 
 
 #include <stdint.h>
-#include "bitbang.hpp"
-#include "random.hpp"
-
 #include <stdlib.h>
 #include <cmath>
+
+#include "bitbang.hpp"
+#include "random.hpp"
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))

@@ -1,7 +1,20 @@
 #pragma once
 
+/*
+	FileStream
+
+	A marriage between a BinStream and a 
+	memory mapped file.  Construct from a filename
+	then treat it as a BinStream.
+
+	Currently only read only.  Additional 
+	constructors in the future should be added to 
+	support creating file in write mode as well.
+*/
+
 #include "binstream.hpp"
 #include "mmap.hpp"
+
 
 class FileStream : public BinStream
 {

@@ -4,8 +4,8 @@
 #include <ctype.h>
 
 #include "trianglemesh.h"
-#include "binstream.hpp"
-#include "mmap.hpp"
+#include "filestream.h"
+
 
 // typical file structure
 // solid OpenSCAD_Model
@@ -203,15 +203,8 @@ namespace stl {
 	TriangleMesh* readFromFile(const char* filename)
 	{
 		// Create a mmap
-		mmap fmap = mmap::create(filename);
-		if (!fmap.isValid()) {
-			printf("Could not map file: %s\n", filename);
-			return nullptr;
-		}
-
-		// then a stream atop the map
-		BinStream bs(fmap.data(), fmap.size(), 0, true);
-
+		auto bs = FileStream(filename);
+		
 		// Read first 80 bytes
 		uint8_t buff[256];
 		bs.readBytes(buff, 5);

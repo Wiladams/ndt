@@ -27,12 +27,6 @@
     <ClCompile Include="..\..\primary\diffuseshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\primary\geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\primary\dproc_gl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\primary\waveobjloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -87,6 +81,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="colorshader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\trianglemesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\grmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

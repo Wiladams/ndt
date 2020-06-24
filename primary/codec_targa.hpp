@@ -63,10 +63,11 @@
 */
 
 
-#include "binstream.hpp"
+//#include "binstream.hpp"
 #include "blend2d.h"
 #include "bitbang.hpp"
-#include "mmap.hpp"
+//#include "mmap.hpp"
+#include "filestream.h"
 
 namespace targa {
     //    Convenience structures
@@ -566,13 +567,12 @@ namespace targa {
 
     static BLImage* readFromFile(const char* filename, TargaMeta& meta)
     {
-        mmap fmap = mmap::create(filename);
-        if (!fmap.isValid()) {
+        auto bs = FileStream(filename);
+
+        if (!bs.isValid()) {
             printf("Could not map file: %s\n", filename);
             return nullptr;
         }
-
-        BinStream bs(fmap.data(), fmap.size(), 0, true);
 
         if (!bs.isValid()) {
             printf("BinaryStream not valid.\n");

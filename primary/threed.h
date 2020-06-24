@@ -6,8 +6,8 @@
 #include <algorithm>
 
 #include "p5.hpp"
-#include "TriangleMesh.h"
-#include "grmath.h"
+#include "trianglemesh.h"
+
 #include "Surface.h"
 #include "diffuseshader.h"
 
@@ -38,13 +38,13 @@ class ThreeD {
 
 	// OpenGL-like functions to do various
 	// calculations
-	static Matrix ogl_lookat(vec3f& eye, vec3f& center, vec3f& up)
+	static mat4f ogl_lookat(vec3f& eye, vec3f& center, vec3f& up)
 	{
 		vec3f z = (eye - center).normalize();
 		vec3f x = cross(up, z).normalize();
 		vec3f y = cross(z, x).normalize();
-		Matrix Minv = Matrix::identity();
-		Matrix Tr = Matrix::identity();
+		mat4f Minv = mat4f::identity();
+		mat4f Tr = mat4f::identity();
 		for (int i = 0; i < 3; i++)
 		{
 			Minv[0][i] = x[i];
@@ -53,22 +53,22 @@ class ThreeD {
 			Tr[i][3] = -center[i];
 		}
 
-		Matrix m = Minv * Tr;
+		mat4f m = Minv * Tr;
 
 		return m;
 	}
 
-	static Matrix ogl_projection(float coeff = 0.f)
+	static mat4f ogl_projection(float coeff = 0.f)
 	{
-		Matrix res = Matrix::identity();
+		mat4f res = mat4f::identity();
 		res[3][2] = coeff;
 
 		return res;
 	}
 
-	static Matrix ogl_viewport(const int x, const int y, const int w, const int h)
+	static mat4f ogl_viewport(const int x, const int y, const int w, const int h)
 	{
-		Matrix res = Matrix::identity();
+		mat4f res = mat4f::identity();
 
 		res[0][3] = x + w / 2.f;
 		res[1][3] = y + h / 2.f;
@@ -169,7 +169,7 @@ public:
 
 		vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 		vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-		vec2f clamp(fWidth - 1, fHeight - 1);
+		vec2f clamp((float)fWidth - 1, (float)fHeight - 1);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 2; j++) {
@@ -180,8 +180,8 @@ public:
 
 		vec2i P;
 		BLRgba32 fragcolor;
-		for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
-			for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
+		for (P.x = (int)bboxmin.x; P.x <= bboxmax.x; P.x++) {
+			for (P.y = (int)bboxmin.y; P.y <= bboxmax.y; P.y++) {
 				vec3f bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
 				vec3f bc_clip = vec3f(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
 				bc_clip = bc_clip / (bc_clip.x + bc_clip.y + bc_clip.z);

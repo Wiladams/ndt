@@ -19,9 +19,9 @@ struct ColorShader : public IShader {
 	{}
 
 	// vertex shader
-	virtual Vec4f vertex(int iface, int nthvert);
+	virtual vec4f vertex(int iface, int nthvert);
 
 	// fragment shader
-	virtual bool fragment(Vec3f bar, BLRgba32& color);
+	virtual bool fragment(vec3f bar, BLRgba32& color);
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "IShader.h"
-#include "TriangleMesh.h"
+#include "trianglemesh.h"
 #include "MVP3D.h"
 
 //

@@ -62,7 +62,7 @@ void drawDiamonds(double radius, double size, int level, bool shadow = false)
 
 		for (int offset = 1; offset <= shadowLength; offset++) {
 			//fill(0xc0, lerp(220, 10, (double)offset / shadowLength));
-			fill(60, lerp(220, 10, (double)offset / shadowLength));
+			fill(90, lerp(220, 10, (double)offset / shadowLength));
 			for (int idx = 1; idx <= 12; idx++)
 			{
 				double x = radius * cos(angle) + offset;

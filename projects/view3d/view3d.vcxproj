@@ -146,8 +146,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
     <ClCompile Include="..\..\primary\diffuseshader.cpp" />
-    <ClCompile Include="..\..\primary\dproc_gl.cpp" />
-    <ClCompile Include="..\..\primary\geometry.cpp" />
     <ClCompile Include="..\..\primary\p5.cpp" />
     <ClCompile Include="..\..\primary\waveobjloader.cpp" />
     <ClCompile Include="colorshader.cpp" />
@@ -161,12 +159,14 @@
     <ClInclude Include="..\..\primary\diffuseshader.h" />
     <ClInclude Include="..\..\primary\geometry.h" />
     <ClInclude Include="..\..\primary\Graphics.h" />
+    <ClInclude Include="..\..\primary\grmath.h" />
     <ClInclude Include="..\..\primary\imagesampler.h" />
     <ClInclude Include="..\..\primary\IShader.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\mmap.hpp" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\threed.h" />
+    <ClInclude Include="..\..\primary\trianglemesh.h" />
     <ClInclude Include="calendar.hpp" />
     <ClInclude Include="colorshader.hpp" />
     <ClInclude Include="MonthTile.hpp" />

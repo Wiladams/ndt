@@ -126,9 +126,6 @@
     <ClInclude Include="VfwCaptureDevice.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gview.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="graphic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -205,6 +202,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="canvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drawable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

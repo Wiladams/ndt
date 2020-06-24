@@ -1,17 +1,11 @@
 #pragma once
 
-#include "p5.hpp"
+//#include "p5.hpp"
+//#include "drawable.h"
+#include "gview.h"
+
 #include <memory>
-
-class IDrawable 
-{
-protected:
-	virtual ~IDrawable() {}
-
-public:
-
-	virtual void draw(IGraphics* ctx) = 0;
-};
+#include <vector>
 
 /*
 	A Graphic is something that has a preferred
@@ -46,10 +40,12 @@ public:
 	{}
 
 	Graphic(const BLRect& frame) 
-		:fFrame(frame)
-	{}
+		:fFrame(frame),
+		fBounds(0,0,frame.w, frame.h)
+	{
+	}
 
-
+	BLRect getBounds() const { return fBounds; }
 	BLRect getFrame() const { return fFrame; }
 	
 	void addChild(std::shared_ptr<IGraphic> child)

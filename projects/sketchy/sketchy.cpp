@@ -7,6 +7,7 @@
 #include "gpath.h"
 #include "drawingtool.h"
 #include "tabbedview.h"
+#include "gview.h"
 
 using namespace p5;
 
