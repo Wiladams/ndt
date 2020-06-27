@@ -56,12 +56,12 @@ extern "C" {
 #endif
 
 // clamp() and constrain() do the exact same thing
-inline double clamp(double x, double min, double max) 
-{
-    if (x < min) return min;
-    if (x > max) return max;
-    return x;
-}
+//inline double clamp(double x, double min, double max) 
+//{
+//    if (x < min) return min;
+//    if (x > max) return max;
+//    return x;
+//}
 
 inline double constrain(double x, double low, double high)
 {

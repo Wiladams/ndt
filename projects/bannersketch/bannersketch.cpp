@@ -81,7 +81,6 @@ void keyTyped(const KeyEvent& event)
 // Press the Esc key to stop the application
 void keyReleased(const KeyEvent& event)
 {
-
 	if (keyCode == VK_ESCAPE) {
 		halt();
 	}

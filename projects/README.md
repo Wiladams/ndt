@@ -1,8 +1,8 @@
-This is a collection of little Desktop Actions (d-action).  Just little programs that are easy to
-code, easy to play with.  A little distraction while you work.
+This is a collection of little Desktop Fidgets.  Just little programs that 
+are easy to code, easy to play with.  A little distraction while you work.
 
-Part of d-action is to find out what the program does.  In many cases, you play around by moving
-the mouse or pressing some keys on the keyboard.
+Part of a widget is to find out what the program does.  In many cases, you 
+play around by moving the mouse or pressing some keys on the keyboard.
 
 Some Keyboard Hints
 ===================
@@ -14,17 +14,26 @@ Sometimes action just occurs on its own and there's nothing for you to do
 but watch, or is there...
 
 
-simchain
-========
-move the mouse around, press up/down arrow, press [space], press [ESC]
+analogclock
+===========
+
 
 bannersketch
 ============
 just watch, click a ball, then press [ESC], [space] will turn into a normal window
 
+cal3d
+=====
+
+calendar
+========
+
 compkeyboard
 ============
 type on regular physical keyboard, watch virtual keys light up, press [ESC] to switch modes
+
+covidplot
+=========
 
 desktoplife
 ===========
@@ -33,9 +42,58 @@ Controls
 --------
 press [SPACE] to reset. click other windows on desktop, click on single cell to restore life, [ESC] to quit
 
+finalysis
+=========
+
+joyride
+=======
+
+lerpcolor
+=========
+
+lsystem
+=======
+
+pagiview
+========
+
+parimage
+========
+
+primary
+=======
+
+psily
+=====
+
+rain
+====
+
+rainbow
+=======
+
+ratiow
+======
+
+remoter
+=======
+
 screenplanes
 ============
     capture section of screen, split it to R,G,B,Gray.  Move it to ============  the right so it's not part of capture
+
+shapes
+======
+
+simchain
+========
+move the mouse around, press up/down arrow, press [space], press [ESC]
+
+sinwave
+=======
+
+sketchy
+=======
 
 snapview
 ========
@@ -50,11 +108,21 @@ Controls
 --------
 [SPACE] to see a different view
 
+squardle
+========
+
+starfield
+=========
 
 svgcolors
 =========
     just mouse around pretty colors
 
+targetit
+========
+
+tgaviewer
+=========
 
 timeflies
 =========
@@ -77,6 +145,17 @@ Controls:
     [ESC]   To quit time.  You must have clicked on at least one clock
             to bring them to the forefront before you can click.  
 
+txtmania
+========
+
+view3d
+======
+
+viewstl
+=======
+
+waterripple
+===========
 
 wavemaker - move mouse around, watch pretty patterns
 =========

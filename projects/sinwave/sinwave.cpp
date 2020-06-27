@@ -23,7 +23,7 @@ void draw()
 
 	// Cosine curve
 	double lastcosy = map(cos(0), -1, 1, maxy - 1, 0);
-	for (int x = lastx+1; x <= maxx; x++) {
+	for (int x = (int)lastx+1; x <= maxx; x++) {
 		double angx = map(x, minx, maxx, 0, frequency*2 * PI);
 
 		double cosx = cos(angx);
@@ -43,7 +43,7 @@ void draw()
 	lastx = 0;
 	double lastsiny = map(sin(0), -1, 1, (double)maxy - 1, 0);
 	
-	for (int x = lastx+1; x < maxx - 1; x++) {
+	for (int x = (int)lastx+1; x < (int)maxx - 1; x++) {
 		double angx = map(x, 0, (double)maxx - 1, 0, frequency * 2 * PI*2);
 
 		double sinx = sin(angx-(PI/2.0));	// shift phase to be opposite with cosx

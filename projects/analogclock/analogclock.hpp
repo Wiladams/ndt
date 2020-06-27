@@ -8,7 +8,6 @@
 #include <sstream>
 #include <cstdio>
 
-//using namespace std;
 using namespace p5;
 
 
@@ -184,12 +183,6 @@ public:
             along the way.
     */
 
-    std::string ITOA(int Number) {
-        std::ostringstream convert;
-        convert << Number;
-        return convert.str();
-    }
-
     void drawHourNumbers(IGraphics& ctx)
     {
         ctx.push();
@@ -202,9 +195,7 @@ public:
         double r = fRadius - 34;
 
         for (int i = 1; i <= 12; i++) {
-            //local x = self.centerX + (r * cos(angle))
-            //local y = self.centerY + (r * sin(angle))
-            std::string Number = ITOA(i);
+            std::string Number = std::to_string(i);
             ctx.text(Number.c_str(), fCenterX + (r * cos(angle)), fCenterY + (r * sin(angle)));
             angle = angle + segmentRads;
         }
@@ -247,7 +238,6 @@ public:
         ctx.pop();
     }
 
-
     void drawMinuteHand(IGraphics& ctx)
     {
         ctx.push();
@@ -264,7 +254,6 @@ public:
         ctx.pop();
     }
  
-
     void drawSecondsHand(IGraphics& ctx)
     {
         ctx.push();
@@ -280,7 +269,6 @@ public:
         secRads = secRads + fOvershootRemaining;
 
         fOvershootRemaining = constrain(fOvershootRemaining - fRecoveryIncrement, 0, fOvershootAmount);
-
 
         ctx.rotate(secRads);
 
@@ -311,18 +299,14 @@ public:
     {
         // fill background
         BLGradient gradient(BLRadialGradientValues(fCenterX, fCenterY, fCenterX, fCenterY, fRadius));
-        gradient.addStop(0, color(220, 127));     // center
+        gradient.addStop(0, color(220, 127));       // center
         gradient.addStop(0.20, color(fBackgroundColor.r, fBackgroundColor.g, fBackgroundColor.b, 127));     // center
         gradient.addStop(0.80, fBackgroundColor);
-        gradient.addStop(1.0, color(65, 127));              // edge
+        gradient.addStop(1.0, color(65, 127));     // edge
         ctx.fill(gradient);
         //ctx.fill(fBackgroundColor);
 
-
         noStroke();
-        //ctx.stroke(255);
-        //ctx.strokeWeight(2);
-        //ctx.fill(210, 210, 210);
 
         ctx.ellipseMode(ELLIPSEMODE::RADIUS);
         ctx.circle(fCenterX, fCenterY, fRadius);
@@ -332,13 +316,10 @@ public:
         noStroke();
         ctx.fill(240,65);
         ctx.circle(fCenterX, fCenterY, fCenterRadius);
-
     }
 
     void draw(IGraphics& ctx)
     {
-        //printf("RAWMOUSE: %d %d\n", rawMouseX, rawMouseY);
-
         // if self driven, get our own time
         if (!fDrivenExternally) {
             GetLocalTime(&fTime);
@@ -359,7 +340,6 @@ public:
 
         drawHourTickmarks(ctx);
         drawSecondTickmarks(ctx);
-
 
         drawHourHand(ctx);
         drawMinuteHand(ctx);

@@ -8,7 +8,7 @@
 class RaytraceHUD {
     GUIStyle fStyler;
     Surface fSurface;
-    RayTracer& fTracer;
+    shared_ptr<RayTracer> fTracer;
 
     void textRaised(const char* txt, int x, int y, int w, int h)
     {
@@ -33,7 +33,7 @@ class RaytraceHUD {
     }
 
 public:
-    RaytraceHUD(const int w, const int h, RayTracer& tracer)
+    RaytraceHUD(const int w, const int h, shared_ptr<RayTracer> tracer)
         : fSurface(w, h, 1),
         fTracer(tracer)
     {
@@ -69,7 +69,7 @@ public:
         fSurface.text(" S - Save", 0, 54);
         char buff[32];
         int buffLen = 32;
-        sprintf_s(buff, buffLen, "+/-  Samples (%d)", fTracer.getSamplesPerPixel());
+        sprintf_s(buff, buffLen, "+/-  Samples (%d)", fTracer->getSamplesPerPixel());
         fSurface.text(buff, 120, 54);
 
         fSurface.pop();

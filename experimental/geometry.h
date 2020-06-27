@@ -74,15 +74,6 @@
 		T x, y;
 	};
 
-	/*
-	// Need something like the following to make the above compile
-	template<typename T>
-	template<class U>
-	inline vec<2, T>::vec(const vec<2, U>& v)
-	{
-
-	}
-	*/
 
 	/////////////////////////////////////////////////////////////////////////////////
 	// Three dimensional vector of specified type

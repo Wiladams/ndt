@@ -76,16 +76,12 @@ void draw()
 	drawYearOfMonths(gAppSurface);
 	pop();
 
-
 	drawDayTiles(gAppSurface);
 }
 
 
-
-
 void setup()
 {
-
 	//createCanvas(cellSize.w*numColumns+(edgeMargin *numColumns-1), cellSize.h*numRows+(edgeMargin *numRows-1));
 	createCanvas(1024, 768);
 

@@ -40,23 +40,23 @@
 
 
 
-#define byte(v) (floor(v+0.5))
-const Pixel ltGray{ 0xffc0c0c0 };
+inline uint8_t tobyte(double v) {return int(floor(v + 0.5));}
+
 
 Pixel brighter(const Pixel&value)
 {
-    uint8_t red = byte(constrain(value.r *(1/0.80), 0, 255));
-    uint8_t green = byte(constrain(value.g * (1.0/0.85), 0, 255));
-    uint8_t blue = byte(constrain(value.b * (1.0/0.80), 0,255));
+    uint8_t red = tobyte(constrain(value.r *(1/0.80), 0, 255));
+    uint8_t green = tobyte(constrain(value.g * (1.0/0.85), 0, 255));
+    uint8_t blue = tobyte(constrain(value.b * (1.0/0.80), 0,255));
 
     return Pixel(red, green, blue, value.a);
 }
 
 Pixel darker(const Pixel&value)
 {
-    uint8_t red = byte(value.r *0.60);
-    uint8_t green = byte(value.g * 0.60);
-    uint8_t blue = byte(value.b * 0.60);
+    uint8_t red = tobyte(value.r *0.60);
+    uint8_t green = tobyte(value.g * 0.60);
+    uint8_t blue = tobyte(value.b * 0.60);
 
     return Pixel(red, green, blue, value.a);
 }
@@ -95,7 +95,7 @@ public:
     {
         setBaseColor(baseColor);
 
-        fForeground =  ltGray;
+        fForeground = Pixel(0xffc0c0c0);
 
 
         fBottomShadow = darker(fForeground); // 0x00616161;
@@ -108,10 +108,10 @@ public:
     GUIStyle()
         : fBorderWidth(2)
     {
-        setBaseColor(ltGray);
+        setBaseColor(Pixel(0xffc0c0c0));
 
 
-        fForeground = ltGray;
+        fForeground = Pixel(0xffc0c0c0);
 
 
         fBottomShadow = darker(fForeground); // 0x00616161;
@@ -137,7 +137,7 @@ public:
     Pixel getForeground() { return fForeground;}
     void setForeground(const Pixel&value){fForeground = value;}
 
-    int getBorderWidth(){return fBorderWidth;}
+    int getBorderWidth(){return (int)fBorderWidth;}
     void setBorderWidth(const int value) {fBorderWidth = value;}
 
     int getPadding() {return 2; }

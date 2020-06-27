@@ -8,9 +8,8 @@
     aspect ratio, and other properties
 */
 
-//#include "rtweekend.h"
-#include "grmath.h"
-#include "ray.h"
+#include "rtweekend.h"
+//#include "ray.h"
 
 class Camera {
 private:
@@ -41,7 +40,7 @@ public:
         double t0 = 0,
         double t1 = 0
     ) {
-        auto theta = Radians(vfov);
+        auto theta = degrees_to_radians(vfov);
         auto h = Tan(theta / 2);
         auto viewport_height = 2.0 * h;
         auto viewport_width = aspect_ratio * viewport_height;
@@ -49,8 +48,8 @@ public:
         // calculate the basis vectors for camera
         // the basis vectors define the 3D coordinate space
         // for the camera
-        w = (lookfrom - lookat).unit();
-        u = cross(vup, w).unit();
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
         v = cross(w, u);
 
         origin = lookfrom;
@@ -70,7 +69,8 @@ public:
         return Ray(
             origin + offset,
             lower_left_corner + s * horizontal + t * vertical - origin - offset,
-            random_double_range(time0, time1));
+            random_double_range(time0, time1)
+        );
     }
 
 

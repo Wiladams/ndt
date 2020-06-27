@@ -70,7 +70,6 @@ void setup()
 {
 	createCanvas(400, 400);
 
-	//frameRate(1);
 	joystick();		// turn on joystick messages
 }
 

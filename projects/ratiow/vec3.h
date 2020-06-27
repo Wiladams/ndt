@@ -1,225 +1,84 @@
 #pragma once
-
 #ifndef VEC3_H
 #define VEC3_H
 
-/*
-//
-//    grmath.h
-//
-//    This file contains the data types and math routines
-//    that are typically used in the creation of various
-//    kinds of graphics.
-*/
-
 #include <cmath>
 #include <iostream>
-#include <cassert>
-
-#include "maths.hpp"
 
 using std::sqrt;
 
-
-// pre-define matrix type so vector routines can use them
-template<size_t DimCols, size_t DimRows, typename T> class mat;
-
-//
-// A homogenous array of a specified type and size
-// this can be a generalized array.  Why not use
-// std::array?  Because we don't want to draw in
-// std library if we don't have to as it requires exception
-// handling.
-// DIM - typically 2, 3, or 4
-//
-template <size_t DIM, typename T> 
-struct vec
-{
-private:
-    T data[DIM];
-
+class vec3 {
 public:
-    // default constructor, sets data values to 
-    // default of the specified data type
-    vec() 
-    {
-        for (size_t i = 0; i < DIM; i++)
-            data[i] = T();
-    }
+    vec3() : e{ 0,0,0 } {}
+    vec3(double e0, double e1, double e2) : e{ e0, e1, e2 } {}
 
-    // operator returning reference allows for 
-    // the setting a value
-    // vec[2] = value;
-    T& operator[](const size_t i) 
-    {
-        assert(i < DIM);
-        return data[i];
-    }
+    double x() const { return e[0]; }
+    double y() const { return e[1]; }
+    double z() const { return e[2]; }
 
-    // operator returning value based on index
-    // value = vec[2];
-    const T& operator[](const size_t i) const 
-    {
-        assert(i < DIM);
-        return data[i];
-    }
+    vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
+    double operator[](int i) const { return e[i]; }
+    double& operator[](int i) { return e[i]; }
 
-    const double lengthSquared() const
-    {
-        double res=0;
-        for (size_t i=0; i<DIM; i++){
-            res += data[i]* data[i];
-        }
-
-        return res;
-    }
-
-    double length() const
-    {
-        return std::sqrt(lengthSquared());
-    }
-};
-
-// Two dimensional vector of specified type
-template <typename T> 
-struct vec<2, T>
-{
-    union {
-        T data[2];
-        struct {
-            T x;
-            T y;
-        };
-        struct {
-            T u;
-            T v;
-        };
-    };
-
-    vec() : x(T()), y(T()) {}
-    vec(T X, T Y) : x(X), y(Y) {}
-
-    template <class U> vec<2, T>(const vec<2, U>& v);
-
-    // operator returning reference allows for 
-    // the setting a value
-    // vec[1] = value;
-    T& operator[](const size_t i)
-    {
-        assert(i < 2);
-        return i <= 0 ? x : y;
-    }
-
-    const T& operator[](const size_t i) const
-    {
-        assert(i < 2);
-        return i <= 0 ? x : y;
-    }
-};
-
-
-// Three dimensional vector of specified type
-template <typename T> 
-struct vec<3, T>
-{
-    union {
-        T data[3];
-    struct {
-        T x;
-        T y;
-        T z;
-    };
-    struct {
-        T r;
-        T g;
-        T b;
-    };
-    };
-
-
-    vec() : data{0,0,0} {}
-    vec(T X, T Y, T Z) : data{ X,Y,Z } {}
-
-    // Copy constructor from other type
-    template <class U> vec<3, T>(const vec<3, U>& v);
-
-    // Negation
-    vec<3, T> operator-() const {return vec<3, T>(-data[0], -data[1], -data[2]);}
-    T operator[](const size_t i) const {return data[i];}        // retrieving value
-    T& operator[](const size_t i) { return data[i]; }              // setting value
-
-    vec<3, T>& operator +=(const vec<3, T>& rhs)
-    {
-        data[0] += rhs.data[0];
-        data[1] += rhs.data[1];
-        data[2] += rhs.data[2];
-
-        return *this;
-    }
-    /*
-    vec<3, T>& operator -=(const vec<3, T>& rhs)
-    {
-        x -= rhs.x;
-        y -= rhs.y;
-        z -= rhs.z;
-
-        return *this;
-    }
-    */
-    
-    vec<3, T>& operator *=(const vec<3, T>& rhs)
-    {
-        x *= rhs.x;
-        y *= rhs.y;
-        z *= rhs.z;
-
-        return *this;
-    }
-    
-    vec<3, T>& operator *=(const double t)
-    {
-        data[0] *= t;
-        data[1] *= t;
-        data[2] *= t;
-
+    vec3& operator+=(const vec3& v) {
+        e[0] += v.e[0];
+        e[1] += v.e[1];
+        e[2] += v.e[2];
         return *this;
     }
 
-    vec<3, T>& operator /=(const double t)
-    {
+    vec3& operator*=(const double t) {
+        e[0] *= t;
+        e[1] *= t;
+        e[2] *= t;
+        return *this;
+    }
+
+    vec3& operator/=(const double t) {
         return *this *= 1 / t;
     }
 
-    // return linear interpolation between two vectors
-    vec<3, T> lerp(const vec<3, T>& other, float t) const
-    {
-        vec<3, T> res();
-        res.x = lerp(t, x, other.x);
-        res.y = lerp(t, y, other.y);
-        res.z = lerp(t, z, other.z);
-
-        return res;
+    double length() const {
+        return sqrt(length_squared());
     }
 
-    double lengthSquared() const
-    {
-        return (data[0] * data[0] + data[1] * data[1] + data[2] * data[2]);
+    double length_squared() const {
+        return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+    }
+/*
+    void write_color(std::ostream& out, int samples_per_pixel) {
+        // Replace NaN component values with zero.
+        // See explanation in Ray Tracing: The Rest of Your Life.
+        if (e[0] != e[0]) e[0] = 0.0;
+        if (e[1] != e[1]) e[1] = 0.0;
+        if (e[2] != e[2]) e[2] = 0.0;
+
+        // Divide the color total by the number of samples and gamma-correct
+        // for a gamma value of 2.0.
+        auto scale = 1.0 / samples_per_pixel;
+        auto r = sqrt(scale * e[0]);
+        auto g = sqrt(scale * e[1]);
+        auto b = sqrt(scale * e[2]);
+
+        // Write the translated [0,255] value of each color component.
+        out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
+            << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
+            << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
+    }
+*/
+    inline static vec3 random() {
+        return vec3(random_double(), random_double(), random_double());
     }
 
-    double length() const
-    {
-        return std::sqrt(lengthSquared());
+    inline static vec3 random(double min, double max) {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 
-    // Normalize the current vector in place
-    vec<3, T>& normalize(T l = 1)
-    {
-        *this = (*this) * (l / length()); 
-        return *this;
-    }
-
-
+public:
+    double e[3];
 };
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 /*
@@ -232,7 +91,7 @@ inline std::ostream& operator<<(std::ostream& out, const vec<3, T>& v)
 }
 
 template <typename T>
-inline vec<3, T> operator+(const vec<3, T>& u, const vec<3, T>& v) 
+inline vec<3, T> operator+(const vec<3, T>& u, const vec<3, T>& v)
 {
     return vec<3, T>(u.data[0] + v.data[0], u.data[1] + v.data[1], u.data[2] + v.data[2]);
 }
@@ -245,7 +104,7 @@ inline vec<3, T> operator-(const vec<3, T>& u, const vec<3, T>& v)
 
 template <typename T>
 inline vec<3, T> operator*(const vec<3, T>& u, const vec<3, T>& v) {
-    return vec<3,T>(u.data[0] * v.data[0], u.data[1] * v.data[1], u.data[2] * v.data[2]);
+    return vec<3, T>(u.data[0] * v.data[0], u.data[1] * v.data[1], u.data[2] * v.data[2]);
 }
 
 template <typename T>
@@ -337,14 +196,13 @@ template<size_t DIM, typename T, typename U> vec<DIM, T> operator*(const U& rhs,
 
     return lhs;
 }
-*/
-template<size_t DIM, typename T, typename U> 
-vec<DIM, T> operator/(vec<DIM, T> lhs, const U& rhs) {
+
+template<size_t DIM, typename T, typename U> vec<DIM, T> operator/(vec<DIM, T> lhs, const U& rhs) {
     for (size_t i = DIM; i--; lhs[i] /= rhs);
 
     return lhs;
 }
-
+*/
 
 
 /*
@@ -359,14 +217,13 @@ vec<DIM, T> operator/(vec<DIM, T> lhs, const U& rhs) {
 //    return vec<3,T>(u.data[0] * v.data[0], u.data[1] * v.data[1], u.data[2] * v.data[2]);
 //}
 
-
-//template <typename T>
-//inline vec<3,T> operator/(const vec<3, T>& v, const double t)
-//{
-//    return (1 / t) * v;
-//}
-
 /*
+template <typename T>
+inline vec<3,T> operator/(const vec<3, T>& v, const double t)
+{
+    return (1 / t) * v;
+}
+
 template <typename T>
 inline vec<3, T> operator +(const vec<3, T>& a, const vec<3, T>& b)
 {
@@ -387,7 +244,7 @@ inline vec<3, T> operator -(const vec<3, T>& a, const vec<3, T>& b)
     return res -= b;
 }
 */
-
+/*
 template<size_t LEN, size_t DIM, typename T> vec<LEN, T> embed(const vec<DIM, T>& v, T fill = 1) {
     vec<LEN, T> ret;
     for (size_t i = LEN; i--; ret[i] = (i < DIM ? v[i] : fill));
@@ -403,11 +260,11 @@ vec<LEN, T> proj(const vec<DIM, T>& v)
 
     return ret;
 }
-
+*/
 /*
     Data structure representing Determinant of a matrix
 */
-template<size_t DIM, typename T> 
+template<size_t DIM, typename T>
 struct dt {
     static T det(const mat<DIM, DIM, T>& src) {
         T ret = 0;
@@ -416,7 +273,7 @@ struct dt {
     }
 };
 
-template<typename T> 
+template<typename T>
 struct dt<1, T> {
     static T det(const mat<1, 1, T>& src) {
         return src[0][0];
@@ -540,23 +397,23 @@ template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std:
 }
 
 // Some concrete types
-using vec2i = vec<2, int>; 
+using vec2i = vec<2, int>;
 using vec2f = vec<2, float>;
-using vec2  = vec<2, double>;
+using vec2 = vec<2, double>;
 
 using vec3i = vec<3, int>;
 using vec3f = vec<3, float>;
-using vec3  = vec<3, double>;
+using vec3 = vec<3, double>;
 
 using vec4i = vec<4, int>;
 using vec4f = vec<4, float>;
-using vec4  = vec<4, double>;
+using vec4 = vec<4, double>;
 
 using mat3f = mat<3, 3, float>;
-using mat3  = mat<3, 3, double>;
+using mat3 = mat<3, 3, double>;
 
 using mat4f = mat<4, 4, float>;
-using mat4  = mat<4, 4, double>;
+using mat4 = mat<4, 4, double>;
 
 using point3 = vec3;
 using rtcolor = vec3;
@@ -579,7 +436,7 @@ static const double TAU = 6.28318530717958647693;
 
 // Math functions
 /*
-    Routines to be found in here, typical of a shader 
+    Routines to be found in here, typical of a shader
     language, or any other graphics library
     In many cases, there's already something in standard
     math libraries, but here, the operation might apply to a vector
@@ -600,7 +457,7 @@ static const double TAU = 6.28318530717958647693;
 
     ldexp       length          lerp
     lit         log             log10
-    log2        mad             max 
+    log2        mad             max
     min         modf            msad4
     mul         noise           normalize
     pow         printf          radians
@@ -608,7 +465,7 @@ static const double TAU = 6.28318530717958647693;
     reversebits round           rsqrt
     saturate    sign            sin
     sincos      sinh            smoothstep
-    sqrt        step            tan 
+    sqrt        step            tan
     tanh        tex1D           tex2D
     tex3D       transpose       trunc
 
@@ -658,11 +515,11 @@ inline T Ceil(const T a)
     return (T)ceil(a);
 }
 
-//template <typename T>
-//inline T Clamp(T x, T minValue, T maxValue) noexcept
-//{
-//    return Min(Max(x, minValue), maxValue);
-//}
+template <typename T>
+inline T Clamp(T x, T minValue, T maxValue) noexcept
+{
+    return Min(Max(x, minValue), maxValue);
+}
 
 template <typename T>
 inline T Cos(const T a)
@@ -752,18 +609,18 @@ inline T Tanh(const T a)
 
 
 // Utility Functions
-inline double random_double() 
+inline double random_double()
 {
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double random_double_range(double min, double max) 
+inline double random_double_range(double min, double max)
 {
     // Returns a random real in [min,max).
     return min + (max - min) * random_double();
 }
 
-inline int random_int(int low, int high) 
+inline int random_int(int low, int high)
 {
     // Returns a random integer in [min,max].
     return static_cast<int>(random_double_range(low, high + 1));

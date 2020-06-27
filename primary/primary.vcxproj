@@ -160,8 +160,8 @@
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="FastNoise.h" />
     <ClInclude Include="filestream.h" />
+    <ClInclude Include="filesys.h" />
     <ClInclude Include="functor.hpp" />
-    <ClInclude Include="geometry.h" />
     <ClInclude Include="GMesh.h" />
     <ClInclude Include="gpath.h" />
     <ClInclude Include="graphic.hpp" />
@@ -208,7 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
-    <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="grmath.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="primary.cpp" />
     <ClCompile Include="waveobjloader.cpp" />

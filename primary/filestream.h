@@ -34,7 +34,7 @@ public:
 		fFileName(filename)
 	{
 		fFileMap = mmap::create_shared(filename);
-		if (fFileMap->isValid())
+		if ((fFileMap != nullptr) && fFileMap->isValid())
 		{
 			setData((uint8_t *)fFileMap->data(), fFileMap->size());
 		}

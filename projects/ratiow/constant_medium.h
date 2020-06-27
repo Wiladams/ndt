@@ -48,10 +48,10 @@ bool constant_medium::hit(const Ray& r, double t_min, double t_max, hit_record& 
 
     hit_record rec1, rec2;
 
-    if (!boundary->hit(r, -INFD, INFD, rec1))
+    if (!boundary->hit(r, -infinity, infinity, rec1))
         return false;
 
-    if (!boundary->hit(r, rec1.t + 0.0001, INFD, rec2))
+    if (!boundary->hit(r, rec1.t + 0.0001, infinity, rec2))
         return false;
 
     if (debugging) 

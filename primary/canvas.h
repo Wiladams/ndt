@@ -53,8 +53,8 @@ public:
 
     BLRgba32 get(int x, int y)
     {
-        int px = (int)Clamp(x, 0, fImageData.size.w - 1);
-        int py = (int)Clamp(y, 0, fImageData.size.h - 1);
+        int px = (int)clamp(x, 0, fImageData.size.w - 1);
+        int py = (int)clamp(y, 0, fImageData.size.h - 1);
 
         // Get data from BLContext
         int bytesPer = getBytesPerPixel();

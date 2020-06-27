@@ -76,31 +76,31 @@ void preload()
 	}
 
 	// Load the various images
-	//auto err = potOfGold.readFromFile("potofgold.jpg");
 	auto err = potOfGold.readFromFile("potofgold.png");
 
 	if (err)
 		printf("could not load pot of gold (%d)\n", err);
 }
 
-void keyReleased(const KeyEvent& e)
+void setup()
 {
-	if (e.keyCode == VK_ESCAPE)
-		halt();
+	createCanvas(displayWidth, displayHeight);
+	layered();
+	setWindowPosition(0, 0);
 }
+
+
 
 void draw()
 {
 	static const int baseSize = 300;
 
-
-	if (isLayered()) {
+	//if (isLayered()) {
 		clear();
-	} else
-	{
-		background(255);
-	}
-
+	//} else
+	//{
+	//	background(255);
+	//}
 
 	// draw pot of gold at end of rainbow
 	int potX = width - potOfGold.width() - 200;
@@ -127,45 +127,22 @@ void draw()
 		grad.addStop(0.80, c1);
 		grad.addStop(1.0, c0);
 
-		//int finalX = map(x, 0, baseSize, width - 20, width - potOfGold.width() + 30);
-		//int finalY = height - potOfGold.height() + 46;
-
 		int finalX = map(x, 0, baseSize, potX+potOfGold.width()-10, potX+30);
 		int finalY = potY+36;
 
 		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY, 1200);
 		bez.draw(gAppSurface);
 
-		/*
-		// This one deposits in the pot of gold, using regular bezier
-		bezier(
-			x, height, 
-			width * 0.3, yoffset,
-			width * 0.6, yoffset,
-			finalX, finalY
-		);
-		*/
-		/*
-		// This one goes to edge of screen, nothing fancy
-		bezier(
-			x, height, 
-			width * 0.3, yoffset,
-			width * 0.6, yoffset,
-			width - margin-x, height
-		);
-		*/
+
 		yoffset += 1;
 	}
-
-
 
 	noLoop();
 }
 
-void setup()
+
+void keyReleased(const KeyEvent& e)
 {
-	//createCanvas(1024, 768);
-	createCanvas(displayWidth, displayHeight);
-	layered();
-	setWindowPosition(0, 0);
+	if (e.keyCode == VK_ESCAPE)
+		halt();
 }

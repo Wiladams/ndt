@@ -9,8 +9,8 @@
 using namespace p5;
 
 std::shared_ptr<FileStream> fStream;
-size_t histogram[256];
-size_t biggest;
+int histogram[256];
+int biggest;
 
 void draw()
 {
@@ -26,10 +26,10 @@ void draw()
 	// Display histogram
 	noStroke();
 	fill(0xc0);
-	for (size_t i = 0; i < 256; i++) {
-		int x = map(i, 0, 256, 0, 256);
-		int h = map(histogram[i], 0, biggest, 0, 256);
-		rect(x, 256-h, 2, h);
+	for (int i = 0; i < 256; i++) {
+		int x = (int)map(i, 0, 256, 0, 256);
+		int h = (int)map(histogram[i], 0, biggest, 0, 256);
+		rect(x, (double)256-h, 2, h);
 	}
 	pop();
 }
@@ -39,7 +39,7 @@ void setup()
 	createCanvas(1024, 768);
 	fStream = std::make_shared<FileStream>("earthmap2k.jpg");
 
-	printf("fStream, data: %p size: %ld\n", fStream->data(), fStream->size());
+	//printf("fStream, data: %p size: %ld\n", fStream->data(), fStream->size());
 
 	// populate the histogram
 	size_t num = 0;
@@ -60,6 +60,4 @@ void setup()
 	for (size_t i = 0; i < 256; i++) {
 		biggest = MAX(biggest, histogram[i]);
 	}
-
-	printf("BIGGEST: %d\n", biggest);
 }

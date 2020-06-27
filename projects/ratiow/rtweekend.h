@@ -17,12 +17,27 @@
 // Usings
 using std::shared_ptr;
 using std::make_shared;
+using std::sqrt;
 
 
 // Constants
-const double INFD = std::numeric_limits<double>::infinity();
 
+const double infinity = std::numeric_limits<double>::infinity();
+const double pi = 3.1415926535897932385;
+
+// Utility Functions
+
+inline double degrees_to_radians(double degrees) {
+    return degrees * pi / 180.0;
+}
+
+inline double clamp(double x, double amin, double amax) {
+    if (x < amin) return amin;
+    if (x > amax) return amax;
+    return x;
+}
 
 // Common Headers
-#include "grmath.h"
 #include "ray.h"
+#include "grmath.h"
+

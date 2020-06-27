@@ -22,10 +22,11 @@
 // Determine the size of the image
 const auto aspect_ratio = 4.0 / 3.0;
 const int image_width = 640;    // 1200;
+//const int image_width = 320;    // 1200;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
 
 
-RayTracer tracer(image_width, image_height, 10, 50);
+shared_ptr<RayTracer> tracer = make_shared<RayTracer>(image_width, image_height, 10, 50);
 RaytraceHUD HUD(image_width, image_height, tracer);
 
 
@@ -51,7 +52,7 @@ hittable_list random_scene() {
                 if (choose_mat < 0.8) {
                     // diffuse
                     //auto albedo = rtcolor::random() * rtcolor::random();
-                    auto albedo = random_vec3() * random_vec3();
+                    auto albedo = random_vec3()* random_vec3();
                     sphere_material = make_shared<lambertian>(make_shared<SolidColorTexture>(albedo));
                     auto center2 = center + vec3(0, random_double_range(0, .5), 0);
                     scene.add(make_shared<moving_sphere>(
@@ -351,13 +352,13 @@ void keyReleased(const KeyEvent& e)
     switch (e.keyCode) {
     case VK_ADD:
     case VK_OEM_PLUS:
-        tracer.setSamplesPerPixel(tracer.getSamplesPerPixel() + 100);
+        tracer->setSamplesPerPixel(tracer->getSamplesPerPixel() + 100);
         return;
         break;
 
     case VK_SUBTRACT:
     case VK_OEM_MINUS:
-        tracer.setSamplesPerPixel(tracer.getSamplesPerPixel() - 100);
+        tracer->setSamplesPerPixel(tracer->getSamplesPerPixel() - 100);
         return;
     case VK_F1:
         world = random_scene();
@@ -439,9 +440,9 @@ void keyReleased(const KeyEvent& e)
 
     // reset the camera, and reset
     // the row to the top of the image
-    tracer.setBackground(bkgnd);
-    tracer.setWorld(world);
-    tracer.setCamera(Camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0));
+    tracer->setBackground(bkgnd);
+    tracer->setWorld(world);
+    tracer->setCamera(Camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0));
 }
 
 void keyPressed(const KeyEvent& e)
@@ -466,15 +467,15 @@ void setup()
 
 void draw()
 {
-    tracer.renderRow();
+    tracer->renderRow();
 
     // Draw the raytraced image
     p5::blendMode(BL_COMP_OP_SRC_COPY);
-    p5::image(tracer.getImage(), 0, 0);
+    p5::image(tracer->getImage(), 0, 0);
     
     // Draw a progress bar
     p5::stroke(255, 0, 0);
-    p5::line(0, (double)p5::height - 1.0 -tracer.getCurrentRow(), p5::width - 1.0, p5::height - 1.0-tracer.getCurrentRow());
+    p5::line(0, (double)p5::height - 1.0 -tracer->getCurrentRow(), p5::width - 1.0, p5::height - 1.0-tracer->getCurrentRow());
 
     // Composite the HUD on top
     p5::blendMode(BL_COMP_OP_SRC_OVER);

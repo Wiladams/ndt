@@ -83,7 +83,8 @@ inline static uint16_t rshift16(uint16_t a, unsigned int nbits) {return a >> nbi
 inline static int16_t arshift16(int16_t a, unsigned int nbits) {return a >> nbits;}
 inline static uint16_t rol16(uint16_t a, unsigned int n) {return ((a << n) | (a >> (16-n)));}
 inline static uint16_t ror16(uint16_t a, unsigned int n) {return ((a << (16-n)) | (a >> n));}
-static inline uint16_t bswap16(uint16_t a) {return _byteswap_ushort(a);}
+//static inline uint16_t bswap16(uint16_t a) {return _byteswap_ushort(a);}
+static inline uint16_t bswap16(uint16_t a) { return (a >> 8) | (a << 8); }
 
 static inline uint16_t tobit16(uint64_t a) {return (uint16_t)a;}
 
@@ -99,7 +100,11 @@ inline static uint32_t rshift32(uint32_t a, unsigned int nbits) {return a >> nbi
 inline static int32_t arshift16(int32_t a, unsigned int nbits) {return a >> nbits;}
 inline static uint32_t rol32(uint32_t a, unsigned int n) {return ((a << n) | (a >> (32-n)));}
 inline static uint32_t ror32(uint32_t a, unsigned int n) {return ((a << (32-n)) | (a >> n));}
-static inline uint32_t bswap32(uint32_t a) {return _byteswap_ulong(a);}
+//static inline uint32_t bswap32(uint32_t a) {return _byteswap_ulong(a);}
+static inline uint32_t bswap32(uint32_t v) { 
+    return ((v & 0xff000000) >> 24) | ((v & 0x00ff0000) >> 8) |
+        ((v & 0x0000ff00) << 8) | ((v & 0x000000ff) << 24);
+}
 
 static inline uint32_t tobit32(uint64_t a) {return (uint32_t)a;}
 
@@ -114,7 +119,18 @@ inline static uint64_t rshift64(uint64_t a, unsigned int nbits) {return a >> nbi
 inline static int64_t arshift16(int64_t a, unsigned int nbits) {return a >> nbits;}
 inline static uint64_t rol32(uint64_t a, unsigned int n) {return ((a << n) | (a >> (64-n)));}
 inline static uint64_t ror32(uint64_t a, unsigned int n) {return ((a << (64-n)) | (a >> n));}
-inline static uint64_t bswap64(uint64_t a) {return _byteswap_uint64(a);}
+//inline static uint64_t bswap64(uint64_t a) {return _byteswap_uint64(a);}
+inline static uint64_t bswap64(uint64_t v) { 
+    return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) |
+        ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) |
+        ((v & ((uint64_t)0xff << (5 * 8))) >> (3 * 8)) |
+        ((v & ((uint64_t)0xff << (4 * 8))) >> (1 * 8)) |
+        ((v & ((uint64_t)0xff << (3 * 8))) << (1 * 8)) |
+        ((v & ((uint64_t)0xff << (2 * 8))) << (3 * 8)) |
+        ((v & ((uint64_t)0xff << (1 * 8))) << (5 * 8)) |
+        ((v & ((uint64_t)0xff << (0 * 8))) << (7 * 8));
+
+}
 
 
 }   // end of binops namespace

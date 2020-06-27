@@ -1,7 +1,7 @@
 #pragma once
 
 #include "blend2d.h"
-#include "maths.hpp"
+#include "grmath.h"
 
 // Enumerations for all the commands
 // 

@@ -12,8 +12,6 @@
 #include "hittable_list.h"
 
 
-
-
 class RayTracer {
     Surface fSurface;
     int fCurrentRow;
@@ -54,7 +52,7 @@ public:
     int getSamplesPerPixel() const { return fSamplesPerPixel; }
     void setSamplesPerPixel(const int spp)
     {
-        fSamplesPerPixel = Clamp(spp, 10, 10000);
+        fSamplesPerPixel = (int)clamp(spp, 10, 10000);
     }
 
     void setWorld(hittable_list &world)
@@ -108,7 +106,7 @@ public:
             return rtcolor(0, 0, 0);
 
         // If the ray hits nothing, return the bkgnd rtcolor.
-        if (!fWorld.hit(r, 0.001, INFD, rec))
+        if (!fWorld.hit(r, 0.001, infinity, rec))
             return bkgnd;
 
         Ray scattered;
@@ -118,7 +116,7 @@ public:
         if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
             return emitted;
 
-        return emitted + attenuation * ray_color(scattered, bkgnd, depth - 1);
+        return emitted + (attenuation * ray_color(scattered, bkgnd, depth - 1));
     }
 
     bool renderRow()

@@ -165,9 +165,6 @@
     <ClInclude Include="MotionConstraint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MVP3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -210,6 +207,9 @@
     <ClInclude Include="gview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="filesys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
@@ -221,10 +221,10 @@
     <ClCompile Include="waveobjloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="geometry.cpp">
+    <ClCompile Include="primary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="primary.cpp">
+    <ClCompile Include="grmath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

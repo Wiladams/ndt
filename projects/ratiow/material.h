@@ -49,7 +49,7 @@ public:
         attenuation = rtcolor(1.0, 1.0, 1.0);
         double etai_over_etat = (rec.front_face) ? (1.0 / ref_idx) : (ref_idx);
 
-        vec3 unit_direction = r_in.direction().unit();
+        vec3 unit_direction = unit_vector(r_in.direction());
         double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
         if (etai_over_etat * sin_theta > 1.0) {
@@ -136,7 +136,7 @@ public:
     virtual bool scatter(
         const Ray& r_in, const hit_record& rec, rtcolor& attenuation, Ray& scattered
     ) const {
-        vec3 reflected = reflect(r_in.direction().unit(), rec.normal);
+        vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
         scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere(), r_in.time());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);

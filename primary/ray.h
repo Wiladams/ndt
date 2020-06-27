@@ -14,29 +14,57 @@
 
 #include "grmath.h"
 
+#define RAY_EPSILON .0001
 
 class Ray
 {
 public:
     point3 orig;
     vec3 dir;
-    float mint;
-    float maxt;
-    float tm;
+    double tm;
+
+public:
+    Ray(){}
+    Ray(const point3& origin, const vec3& direction)
+        : orig(origin), dir(direction), tm(0)
+    {}
+
+    Ray(const point3& origin, const vec3& direction, double time)
+        : orig(origin), dir(direction), tm(time)
+    {}
+
+    point3 origin() const { return orig; }
+    vec3 direction() const { return dir; }
+    double time() const { return tm; }
+
+    point3 at(double t) const {
+        return orig + t * dir;
+    }
+};
+
+/*
+class Ray
+{
+public:
+    point3 orig;
+    vec3 dir;
+    double mint;
+    double maxt;
+    double tm;
     #define RAY_EPSILON .0001
 
 public:
     Ray()
         :mint(RAY_EPSILON),
         maxt(INFINITY),
-        tm(0.0) 
+        tm(0.0f) 
     {}
-    Ray(const point3& origin, const vec3& direction, float time=0.0)
+    Ray(const point3& origin, const vec3& direction, double time=0.0)
         : orig(origin), 
         dir(direction), 
         tm(time),
-        mint(RAY_EPSILON),
-        maxt(INFINITY)
+        mint((float)RAY_EPSILON),
+        maxt((float)INFINITY)
     {}
 
 
@@ -44,8 +72,8 @@ public:
     vec3 direction() const { return dir; }
     double time() const { return tm; }
 
-    point3 at(float t) const {
+    point3 at(double t) const {
         return orig + t * dir;
     }
 };
-
+*/

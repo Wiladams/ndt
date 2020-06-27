@@ -12,20 +12,20 @@ using std::make_shared;
 
 class Texture {
 public:
-    virtual vec3 value(double u, double v, const vec3& p) const = 0;
+    virtual rtcolor value(double u, double v, const vec3& p) const = 0;
 };
 
 
 class SolidColorTexture : public Texture {
 private:
-    vec3 fColor; 
+    rtcolor fColor;
 
 public:
-    SolidColorTexture() {}
-    SolidColorTexture(vec3 c) : fColor(c) {}
-
+    SolidColorTexture(){}
+    SolidColorTexture(rtcolor c) : fColor(c) {}
     SolidColorTexture(double red, double green, double blue)
-        : SolidColorTexture(vec3(red, green, blue)) {}
+        : fColor(rtcolor(red, green, blue)) {}
+
 
     virtual rtcolor value(double u, double v, const vec3& p) const {
         return fColor;
@@ -93,12 +93,12 @@ public:
         fHeight(height)
     {
     }
-
+    /*
     ImageTexture(std::shared_ptr<GCanvas> canvas)
     {
 
     }
-
+    */
     ImageTexture(BLImage& img)
     {
         fImage = img;
@@ -111,12 +111,12 @@ public:
 
     }
 
-    ImageTexture(const char* filename) {
-
+    ImageTexture(const char* filename) 
+    {
         auto err = fImage.readFromFile(filename);
 
         if (err) {
-            printf("could not load pot of gold (%d)\n", err);
+            printf("could not load image (%d)\n", err);
             return;
         }
 
@@ -179,8 +179,8 @@ public:
     CanvasTexture(std::shared_ptr<GCanvas> canvas)
         : fCanvas(canvas)
     {
-        fWidth = canvas->targetWidth();
-        fHeight = canvas->targetHeight();
+        fWidth = (int)canvas->targetWidth();
+        fHeight = (int)canvas->targetHeight();
     }
 
 

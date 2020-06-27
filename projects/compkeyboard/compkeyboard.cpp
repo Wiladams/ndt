@@ -9,8 +9,6 @@ typedef struct keyStruct_t {
 } keyStruct;
 
 
-static const int unit = 40;
-
 keyStruct keyValues[] = {
 {0x1b, {4, 6, 40, 40}, "Esc"},
 {0x70, {84, 6, 40, 40}, "F1"},
@@ -89,6 +87,7 @@ keyStruct keyValues[] = {
 };
 
 static const int nKeys = sizeof(keyValues) / sizeof(keyStruct);
+static const int unit = 40;
 
 BLGradient gradient(BLLinearGradientValues(unit/2, unit/2, unit/2, unit/2));
 
@@ -101,16 +100,8 @@ BLRoundRect insetRoundRect(const BLRoundRect& rrect, double cx, double cy)
 }
 
 
-
-
 void drawKeyStates(IGraphics *ctx)
-{
-    //#define KEY_IS_DOWN = 0x8000;
-
-    //first get the state of all the keys
-    //uint8_t lpKeyState[256];
-    //BOOL bResult = ::GetKeyboardState(lpKeyState);
-    
+{   
     for (int i = 0; i < nKeys; i++)
     {
         auto key = keyValues[i];
@@ -131,7 +122,7 @@ void drawNeutral(IGraphics *ctx)
     ctx->strokeWeight(1);
 
     ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-    ctx->textFont("c:\\windows\\fonts\\segoeui.ttf");
+    //ctx->textFont("c:\\windows\\fonts\\segoeui.ttf");
     ctx->textSize(8);
 
     for (int i=0; i<nKeys; i++)
@@ -167,7 +158,6 @@ void drawNeutral(IGraphics *ctx)
         ctx->fill(0);
         ctx->text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
     }
-
 }
 
 
@@ -200,20 +190,7 @@ void setup()
     createCanvas(800, 600);
     layered();
 
-    //scale(0.5, 0.5);
-    //scale(0.25, 0.25);
-    //scale(2, 2);
-
-    // Setting up different colors
-    // fixup gradient
-    //gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
-    //gradient.addStop(1.0, BLRgba32(0xFF9f9f9f));
-
     // slightly bluish
     gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
     gradient.addStop(1.0, BLRgba32(0xFF9f9fff));
-
-    // slightly yellowish
-    //gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
-    //gradient.addStop(1.0, BLRgba32(0xFFffff9f));
 }
