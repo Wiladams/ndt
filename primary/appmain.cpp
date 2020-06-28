@@ -60,6 +60,11 @@ static JoystickEventHandler gJoystickMovedZHandler = nullptr;
 
 // Touch
 static WinMSGObserver gTouchHandler = nullptr;
+static TouchEventHandler gTouchPressedHandler = nullptr;
+static TouchEventHandler gTouchReleasedHandler = nullptr;
+static TouchEventHandler gTouchMovedHandler = nullptr;
+static TouchEventHandler gTouchHoverHandler = nullptr;
+
 
 // Miscellaneous globals
 int gargc;
@@ -461,57 +466,82 @@ LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
+    //TOUCHINPUT pInputs[10];
+
     // cInputs could be set to a maximum value (10) and
     // we could reuse the same allocated array each time
     // rather than allocating a new one each time.
-    //print("wm_touch_event 0.0: ", wparam)
+    //printf("wm_touch_event 0.0: %d\n", wParam);
     int cInputs = LOWORD(wParam);
-        
-        //print("wm_touch_event 1.0: ", cInputs)
-        
-        TOUCHINPUT *pInputs = {new TOUCHINPUT[cInputs]{}};
-        int cbSize = sizeof("TOUCHINPUT");
+    int cbSize = sizeof(TOUCHINPUT);
 
-        //print("wm_touch_event 2.0: ", pInputs, cbSize)
-        BOOL bResult = GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs,cbSize);
-        //print("wm_touch_event 3.0: ", bResult)
+    //printf("wm_touch_event 1.0: %d\n", cInputs);
+    PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
 
-        if (bResult == 0) {
-            return 0; // C.GetLastError()
-        }
-        //print("wm_touch_event 4.0: ", bResult)
-/*
-        -- Construct an event with all the given information
-        local events = {}
+    // 0 == failure?
+    BOOL bResult = GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, cbSize);
 
+    if (bResult == 0) {
+        auto err = ::GetLastError();
+        printf("getTouchInputInfo, ERROR: %d %d\n", bResult, err);
+
+        return 0;
+    }
+
+    // construct an even for each item
+    for (int i = 0; i < cInputs; i++) {
         POINT PT;
-        for (int i=0; i<cInputs; i++) {
-            PT.x = pInputs[i].x/100;
-            PT.y = pInputs[i].y/100;
-            //print("wm_touch_event 4.1: ", PT.x, PT.y)
-            local bResult = C.ScreenToClient(hwnd, PT)
-            --print("wm_touch_event 4.2: ", bResult, PT.x, PT.y)
-            local event = {
-                ID = pInputs[i].dwID;
-                x = PT.x;
-                y = PT.y;
-                rawX = pInputs[i].x;
-                rawY = pInputs[i].y;
-            }
+        PT.x = pInputs[i].x / 100;
+        PT.y = pInputs[i].y / 100;
+        //print("wm_touch_event 4.1: ", PT.x, PT.y)
+        auto bResult = ::ScreenToClient(hwnd, &PT);
+        //printf("wm_touch_event 4.2: ", bResult, PT.x, PT.y)
+        TouchEvent e;
+        e.id = pInputs[i].dwID;
+        e.x = PT.x;
+        e.y = PT.y;
+        e.rawX = pInputs[i].x;
+        e.rawY = pInputs[i].y;
 
-            if band(pInputs[i].dwMask, C.TOUCHINPUTMASKF_CONTACTAREA) ~= 0 then
-                event.rawWidth = pInputs[i].cxContact;
-                event.rawHeight = pInputs[i].cyContact;
-                event.width = event.rawWidth/100;
-                event.height = event.rawHeight/100;
-            end
 
-            table.insert(events, event)
+        if ((pInputs[i].dwMask & TOUCHINPUTMASKF_CONTACTAREA) != 0) {
+            e.rawWidth = pInputs[i].cxContact;
+            e.rawHeight = pInputs[i].cyContact;
+            e.w = e.rawWidth / 100;
+            e.h = e.rawHeight / 100;
         }
-        //print("wm_touch_event 5.0: ", bResult)
 
-        return events
-*/
+        // switch based on activity
+        if (pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
+            if (gTouchPressedHandler)
+                gTouchPressedHandler(e);
+        }
+
+        if (pInputs[i].dwFlags & TOUCHEVENTF_UP) {
+            if (gTouchReleasedHandler)
+                gTouchReleasedHandler(e);
+        }
+
+        if (pInputs[i].dwFlags & TOUCHEVENTF_MOVE) {
+            if (gTouchMovedHandler)
+                gTouchMovedHandler(e);
+        }
+
+        if (pInputs[i].dwFlags & TOUCHEVENTF_INRANGE) {
+            if (gTouchHoverHandler)
+                gTouchHoverHandler(e);
+        }
+
+    }
+    delete[] pInputs;
+
+    if (!CloseTouchInputHandle((HTOUCHINPUT)lParam))
+    {
+        // error handling
+    }
+
+    //print("wm_touch_event 5.0: ", bResult)
+
     return res;
 }
 
@@ -627,7 +657,12 @@ void setupHandlers()
     gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
     gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
 
-    // Touch event handling
+    // Touch event routines
+    gTouchPressedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchPressed");
+    gTouchReleasedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchReleased");
+    gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
+    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
+
 
     // Timer
     UINT_PTR nIDEvent = 5;
@@ -778,6 +813,26 @@ void noJoystick()
 {
     gJoystick1.detachFromWindow();
     gJoystick2.detachFromWindow();
+}
+
+// Turning Touch input on and off
+bool touch()
+{
+    BOOL bResult = RegisterTouchWindow(gAppWindow->getHandle(), 0);
+    return (bResult != 0);
+}
+
+bool noTouch()
+{
+    BOOL bResult = UnregisterTouchWindow(gAppWindow->getHandle());
+    return (bResult != 0);
+}
+
+bool isTouch()
+{
+    ULONG flags = 0;
+    BOOL bResult = IsTouchWindow(gAppWindow->getHandle(), &flags);
+    return (bResult != 0);
 }
 
 //

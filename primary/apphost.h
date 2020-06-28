@@ -73,6 +73,27 @@ struct KeyEvent {
 };
 
 
+enum {
+    TOUCH_DOWN,
+    TOUCH_UP,
+    TOUCH_MOVE,
+    TOUCH_HOVER,
+};
+
+struct TouchEvent {
+    HANDLE device;
+    int id;
+    int activity;
+    int rawX;
+    int rawY;
+    int rawWidth;
+    int rawHeight;
+
+    int x;
+    int y;
+    int w;
+    int h;
+};
 
 
 #ifdef __cplusplus
@@ -83,6 +104,7 @@ extern "C" {
 typedef void (* KeyEventHandler)(const KeyEvent &e);
 typedef void (* MouseEventHandler)(const MouseEvent &e);
 typedef void (*JoystickEventHandler)(const JoystickEvent& e);
+typedef void (*TouchEventHandler)(const TouchEvent& e);
 
 typedef void (* VOIDROUTINE)();
 typedef void (*PFNDOUBLE1)(const double param);
@@ -161,6 +183,13 @@ EXPORT void joyReleased(const JoystickEvent& e);
 EXPORT void joyMoved(const JoystickEvent& e);
 EXPORT void joyMovedZ(const JoystickEvent& e);
 
+// Touch Events
+EXPORT void touchPressed(const TouchEvent& e);
+EXPORT void touchReleased(const TouchEvent& e);
+EXPORT void touchMoved(const TouchEvent& e);
+EXPORT void touchHover(const TouchEvent& e);
+
+
 // Controlling the runtime
 EXPORT void halt();
 EXPORT void loop();
@@ -175,6 +204,12 @@ EXPORT void rawInput();
 EXPORT void noRawInput();
 EXPORT void joystick();
 EXPORT void noJoystick();
+
+// Touch routines apps can implement
+EXPORT bool touch();
+EXPORT bool noTouch();
+EXPORT bool isTouch();
+
 
 EXPORT void cursor();
 EXPORT void noCursor();
