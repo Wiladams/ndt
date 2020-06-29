@@ -169,12 +169,12 @@ public:
 
 		vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 		vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-		vec2f clamp((float)fWidth - 1, (float)fHeight - 1);
+		vec2f clmp((float)fWidth - 1, (float)fHeight - 1);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 2; j++) {
 				bboxmin[j] = std::max(0.f, std::min(bboxmin[j], pts2[i][j]));
-				bboxmax[j] = std::min(clamp[j], std::max(bboxmax[j], pts2[i][j]));
+				bboxmax[j] = std::min(clmp[j], std::max(bboxmax[j], pts2[i][j]));
 			}
 		}
 

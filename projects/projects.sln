@@ -102,6 +102,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pagiview", "pagiview\pagivi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "touchy", "touchy\touchy.vcxproj", "{E419F61F-6D24-4D96-AA48-631463672109}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointy", "pointy\pointy.vcxproj", "{D20329C2-3EFE-49F5-825A-678FE81D78A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -454,6 +456,14 @@ Global
 		{E419F61F-6D24-4D96-AA48-631463672109}.Release|x64.Build.0 = Release|x64
 		{E419F61F-6D24-4D96-AA48-631463672109}.Release|x86.ActiveCfg = Release|Win32
 		{E419F61F-6D24-4D96-AA48-631463672109}.Release|x86.Build.0 = Release|Win32
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Debug|x64.ActiveCfg = Debug|x64
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Debug|x64.Build.0 = Debug|x64
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Debug|x86.ActiveCfg = Debug|Win32
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Debug|x86.Build.0 = Debug|Win32
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Release|x64.ActiveCfg = Release|x64
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Release|x64.Build.0 = Release|x64
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Release|x86.ActiveCfg = Release|Win32
+		{D20329C2-3EFE-49F5-825A-678FE81D78A5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

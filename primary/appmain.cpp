@@ -60,8 +60,8 @@ static JoystickEventHandler gJoystickMovedZHandler = nullptr;
 
 // Touch
 static WinMSGObserver gTouchHandler = nullptr;
-static TouchEventHandler gTouchPressedHandler = nullptr;
-static TouchEventHandler gTouchReleasedHandler = nullptr;
+static TouchEventHandler gTouchStartedHandler = nullptr;
+static TouchEventHandler gTouchEndedHandler = nullptr;
 static TouchEventHandler gTouchMovedHandler = nullptr;
 static TouchEventHandler gTouchHoverHandler = nullptr;
 
@@ -513,13 +513,13 @@ LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // switch based on activity
         if (pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
-            if (gTouchPressedHandler)
-                gTouchPressedHandler(e);
+            if (gTouchStartedHandler)
+                gTouchStartedHandler(e);
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_UP) {
-            if (gTouchReleasedHandler)
-                gTouchReleasedHandler(e);
+            if (gTouchEndedHandler)
+                gTouchEndedHandler(e);
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_MOVE) {
@@ -658,8 +658,8 @@ void setupHandlers()
     gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
 
     // Touch event routines
-    gTouchPressedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchPressed");
-    gTouchReleasedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchReleased");
+    gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
+    gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
     gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
 

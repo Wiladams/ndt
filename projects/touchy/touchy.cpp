@@ -49,17 +49,15 @@ void keyReleased(const KeyEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
 		halt();
-
-
 }
-void touchPressed(const TouchEvent& e)
+void touchStarted(const TouchEvent& e)
 {
 	//printf("touchPressed: %d, %d  %dx%d\n", e.x, e.y, e.w, e.h);
 	touches.insert_or_assign(e.id, e);
 	tcolor.insert_or_assign(e.id, randomColor());
 }
 
-void touchReleased(const TouchEvent& e)
+void touchEnded(const TouchEvent& e)
 {
 	//printf("touchReleased: %d, %d\n", e.x, e.y);
 	// delete event id from map

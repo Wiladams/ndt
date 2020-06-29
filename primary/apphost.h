@@ -153,11 +153,8 @@ EXPORT extern int rawMouseY;
 
 // These are typically implemented by
 // an app framework
-EXPORT void onFrame();
-EXPORT void onLoop();
-//EXPORT LRESULT onPaintHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-//EXPORT LRESULT onKeyboardHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-//EXPORT LRESULT onMouseHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+EXPORT void onFrame();  // Per frame
+EXPORT void onLoop();   // each time through event loop
 
 // These should be implemented by a module to be loaded
 EXPORT void draw();
@@ -184,8 +181,8 @@ EXPORT void joyMoved(const JoystickEvent& e);
 EXPORT void joyMovedZ(const JoystickEvent& e);
 
 // Touch Events
-EXPORT void touchPressed(const TouchEvent& e);
-EXPORT void touchReleased(const TouchEvent& e);
+EXPORT void touchStarted(const TouchEvent& e);
+EXPORT void touchEnded(const TouchEvent& e);
 EXPORT void touchMoved(const TouchEvent& e);
 EXPORT void touchHover(const TouchEvent& e);
 
