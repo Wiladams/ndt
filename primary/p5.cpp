@@ -419,12 +419,12 @@ namespace p5 {
         gAppSurface->path(p);
     }
 
-    void image(BLImage& img, int x, int y) noexcept
+    void image(const BLImage& img, int x, int y) noexcept
     {
         gAppSurface->image(img, x, y);
     }
 
-    void scaleImage(BLImage& src,
+    void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight) noexcept
     {
@@ -432,7 +432,7 @@ namespace p5 {
             dstX, dstY, dstWidth, dstHeight);
     }
     /*
-    void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
+    void scaleImage(const BLImage& src, double x, double y, double scaleX, double scaleY)
     {
         gAppSurface->scaleImage(src, x, y, scaleX, scaleY);
         double dstWidth = src.width() * scaleX;

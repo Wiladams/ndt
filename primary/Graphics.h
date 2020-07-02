@@ -234,8 +234,8 @@ public:
     virtual void endShape(SHAPEEND endKind) = 0;
 
     // Bitmaps
-    virtual void image(BLImage& img, int x, int y) = 0;
-    virtual void scaleImage(BLImage& src,
+    virtual void image(const BLImage& img, int x, int y) = 0;
+    virtual void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight)=0;
     /*

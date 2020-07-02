@@ -1,6 +1,7 @@
 #include "p5.hpp"
 #include "sampler.hpp"
 #include "colorsampler.h"
+#include "coloring.h"
 #include "graphic.hpp"
 #include "bezier.hpp"
 
@@ -9,6 +10,7 @@ using namespace p5;
 
 // Colors of the rainbow
 uint8_t gAlpha = 255;
+/*
 Pixel rColors[] = {
 	{255,0,0,gAlpha},
 	{255,165,0, gAlpha},
@@ -21,7 +23,20 @@ Pixel rColors[] = {
 int nColors = sizeof(rColors) / sizeof(Pixel);
 
 BLGradient gradient(BLLinearGradientValues(0, 0, 0, 0));
+*/
 BLImage potOfGold;
+
+// A sampler of visible light
+class VisibleLightSampler : public ISampler1D<BLRgba32>
+{
+public:
+	BLRgba32 operator()(double u) const
+	{
+		double wl = map(u, 0, 1, 380, 780);
+		auto c = coloring::ColorRGBAFromWavelength(wl);
+		return BLRgba32(c.r * 255, c.g * 255, c.b * 255);
+	}
+};
 
 class GradientBezier : public virtual IDrawable
 {
@@ -34,12 +49,12 @@ class GradientBezier : public virtual IDrawable
 
 public:
 	GradientBezier(const BLGradient& grad, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, size_t segments=60)
-		:fSampler(grad),
-		p1(x1, y1),
+		:p1(x1, y1),
 		p2(x2, y2),
 		p3(x3, y3),
 		p4(x4, y4),
-		fSegments(segments)
+		fSegments(segments),
+		fSampler(grad)
 	{
 	}
 
@@ -70,10 +85,10 @@ public:
 void preload()
 {
 	// Create the gradient to represent the rainbow colors
-	for (int i = 0; i < nColors; i++) {
-		double offset = map(i, 0, nColors - 1, 0, 1);
-		gradient.addStop(offset, rColors[i]);
-	}
+	//for (int i = 0; i < nColors; i++) {
+	//	double offset = map(i, 0, nColors - 1, 0, 1);
+	//	gradient.addStop(offset, rColors[i]);
+	//}
 
 	// Load the various images
 	auto err = potOfGold.readFromFile("potofgold.png");
@@ -95,12 +110,8 @@ void draw()
 {
 	static const int baseSize = 300;
 
-	//if (isLayered()) {
-		clear();
-	//} else
-	//{
-	//	background(255);
-	//}
+	clear();
+
 
 	// draw pot of gold at end of rainbow
 	int potX = width - potOfGold.width() - 200;
@@ -111,7 +122,9 @@ void draw()
 
 	// Draw the actual rainbow
 	int yoffset = 0;
-	GradientSampler1D colorSampler(gradient);
+	//GradientSampler1D colorSampler(gradient);
+	VisibleLightSampler colorSampler;
+
 	strokeWeight(2);
 	for (int x = 0; x <= baseSize; x++) {
 		double offset = map(x, 0, baseSize, 0, 1);
@@ -130,7 +143,7 @@ void draw()
 		int finalX = map(x, 0, baseSize, potX+potOfGold.width()-10, potX+30);
 		int finalY = potY+36;
 
-		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY, 1200);
+		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY,1200);
 		bez.draw(gAppSurface);
 
 

@@ -441,13 +441,13 @@ public:
     }
 
     // Bitmaps
-    virtual void image(BLImage& img, int x, int y)
+    virtual void image(const BLImage& img, int x, int y)
     {
         fCtx.blitImage(BLPointI(x, y), img);
         incrCmd();
     }
     
-    virtual void scaleImage(BLImage& src,
+    virtual void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight)
     {

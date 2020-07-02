@@ -21,7 +21,7 @@
 
 // Determine the size of the image
 const auto aspect_ratio = 4.0 / 3.0;
-const int image_width = 640;    // 1200;
+const int image_width = 800;    // 1200;
 //const int image_width = 320;    // 1200;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
 
@@ -337,6 +337,56 @@ hittable_list final_scene() {
     return objects;
 }
 
+// F11 - Blend2D and mirrors
+hittable_list blend_mirrors() {
+    hittable_list objects;
+
+    auto b2dlogo = make_shared<ImageTexture>("blend2d_logo_flipped.png");
+    auto b2dlogo_surface = make_shared<lambertian>(b2dlogo);
+
+    auto mirror = make_shared<dielectric>(1.25);
+    auto red = make_shared<lambertian>(make_shared<SolidColorTexture>(.65, .05, .05));
+    auto white = make_shared<lambertian>(make_shared<SolidColorTexture>(.73, .73, .73));
+    auto green = make_shared<lambertian>(make_shared<SolidColorTexture>(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(make_shared<SolidColorTexture>(7, 7, 7));
+
+
+
+
+    // ceiling
+    objects.add(make_shared<flip_face>(make_shared<xz_rect>(0, 555, 0, 555, 555, white)));
+    // light on the ceiling
+    objects.add(make_shared<xz_rect>(123, 423, 147, 412, 554, light));
+
+    // left wall
+    objects.add(make_shared<flip_face>(make_shared<yz_rect>(0, 555, 0, 555, 555, green)));
+
+    // right wall
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+
+    // mirror tile floor
+    //objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    for (int z = 0; z < 4; z++) {
+        for (int x = 0; x < 4; x++) {
+            objects.add(make_shared<xz_rect>(x*140, (x*140)+130, z*140, (z*140)+130, -1, mirror));
+        
+            //shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(130, 10, 130), white);
+            //box1 = make_shared<translate>(box1, vec3(x * 140, 0, z*140));
+            //objects.add(box1);
+        }
+    }
+    
+
+    // Back wall
+    objects.add(make_shared<flip_face>(make_shared<xy_rect>(0, 555, 0, 555, 555, b2dlogo_surface)));
+
+
+    // Mirrored sphere
+    objects.add(make_shared<sphere>(point3(273, 273, 273), 200, mirror));
+
+    return objects;
+}
+
 
 void keyReleased(const KeyEvent& e)
 {
@@ -434,6 +484,13 @@ void keyReleased(const KeyEvent& e)
         vfov = 40.0;
         break;
 
+    case VK_F11:
+        world = blend_mirrors();
+        lookfrom = point3(478, 278, -600);
+        lookat = point3(278, 278, 0);
+        vfov = 40.0;
+        break;
+
     default:
         return;
     }
@@ -453,6 +510,7 @@ void keyPressed(const KeyEvent& e)
             BLImageCodec codec;
             codec.findByName("BMP");
             gAppSurface->getBlend2dImage().writeToFile("ratiow.bmp", codec);
+            tracer->getImage().writeToFile("image.bmp", codec);
         break;
     }
 }
@@ -479,6 +537,7 @@ void draw()
 
     // Composite the HUD on top
     p5::blendMode(BL_COMP_OP_SRC_OVER);
+    HUD.draw();
     p5::image(HUD.getImage(), 0, 0);
 
     //p5::flush();

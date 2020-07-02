@@ -3,17 +3,16 @@
 /*
     This file is the encapsulation of a Ray Tracer
 */
-#include "Surface.h"
-
 #include "rtweekend.h"
-
 #include "box.h"
 #include "camera.h"
 #include "hittable_list.h"
 
+#include "canvas.h"
+
 
 class RayTracer {
-    Surface fSurface;
+    GCanvas fCanvas;
     int fCurrentRow;
     int fSamplesPerPixel;
     int fMaxDepth = 50;
@@ -28,7 +27,7 @@ public:
         :RayTracer(300, 300, 10, 50) {}
 
     RayTracer(const int w, const int h, const int spp, const int maxDepth)
-        :fSurface(w, h, 1),
+        :fCanvas(w, h),
         fCurrentRow(- 1),
         fSamplesPerPixel(spp),
         fMaxDepth(maxDepth),
@@ -53,6 +52,7 @@ public:
     void setSamplesPerPixel(const int spp)
     {
         fSamplesPerPixel = (int)clamp(spp, 10, 10000);
+        printf("setSamplesPerPixel(%d)\n", fSamplesPerPixel);
     }
 
     void setWorld(hittable_list &world)
@@ -64,12 +64,12 @@ public:
 
     void reset()
     {
-        fCurrentRow = fSurface.getHeight() - 1;
+        fCurrentRow = fCanvas.targetHeight() - 1;
     }
 
     // Set a single pixel taking into account scaling by the 
     // number of samples per pixel
-    void setPixel(const BLImageData& info, int x, int y, const rtcolor& c)
+    void setPixel(int x, int y, const rtcolor& c)
     {
         //printf("setPixel: %3.2f, %3.2f, %3.2f\n", c.r, c.g, c.b);
 
@@ -93,9 +93,10 @@ public:
         int bi = static_cast<int>(256 * clamp(b, 0.0, 0.999));
 
         //printf("setPixel: %d, %d, %d\n", ri, gi, bi);
+        auto p = BLRgba32(ri, gi, bi);
 
-        y = info.size.h - 1 - y;
-        ((BLRgba32*)info.pixelData)[(y * info.size.w) + x] = BLRgba32(ri, gi, bi);
+        y = fCanvas.targetHeight() - 1 - y;
+        fCanvas.set(x, y, p);
     }
 
     rtcolor ray_color(const Ray& r, const rtcolor& bkgnd, int depth) {
@@ -126,10 +127,6 @@ public:
         if (fCurrentRow < 0)
             return false;
 
-        fSurface.loadPixels();
-        BLImageData info;
-        fSurface.getBlend2dImage().getData(&info);
-
         for (int i = 0; i < fFrameWidth; ++i)
         {
             rtcolor pixel_color;
@@ -139,17 +136,13 @@ public:
                 Ray r = fCamera.get_ray(u, v);
                 pixel_color += ray_color(r, fBackground, fMaxDepth);
             }
-            setPixel(info, i, fCurrentRow, pixel_color);     // Set pixel
+            setPixel(i, fCurrentRow, pixel_color);     // Set pixel
         }
-
-        fSurface.updatePixels();
-
 
         fCurrentRow = fCurrentRow - 1;
 
         return true;
     }
 
-    Surface& getSurface() { return fSurface; }
-    BLImage& getImage() { return fSurface.getBlend2dImage(); }
+    BLImage& getImage() { return fCanvas.getImage(); }
 };

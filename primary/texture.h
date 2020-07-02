@@ -72,44 +72,14 @@ public:
 
 class ImageTexture : public Texture {
 private:
-    BLImage fImage;
-    uint8_t * pixelData;
-    int fWidth, fHeight;
-    intptr_t fStride;
+    BLImage     fImage;
+    BLImageData fData;
+
 
 public:
     const static int bytes_per_pixel = 4;
 
-    ImageTexture()
-        : pixelData(nullptr), 
-        fWidth(0), 
-        fHeight(0), 
-        fStride(0) {}
-    
-    ImageTexture(void* data, int width, int height, intptr_t stride)
-        :pixelData((uint8_t *)data),
-        fStride(stride),
-        fWidth(width),
-        fHeight(height)
-    {
-    }
-    /*
-    ImageTexture(std::shared_ptr<GCanvas> canvas)
-    {
-
-    }
-    */
-    ImageTexture(BLImage& img)
-    {
-        fImage = img;
-        BLImageData info;
-        fImage.getData(&info);
-        pixelData = (uint8_t*)info.pixelData;
-        fStride = info.stride;
-        fWidth = info.size.w;
-        fHeight = info.size.h;
-
-    }
+    ImageTexture() {}
 
     ImageTexture(const char* filename) 
     {
@@ -120,37 +90,30 @@ public:
             return;
         }
 
-        BLImageData info;
-        fImage.getData(&info);
-        pixelData = (uint8_t*)info.pixelData;
-        fStride = info.stride;
-        fWidth = info.size.w;
-        fHeight = info.size.h;
+        fImage.getData(&fData);
     }
 
-    ~ImageTexture() {
-        //delete pixelData;
-    }
+    ~ImageTexture() {}
 
     virtual rtcolor value(double u, double v, const vec3& p) const 
     {
         // If we have no texture data, then return solid cyan as a debugging aid.
-        if (nullptr == pixelData)
+        if (nullptr == fData.pixelData)
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
         u = clamp(u, 0.0, 1.0);
         v = 1.0 - clamp(v, 0.0, 1.0);  // Flip V to image coordinates
 
-        auto i = static_cast<int>(u * fWidth);
-        auto j = static_cast<int>(v * fHeight);
+        auto i = static_cast<int>(u * fData.size.w-1);
+        auto j = static_cast<int>(v * fData.size.h-1);
 
         // Clamp integer mapping, since actual coordinates should be less than 1.0
-        if (i >= fWidth)  i = fWidth - 1;
-        if (j >= fHeight) j = fHeight - 1;
+        if (i >= fData.size.w)  i = fData.size.w-1;
+        if (j >= fData.size.h) j = fData.size.h - 1;
 
         const auto color_scale = 1.0 / 255.0;
-        auto pixel = pixelData + j * fStride + i * bytes_per_pixel;
+        auto pixel = (uint8_t *)fData.pixelData + j * fData.stride + i * bytes_per_pixel;
 
         // We need to turn pixel values [0..255] into
         // rtcolor components [0..1]

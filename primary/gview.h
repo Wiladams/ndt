@@ -1,6 +1,6 @@
 #pragma once
 
-#include "blend2d.h"
+#include "apphost.h"
 #include "drawable.h"
 
 #include <memory>
@@ -44,19 +44,13 @@ public:
         fTransform = BLMatrix2D::makeIdentity();
     }
 
-    void setTransform(BLMatrix2D& m)
-    {
-        fTransform = m;
-    }
+    void setTransform(BLMatrix2D& m) {    fTransform = m;}
+    BLMatrix2D& getTransform() { return fTransform; }
 
-    virtual BLRect& getFrame() {
-        return fFrame;
-    }
+    void setFrame(const BLRect& frame) { fFrame = frame; }
+    virtual BLRect& getFrame() {return fFrame;}
 
-    void setPage(shared_ptr<IDrawable> page)
-    {
-        fPage = page;
-    }
+    void setPage(shared_ptr<IDrawable> page) {fPage = page;}
 
     shared_ptr<IDrawable> getPage() { return fPage; }
 
@@ -80,12 +74,30 @@ public:
             ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
             
             // BUGBUG - maybe perform arbitrary transform?
-            ctx->translate(fFrame.x, fFrame.y);
+            auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+            //ctx->translate(fFrame.x, fFrame.y);
+            ctx->translate(pt.x, pt.y);
+
             fPage->draw(ctx);
             ctx->pop();
         }
 
         ctx->pop();
+    }
+
+    void mouseMoved(const MouseEvent& e)
+    {
+        // translate according to the transformation
+        auto pt = fTransform.mapPoint(e.x, e.y);
+        auto newEvent(e);
+        newEvent.x = pt.x + fFrame.x;
+        newEvent.y = pt.y + fFrame.y;
+        //fPage.mouseMoved(newEvent);
+    }
+
+    void translateBy(double x, double y)
+    {
+        fTransform.translate(x, y);
     }
 
     /*

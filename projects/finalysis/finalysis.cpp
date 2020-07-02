@@ -1,6 +1,7 @@
 #include "p5.hpp"
 #include "filestream.h"
 #include <memory>
+#include <filesystem>		// Requires C++-17
 
 // this sample is really just a test of the FileStream
 // class.  It will open up a filestream, then create a histogram
@@ -11,6 +12,17 @@ using namespace p5;
 std::shared_ptr<FileStream> fStream;
 int histogram[256];
 int biggest;
+
+
+namespace fs = std::filesystem;
+
+void listFiles()
+{
+	for (auto& p : fs::directory_iterator("c:\\windows\\fonts")) {
+		if (p.path().extension() == ".ttf" || p.path().extension() == ".TTF")
+			std::cout << p.path() << "  " << p.path().filename() << "  " <<  p.path().extension() << '\n';
+	}
+}
 
 void draw()
 {
@@ -36,6 +48,8 @@ void draw()
 
 void setup()
 {
+	listFiles();
+
 	createCanvas(1024, 768);
 	fStream = std::make_shared<FileStream>("earthmap2k.jpg");
 

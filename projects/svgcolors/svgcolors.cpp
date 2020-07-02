@@ -1,7 +1,14 @@
 #include "p5.hpp"
+#include "gview.h"
+#include <memory>
 
 using namespace p5;
 
+int fontSize = 12;
+int maxColumns = 8;
+int rowSize = 60;
+int columnSize = 120;
+int scrollSize = fontSize*3;
 
 struct ColorEntry {
     const char* name;
@@ -169,127 +176,141 @@ ColorEntry svgcolors[] = {
 };
 
 int nColors = sizeof(svgcolors) / sizeof(ColorEntry);
-int fontSize = 12;
-int maxColumns = 8;
-int rowSize = 60;
-int columnSize = 120;
+
 SVGGraphic hoverGraphic = SVGGraphic::empty;
+GView contentArea(BLRect(4, 4, 792, 592));
 
 
-BLSize getPreferredSize()
-{
-    int rows = (nColors / maxColumns) + 1;
-
-    return { (double)(maxColumns * columnSize), (double)(rows * rowSize) };
-}
-
-// return the coordinate frame for a specified cell
-BLRect frameForCell(int column, int row)
-{
-    double x = (column - 1) * columnSize;
-    double y = (row - 1) * rowSize;
-    double w = columnSize;
-    double h = rowSize;
-
-
-    return BLRect(x, y, w, h);
-}
-
-
-
-SVGGraphic graphicAt(int x, int y)
-{
-    int column = (int)floor(x / columnSize);
-    int row = (int)floor(y / rowSize);
-
-    int index = (int)((row * maxColumns) + column + 1);
-
-
-    if (index > nColors) {
-        return SVGGraphic::empty;
-    }
-    auto entry = svgcolors[index];
-
-    //print("graphicAt: ", x, y, column, row, index, entry)
-
-    return { entry, column + 1, row + 1 };
-}
-
-void mouseMoved(const MouseEvent& e)
-{
-    hoverGraphic = graphicAt(e.x, e.y);
-}
-
-void drawEntry(ColorEntry acolor, int column, int row)
-{
-    double lum = (0.2125 * acolor.value.r) + (0.7154 * acolor.value.g) + (0.0721 * acolor.value.b);
-
-    noStroke();
-    fill(acolor.value);
-
-    auto frame = frameForCell(column, row);
-    rect(frame.x, frame.y, frame.w, frame.h);
-
-    // draw the text value
-    // set the filling based on the luminance
-    if (lum > 120) {
-        fill(0);
-    } else {
-        fill(255);
-    }
-
-    double cx = frame.x + (frame.w / 2);
-    double cy = frame.y + frame.h - 12;
-    noStroke();
-    text(acolor.name, cx, cy);
-}
-
-
-void drawForeground()
-{
-    if (hoverGraphic == SVGGraphic::empty)
-        return;
-
-    auto frame = frameForCell(hoverGraphic.column, hoverGraphic.row);
-    strokeWeight(3);
-    stroke(255, 255, 0);
-    noFill();
-    rect(frame.x, frame.y, frame.w, frame.h);
-
-}
-
-// Draw everything normal
-void drawBackground()
-{
-    auto column = 1;
-    auto row = 1;
-
-    textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-    textSize(fontSize);
-
-    for (int i = 0; i < nColors; i++)
+class SVGPage : public IDrawable {
+    static BLSize getPreferredSize()
     {
-        drawEntry(svgcolors[i], column, row);
-        column = column + 1;
-        if (column > maxColumns) {
-            column = 1;
-            row = row + 1;
+        int rows = (nColors / maxColumns) + 1;
+
+        return { (double)(maxColumns * columnSize), (double)(rows * rowSize) };
+    }
+
+    // return the coordinate frame for a specified cell
+    BLRect frameForCell(int column, int row)
+    {
+        double x = (column - 1) * columnSize;
+        double y = (row - 1) * rowSize;
+        double w = columnSize;
+        double h = rowSize;
+
+        return BLRect(x, y, w, h);
+    }
+
+    SVGGraphic graphicAt(int x, int y)
+    {
+        int column = (int)floor(x / columnSize);
+        int row = (int)floor(y / rowSize);
+
+        int index = (int)((row * maxColumns) + column + 1);
+
+
+        if (index > nColors) {
+            return SVGGraphic::empty;
+        }
+        auto entry = svgcolors[index];
+
+        //print("graphicAt: ", x, y, column, row, index, entry)
+
+        return { entry, column + 1, row + 1 };
+    }
+
+    void mouseMoved(const MouseEvent& e)
+    {
+        //printf("moved: %d,%d\n", e.x, e.y);
+        hoverGraphic = graphicAt(e.x, e.y);
+    }
+
+
+
+    void drawEntry(IGraphics* ctx, ColorEntry acolor, int column, int row)
+    {
+        double lum = (0.2125 * acolor.value.r) + (0.7154 * acolor.value.g) + (0.0721 * acolor.value.b);
+
+        ctx->noStroke();
+        ctx->fill(acolor.value);
+
+        auto frame = frameForCell(column, row);
+        ctx->rect(frame.x, frame.y, frame.w, frame.h);
+
+        // draw the text value
+        // set the filling based on the luminance
+        if (lum > 120) {
+            ctx->fill(0);
+        }
+        else {
+            ctx->fill(255);
+        }
+
+        double cx = frame.x + (frame.w / 2);
+        double cy = frame.y + frame.h - 12;
+        ctx->noStroke();
+        ctx->text(acolor.name, cx, cy);
+    }
+
+
+    void drawForeground(IGraphics* ctx)
+    {
+        if (hoverGraphic == SVGGraphic::empty)
+            return;
+
+        auto frame = frameForCell(hoverGraphic.column, hoverGraphic.row);
+        ctx->strokeWeight(3);
+        ctx->stroke(255, 255, 0);
+        ctx->noFill();
+        ctx->rect(frame.x, frame.y, frame.w, frame.h);
+
+    }
+
+    // Draw everything normal
+    void drawBackground(IGraphics* ctx)
+    {
+        auto column = 1;
+        auto row = 1;
+
+
+
+        for (int i = 0; i < nColors; i++)
+        {
+            drawEntry(ctx, svgcolors[i], column, row);
+            column = column + 1;
+            if (column > maxColumns) {
+                column = 1;
+                row = row + 1;
+            }
         }
     }
-}
 
-void draw()
-{
-	drawBackground();
-	drawForeground();
-}
+    void draw(IGraphics *ctx)
+    {
+        drawBackground(ctx);
+        drawForeground(ctx);
+    }
+};
 
 
 
 void setup()
 {
-    auto size = getPreferredSize();
-    createCanvas((long)size.w, (long)size.h);
+    createCanvas(800, 600);
 
-    //textFont("c:\\windows\\fonts\\segoeui.ttf");
+    textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+    textSize(fontSize);
+
+    contentArea.setPage(std::make_shared<SVGPage>());
+}
+
+void draw()
+{
+    background(245, 246, 247);
+    contentArea.draw(gAppSurface);
+}
+
+void mouseWheel(const MouseEvent& e)
+{
+    //printf("wheel: %d\n", e.delta);
+    contentArea.translateBy(0, (e.delta / 120)*scrollSize);
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-//#include "p5.hpp"
-//#include "drawable.h"
 #include "gview.h"
 
 #include <memory>

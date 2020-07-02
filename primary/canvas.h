@@ -16,8 +16,12 @@ public:
 		begin(fImage);	// Single threaded
 	}
 
+    BLImage& getImage() { return fImage; }
+
 	// cast to a BLImage
 	operator const BLImage& () { return fImage; }
+
+
 
     void flush()
     {
@@ -39,36 +43,48 @@ public:
         return 0;
     }
 
-    /*
+    
     void set(const int x, const int y, const BLRgba32& c)
     {
-        int px = (int)Clamp(x, 0, fImageData.size.w - 1);
-        int py = (int)Clamp(y, 0, fImageData.size.h - 1);
+        if ((x < 0 || x >= fImageData.size.w) || (y < 0 || y >= fImageData.size.h)) 
+            return;
 
-        int bytesPer = bpp(fImageData);
-        int offset = (int)(y * fImageData.stride) + (int)x*bytesPer;
-        ((Pixel*)fData)[offset] = c;
+        int bytesPer = getBytesPerPixel();
+        int offset = (int)(y * fImageData.stride) + (int)x * bytesPer;
+
+        switch (bytesPer) {
+            case 4: {
+                int offset = y * fImageData.size.w + x;
+                ((BLRgba32*)fImageData.pixelData)[offset] = c;
+            }
+            break;
+        }
+
     }
-    */
+    
 
     BLRgba32 get(int x, int y)
     {
-        int px = (int)clamp(x, 0, fImageData.size.w - 1);
-        int py = (int)clamp(y, 0, fImageData.size.h - 1);
+        if ((x < 0 || x >= fImageData.size.w) || (y < 0 || y >= fImageData.size.h))
+            return BLRgba32();
+
 
         // Get data from BLContext
         int bytesPer = getBytesPerPixel();
-        int offset = (int)(y * fImageData.stride) + (int)x * bytesPer;
+
         
         switch (bytesPer) {
             case 1: {
+                int offset = (int)(y * fImageData.stride) + (int)x * bytesPer;
                 uint8_t c = ((uint8_t*)fImageData.pixelData)[offset];
                 return BLRgba32(c, c, c, c);
             }
             break;
 
-            case 4:
+            case 4: {
+                int offset = y * fImageData.size.w + x;
                 return ((BLRgba32*)fImageData.pixelData)[offset];
+            }
             break;
         }
 

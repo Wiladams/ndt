@@ -213,10 +213,10 @@ struct P5Vector {
     void polygon(const BLPoint* pts, size_t n) noexcept;
     void path(const BLPath& p) noexcept;
 
-    void image(BLImage& img, int x, int y) noexcept;
+    void image(const BLImage& img, int x, int y) noexcept;
     BLImage loadImage(const char* filename) noexcept;
 
-    void scaleImage(BLImage& src,
+    void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight) noexcept;
 

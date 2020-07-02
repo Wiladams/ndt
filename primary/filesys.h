@@ -49,3 +49,4 @@ public:
 	bool isVirtual() { return (fAttributes & FILE_ATTRIBUTE_VIRTUAL) != 0; }
 
 };
+

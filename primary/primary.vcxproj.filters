@@ -210,6 +210,9 @@
     <ClInclude Include="filesys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="coloring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
