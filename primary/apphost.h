@@ -95,6 +95,11 @@ struct TouchEvent {
     int h;
 };
 
+struct PointerEvent {
+    int id;
+    int x;
+    int y;
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +110,7 @@ typedef void (* KeyEventHandler)(const KeyEvent &e);
 typedef void (* MouseEventHandler)(const MouseEvent &e);
 typedef void (*JoystickEventHandler)(const JoystickEvent& e);
 typedef void (*TouchEventHandler)(const TouchEvent& e);
+typedef void (*PointerEventHandler)(const PointerEvent& e);
 
 typedef void (* VOIDROUTINE)();
 typedef void (*PFNDOUBLE1)(const double param);
@@ -186,6 +192,8 @@ EXPORT void touchEnded(const TouchEvent& e);
 EXPORT void touchMoved(const TouchEvent& e);
 EXPORT void touchHover(const TouchEvent& e);
 
+// Pointer events
+EXPORT LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Controlling the runtime
 EXPORT void halt();

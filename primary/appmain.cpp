@@ -65,6 +65,8 @@ static TouchEventHandler gTouchEndedHandler = nullptr;
 static TouchEventHandler gTouchMovedHandler = nullptr;
 static TouchEventHandler gTouchHoverHandler = nullptr;
 
+// Pointer
+static WinMSGObserver gPointerHandler = nullptr;
 
 // Miscellaneous globals
 int gargc;
@@ -545,6 +547,13 @@ LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
+LRESULT HandlePointerEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    LRESULT res = 0;
+
+    return res;
+}
+
 LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     //printf("HandlePaintEvent\n");
@@ -596,6 +605,7 @@ void setupHandlers()
     gMouseHandler = HandleMouseEvent;
     gJoystickHandler = HandleJoystickEvent;
     gTouchHandler = HandleTouchEvent;
+    gPointerHandler = HandlePointerEvent;
     gPaintHandler = HandlePaintEvent;
 
     // The user can specify their own handlers for io and
@@ -624,6 +634,11 @@ void setupHandlers()
     handler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
     if (handler != nullptr) {
         gTouchHandler = handler;
+    }
+
+    handler = (WinMSGObserver)GetProcAddress(hInst, "handlePointer");
+    if (handler != nullptr) {
+        gPointerHandler = handler;
     }
 
     // Get the general app routines
@@ -735,9 +750,13 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     else if (msg == WM_TOUCH) {
         // Handle touch specific messages
         if (gTouchHandler != nullptr) {
-            gTouchHandler(hWnd, msg, wParam, lParam);
+            res = gTouchHandler(hWnd, msg, wParam, lParam);
         }
-            //res = TouchActivity(hwnd, msg, wparam, lparam)
+
+    } else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)){
+        if (gPointerHandler != nullptr) {
+            res = gPointerHandler(hWnd, msg, wParam, lParam);
+        }
     } else if (msg == WM_ERASEBKGND) {
         //printf("WM_ERASEBKGND\n");
         if (gPaintHandler != nullptr) {
