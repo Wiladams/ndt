@@ -31,7 +31,7 @@ inline double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
 }
 
-inline double clamp(double x, double amin, double amax) {
+inline double CLAMP(double x, double amin, double amax) {
     if (x < amin) return amin;
     if (x > amax) return amax;
     return x;

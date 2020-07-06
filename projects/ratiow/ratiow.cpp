@@ -344,7 +344,8 @@ hittable_list blend_mirrors() {
     auto b2dlogo = make_shared<ImageTexture>("blend2d_logo_flipped.png");
     auto b2dlogo_surface = make_shared<lambertian>(b2dlogo);
 
-    auto mirror = make_shared<dielectric>(1.25);
+    //auto mirror = make_shared<dielectric>(1.25);
+    auto mirror = make_shared<dielectric>(2.00);    // zinc sulfide
     auto red = make_shared<lambertian>(make_shared<SolidColorTexture>(.65, .05, .05));
     auto white = make_shared<lambertian>(make_shared<SolidColorTexture>(.73, .73, .73));
     auto green = make_shared<lambertian>(make_shared<SolidColorTexture>(.12, .45, .15));
@@ -365,14 +366,14 @@ hittable_list blend_mirrors() {
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
 
     // mirror tile floor
-    //objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     for (int z = 0; z < 4; z++) {
         for (int x = 0; x < 4; x++) {
-            objects.add(make_shared<xz_rect>(x*140, (x*140)+130, z*140, (z*140)+130, -1, mirror));
+            //objects.add(make_shared<xz_rect>(x*140, (x*140)+130, z*140, (z*140)+130, -1, mirror));
         
-            //shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(130, 10, 130), white);
-            //box1 = make_shared<translate>(box1, vec3(x * 140, 0, z*140));
-            //objects.add(box1);
+            shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(120, 10, 120), white);
+            box1 = make_shared<translate>(box1, vec3(x * 140, 15, z*140));
+            objects.add(box1);
         }
     }
     

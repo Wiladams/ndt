@@ -56,7 +56,8 @@ public:
         return data[i];
     }
 
-    // operator returning value based on index
+    // returning const allows you to get the value
+    // and does not allow changing it
     // value = vec[2];
     const T& operator[](const size_t i) const 
     {
@@ -294,7 +295,7 @@ inline vec<3, T> unit_vector(vec<3, T> v) {
 //    return res;
 //}
 
-// return new instance
+// return dot product
 //template<size_t DIM, typename T> T operator*(const vec<DIM, T>& lhs, const vec<DIM, T>& rhs) {
 //    T ret = T();
 //    for (size_t i = DIM; i--; ret += lhs[i] * rhs[i]);

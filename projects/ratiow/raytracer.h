@@ -51,7 +51,7 @@ public:
     int getSamplesPerPixel() const { return fSamplesPerPixel; }
     void setSamplesPerPixel(const int spp)
     {
-        fSamplesPerPixel = (int)clamp(spp, 10, 10000);
+        fSamplesPerPixel = (int)CLAMP(spp, 10, 10000);
         printf("setSamplesPerPixel(%d)\n", fSamplesPerPixel);
     }
 
@@ -88,9 +88,9 @@ public:
         g = sqrt(scale * g);
         b = sqrt(scale * b);
 
-        int ri = static_cast<int>(256 * clamp(r, 0.0, 0.999));
-        int gi = static_cast<int>(256 * clamp(g, 0.0, 0.999));
-        int bi = static_cast<int>(256 * clamp(b, 0.0, 0.999));
+        int ri = static_cast<int>(256 * CLAMP(r, 0.0, 0.999));
+        int gi = static_cast<int>(256 * CLAMP(g, 0.0, 0.999));
+        int bi = static_cast<int>(256 * CLAMP(b, 0.0, 0.999));
 
         //printf("setPixel: %d, %d, %d\n", ri, gi, bi);
         auto p = BLRgba32(ri, gi, bi);

@@ -106,6 +106,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointy", "pointy\pointy.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "colorama", "colorama\colorama.vcxproj", "{D9D61661-5C93-4A7F-830A-F1849B5C843F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtchallenge", "rtchallenge\rtchallenge.vcxproj", "{BA83D639-4A7E-4393-A3F6-03E481678819}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -474,6 +476,14 @@ Global
 		{D9D61661-5C93-4A7F-830A-F1849B5C843F}.Release|x64.Build.0 = Release|x64
 		{D9D61661-5C93-4A7F-830A-F1849B5C843F}.Release|x86.ActiveCfg = Release|Win32
 		{D9D61661-5C93-4A7F-830A-F1849B5C843F}.Release|x86.Build.0 = Release|Win32
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Debug|x64.ActiveCfg = Debug|x64
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Debug|x64.Build.0 = Debug|x64
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Debug|x86.ActiveCfg = Debug|Win32
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Debug|x86.Build.0 = Debug|Win32
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Release|x64.ActiveCfg = Release|x64
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Release|x64.Build.0 = Release|x64
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Release|x86.ActiveCfg = Release|Win32
+		{BA83D639-4A7E-4393-A3F6-03E481678819}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

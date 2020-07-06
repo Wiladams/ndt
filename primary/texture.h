@@ -5,6 +5,7 @@
 #include "canvas.h"
 
 #include <iostream>
+#include <algorithm>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -97,27 +98,38 @@ public:
 
     virtual rtcolor value(double u, double v, const vec3& p) const 
     {
+        static const double color_scale = 1.0 / 255.0;
+
         // If we have no texture data, then return solid cyan as a debugging aid.
         if (nullptr == fData.pixelData)
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
-        u = clamp(u, 0.0, 1.0);
-        v = 1.0 - clamp(v, 0.0, 1.0);  // Flip V to image coordinates
+        int i = static_cast<int>(map(u, 0, 1, 0, fData.size.w - 1, true));
+        int j = static_cast<int>(map(v, 0, 1, fData.size.h - 1, 0, true));
 
-        auto i = static_cast<int>(u * fData.size.w-1);
-        auto j = static_cast<int>(v * fData.size.h-1);
+        //u = CLAMP(u, 0.0, 0.999);
+        //v = 0.999 - CLAMP(v, 0.0, 0.999);  // Flip V to image coordinates
+
+        //int i = static_cast<int>(u * fData.size.w-1);
+        //int j = static_cast<int>(v * fData.size.h-1);
 
         // Clamp integer mapping, since actual coordinates should be less than 1.0
-        if (i >= fData.size.w)  i = fData.size.w-1;
-        if (j >= fData.size.h) j = fData.size.h - 1;
+        //if (i >= fData.size.w)  i = fData.size.w-1;
+        //if (j >= fData.size.h) j = fData.size.h - 1;
 
-        const auto color_scale = 1.0 / 255.0;
-        auto pixel = (uint8_t *)fData.pixelData + j * fData.stride + i * bytes_per_pixel;
+        //i = static_cast<int>(CLAMP(i, 0, fData.size.w - 1));
+        //j = static_cast<int>(CLAMP(j, 0, fData.size.h - 1));
+
+        //printf("u,v (%3.2f, %3.2f) x,y (%d, %d)\n", u, v, i, j);
+
+        uint8_t * pix = (uint8_t *)fData.pixelData + j * fData.stride + i * bytes_per_pixel;
 
         // We need to turn pixel values [0..255] into
         // rtcolor components [0..1]
-        return rtcolor(color_scale * pixel[2], color_scale * pixel[1], color_scale * pixel[0]);
+        rtcolor c(color_scale * pix[2], color_scale * pix[1], color_scale * pix[0]);
+
+        return c;
     }
 
 
@@ -154,8 +166,8 @@ public:
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
-        u = clamp(u, 0.0, 1.0);
-        v = 1.0 - clamp(v, 0.0, 1.0);  // Flip V to image coordinates
+        u = CLAMP(u, 0.0, 0.999);
+        v = 0.999 - CLAMP(v, 0.0, 0.999);  // Flip V to image coordinates
 
         auto i = static_cast<int>(u * fWidth);
         auto j = static_cast<int>(v * fCanvas->targetHeight());
