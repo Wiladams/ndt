@@ -2,12 +2,14 @@
 
 #include <cstdint>
 #include <cstdio>
-#include "binstream.hpp"
-#include "binops.hpp"
-#include "bitbang.hpp"
+#include <cmath>
 
-using namespace bitbang;
-using namespace binops;
+#include "binstream.hpp"
+#include "binops.h"
+#include "bitbang.h"
+
+using namespace ndt;
+
 
 /*
 Useful References
@@ -188,7 +190,7 @@ typedef struct icmp_hdr
 // host order values
 static inline void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
 {
-    byteoffset = floor(bitnumber / 8);
+    byteoffset = std::floor(bitnumber / 8);
     bitoffset = bitnumber % 8;
 }
 
@@ -253,7 +255,7 @@ bool readEthernetPacket(BinStream &bs, ethernet_hdr_t &pkt)
     bs.readBytes((uint8_t *)&pkt.MACSource, 6);
     
     // Read a couple of bytes to figure out the tag
-    pkt.TPID = binops::bswap16(bs.readUInt16());
+    pkt.TPID = ndt::bswap16(bs.readUInt16());
 
     if (pkt.TPID <= 1500) {
         // If the TPID is less than 1500, it indicates

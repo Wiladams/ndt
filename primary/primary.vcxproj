@@ -145,9 +145,9 @@
     <ClInclude Include="apphost.h" />
     <ClInclude Include="arcball.h" />
     <ClInclude Include="bezier.hpp" />
-    <ClInclude Include="binops.hpp" />
+    <ClInclude Include="binops.h" />
     <ClInclude Include="binstream.hpp" />
-    <ClInclude Include="bitbang.hpp" />
+    <ClInclude Include="bitbang.h" />
     <ClInclude Include="blend2d.h" />
     <ClInclude Include="BLGraphics.h" />
     <ClInclude Include="canvas.h" />

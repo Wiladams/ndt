@@ -6,7 +6,7 @@
 #include <cstdio>
 
 
-namespace bitbang {
+namespace ndt {
 
 // Return various forms of pow(2,bitnum)
 // There are different ones, which allow the user to specify how

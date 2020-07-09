@@ -33,7 +33,7 @@ public:
     {
         int bitsPerPixel = 32;
         int alignment = 4;
-        int bytesPerRow = bitbang::GetAlignedByteCount(awidth, bitsPerPixel, alignment);
+        int bytesPerRow = ndt::GetAlignedByteCount(awidth, bitsPerPixel, alignment);
 
         fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
         fBMInfo.bmiHeader.biWidth = awidth;

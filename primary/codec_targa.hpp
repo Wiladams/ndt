@@ -63,10 +63,8 @@
 */
 
 
-//#include "binstream.hpp"
 #include "blend2d.h"
 #include "bitbang.hpp"
-//#include "mmap.hpp"
 #include "filestream.h"
 
 namespace targa {
@@ -187,11 +185,11 @@ namespace targa {
             }
             else if (pixelDepth == 16) {
                 uint16_t src16 = ((databuff[1] << 8) | databuff[0]);
-                pix.b = (bitbang::BITSVALUE(src16, 0, 4) << 3);
-                pix.g = (bitbang::BITSVALUE(src16, 5, 9) << 3);
-                pix.r = (bitbang::BITSVALUE(src16, 10, 14) << 3);
+                pix.b = (ndt::BITSVALUE(src16, 0, 4) << 3);
+                pix.g = (ndt::BITSVALUE(src16, 5, 9) << 3);
+                pix.r = (ndt::BITSVALUE(src16, 10, 14) << 3);
                 pix.a = 255;
-                if (bitbang::BITSVALUE(src16, 15, 15) >= 1) {
+                if (ndt::BITSVALUE(src16, 15, 15) >= 1) {
                     pix.a = 0;  // 255
                 }
             }
@@ -462,7 +460,7 @@ namespace targa {
                 // read packet type to see if it's RLE or RAW
                 int packet = bs.readOctet();
                 isRLE = (packet & 0x80) > 0; // isset(repCount, 7);
-                pixelCount = (int)bitbang::BITSVALUE(packet, 0, 6) + 1;
+                pixelCount = (int)ndt::BITSVALUE(packet, 0, 6) + 1;
                 //printf("pixelCount: %d\n", pixelCount);
                 // Read at least one pixel value
                 size_t nRead = bs.readBytes(databuff, (size_t)bytesPerPixel);

@@ -21,13 +21,7 @@
     <ClInclude Include="apphost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="binops.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="binstream.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bitbang.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="blend2d.h">
@@ -214,6 +208,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bitbang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="binops.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
