@@ -42,9 +42,6 @@
     <ClInclude Include="computicle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="definitions.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -214,6 +211,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="math3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

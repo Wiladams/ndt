@@ -16,3 +16,10 @@
 #include <stdint.h>
 
 
+#if defined(_WIN32) || defined(_WIN64)
+#define NDT_IS_WINDOWS
+#endif
+
+#if defined(_MSC_VER)
+#define NDT_IS_MSVC
+#endif

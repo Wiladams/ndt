@@ -1,6 +1,6 @@
 #pragma once
 
-#include "definitions.hpp"
+#include "definitions.h"
 
 
 #if BUILD_AS_DLL

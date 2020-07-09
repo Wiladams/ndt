@@ -13,7 +13,6 @@
 
 #include "bitbang.hpp"
 #include "NativeWindow.hpp"
-//#include "grmath.h"
 #include "Surface.h"
 #include "joystick.h"
 

@@ -155,7 +155,7 @@
     <ClInclude Include="coloring.h" />
     <ClInclude Include="colorsampler.h" />
     <ClInclude Include="computicle.hpp" />
-    <ClInclude Include="definitions.hpp" />
+    <ClInclude Include="definitions.h" />
     <ClInclude Include="dproc_gl.h" />
     <ClInclude Include="drawable.h" />
     <ClInclude Include="Event.hpp" />
