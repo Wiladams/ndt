@@ -28,9 +28,6 @@
 
 
 // Basic type to encapsulate a mouse event
-
-
-
 enum {
     MOUSEMOVED,
     MOUSEPRESSED,
@@ -80,7 +77,7 @@ enum {
 };
 
 struct TouchEvent {
-    HANDLE device;
+    //HANDLE device;
     int id;
     int activity;
     int rawX;
@@ -124,7 +121,7 @@ EXPORT extern User32Window * gAppWindow;
 EXPORT extern Surface * gAppSurface;
 
 
-EXPORT extern UINT_PTR gAppTimerID;
+//EXPORT extern UINT_PTR gAppTimerID;
 EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
 EXPORT extern bool gIsLayered;

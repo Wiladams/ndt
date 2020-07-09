@@ -81,7 +81,7 @@ int gFPS = 15;   // Frames per second
 User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
 
-UINT_PTR gAppTimerID = 0;
+UINT_PTR gAppTimerID = 0;   // Not global
 bool gLooping = true;
 bool gRunning = true;
 bool gIsLayered = false;
