@@ -5,7 +5,9 @@
     machine learning and other domains.
 
     Herein lies some typical math routines to be used while fiddling about
-    with graphics.
+    with graphics.  The routines here are meant to be simple and representative
+    of typical usage.  If you're using an API such as p5, these routines
+    will have convenient wrappers.
 
     References
     https://github.com/nfrechette/rtm
@@ -21,108 +23,244 @@
 #include "bitbang.hpp"
 #include "random.hpp"
 
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+namespace maths {
+    typedef float FLOAT;
 
-// doesn't deal with -0 vs +0
-#define ABS(a) ((a) > 0 ? (a) : -(a))
+    // Math constants
+    // Some useful constants
+    //static const float  PI32 = 3.14159265359f;
+    static constexpr FLOAT ShadowEpsilon = 0.0001f;
+    static constexpr FLOAT Pi = 3.14159265358979323846;
+    static constexpr FLOAT PiOver2 = 1.57079632679489661923;
+    static constexpr FLOAT PiOver4 = 0.78539816339744830961;
+    static constexpr FLOAT Pi2 = 6.28318530717958647693;
+    static constexpr FLOAT InvPi = 0.31830988618379067154;
+    static constexpr FLOAT Inv2Pi = 0.15915494309189533577;
+    static constexpr FLOAT Inv4Pi = 0.07957747154594766788;
 
-
-
-// turn a division by 255 into something 
-// much cheaper to calculate
-// for values between 0 and 65534
-#define div255(num) ((num + (num >> 8)) >> 8)
-
-// perform a linear interpolation between a value 'a'
-// a background value, and a foreground value, using
-// fast div255
-#define lerp255(bg, fg, a) ((uint8_t)div255((fg*a+bg*(255-a))))
-
-#define swap2(a, b) { int16_t t = a; a = b; b = t; }
-
-// Math constants
-static const float  PI32 = 3.14159265359f;
-
-static const double QUARTER_PI = 0.7853982;
-static const double HALF_PI = 1.57079632679489661923;
-static const double PI = 3.14159265358979323846;
-static const double TWO_PI = 6.28318530717958647693;
-static const double TAU = 6.28318530717958647693;
+    static constexpr FLOAT Sqrt2 = 1.41421356237309504880;
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-// clamp() and constrain() do the exact same thing
-//inline double clamp(double x, double min, double max) 
-//{
-//    if (x < min) return min;
-//    if (x > max) return max;
-//    return x;
-//}
 
-inline double constrain(double x, double low, double high)
-{
-    return MIN(MAX(x, low), high);
-}
-
-inline double map(double x, double olow, double ohigh, double rlow, double rhigh, bool tight= false)
-{
-    if (tight) {
-        x = constrain(x, olow, ohigh);
+    template <typename T>
+    inline bool isNaN(const T x) {
+        return std::isnan(x);
+    }
+    template <>
+    inline bool isNaN(const int x) {
+        return false;
     }
 
-    return rlow + (x-olow)*((rhigh-rlow)/(ohigh-olow));
+    template <typename T>
+    inline T Min(T a, T b) {
+        return a < b ? a : b;
+    }
+
+    template <typename T>
+    inline T Max(T a, T b) {
+        return a > b ? a : b;
+    }
+    
+
+
+//#define swap2(a, b) { int16_t t = a; a = b; b = t; }
+
+
+
+
+    /*
+    Routines to be found in here, typical of a shader
+    language, or any other graphics library
+    In many cases, there's already something in standard
+    math libraries, but here, the operation might apply to a vector
+    of some type.
+
+    abs         clamp           exp2
+    acos        clip            faceforward
+    all         cos             firstbithigh
+    any         cosh            firstbitlow
+    asdouble    countbits       floor
+    asfloat     cross           fma
+    asin        degrees         fmod
+    asint       determinant     frac
+    asuint      distance        frexp
+    atan        dot             isfinite
+    atan2       dst             isinf
+    ceil        exp             isnan
+
+    ldexp       length          lerp
+    lit         log             log10
+    log2        mad             max
+    min         modf            msad4
+    mul         noise           normalize
+    pow         printf          radians
+    rcp         reflect         refract
+    reversebits round           rsqrt
+    saturate    sign            sin
+    sincos      sinh            smoothstep
+    sqrt        step            tan
+    tanh        tex1D           tex2D
+    tex3D       transpose       trunc
+
+*/
+
+    template <typename T>
+    inline T Abs(const T v)
+    {
+        return v < 0 ? -v : v;
+    }
+
+    template <typename T, typename U, typename V>
+    inline T Clamp(T val, U low, V high)
+    {
+        if (val < low)
+            return low;
+        else if (val > high)
+            return high;
+        else
+            return val;
+    }
+
+    // Lerp
+// This implementation of LERP is the most accurate
+// and guarantees you get v1 at 0.0 and v2 at 1.0
+    template <typename U, typename T>
+    inline T Lerp(U t, T v1, T v2)
+    {
+        return (1 - t) * v1 + t * v2;
+    }
+
+    template <typename U, typename T, typename V>
+    inline double Map(U x, T olow, T ohigh, V rlow, V rhigh)
+    {
+        return rlow + (x - olow) * ((rhigh - rlow) / (ohigh - olow));
+    }
+
+    template<>
+    inline double Map(double x, double olow, double ohigh, double rlow, double rhigh)
+    {
+        return rlow + (x - olow) * ((rhigh - rlow) / (ohigh - olow));
+    }
+
+        // Some useful routines
+        // returns the sign of the value
+        // value  < 0 --> -1
+        // value  > 0 -->  1
+        // value == 0 -->  0
+        // this will only work in cases where 0 represents false
+        // and 1 represents true
+    template <typename T>
+    inline int Sign(T val) { return ((0 < val) - (val < 0)); }
+
+
+
+        // Math functions
+    inline double Degrees(double x) { return x * 57.29577951308232; }
+    inline double Radians(double x) { return x * 0.017453292519943295; }
+
+
+    // Math functions
+
+/*
+
+
+    template <typename T>
+    inline T Add(const T a, T b)
+    {
+        return a + b;
+    }
+
+    template <typename T>
+    inline T ACos(const T a)
+    {
+        return (T)acos(a);
+    }
+
+    template <typename T>
+    inline T ASin(const T a)
+    {
+        return (T)asin(a);
+    }
+
+    template <typename T>
+    inline T Ceil(const T a)
+    {
+        return (T)ceil(a);
+    }
+
+    //template <typename T>
+    //inline T Clamp(T x, T minValue, T maxValue) noexcept
+    //{
+    //    return Min(Max(x, minValue), maxValue);
+    //}
+
+    template <typename T>
+    inline T Cos(const T a)
+    {
+        return (T)cos(a);
+    }
+
+    template <typename T>
+    inline T Cosh(const T a)
+    {
+        return (T)cosh(a);
+    }
+
+    template <typename T>
+    inline T Degrees(T a) { return a * 57.29577951308232; }
+
+    template <typename T>
+    inline T Divide(const T a, const T b)
+    {
+        return (T)a / b;
+    }
+
+    // Exp
+
+    template <typename T>
+    inline T Floor(const T a)
+    {
+        return floor(a);
+    }
+
+
+    template <typename T>
+    inline T Multiply(const T a, const T b)
+    {
+        return (T)(a * b);
+    }
+
+    template <typename T>
+    inline T Pow(const T a, const T b)
+    {
+        return pow(a, b);
+    }
+
+
+
+    template <typename T>
+    inline T SmoothStep(const T mn, const T mx)
+    {
+
+    }
+
+    template <typename T>
+    inline T Subtract(const T a, const T b)
+    {
+        return a - b;
+    }
+    */
+    template <typename T>
+    inline T Tan(const T a)
+    {
+        return (T)std::tan(a);
+    }
+
+    template <typename T>
+    inline T Tanh(const T a)
+    {
+        return (T)std::tanh(a);
+    }
+    
 }
-
-
-// Some useful routines
-// returns the sign of the value
-// value  < 0 --> -1
-// value  > 0 -->  1
-// value == 0 -->  0
-// this will only work in cases where 0 represents false
-// and 1 represents true
-inline int sgn(double val) { return ((0 < val) - (val < 0)); }
-
-inline double sq(double x) {return x*x;}
-
-
-// Math functions
-inline double degrees(double x) { return x * 57.29577951308232; }
-inline double radians(double x) { return x * 0.017453292519943295; }
-
-
-
-inline double dist(double x1, double y1, double x2, double y2)
-{
-    return sqrt(sq(x2-x1) + sq(y2-y1));
-}
-
-// This lerp is the more traditional way of doing it 
-// for graphics routines.  No constraint/clamp
-// typically a t ranges [0..1], but it does not
-// need to be limited to those values.
-inline double lerp(const double startValue, const double endValue, const double t)
-{
-    return (1 - t) * startValue + t * endValue;
-    //return low + x*(high-low);
-}
-
-inline double mag2(double x, double y)
-{
-    return sqrt(x*x +y*y);
-}
-
-inline double mag3(double a, double b, double c)
-{
-    return sqrt(a*a + b*b + c*c);
-}
-
-
-
-#ifdef __cplusplus
-}
-#endif

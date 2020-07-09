@@ -54,7 +54,7 @@ void draw()
         
         pop(); // go down one level
         translate(0, radius); // move into position for next sine
-        sines[i] = fmod((sines[i] + (fund + (fund * i * ratio))) , TWO_PI); // update angle based on fundamental
+        sines[i] = fmod((sines[i] + (fund + (fund * i * ratio))) , maths::Pi2); // update angle based on fundamental
       }
     
       pop(); // pop down final transformation
@@ -83,6 +83,6 @@ void setup()
         background(204); // clear the screen
 
         for (int i = 0; i < NUMSINES; i++) {
-            sines[i] = PI; // start EVERYBODY facing NORTH
+            sines[i] = maths::Pi; // start EVERYBODY facing NORTH
         }
     }

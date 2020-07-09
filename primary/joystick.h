@@ -96,12 +96,12 @@ struct Joystick {
 
 		// Map the relatively raw axes value 
 		// to be within a range (-1.0 .. 1.0 typically)
-		res.x = map(info.dwXpos, fCaps.wXmin, fCaps.wXmax, -1, 1);
-		res.y = map(info.dwYpos, fCaps.wYmin, fCaps.wYmax, 1, -1);
-		res.z = map(info.dwZpos, fCaps.wZmin, fCaps.wZmax, 1, 0); //throttle reverse
-		res.r = map(info.dwRpos, fCaps.wRmin, fCaps.wRmax, -1, 1);
-		res.u = map(info.dwUpos, fCaps.wUmin, fCaps.wUmax, -1, 1);
-		res.v = map(info.dwVpos, fCaps.wVmin, fCaps.wVmax, -1, 1);
+		res.x = maths::Map(info.dwXpos, fCaps.wXmin, fCaps.wXmax, -1, 1);
+		res.y = maths::Map(info.dwYpos, fCaps.wYmin, fCaps.wYmax, 1, -1);
+		res.z = maths::Map(info.dwZpos, fCaps.wZmin, fCaps.wZmax, 1, 0); //throttle reverse
+		res.r = maths::Map(info.dwRpos, fCaps.wRmin, fCaps.wRmax, -1, 1);
+		res.u = maths::Map(info.dwUpos, fCaps.wUmin, fCaps.wUmax, -1, 1);
+		res.v = maths::Map(info.dwVpos, fCaps.wVmin, fCaps.wVmax, -1, 1);
 		
 		res.buttons = info.dwButtons;
 		res.numButtonsPressed = info.dwButtonNumber;

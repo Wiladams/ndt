@@ -178,10 +178,13 @@ public:
     virtual Pixel color(int gray) {return color(gray, gray, gray, 255);}
 
     virtual Pixel lerpColor(const Pixel& from, const Pixel& to, double f) {
-        uint8_t r = (uint8_t)lerp(from.r, to.r, f);
-        uint8_t g = (uint8_t)lerp(from.g, to.g, f);
-        uint8_t b = (uint8_t)lerp(from.b, to.b, f);
-        uint8_t a = (uint8_t)lerp(from.a, to.a, f);
+        //auto p = maths::Lerp(f, from, to);
+        //return p;
+
+        uint8_t r = (uint8_t)maths::Lerp(f, from.r, to.r);
+        uint8_t g = (uint8_t)maths::Lerp(f, from.g, to.g);
+        uint8_t b = (uint8_t)maths::Lerp(f, from.b, to.b);
+        uint8_t a = (uint8_t)maths::Lerp(f, from.a, to.a);
 
         return Pixel((int)r, (int)g, (int)b, (int)a);
     }

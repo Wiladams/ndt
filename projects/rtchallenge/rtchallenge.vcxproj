@@ -146,7 +146,7 @@
     <ClCompile Include="rtchallenge.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="rttypes.h" />
+    <ClInclude Include="algebra.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

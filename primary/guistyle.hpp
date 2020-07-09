@@ -45,9 +45,9 @@ inline uint8_t tobyte(double v) {return int(floor(v + 0.5));}
 
 Pixel brighter(const Pixel&value)
 {
-    uint8_t red = tobyte(constrain(value.r *(1/0.80), 0, 255));
-    uint8_t green = tobyte(constrain(value.g * (1.0/0.85), 0, 255));
-    uint8_t blue = tobyte(constrain(value.b * (1.0/0.80), 0,255));
+    uint8_t red = tobyte(p5::constrain(value.r *(1/0.80), 0, 255));
+    uint8_t green = tobyte(p5::constrain(value.g * (1.0/0.85), 0, 255));
+    uint8_t blue = tobyte(p5::constrain(value.b * (1.0/0.80), 0,255));
 
     return Pixel(red, green, blue, value.a);
 }

@@ -101,13 +101,13 @@ struct TriangleMesh
 
 	void extendRange(const vec3f& vert)
 	{
-		fVertSmallest.x = MIN(vert.x, fVertSmallest.x);
-		fVertSmallest.y = MIN(vert.y, fVertSmallest.y);
-		fVertSmallest.z = MIN(vert.z, fVertSmallest.z);
+		fVertSmallest.x = maths::Min(vert.x, fVertSmallest.x);
+		fVertSmallest.y = maths::Min(vert.y, fVertSmallest.y);
+		fVertSmallest.z = maths::Min(vert.z, fVertSmallest.z);
 
-		fVertLargest.x = MAX(vert.x, fVertLargest.x);
-		fVertLargest.y = MAX(vert.y, fVertLargest.y);
-		fVertLargest.z = MAX(vert.z, fVertLargest.z);
+		fVertLargest.x = maths::Max(vert.x, fVertLargest.x);
+		fVertLargest.y = maths::Max(vert.y, fVertLargest.y);
+		fVertLargest.z = maths::Max(vert.z, fVertLargest.z);
 	}
 
 	void calcExtent()
@@ -142,9 +142,9 @@ struct TriangleMesh
 		//printf("==== centerMesh ====\n");
 		calcExtent();
 		vec3f center;
-		center.x = lerp(fVertSmallest.x, fVertLargest.x, 0.5f);
-		center.y = lerp(fVertSmallest.y, fVertLargest.y, 0.5f);
-		center.z = lerp(fVertSmallest.z, fVertLargest.z, 0.5f);
+		center.x = maths::Lerp(0.5f, fVertSmallest.x, fVertLargest.x);
+		center.y = maths::Lerp(0.5f, fVertSmallest.y, fVertLargest.y);
+		center.z = maths::Lerp(0.5f, fVertSmallest.z, fVertLargest.z);
 
 		//printf("CENTER: %f,%f,%f\n", center.x, center.y, center.z);
 

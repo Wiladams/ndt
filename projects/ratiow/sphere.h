@@ -16,8 +16,8 @@ class sphere : public hittable {
     {
         auto phi = atan2(p.z, p.x);
         auto theta = asin(p.y);
-        u = 1 - (phi + PI) / (TWO_PI);
-        v = (theta + HALF_PI) / PI;
+        u = 1 - (phi + maths::Pi) / (maths::Pi2);
+        v = (theta + PiOver2) / maths::Pi;
     }
 
 public:

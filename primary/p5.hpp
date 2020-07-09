@@ -20,8 +20,6 @@
 #include <stdlib.h>
 
 #include "apphost.h"
-#include "maths.hpp"
-
 
 namespace p5 {
 
@@ -247,4 +245,37 @@ struct P5Vector {
 
     double millis() noexcept;
     double seconds() noexcept;
+
+    // Math routines
+    inline double constrain(double x, double low, double high) noexcept { return maths::Clamp(x, low, high); }
+
+    inline double radians(double deg) noexcept {return maths::Radians(deg);}
+    inline double degrees(double rad) noexcept {return maths::Degrees(rad);}
+    inline double lerp(double start, double stop, double amt) noexcept { return maths::Lerp(amt, start, stop); }
+    inline double sq(double x) { return x * x; }
+    inline double sqrt(double x) { return std::sqrt(x); }
+
+    // Calculate distance between two points
+    inline double dist(double x1, double y1, double x2, double y2)
+    {
+        return std::sqrt(sq(x2 - x1) + sq(y2 - y1));
+    }
+
+    inline double mag(double a, double b) { return sqrt(a*a+ b*b); }
+    inline double mag(double a, double b, double c) { return std::sqrt(a * a + b * b + c * c); }
+
+    inline double map(double value, double start1, double stop1, double start2, double stop2, bool withBounds = false)
+    {
+        if (withBounds)
+            value = maths::Clamp(value, start1, stop1);
+
+        return maths::Map(value, start1, stop1, start2, stop2);
+    }
+
+    inline double max(double a, double b) { return maths::Max(a, b); }
+    inline double min(double a, double b) { return maths::Min(a, b); }
+
+    inline double ceil(double x) { return std::ceil(x); }
+    inline double floor(double x) { return std::floor(x); }
+    inline long round(double x) { return std::lround(x); }
 }

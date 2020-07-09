@@ -21,8 +21,8 @@ void draw()
     for (int x = 0; x <= width - 1; x += 30) {
         for (int y = 0; y <= height; y += 30) {
             //starting point of each circle depends on mouse position
-            double xAngle = map(mouseX, 0, width-1, (-4.0 * PI), (4.0 * PI), true);
-            double yAngle = map(mouseY, 0, height-1, (-4.0 * PI), (4.0 * PI), true);
+            double xAngle = map(mouseX, 0, width-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
+            double yAngle = map(mouseY, 0, height-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
             
             //printf("xAngle: %f  yAngle: %f\n", xAngle, yAngle);
 
@@ -30,8 +30,8 @@ void draw()
             double angle = (xAngle * ((double)x / (double)width)) + (yAngle * ((double)y / (double)height));
 
             //each particle moves in a circle
-            double myX = ((double)x + 20.0 * cos((2.0 * PI * t) + angle));
-            double myY = ((double)y + 20.0 * sin((2.0 * PI * t) + angle));
+            double myX = ((double)x + 20.0 * cos((2.0 * maths::Pi * t) + angle));
+            double myY = ((double)y + 20.0 * sin((2.0 * maths::Pi * t) + angle));
 
             //printf("myX: %f  myY: %f\n", myX, myY);
 

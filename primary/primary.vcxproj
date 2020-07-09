@@ -176,6 +176,7 @@
     <ClInclude Include="IShader.h" />
     <ClInclude Include="LayeredWindow.hpp" />
     <ClInclude Include="List.hpp" />
+    <ClInclude Include="math3d.h" />
     <ClInclude Include="maths.hpp" />
     <ClInclude Include="mmap.hpp" />
     <ClInclude Include="model.h" />
@@ -210,6 +211,7 @@
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
     <ClCompile Include="grmath.cpp" />
+    <ClCompile Include="math3d.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="primary.cpp" />
     <ClCompile Include="waveobjloader.cpp" />

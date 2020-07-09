@@ -103,8 +103,8 @@ public:
 
     void set(int x, int y, const Pixel& c)
     {
-        x = (int)constrain(x, 0, fWidth - 1);
-        y = (int)constrain(y, 0, fHeight - 1);
+        x = (int)maths::Clamp(x, 0, fWidth - 1);
+        y = (int)maths::Clamp(y, 0, fHeight - 1);
 
         int offset = (int)(y * fWidth) + (int)x;
         ((Pixel *)fData)[offset] = c;
@@ -112,8 +112,8 @@ public:
 
     Pixel get(int x, int y)
     {
-        x = (int)constrain(x, 0, fWidth - 1);
-        y = (int)constrain(y, 0, fHeight - 1);
+        x = (int)maths::Clamp(x, 0, fWidth - 1);
+        y = (int)maths::Clamp(y, 0, fHeight - 1);
 
         // Get data from BLContext
         int offset = (y * fWidth) + x;

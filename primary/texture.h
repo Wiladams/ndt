@@ -3,6 +3,7 @@
 #include "perlin.h"
 #include "blend2d.h"
 #include "canvas.h"
+#include "math3d.h"
 
 #include <iostream>
 #include <algorithm>
@@ -105,23 +106,8 @@ public:
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
-        int i = static_cast<int>(map(u, 0, 1, 0, fData.size.w - 1, true));
-        int j = static_cast<int>(map(v, 0, 1, fData.size.h - 1, 0, true));
-
-        //u = CLAMP(u, 0.0, 0.999);
-        //v = 0.999 - CLAMP(v, 0.0, 0.999);  // Flip V to image coordinates
-
-        //int i = static_cast<int>(u * fData.size.w-1);
-        //int j = static_cast<int>(v * fData.size.h-1);
-
-        // Clamp integer mapping, since actual coordinates should be less than 1.0
-        //if (i >= fData.size.w)  i = fData.size.w-1;
-        //if (j >= fData.size.h) j = fData.size.h - 1;
-
-        //i = static_cast<int>(CLAMP(i, 0, fData.size.w - 1));
-        //j = static_cast<int>(CLAMP(j, 0, fData.size.h - 1));
-
-        //printf("u,v (%3.2f, %3.2f) x,y (%d, %d)\n", u, v, i, j);
+        int i = static_cast<int>(maths::Map(Clamp(u,0.0,1.0), 0, 1, 0, fData.size.w - 1));
+        int j = static_cast<int>(maths::Map(Clamp(v,0.0,1.0), 0, 1, fData.size.h - 1, 0));
 
         uint8_t * pix = (uint8_t *)fData.pixelData + j * fData.stride + i * bytes_per_pixel;
 
@@ -166,8 +152,8 @@ public:
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
-        u = CLAMP(u, 0.0, 0.999);
-        v = 0.999 - CLAMP(v, 0.0, 0.999);  // Flip V to image coordinates
+        u = math3d::Clamp(u, 0.0, 0.999);
+        v = 0.999 - math3d::Clamp(v, 0.0, 0.999);  // Flip V to image coordinates
 
         auto i = static_cast<int>(u * fWidth);
         auto j = static_cast<int>(v * fCanvas->targetHeight());

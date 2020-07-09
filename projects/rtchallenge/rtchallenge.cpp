@@ -1,7 +1,7 @@
 #include "p5.hpp"
 using namespace p5;
 
-#include "rttypes.h"
+#include "algebra.h"
 
 template <size_t DIM, typename T>
 void printTuple(const RTvec<DIM,T> & a)
@@ -9,14 +9,14 @@ void printTuple(const RTvec<DIM,T> & a)
 	printf("(%f, %f, %f, %f)\n", a[0], a[1], a[2], a[3]);
 }
 
-/*
-void printMatrix(const RTMatrix44& m)
+template<size_t DimRows, size_t DimCols, typename T>
+void printMatrix(const RTmat<DimRows,DimCols,T>& m)
 {
-	for (int row = 0; row < 4; row++) {
+	for (int row = 0; row < DimRows; row++) {
 		printTuple(m[row]);
 	}
 }
-*/
+
 
 void test_addition()
 {
@@ -56,21 +56,27 @@ void test_negation()
 	printTuple(-a);
 }
 
-/*
+
 void test_matrix()
 {
 	printf("==== test_matrix ====\n");
 	printf("---- transpose ----\n");
-	RTMatrix44 A = { {{0,9,3,0},{9,8,0,8},{1,8,5,3},{0,0,5,8}} };
+	//RTMatrix44 A(RTFloat4{ 0,9,3,0 }, RTFloat4(9, 8, 0, 8), RTFloat4(1, 8, 5, 3), RTFloat4(0, 0, 5, 8));
+	RTMatrix44 A{ { 0,9,3,0 }, {9, 8, 0, 8}, {1, 8, 5, 3}, {0, 0, 5, 8} };
 
-	printMatrix(matrix_transpose(A));
+	std::cout << A;
+	printf("------------\n");
+	//printMatrix(A.transpose());
+	auto a = A.transpose();
+	std::cout << a;
+	//A.transpose();
 
 	printf("---- multiply tuple ----\n");
-	A = { {{1,2,3,4},{2,4,4,2},{8,6,4,1},{0,0,0,1}} };
+	RTMatrix44 B(RTFloat4(1,2,3,4), RTFloat4(2,4,4,2), RTFloat4(8,6,4,1), RTFloat4(0,0,0,1));
 	RTFloat4 b{ 1,2,3,1 };
-	printTuple(A * b);
+	std::cout << B * b;
+	//printTuple(B * b);
 }
-*/
 
 void preload()
 {
@@ -85,7 +91,7 @@ void preload()
 	test_addition();
 	test_subtraction();
 	test_negation();
-	//test_matrix();
+	test_matrix();
 }
 
 void setup()

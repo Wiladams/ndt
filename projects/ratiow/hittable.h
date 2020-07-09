@@ -122,7 +122,7 @@ public:
 
 
 rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p) {
-    auto rads = radians(angle);
+    auto rads = maths::Radians(angle);
     sin_theta = sin(rads);
     cos_theta = cos(rads);
     hasbox = ptr->bounding_box(0, 1, bbox);

@@ -2,6 +2,8 @@
 #include "random.hpp"
 #include "stopwatch.hpp"
 
+//using namespace maths;
+
 namespace p5 {
 
     int width = 0;              // width of the canvas
@@ -159,10 +161,10 @@ namespace p5 {
 
     Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept
     {
-        uint8_t r = (uint8_t)lerp(from.r, to.r, f);
-        uint8_t g = (uint8_t)lerp(from.g, to.g, f);
-        uint8_t b = (uint8_t)lerp(from.b, to.b, f);
-        uint8_t a = (uint8_t)lerp(from.a, to.a, f);
+        uint8_t r = (uint8_t)maths::Lerp(f, from.r, to.r);
+        uint8_t g = (uint8_t)maths::Lerp(f, from.g, to.g);
+        uint8_t b = (uint8_t)maths::Lerp(f, from.b, to.b);
+        uint8_t a = (uint8_t)maths::Lerp(f, from.a, to.a);
 
         return color((int)r, (int)g, (int)b, (int)a);
     }

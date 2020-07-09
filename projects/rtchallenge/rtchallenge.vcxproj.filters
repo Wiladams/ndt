@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="rttypes.h">
+    <ClInclude Include="algebra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

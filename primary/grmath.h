@@ -202,12 +202,12 @@ struct vec<3, T>
         return res;
     }
 
-    double lengthSquared() const
+    T lengthSquared() const
     {
         return (data[0] * data[0] + data[1] * data[1] + data[2] * data[2]);
     }
 
-    double length() const
+    T length() const
     {
         return std::sqrt(lengthSquared());
     }
@@ -250,12 +250,12 @@ inline vec<3, T> operator*(const vec<3, T>& u, const vec<3, T>& v) {
 }
 
 template <typename T>
-inline vec<3, T> operator*(double t, const vec<3, T>& v) {
+inline vec<3, T> operator*(T t, const vec<3, T>& v) {
     return vec<3, T>(t * v.data[0], t * v.data[1], t * v.data[2]);
 }
 
 template <typename T>
-inline vec<3, T> operator*(const vec<3, T>& v, double t)
+inline vec<3, T> operator*(const vec<3, T>& v, T t)
 {
     return t * v;
 }
@@ -287,21 +287,6 @@ inline vec<3, T> unit_vector(vec<3, T> v) {
 }
 
 
-
-// Negation
-//template <typename T> vec<3, T> operator -(const vec<3, T> rhs)
-//{
-//    vec <3, T> res(-rhs.x, -rhs.y, -rhs.z);
-//    return res;
-//}
-
-// return dot product
-//template<size_t DIM, typename T> T operator*(const vec<DIM, T>& lhs, const vec<DIM, T>& rhs) {
-//    T ret = T();
-//    for (size_t i = DIM; i--; ret += lhs[i] * rhs[i]);
-
-//    return ret;
-//}
 
 /*
 template<size_t DIM, typename T> vec<DIM, T> operator+(const vec<DIM, T>& lhs, const vec<DIM, T>& rhs) {
@@ -354,7 +339,7 @@ vec<DIM, T> operator/(vec<DIM, T> lhs, const U& rhs) {
 
 
 */
-
+// hadamard
 //template <typename T>
 //inline vec<3,T> mul(const vec<3, T>& u, const vec<3, T>& v) {
 //    return vec<3,T>(u.data[0] * v.data[0], u.data[1] * v.data[1], u.data[2] * v.data[2]);
@@ -367,27 +352,7 @@ vec<DIM, T> operator/(vec<DIM, T> lhs, const U& rhs) {
 //    return (1 / t) * v;
 //}
 
-/*
-template <typename T>
-inline vec<3, T> operator +(const vec<3, T>& a, const vec<3, T>& b)
-{
-    return vec<3, T>(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-*/
-//template <typename T>
-//inline vec<3, T> operator +(const vec<3, T>& a, const vec<3, T>& b)
-//{
-//    vec<3,T> res(a);
-//    return res += b;
-//}
-/*
-template <typename T>
-inline vec<3, T> operator -(const vec<3, T>& a, const vec<3, T>& b)
-{
-    vec<3, T> res(a);
-    return res -= b;
-}
-*/
+
 
 template<size_t LEN, size_t DIM, typename T> vec<LEN, T> embed(const vec<DIM, T>& v, T fill = 1) {
     vec<LEN, T> ret;
@@ -561,195 +526,6 @@ using mat4  = mat<4, 4, double>;
 
 using point3 = vec3;
 using rtcolor = vec3;
-
-
-
-
-
-
-// Math constants
-/*
-static const float  PI32 = 3.14159265359f;
-
-static const double QUARTER_PI = 0.7853982;
-static const double HALF_PI = 1.57079632679489661923;
-static const double PI = 3.14159265358979323846;
-static const double TWO_PI = 6.28318530717958647693;
-static const double TAU = 6.28318530717958647693;
-*/
-
-// Math functions
-/*
-    Routines to be found in here, typical of a shader 
-    language, or any other graphics library
-    In many cases, there's already something in standard
-    math libraries, but here, the operation might apply to a vector
-    of some type.
-
-    abs         clamp           exp2
-    acos        clip            faceforward
-    all         cos             firstbithigh
-    any         cosh            firstbitlow
-    asdouble    countbits       floor
-    asfloat     cross           fma
-    asin        degrees         fmod
-    asint       determinant     frac
-    asuint      distance        frexp
-    atan        dot             isfinite
-    atan2       dst             isinf
-    ceil        exp             isnan
-
-    ldexp       length          lerp
-    lit         log             log10
-    log2        mad             max 
-    min         modf            msad4
-    mul         noise           normalize
-    pow         printf          radians
-    rcp         reflect         refract
-    reversebits round           rsqrt
-    saturate    sign            sin
-    sincos      sinh            smoothstep
-    sqrt        step            tan 
-    tanh        tex1D           tex2D
-    tex3D       transpose       trunc
-
-*/
-
-
-template <typename T>
-inline T Max(const T a, const T b)
-{
-    return a < b ? b : a;
-}
-
-template <typename T>
-inline T Min(const T a, const T b)
-{
-    return a > b ? b : a;
-}
-
-
-template <typename T>
-inline T Abs(const T v)
-{
-    return v < 0 ? -v : v;
-}
-
-template <typename T>
-inline T Add(const T a, T b)
-{
-    return a + b;
-}
-
-template <typename T>
-inline T ACos(const T a)
-{
-    return (T)acos(a);
-}
-
-template <typename T>
-inline T ASin(const T a)
-{
-    return (T)asin(a);
-}
-
-template <typename T>
-inline T Ceil(const T a)
-{
-    return (T)ceil(a);
-}
-
-//template <typename T>
-//inline T Clamp(T x, T minValue, T maxValue) noexcept
-//{
-//    return Min(Max(x, minValue), maxValue);
-//}
-
-template <typename T>
-inline T Cos(const T a)
-{
-    return (T)cos(a);
-}
-
-template <typename T>
-inline T Cosh(const T a)
-{
-    return (T)cosh(a);
-}
-
-template <typename T>
-inline T Degrees(T a) { return a * 57.29577951308232; }
-
-template <typename T>
-inline T Divide(const T a, const T b)
-{
-    return (T)a / b;
-}
-
-// Exp
-
-template <typename T>
-inline T Floor(const T a)
-{
-    return floor(a);
-}
-
-
-// This lerp is the more traditional way of doing it 
-// for graphics routines.  No constraint/clamp
-// typically a t ranges [0..1], but it does not
-// need to be limited to those values.
-template <typename T>
-inline T Lerp(const T startValue, const T endValue, const float t)
-{
-    //return (1 - t) * startValue + t * endValue;
-    return startValue + t * (endValue - startValue);
-}
-
-
-template <typename T>
-inline T Multiply(const T a, const T b)
-{
-    return (T)(a * b);
-}
-
-template <typename T>
-inline T Pow(const T a, const T b)
-{
-    return pow(a, b);
-}
-
-template <typename T>
-inline double Radians(T a) { return a * 0.017453292519943295; }
-
-template <typename T>
-inline int Sign(T val) { return ((0 < val) - (val < 0)); }
-
-template <typename T>
-inline T SmoothStep(const T mn, const T mx)
-{
-
-}
-
-template <typename T>
-inline T Subtract(const T a, const T b)
-{
-    return a - b;
-}
-
-template <typename T>
-inline T Tan(const T a)
-{
-    return (T)tan(a);
-}
-
-template <typename T>
-inline T Tanh(const T a)
-{
-    return (T)tanh(a);
-}
-
-
 
 
 // Utility Functions

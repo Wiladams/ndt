@@ -213,6 +213,9 @@
     <ClInclude Include="coloring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="math3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
@@ -228,6 +231,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grmath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

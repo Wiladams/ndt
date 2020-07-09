@@ -25,10 +25,10 @@ namespace ndt {
 
 	static BLRgba32 lerpColor(const BLRgba32& from, const BLRgba32& to, double f) noexcept
 	{
-		uint32_t r = (uint32_t)lerp(from.r, to.r, f);
-		uint32_t g = (uint32_t)lerp(from.g, to.g, f);
-		uint32_t b = (uint32_t)lerp(from.b, to.b, f);
-		uint32_t a = (uint32_t)lerp(from.a, to.a, f);
+		uint32_t r = (uint32_t)maths::Lerp(f, from.r, to.r);
+		uint32_t g = (uint32_t)maths::Lerp(f, from.g, to.g);
+		uint32_t b = (uint32_t)maths::Lerp(f, from.b, to.b);
+		uint32_t a = (uint32_t)maths::Lerp(f, from.a, to.a);
 
 		return BLRgba32(r, g, b, a);
 	}
@@ -48,7 +48,7 @@ public:
 	BLRgba32 operator()(double u) const
 	{
 		// ensure we're in the range 0..1 inclusive
-		u = constrain(u, 0, 1.0);
+		u = maths::Clamp(u, 0, 1.0);
 
 		const BLGradientStop* stops = fGradient.stops();
 		size_t lowIndex = ndt::searchClosestLast(stops, fGradient.size(), u);
@@ -57,7 +57,7 @@ public:
 		//printf("lowIndex: %zd  highIndex: %zd\n", lowIndex, highIndex);
 		BLRgba32 from = BLRgba32(stops[lowIndex].rgba);
 		BLRgba32 to = BLRgba32(stops[highIndex].rgba);
-		double f = map(u, stops[lowIndex].offset, stops[highIndex].offset, 0, 1);
+		double f = maths::Map(u, stops[lowIndex].offset, stops[highIndex].offset, 0, 1);
 
 		return ndt::lerpColor(from, to, f);
 	}

@@ -95,8 +95,8 @@ public:
 			ctx->noFill();
 			//ctx->fill(0, 0, 0, 1);
 			//ctx->blendMode(BL_COMP_OP_SRC_COPY);
-			double x = MIN(fStartDrag.x, fEndDrag.x);
-			double y = MIN(fStartDrag.y, fEndDrag.y);
+			double x = maths::Min(fStartDrag.x, fEndDrag.x);
+			double y = maths::Min(fStartDrag.y, fEndDrag.y);
 			double w = abs(fEndDrag.x - fStartDrag.x);
 			double h = abs(fEndDrag.y - fStartDrag.y);
 

@@ -1,5 +1,4 @@
-#ifndef RTTYPES_H
-#define RTTYPES_H
+
 
 #pragma once
 /*
@@ -34,6 +33,22 @@ public:
             data[i] = T();
     }
 
+    // Copy constructor
+    RTvec(const RTvec<DIM, T>& other)
+    {
+        for (size_t i = 0; i < DIM; i++)
+            data[i] = other[i];
+    }
+
+    // Assignment operator
+    RTvec<DIM, T>& operator=(const RTvec<DIM, T>& rhs)
+    {
+        for (size_t i = 0; i < DIM; i++)
+            data[i] = rhs[i];
+
+        return *this;
+    }
+
     // operator returning reference allows for 
     // the setting a value
     // vec[2] = value;
@@ -52,65 +67,93 @@ public:
         return data[i];
     }
 
+    RTvec<DIM, T> operator-() const;                // Unary minus
 
-    RTvec<DIM, T>& operator+=(const RTvec<DIM, T>& rhs)
-    {
-        for (size_t i = 0; i < DIM; i++)
-            data[i] += rhs[i];
+    T operator*(const RTvec<DIM, T>& rhs) const;    // dot product
 
-        return *this;
-    }
+    RTvec<DIM, T>& operator*=(const T s);
+    RTvec<DIM, T>& operator+=(const RTvec<DIM, T>& rhs);
+    RTvec<DIM, T>& operator-=(const RTvec<DIM, T>& rhs);
 
-    RTvec<DIM, T>& operator-=(const RTvec<DIM, T>& rhs)
-    {
-        for (size_t i = 0; i < DIM; i++)
-            data[i] -= rhs[i];
 
-        return *this;
-    }
 
-    RTvec<DIM, T>& operator*=(const T s)
-    {
-        for (size_t i = 0; i < DIM; i++)
-            data[i] *= s;
-
-        return *this;
-    }
-
-    RTvec<DIM, T>& operator/=(const T s)
-    {
-        for (size_t i = 0; i < DIM; i++)
-            data[i] /= s;
-
-        return *this;
-    }
-
-    const double lengthSquared() const
-    {
-        double res = 0;
-        for (size_t i = 0; i < DIM; i++) {
-            res += data[i] * data[i];
-        }
-
-        return res;
-    }
-
-    double length() const
-    {
-        return std::sqrt(lengthSquared());
-    }
+    double lengthSquared() const;   // length squared used for magnitude
+    double length() const;          // length or magnitude
+    RTvec<DIM,T>& normalize();               // normalize the vector in place
 };
+
+
+template <size_t DIM, typename T>
+inline RTvec<DIM, T>& RTvec<DIM, T>::normalize()
+{
+    double magmul = 1.0/length();
+    for (size_t i = 0; i < DIM; i++)
+        data[i] *= magmul;
+
+    return *this;
+}
+
+// Convenient output
+template <size_t DIM, typename T>
+inline std::ostream& operator<<(std::ostream& out, const RTvec<DIM, T>& v)
+{
+    for (size_t i = 0; i < DIM; i++)
+        out << v[i] << ' ';
+
+    return out;
+}
 
 // Some basic arithmetic overloads
 // Negation
+// return new vector
 template <size_t DIM, typename T>
-inline RTvec<DIM,T> operator-(const RTvec<DIM, T>& a)
+inline RTvec<DIM,T> RTvec<DIM, T>::operator-() const
 {
     RTvec<DIM, T> res;
     for (size_t i = 0; i < DIM; i++)
-        res[i] = -a[i];
+        res[i] = -data[i];
 
     return res;
+}
+
+template <size_t DIM, typename T>
+inline RTvec<DIM, T>& RTvec<DIM, T>::operator+=(const RTvec<DIM, T>& rhs)
+{
+    for (size_t i = 0; i < DIM; i++)
+        data[i] += rhs[i];
+
+    return *this;
+}
+
+template <size_t DIM, typename T>
+inline RTvec<DIM, T>& RTvec<DIM, T>::operator-=(const RTvec<DIM, T>& rhs)
+{
+    for (size_t i = 0; i < DIM; i++)
+        data[i] -= rhs[i];
+
+    return *this;
+}
+
+// multiply by scalar
+// return lhs
+template <size_t DIM, typename T>
+inline RTvec<DIM, T>& RTvec<DIM, T>::operator*=(const T s)
+{
+    for (size_t i = 0; i < DIM; i++)
+        data[i] *= s;
+
+    return *this;
+}
+
+// in-place
+// divide by scalar
+template <size_t DIM, typename T>
+inline RTvec<DIM, T>& operator/=(const RTvec<DIM, T>& lhs, const T s)
+{
+    for (size_t i = 0; i < DIM; i++)
+        lhs[i] /= s;
+
+    return lhs;
 }
 
 // Arithmetic - Addition
@@ -132,6 +175,7 @@ inline RTvec<DIM, T> operator-(const RTvec<DIM, T>& a, const RTvec<DIM, T>& b)
 // Arithmetic - Scalar Multiplication
 // scalar on the right
 // RTvec * s;
+// return new vector
 template <size_t DIM, typename T>
 inline RTvec<DIM, T> operator*(const RTvec<DIM,T>& a, const T s)
 {
@@ -142,6 +186,7 @@ inline RTvec<DIM, T> operator*(const RTvec<DIM,T>& a, const T s)
 // Arithmetic - Scalar Multiplication
 // scalar on the left
 // s * RTvec;
+// return new vector
 template <size_t DIM, typename T>
 inline RTvec<DIM, T> operator*(const T s, const RTvec<DIM,T>& a)
 {
@@ -151,6 +196,7 @@ inline RTvec<DIM, T> operator*(const T s, const RTvec<DIM,T>& a)
 
 // Arithmetic - Scalar division
 // scalar on the right
+// return new vector
 template <size_t DIM, typename T>
 inline RTvec<DIM, T> operator/(const RTvec<DIM, T>& a, const T s)
 {
@@ -160,6 +206,7 @@ inline RTvec<DIM, T> operator/(const RTvec<DIM, T>& a, const T s)
 
 // Relational operators
 // Test for equality, using epsilon
+// return true/false
 template <size_t DIM, typename T>
 inline bool operator==(const RTvec<DIM,T>&lhs, const RTvec<DIM, T>& rhs)
 {
@@ -173,21 +220,52 @@ inline bool operator==(const RTvec<DIM,T>&lhs, const RTvec<DIM, T>& rhs)
 
 
 // any-dimensional dot product
+// return single value
+template <size_t DIM, typename T>
+inline T RTvec<DIM,T>::operator*(const RTvec<DIM, T>& b) const 
+{
+    T res = T();
+    for (size_t i = 0; i < DIM; i++)
+        res += data[i] * b[i];
+
+    return res;
+}
+
 template <size_t DIM, typename T>
 inline T dot(const RTvec<DIM, T>& a, const RTvec<DIM, T>& b)
 {
     T res = T();
     for (size_t i = 0; i < DIM; i++)
-        res += a.data[i] * b.data[i];
+        res += a[i] * b[i];
 
     return res;
 }
 
+template <size_t DIM, typename T>
+inline double RTvec<DIM, T>::lengthSquared() const
+{
+    double res = 0;
+    for (size_t i = 0; i < DIM; i++) {
+        res += data[i] * data[i];
+    }
+
+    return res;
+}
+
+/*
 // magnitude, or length of vector
 template <size_t DIM, typename T>
 inline T magnitude(const RTvec<DIM,T> & a)
 {
-    return std::sqrt(dot(a, a));
+    return std::sqrt(lengthSquared(a));
+}
+*/
+
+
+template <size_t DIM, typename T>
+inline double RTvec<DIM, T>::length() const
+{
+    return std::sqrt(lengthSquared());
 }
 
 // Return a unit vector
@@ -212,8 +290,27 @@ inline RTvec<DIM, T> hadamard_product(const RTvec<DIM,T> & a, const RTvec<DIM, T
 
 
 typedef RTvec<2, FLOAT> RTFloat2;
-typedef RTvec<3, FLOAT> RTFloat3;
 
+struct RTFloat3 : public RTvec<3, FLOAT>
+{
+    RTFloat3()
+        : RTvec<3,FLOAT>()
+    {}
+
+    RTFloat3(const RTFloat3& other)
+    {
+        this->operator[](0) = other[0];
+        this->operator[](1) = other[1];
+        this->operator[](2) = other[2];
+    }
+
+    RTFloat3(const FLOAT a, const FLOAT b, const FLOAT c)
+    {
+        this->operator[](0) = a;
+        this->operator[](1) = b;
+        this->operator[](2) = c;
+    }
+};
 
 
 struct RTFloat4: public RTvec<4,FLOAT>
@@ -295,9 +392,19 @@ struct RTdt<1, T> {
 */
 template<size_t DimRows, size_t DimCols, typename T>
 class RTmat {
-    vec<DimCols, T> rows[DimRows];
+protected:
+    RTvec<DimCols, T> rows[DimRows];
+
 public:
     RTmat() {}
+
+    // Convenient initializer
+    RTmat(T values[DimRows][DimCols])
+    {
+        for (size_t row = 0; row < DimRows; row++)
+            for (size_t column = 0; column < DimCols; column++)
+                rows[row][column] = values[row][column];
+    }
 
     RTvec<DimCols, T>& operator[] (const size_t idx) {
         assert(idx < DimRows);
@@ -376,66 +483,69 @@ public:
     }
 };
 
-/*
-struct RTMatrix44
+//
+// pre-multiplay, matrix on left, columnar vector on right
+// perhaps it should be spelled out instead, but this
+// makes very convenient expressions
+//
+// v' = m * v;
+//
+template<size_t DimRows, size_t DimCols, typename T> 
+RTvec<DimRows, T> operator*(const RTmat<DimRows, DimCols, T>& lhs, const RTvec<DimCols, T>& rhs) {
+    RTvec<DimRows, T> ret;
+    //for (size_t i = DimRows; i--; ret[i] = lhs[i] * rhs);
+    for (size_t i = DimRows; i--; ret[i] = dot(lhs[i], rhs));
+
+    return ret;
+}
+
+template<size_t R1, size_t C1, size_t C2, typename T>
+RTmat<R1, C2, T> operator*(const RTmat<R1, C1, T>& lhs, const RTmat<C1, C2, T>& rhs) 
 {
-    RTFloat4 rows[4];
-
-    // Ability to set a value
-    RTFloat4& operator[](const size_t row) { return rows[row]; }
-
-    // Ability to retrieve a value
-    const RTFloat4& operator[](const size_t row) const { return rows[row]; }
-
-    RTMatrix33 get_minor(size_t row, size_t col) const 
-    {
-        RTMatrix33 ret;
-        for (size_t i = 3; i--; )
-            for (size_t j = 3; j--; ret[i][j] = rows[i < row ? i : i + 1][j < col ? j : j + 1]);
-        
-        return ret;
+    RTmat<R1, C2, T> result;
+    for (size_t i = R1; i--; ) {
+        //for (size_t j = C2; j--; result[i][j] = lhs[i] * rhs.col(j));
+        for (size_t j = C2; j--; result[i][j] = dot(lhs[i], rhs.col(j)));
     }
 
-    // Cofactor matrix of a matrix
-    FLOAT cofactor(size_t row, size_t col) const 
+    return result;
+}
+
+//
+// Scalar division
+//
+// m = m / s;
+//
+template<size_t DimRows, size_t DimCols, typename T>
+RTmat<DimCols, DimRows, T> operator/(RTmat<DimRows, DimCols, T> lhs, const T& rhs) 
+{
+    for (size_t i = DimRows; i--; lhs[i] = lhs[i] / rhs);
+    return lhs;
+}
+
+
+
+// Mainly specialize for constructor
+struct RTMatrix44 : public RTmat<4, 4, FLOAT>
+{
+    RTMatrix44(FLOAT values[4][4])
+        : RTmat<4,4,FLOAT>(values)
     {
-        return get_minor(row, col).deteterminant() * ((row + col) % 2 ? -1 : 1);
     }
 };
 
-// Matrix multiply by columnar matrix on the right
-// Apply the matrix transform to the column
-RTFloat4 operator*(const RTMatrix44& A, const RTFloat4& b)
+//
+// print out
+// cout << m
+template <size_t DimRows, size_t DimCols, class T>
+std::ostream& operator<<(std::ostream& out, RTmat<DimRows, DimCols, T>& m)
 {
-    RTFloat4 c;
-    for (size_t row = 0; row < 4; row++) {
-        c[row] =
-            A[row][0] * b[0] +
-            A[row][1] * b[1] +
-            A[row][2] * b[2] +
-            A[row][3] * b[3];
-    }
+    for (size_t i = 0; i < DimRows; i++)
+        out << m[i] << std::endl;
 
-    return c;
+    return out;
 }
-
-// Combining two matrices together
-// composite transformations
-RTMatrix44 matrix_multiply(const RTMatrix44& a, const RTMatrix44& b)
-{
-    RTMatrix44 M;
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            M[row][col] =
-                a[row][0] * b[0][col] +
-                a[row][1] * b[1][col] +
-                a[row][2] * b[2][col] +
-                a[row][3] * b[3][col];
-        }
-    }
-    return M;
-}
-
+/*
 // Hadamard/Schur element-by-element multiplication
 //
 RTMatrix44 hadamard_product(const RTMatrix44& a, const RTMatrix44& b)
@@ -449,30 +559,5 @@ RTMatrix44 hadamard_product(const RTMatrix44& a, const RTMatrix44& b)
 
     return M;
 }
-
-// Create certain transformation matrices
-RTMatrix44 matrix_identity()
-{
-    // Assuming default constructor sets everything
-    // to '0' initially;
-    RTMatrix44 M;
-    M[0][0] = 1;
-    M[1][1] = 1;
-    M[2][2] = 1;
-    M[3][3] = 1;
-    return M;
-}
-
-RTMatrix44 matrix_transpose(const RTMatrix44& a)
-{
-    RTMatrix44 M;
-    for (size_t row = 0; row < 4; row++) {
-        for (size_t col = 0; col < 4; col++) {
-            M[row][col] = a[col][row];
-        }
-    }
-    return M;
-}
 */
 
-#endif
