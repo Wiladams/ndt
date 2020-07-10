@@ -2,17 +2,17 @@
 #include <memory>
 
 namespace math3d {
-	Matrix4x4::Matrix4x4(FLOAT val[4][4])
+	Matrix4x4::Matrix4x4(Float val[4][4])
 	{
-		memcpy(m, val, 16 * sizeof(FLOAT));
+		memcpy(m, val, 16 * sizeof(Float));
 	}
 
 
 	Matrix4x4::Matrix4x4(
-		FLOAT m00, FLOAT m01, FLOAT m02, FLOAT m03,
-		FLOAT m10, FLOAT m11, FLOAT m12, FLOAT m13,
-		FLOAT m20, FLOAT m21, FLOAT m22, FLOAT m23,
-		FLOAT m30, FLOAT m31, FLOAT m32, FLOAT m33)
+		Float m00, Float m01, Float m02, Float m03,
+		Float m10, Float m11, Float m12, Float m13,
+		Float m20, Float m21, Float m22, Float m23,
+		Float m30, Float m31, Float m32, Float m33)
 	{
 		m[0][0] = m00;
 		m[0][1] = m01;

@@ -17,7 +17,6 @@ class PSVM;
 class PSScanner
 {
 	std::shared_ptr<BinStream> fStream;
-	//std::shared_ptr<PSVM> fVM;
 	PSVM& fVM;
 
 
@@ -26,6 +25,8 @@ class PSScanner
 	std::shared_ptr<PSToken> lex_number();
 	std::shared_ptr<PSToken> lex_name();
 	std::shared_ptr<PSToken> beginLiteralName();
+
+	bool skipspaces();
 
 public:
 	PSScanner(PSVM& vm, std::shared_ptr<BinStream> bs);

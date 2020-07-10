@@ -18,6 +18,7 @@
 
 
 #include <stdio.h>
+#include <string>
 
 // EXPORT allows us to declare a function as exported
 // this will make it possible to then lookup that 
@@ -97,6 +98,12 @@ struct PointerEvent {
     int y;
 };
 
+struct FileDropEvent {
+    int x;
+    int y;
+    std::vector<std::string> filenames;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -107,6 +114,7 @@ typedef void (* MouseEventHandler)(const MouseEvent &e);
 typedef void (*JoystickEventHandler)(const JoystickEvent& e);
 typedef void (*TouchEventHandler)(const TouchEvent& e);
 typedef void (*PointerEventHandler)(const PointerEvent& e);
+typedef void (*FileDropEventHandler)(const FileDropEvent& e);
 
 typedef void (* VOIDROUTINE)();
 typedef void (*PFNDOUBLE1)(const double param);
@@ -191,6 +199,8 @@ EXPORT void touchHover(const TouchEvent& e);
 // Pointer events
 EXPORT LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+EXPORT void fileDrop(const FileDropEvent& e);
+
 // Controlling the runtime
 EXPORT void halt();
 EXPORT void loop();
@@ -211,6 +221,9 @@ EXPORT bool touch();
 EXPORT bool noTouch();
 EXPORT bool isTouch();
 
+// Handling dropped files
+EXPORT bool dropFiles();
+EXPORT bool noDropFiles();
 
 EXPORT void cursor();
 EXPORT void noCursor();

@@ -51,16 +51,16 @@ namespace math3d {
 	};
 	*/
 	struct Matrix2x2 {
-		FLOAT m[2][2];
+		Float m[2][2];
 
-		FLOAT determinant()
+		Float determinant()
 		{
 			return m[0][0] * m[1][1] - m[0][1] * m[1][0];
 		}
 	};
 
 	struct Matrix3x3 {
-		FLOAT m[3][3];
+		Float m[3][3];
 
 
 		Matrix3x3 transpose() const
@@ -72,14 +72,14 @@ namespace math3d {
 			return res;
 		}
 
-		FLOAT determinant() const
+		Float determinant() const
 		{
 			
 		}
 	};
 
 	struct Matrix4x4 {
-		FLOAT m[4][4];
+		Float m[4][4];
 
 		// Initialize to identity matrix by default
 		Matrix4x4()
@@ -87,14 +87,14 @@ namespace math3d {
 		{
 		}
 
-		Matrix4x4(FLOAT val[4][4]);
+		Matrix4x4(Float val[4][4]);
 
 
 		Matrix4x4(
-			FLOAT m00, FLOAT m01, FLOAT m02, FLOAT m03,
-			FLOAT m10, FLOAT m11, FLOAT m12, FLOAT m13,
-			FLOAT m20, FLOAT m21, FLOAT m22, FLOAT m23,
-			FLOAT m30, FLOAT m31, FLOAT m32, FLOAT m33);
+			Float m00, Float m01, Float m02, Float m03,
+			Float m10, Float m11, Float m12, Float m13,
+			Float m20, Float m21, Float m22, Float m23,
+			Float m30, Float m31, Float m32, Float m33);
 
 		
 		Matrix4x4 transpose() const;
@@ -135,12 +135,12 @@ namespace math3d {
 
 	// specialization for floats
 	template <>
-	inline FLOAT Mod(FLOAT a, FLOAT b) {
+	inline Float Mod(Float a, Float b) {
 		return std::fmod(a, b);
 	}
 
-	inline FLOAT Degrees(FLOAT rad) { return rad * 57.29577951308232; } // rad * (180/Pi)
-	inline FLOAT Radians(FLOAT x) { return x * 0.017453292519943295; }	// deg * (Pi/180)
+	inline Float Degrees(Float rad) { return rad * 57.29577951308232; } // rad * (180/Pi)
+	inline Float Radians(Float x) { return x * 0.017453292519943295; }	// deg * (Pi/180)
 
 	template <typename T>
 	inline constexpr bool IsPowerOf2(T v) {return v && !(v & (v - 1));}

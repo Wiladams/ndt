@@ -7,6 +7,7 @@
 #include "joystick.h"
 #include "stopwatch.hpp"
 
+#include <shellapi.h>
 
 #include <cstdio>
 #include <array>
@@ -67,6 +68,11 @@ static TouchEventHandler gTouchHoverHandler = nullptr;
 
 // Pointer
 static WinMSGObserver gPointerHandler = nullptr;
+
+// Drag and Drop
+static WinMSGObserver gFileDropHandler = nullptr;
+static FileDropEventHandler gFileDroppedHandler = nullptr;
+
 
 // Miscellaneous globals
 int gargc;
@@ -591,6 +597,45 @@ LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
+LRESULT HandleFileDropEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    LRESULT res = 0;
+    HDROP dropHandle = (HDROP)wParam;
+    
+
+    // if we have a drop handler, then marshall all the file names
+    // and call the event handler. 
+    // If the handler does not exist, don't bother with all the work
+    if (gFileDroppedHandler != nullptr) {
+        FileDropEvent e;
+        // Find out where the drop occured
+        POINT pt;
+        ::DragQueryPoint(dropHandle, &pt);
+        e.x = pt.x;
+        e.y = pt.y;
+
+        // First, find out how many files were dropped
+        auto n = ::DragQueryFileA(dropHandle, 0xffffffff, nullptr, 0);
+
+        // Now that we know how many, query individual files
+        // FileDropEvent
+        char namebuff[512];
+
+
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                ::DragQueryFileA(dropHandle, i, namebuff, 512);
+                e.filenames.push_back(std::string(namebuff));
+            }
+            gFileDroppedHandler(e);
+
+        }
+    }
+
+    ::DragFinish(dropHandle);
+
+    return res;
+}
 
 // Setup the routines that will handle
 // keyboard and mouse events
@@ -607,6 +652,7 @@ void setupHandlers()
     gTouchHandler = HandleTouchEvent;
     gPointerHandler = HandlePointerEvent;
     gPaintHandler = HandlePaintEvent;
+    gFileDropHandler = HandleFileDropEvent;
 
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
@@ -640,6 +686,12 @@ void setupHandlers()
     if (handler != nullptr) {
         gPointerHandler = handler;
     }
+
+    handler = (WinMSGObserver)GetProcAddress(hInst, "handleFileDrop");
+    if (handler != nullptr) {
+        gFileDropHandler = handler;
+    }
+
 
     // Get the general app routines
     gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
@@ -678,6 +730,7 @@ void setupHandlers()
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
     gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
 
+    gFileDroppedHandler = (FileDropEventHandler)GetProcAddress(hInst, "fileDrop");
 
     // Timer
     UINT_PTR nIDEvent = 5;
@@ -767,14 +820,22 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         res = 1;
     } else if (msg == WM_TIMER) {
         forceRedraw(nullptr, 0);
-    } else if (msg == WM_PAINT) {
+    }
+    else if (msg == WM_PAINT) {
         //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
             gPaintHandler(hWnd, msg, wParam, lParam);
-        } else
+        }
+        else
         {
             /* code */
             res = DefWindowProcA(hWnd, msg, wParam, lParam);
+        }
+    } else if (msg == WM_DROPFILES) {
+        printf("WM_DROPFILES\n");
+        if (gFileDropHandler != nullptr)
+        {
+            gFileDropHandler(hWnd, msg, wParam, lParam);
         }
     } else {
         res = DefWindowProcA(hWnd, msg, wParam, lParam);
@@ -852,6 +913,19 @@ bool isTouch()
     ULONG flags = 0;
     BOOL bResult = IsTouchWindow(gAppWindow->getHandle(), &flags);
     return (bResult != 0);
+}
+
+// Turning drop file support on and off
+bool dropFiles()
+{
+    ::DragAcceptFiles(gAppWindow->getHandle(),TRUE);
+    return true;
+}
+
+bool noDropFiles()
+{
+    ::DragAcceptFiles(gAppWindow->getHandle(), FALSE);
+    return true;
 }
 
 //

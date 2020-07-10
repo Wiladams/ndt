@@ -1,7 +1,8 @@
 #include "psvm.h"
+#include "textscan.h"
 
 #include <cstring>
-#include <bitset>
+
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -13,10 +14,10 @@ using std::make_shared;
 
 
 // Setup a dispatch table for base operators
-std::unordered_map < std::string, std::function<void(shared_ptr<PSVM> vm)> > PSOperators
+std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 {
 	// Stack management
-	{"clear", [](shared_ptr<PSVM> vm) {vm->operandStack().clear(); }},
+	{"clear", [](PSVM & vm) {vm.operandStack().clear(); }},
 	/*
 	{"cleartomark", [](PSVM& vm) { vm.operandStack().clearToMark(); }},
 
@@ -147,22 +148,7 @@ std::unordered_map < std::string, std::function<void(shared_ptr<PSVM> vm)> > PSO
 };
 
 
-// Represent a set of characters as a bitset
-struct charset {
-	std::bitset<256> bits;
 
-	charset(const char* chars)
-	{
-		size_t len = strlen(chars);
-		for (size_t i = 0; i < len; i++)
-			bits.set(chars[i]);
-	}
-
-	bool operator [](size_t idx) 
-	{
-		return bits[idx];
-	}
-};
 
 // These are a convenient way of putting characters together
 // in an easily searchable set.
@@ -170,9 +156,9 @@ struct charset {
 // stuff you'll typically see while tokenizing a programming language
 charset escapeChars("/\\\"bfnrtu");
 charset delimeterChars("()<>[]{}/%");
-charset whitespaceChars("\t\n\f\r ");
+charset isWhitespace("\t\n\f\r ");
 charset hexChars("0123456789abcdefABCDEF");
-charset digitChars("0123456789");
+//charset digitChars("0123456789");
 charset numBeginChars("+-.0123456789");
 
 
@@ -182,21 +168,22 @@ static inline bool isGraph(int c)
 }
 
 // Skip leading whitespaces in a binstream
-bool skipspaces(std::shared_ptr<BinStream> bs)
+bool PSScanner::skipspaces()
 {
-	while (true) {
-		if (bs->isEOF()) {
-			return false;
-		}
-
-		if (whitespaceChars[bs->peekOctet()])
+	while (!fStream->isEOF()) {
+		auto c = fStream->peekOctet();
+		if (!isWhitespace(c))
+			break;
+		if (isWhitespace(fStream->peekOctet()))
 		{
-			bs->skip(1);
+			fStream->skip(1);
 		}
 		else {
 			return true;
 		}
 	}
+
+	return !fStream->isEOF();
 }
 
 // Definition of a function that can parse a particular lexeme
@@ -298,7 +285,7 @@ std::shared_ptr<PSToken> PSScanner::lex_name()
 	// read to end of stream, or until delimeter
 	while (!fStream->isEOF()) {
 		auto c = fStream->peekOctet();
-		if (delimeterChars[c] || whitespaceChars[c]) {
+		if (delimeterChars[c] || isWhitespace(c)) {
 			break;
 		}
 
@@ -367,7 +354,7 @@ std::shared_ptr<PSToken> PSScanner::lex_number()
 
 		auto c = fStream->peekOctet();
 
-		if (whitespaceChars[c]) {
+		if (isWhitespace(c)) {
 			break;
 		}
 
@@ -413,7 +400,7 @@ PSScanner::PSScanner(PSVM &vm, std::shared_ptr<BinStream> bs)
 // Generate a single token
 std::shared_ptr<PSToken> PSScanner::nextToken()
 {
-	skipspaces(fStream);
+	skipspaces();
 	if (fStream->isEOF())
 	{
 		return nullptr;
