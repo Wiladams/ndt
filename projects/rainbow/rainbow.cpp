@@ -1,7 +1,7 @@
 #include "p5.hpp"
-#include "sampler.hpp"
+
 #include "colorsampler.h"
-#include "coloring.h"
+
 #include "graphic.hpp"
 #include "bezier.hpp"
 
@@ -26,17 +26,7 @@ BLGradient gradient(BLLinearGradientValues(0, 0, 0, 0));
 */
 BLImage potOfGold;
 
-// A sampler of visible light
-class VisibleLightSampler : public ISampler1D<BLRgba32>
-{
-public:
-	BLRgba32 operator()(double u) const
-	{
-		double wl = map(u, 0, 1, 380, 780);
-		auto c = coloring::ColorRGBAFromWavelength(wl);
-		return BLRgba32(c.r * 255, c.g * 255, c.b * 255);
-	}
-};
+
 
 class GradientBezier : public virtual IDrawable
 {

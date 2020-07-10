@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <cmath>
 
-#include "bitbang.hpp"
+#include "bitbang.h"
 #include "random.hpp"
 
 namespace maths {
-    typedef float FLOAT;
+    typedef double FLOAT;
 
     // Math constants
     // Some useful constants
@@ -43,56 +43,40 @@ namespace maths {
 
 
 
-    template <typename T>
-    inline bool isNaN(const T x) {
-        return std::isnan(x);
-    }
-    template <>
-    inline bool isNaN(const int x) {
-        return false;
-    }
-
-    template <typename T>
-    inline T Min(T a, T b) {
-        return a < b ? a : b;
-    }
-
-    template <typename T>
-    inline T Max(T a, T b) {
-        return a > b ? a : b;
-    }
-    
 
 
-//#define swap2(a, b) { int16_t t = a; a = b; b = t; }
+
 
 
 
 
     /*
     Routines to be found in here, typical of a shader
-    language, or any other graphics library
+    language, or any other graphics library.
     In many cases, there's already something in standard
     math libraries, but here, the operation might apply to a vector
     of some type.
 
-    abs         clamp           exp2
+    The names start with a capital letter in order to reduce conflict
+    with names that might exist in a global namespace.
+
+    -abs         -clamp           exp2
     acos        clip            faceforward
     all         cos             firstbithigh
     any         cosh            firstbitlow
-    asdouble    countbits       floor
+    asdouble    countbits       -floor
     asfloat     cross           fma
     asin        degrees         fmod
     asint       determinant     frac
     asuint      distance        frexp
     atan        dot             isfinite
     atan2       dst             isinf
-    ceil        exp             isnan
+    -ceil        exp             -isnan
 
     ldexp       length          lerp
     lit         log             log10
-    log2        mad             max
-    min         modf            msad4
+    log2        mad             -max
+    -min         modf            msad4
     mul         noise           normalize
     pow         printf          radians
     rcp         reflect         refract
@@ -100,7 +84,7 @@ namespace maths {
     saturate    sign            sin
     sincos      sinh            smoothstep
     sqrt        step            tan
-    tanh        tex1D           tex2D
+    -tanh        tex1D           tex2D
     tex3D       transpose       trunc
 
 */
@@ -109,6 +93,18 @@ namespace maths {
     inline T Abs(const T v)
     {
         return v < 0 ? -v : v;
+    }
+
+    template <typename T>
+    inline T Add(const T& a, const T& b)
+    {
+        return a + b;
+    }
+
+    template <typename T>
+    inline T Ceil(const T a)
+    {
+        return (T)std::ceil(a);
     }
 
     template <typename T, typename U, typename V>
@@ -122,11 +118,41 @@ namespace maths {
             return val;
     }
 
+
+    inline double Cos(const double a)
+    {
+        return std::cos(a);
+    }
+
+    template <typename T>
+    inline T Floor(T val)
+    {
+        return std::floor(val);
+    }
+
+    // isNaN only applies to floating point (float, double)
+    template <typename T>
+    inline bool isNaN(const T x) {
+        return std::isnan(x);
+    }
+
+    template <>
+    inline bool isNaN(const int x) {
+        return false;
+    }
+
     // Lerp
-// This implementation of LERP is the most accurate
-// and guarantees you get v1 at 0.0 and v2 at 1.0
-    template <typename U, typename T>
-    inline T Lerp(U t, T v1, T v2)
+    // This implementation of LERP is the most accurate
+    // and guarantees you get v1 at 0.0 and v2 at 1.0
+    //template <typename U, typename T>
+    template <typename T>
+    inline T Lerp(const double t, T v1, T v2)
+    {
+        return (1 - t) * v1 + t * v2;
+    }
+
+    template<>
+    inline double Lerp(const double t, double v1, double v2)
     {
         return (1 - t) * v1 + t * v2;
     }
@@ -143,6 +169,16 @@ namespace maths {
         return rlow + (x - olow) * ((rhigh - rlow) / (ohigh - olow));
     }
 
+    template <typename T>
+    inline T Min(T a, T b) {
+        return a < b ? a : b;
+    }
+
+    template <typename T>
+    inline T Max(T a, T b) {
+        return a > b ? a : b;
+    }
+
         // Some useful routines
         // returns the sign of the value
         // value  < 0 --> -1
@@ -153,24 +189,23 @@ namespace maths {
     template <typename T>
     inline int Sign(T val) { return ((0 < val) - (val < 0)); }
 
+    template <typename T>
+    inline T Degrees(T a) { return a * 57.29577951308232; }
 
-
-        // Math functions
+    template<>
     inline double Degrees(double x) { return x * 57.29577951308232; }
+    
+    template <typename T>
+    inline T Radians(T x) { return x * 0.017453292519943295; }
+
+    template<>
     inline double Radians(double x) { return x * 0.017453292519943295; }
 
+    
+    inline double Sin(double x) { return std::sin(x); }
 
-    // Math functions
 
 /*
-
-
-    template <typename T>
-    inline T Add(const T a, T b)
-    {
-        return a + b;
-    }
-
     template <typename T>
     inline T ACos(const T a)
     {
@@ -184,31 +219,11 @@ namespace maths {
     }
 
     template <typename T>
-    inline T Ceil(const T a)
-    {
-        return (T)ceil(a);
-    }
-
-    //template <typename T>
-    //inline T Clamp(T x, T minValue, T maxValue) noexcept
-    //{
-    //    return Min(Max(x, minValue), maxValue);
-    //}
-
-    template <typename T>
-    inline T Cos(const T a)
-    {
-        return (T)cos(a);
-    }
-
-    template <typename T>
     inline T Cosh(const T a)
     {
         return (T)cosh(a);
     }
 
-    template <typename T>
-    inline T Degrees(T a) { return a * 57.29577951308232; }
 
     template <typename T>
     inline T Divide(const T a, const T b)
@@ -217,12 +232,6 @@ namespace maths {
     }
 
     // Exp
-
-    template <typename T>
-    inline T Floor(const T a)
-    {
-        return floor(a);
-    }
 
 
     template <typename T>
@@ -244,13 +253,14 @@ namespace maths {
     {
 
     }
+*/
 
     template <typename T>
     inline T Subtract(const T a, const T b)
     {
         return a - b;
     }
-    */
+
     template <typename T>
     inline T Tan(const T a)
     {

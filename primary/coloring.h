@@ -3,7 +3,7 @@
 
 #include "blend2d.h"
 
-namespace coloring {
+namespace ndt {
     // RGBA_Doubles
     // 380 <= wl <= 780 nanometers
     //

@@ -11,7 +11,7 @@
 #include <ws2tcpip.h>
 #include <mmsystem.h>
 
-#include "bitbang.hpp"
+#include "bitbang.h"
 #include "NativeWindow.hpp"
 #include "Surface.h"
 #include "joystick.h"

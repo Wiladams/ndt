@@ -64,8 +64,10 @@
 
 
 #include "blend2d.h"
-#include "bitbang.hpp"
+#include "bitbang.h"
 #include "filestream.h"
+
+#include <memory>
 
 namespace targa {
     //    Convenience structures

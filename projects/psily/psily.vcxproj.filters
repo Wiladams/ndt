@@ -24,7 +24,7 @@
     <ClCompile Include="psily.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="psscanner.cpp">
+    <ClCompile Include="psvm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,25 +35,16 @@
     <ClInclude Include="..\..\primary\p5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="psscanner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pstoken.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="psstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="psinterpreter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="psvm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="psdictionary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="psoperators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="psarray.h">

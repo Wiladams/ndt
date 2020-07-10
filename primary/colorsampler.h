@@ -3,6 +3,7 @@
 #include "blend2d.h"
 #include "sampler.hpp"
 #include "maths.hpp"
+#include "coloring.h"
 
 namespace ndt {
 	// Given an array of gradient stops, return the highest index that is
@@ -33,6 +34,18 @@ namespace ndt {
 		return BLRgba32(r, g, b, a);
 	}
 }
+
+// A sampler of visible light
+class VisibleLightSampler : public ISampler1D<BLRgba32>
+{
+public:
+	BLRgba32 operator()(double u) const
+	{
+		double wl = maths::Map(u, 0, 1, 380, 780);
+		auto c = ndt::ColorRGBAFromWavelength(wl);
+		return BLRgba32(c.r * 255, c.g * 255, c.b * 255);
+	}
+};
 
 // Take a gradient, and do the interpolation to get a 
 // color for a specific parameter between 0..1

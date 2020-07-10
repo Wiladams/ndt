@@ -21,7 +21,8 @@ class PSDictionaryStack : public PSStack
 public:
 	void pushDictionary(std::shared_ptr<PSDictionary> d)
 	{
-		push(make_shared<PSToken>(PSTokenType::DICTIONARY, d));
+		auto tok = make_shared<PSToken>(d);
+		push(tok);
 	}
 
 	// BUGBUG - need some error checking here
@@ -53,7 +54,7 @@ public:
 		{
 			auto tok = nth(idx);
 			if (tok->fType == PSTokenType::DICTIONARY) {
-				if (tok->fData.asDictionary->operator[][key] != nullptr)
+				if (tok->fData.asDictionary->operator[](key) != nullptr)
 				//if (tok->fData.asDictionary->find(key) != nullptr)
 					return tok->fData.asDictionary;
 			}
@@ -74,7 +75,7 @@ public:
 		// We found a dictionary, so retrieve the
 		// value.  Kind of duplicative of 'where'
 
-		return d->operator[][key];
+		return d->operator[](key);
 	}
 
 	void store(std::string key, shared_ptr<PSToken> value)
@@ -88,6 +89,6 @@ public:
 			d = currentdict();
 		}
 
-		d->operator[][key] = value;
+		d->operator[](key) = value;
 	}
 };

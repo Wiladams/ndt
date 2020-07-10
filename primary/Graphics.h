@@ -181,10 +181,10 @@ public:
         //auto p = maths::Lerp(f, from, to);
         //return p;
 
-        uint8_t r = (uint8_t)maths::Lerp(f, from.r, to.r);
-        uint8_t g = (uint8_t)maths::Lerp(f, from.g, to.g);
-        uint8_t b = (uint8_t)maths::Lerp(f, from.b, to.b);
-        uint8_t a = (uint8_t)maths::Lerp(f, from.a, to.a);
+        uint8_t r = (uint8_t)maths::Lerp(f, (double)from.r, (double)to.r);
+        uint8_t g = (uint8_t)maths::Lerp(f, (double)from.g, (double)to.g);
+        uint8_t b = (uint8_t)maths::Lerp(f, (double)from.b, (double)to.b);
+        uint8_t a = (uint8_t)maths::Lerp(f, (double)from.a, (double)to.a);
 
         return Pixel((int)r, (int)g, (int)b, (int)a);
     }

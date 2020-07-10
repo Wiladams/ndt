@@ -1,10 +1,150 @@
-#include "psscanner.h"
-#include "binstream.hpp"
+#include "psvm.h"
 
 #include <cstring>
 #include <bitset>
 #include <unordered_map>
+#include <string>
+#include <functional>
+#include <algorithm>
+#include <memory>
 
+using std::shared_ptr;
+using std::make_shared;
+
+
+// Setup a dispatch table for base operators
+std::unordered_map < std::string, std::function<void(shared_ptr<PSVM> vm)> > PSOperators
+{
+	// Stack management
+	{"clear", [](shared_ptr<PSVM> vm) {vm->operandStack().clear(); }},
+	/*
+	{"cleartomark", [](PSVM& vm) { vm.operandStack().clearToMark(); }},
+
+	{"copy", [](PSVM& vm) {
+		auto tok = vm.operandStack().pop();
+		auto n = tok->fData.asInt;
+		vm.operandStack().copy(n);
+	}},
+
+	{"count", [](PSVM& vm) {
+		auto len = vm.operandStack().length();
+		auto tok = make_shared<PSToken>((double)len);
+		vm.operandStack().push(tok);
+	}},
+
+	{"counttomark", [](PSVM& vm) {
+		auto n = vm.operandStack().countToMark();
+		auto tok = make_shared<PSToken>((double)n);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"dup", [](PSVM& vm) {vm.operandStack().dup(); }},
+
+	{"exch", [](PSVM& vm) {vm.operandStack().exch(); }},
+
+	{"index", [](PSVM& vm) {
+		auto n = vm.operandStack().pop();
+		auto value = vm.operandStack().nth(n->fData.asInt);
+		vm.operandStack().push(value);
+	}},
+
+	{"mark", [](PSVM& vm) { vm.operandStack().mark(); }},
+
+	{"pop", [](PSVM& vm) {vm.operandStack().pop(); }},
+
+	{"roll", [](PSVM& vm) {
+		auto j = vm.operandStack().pop();
+		auto n = vm.operandStack().pop();
+		vm.operandStack().roll(n->fData.asInt, j->fData.asInt);
+	}},
+
+	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
+
+
+
+	//
+	// Arithmetic and Mathematical Operators
+	// Pop two arguments off stack, put result back on stack
+	{"add", [](PSVM& vm) {
+		auto num2 = vm.operandStack().pop();
+		auto num1 = vm.operandStack().pop();
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal + num2->fData.asReal);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"sub", [](PSVM& vm) {
+		auto num2 = vm.operandStack().pop();
+		auto num1 = vm.operandStack().pop();
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal - num2->fData.asReal);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"mul", [](PSVM& vm) {
+		auto num2 = vm.operandStack().pop();
+		auto num1 = vm.operandStack().pop();
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal * num2->fData.asReal);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"div", [](PSVM& vm) {
+		auto num2 = vm.operandStack().pop();
+		auto num1 = vm.operandStack().pop();
+		auto tok = make_shared<PSToken>((double)num1->fData.asReal / num2->fData.asReal);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"idiv", [](PSVM& vm) {
+		auto b = vm.operandStack().pop();
+		auto a = vm.operandStack().pop();
+		auto q = (double)a->fData.asReal / b->fData.asReal;
+		if (q >= 0) {
+			q = floor(q);
+		}
+		else {
+			q = ceil(q);
+		}
+		auto tok = make_shared<PSToken>(q);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{"mod", [](PSVM& vm) {
+		auto b = vm.operandStack().pop();
+		auto a = vm.operandStack().pop();
+		auto value = fmod(a->fData.asReal, b->fData.asReal);
+
+		auto tok = make_shared<PSToken>(value);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{ "maximum", [](PSVM& vm) {
+		auto b = vm.operandStack().pop();
+		auto a = vm.operandStack().pop();
+		auto value = std::max(a->fData.asReal, b->fData.asReal);
+
+		auto tok = make_shared<PSToken>(value);
+
+		vm.operandStack().push(tok);
+	}},
+
+	{ "minimum", [](PSVM& vm) {
+		auto b = vm.operandStack().pop();
+		auto a = vm.operandStack().pop();
+		auto value = std::min(a->fData.asReal, b->fData.asReal);
+
+		auto tok = make_shared<PSToken>(value);
+
+		vm.operandStack().push(tok);
+	}},
+	*/
+
+};
 
 
 // Represent a set of characters as a bitset
@@ -105,7 +245,7 @@ std::shared_ptr<PSToken> beginLiteralString(PSScanner&, std::shared_ptr<BinStrea
 	// Skip over closing delimeter
 	bs->skip(1);
 
-	auto tok = std::make_shared<PSToken>(PSTokenType::LITERAL_STRING, value);
+	auto tok = std::make_shared<PSToken>(value, PSTokenType::LITERAL_STRING);
 
 	return tok;
 }
@@ -140,7 +280,7 @@ std::shared_ptr<PSToken> beginComment(PSScanner&, std::shared_ptr<BinStream> bs)
 	auto len = ending - starting;
 	std::string value((char*)startPtr, len);
 
-	auto tok = std::make_shared<PSToken>(PSTokenType::COMMENT, value);
+	auto tok = std::make_shared<PSToken>(value, PSTokenType::COMMENT);
 
 	return tok;
 }
@@ -171,7 +311,7 @@ std::shared_ptr<PSToken> PSScanner::lex_name()
 
 	//printf("lex_name: %s\n", name.c_str());
 
-	auto tok = std::make_shared<PSToken>(PSTokenType::EXECUTABLE_NAME, value);
+	auto tok = std::make_shared<PSToken>(value, PSTokenType::EXECUTABLE_NAME);
 
 	if (value == "true" || (value == "false")) {
 		if (value == "true") {
@@ -245,7 +385,7 @@ std::shared_ptr<PSToken> PSScanner::lex_number()
 	double nValue = std::strtod(value.c_str(), nullptr);
 
 	//print("LEX_NUMBER: ", starting, len, str, value)
-	auto tok = std::make_shared<PSToken>(PSTokenType::NUMBER, nValue);
+	auto tok = make_shared<PSToken>(nValue);
 	
 	return tok;
 }
@@ -263,7 +403,7 @@ void PSScanner::StaticConstructor()
 
 
 
-PSScanner::PSScanner(PSVM * vm, std::shared_ptr<BinStream> bs)
+PSScanner::PSScanner(PSVM &vm, std::shared_ptr<BinStream> bs)
 	:fVM(vm),
 	fStream(bs)
 {
@@ -273,7 +413,6 @@ PSScanner::PSScanner(PSVM * vm, std::shared_ptr<BinStream> bs)
 // Generate a single token
 std::shared_ptr<PSToken> PSScanner::nextToken()
 {
-
 	skipspaces(fStream);
 	if (fStream->isEOF())
 	{
@@ -332,4 +471,136 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 	}
 
 	return nullptr;
+}
+
+
+
+
+//
+// Virtual Machine Definition
+//
+void PSVM::beginArray()
+{
+	fOperandStack.mark();
+}
+
+void PSVM::endArray()
+{
+	auto n = fOperandStack.countToMark();
+	std::shared_ptr<PSArray> arr = make_shared<PSArray>();
+
+	for (size_t i = 0; i < n; i++) {
+		auto tok = popOperand();
+		arr->push_back(tok);
+	}
+
+	// pop the marker itself
+	popOperand();
+
+	pushOperand(make_shared<PSToken>(arr));
+}
+
+void PSVM::beginProc()
+{
+	fOperandStack.mark();
+	fBuildProcDepth += 1;
+}
+
+shared_ptr<PSToken> PSVM::endProc()
+{
+	endArray();
+	auto arr = popOperand();
+	arr->isExecutable = true;
+	fBuildProcDepth -= 1;
+
+	return arr;
+}
+
+void PSVM::execArray(shared_ptr<PSToken> tok)
+{
+	for (size_t idx = 0; idx < tok->fData.asArray->size(); idx++)
+	{
+		auto item = tok->fData.asArray->at(idx);
+
+		switch (item->fType) {
+		case PSTokenType::BOOLEAN:
+		case PSTokenType::NUMBER:
+		case PSTokenType::LITERAL_ARRAY:
+		case PSTokenType::LITERAL_STRING:
+		case PSTokenType::LITERAL_NAME:
+		case PSTokenType::HEXSTRING:
+		case PSTokenType::PROCEDURE:
+			pushOperand(item);
+			break;
+
+		case PSTokenType::OPERATOR:
+			item->fData.asOperator(*this);
+			break;
+
+
+		case PSTokenType::EXECUTABLE_NAME:
+			execName(item);
+			break;
+		}
+	}
+}
+
+void PSVM::execName(shared_ptr<PSToken> tok)
+{
+	auto op = fDictionaryStack.load(*tok->fData.asString);
+
+	if (op == nullptr) {
+		printf("UNKNOWN EXECUTABLE NAME: %s\n", (*tok->fData.asString).c_str());
+		return;
+	}
+
+	switch (op->fType)
+	{
+	case PSTokenType::BOOLEAN:
+	case PSTokenType::NUMBER:
+	case PSTokenType::LITERAL_STRING:
+		pushOperand(op);
+		break;
+
+	case PSTokenType::OPERATOR:
+		op->fData.asOperator(*this);
+		break;
+
+	case PSTokenType::PROCEDURE:
+		if (op->isExecutable) {
+			execArray(op);
+		}
+		else {
+			pushOperand(op);
+		}
+		break;
+	default:
+		printf("UKNOWN EXECUTABLE TYPE: %d\n", op->fType);
+		break;
+	}
+}
+
+void PSVM::eval(shared_ptr<BinStream> bs)
+{
+	auto scnr = make_shared<PSScanner>(*this, bs);
+
+	//Iterate through tokens
+	while (!bs->isEOF()) {
+		auto tok = scnr->nextToken();
+		if (tok == nullptr)
+			break;
+
+		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
+			execName(tok);
+		}
+		else {
+			pushOperand(tok);
+		}
+	}
+}
+
+void PSVM::eval(std::string s)
+{
+	//auto bs = make_shared<BinStream>(s.c_str(), s.length());
+	//eval(bs);
 }

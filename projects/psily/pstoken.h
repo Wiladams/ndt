@@ -9,6 +9,7 @@
 
 class PSArray;
 class PSDictionary;
+class PSVM;
 
 /*
 enum class PSTokenFlags : uint32_t
@@ -64,9 +65,9 @@ union PSTokenData
 
 	intptr_t	asPointer;
 
-	std::string asString;
+	std::shared_ptr<std::string> asString;
 	
-	std::function<void(PSVM& vm)> asOperator;
+	std::function<void(PSVM & vm)> asOperator;
 	std::shared_ptr<PSArray> asArray;
 	std::shared_ptr<PSDictionary> asDictionary;
 
@@ -74,6 +75,7 @@ union PSTokenData
 	PSTokenData()		// Need a default constructor
 	{
 		asInt = 0;
+		asOperator = nullptr;
 	}
 
 	~PSTokenData(){}	// Need this destructor
@@ -84,47 +86,58 @@ union PSTokenData
 // such as whether it is executable or not
 struct PSToken
 {
+private:
+	PSToken(const PSToken& other) = delete;
+
+public:
 	PSTokenType fType;
 	bool isExecutable;
 	PSTokenData fData;
-	
+
 	PSToken()
 		:fType(PSTokenType::MARK)
+		,isExecutable(false)
 	{
 	}
 
-	PSToken(PSTokenType t, std::string &aString)
+	PSToken(std::string& aString, PSTokenType t)
 		: fType(t)
+		,isExecutable(false)
 	{
-		fData.asString = aString;
+		fData.asString = std::make_shared<std::string>(aString);
 	}
 	
-	PSToken(PSTokenType t, bool aBool)
+	PSToken(bool aBool, PSTokenType t)
 		:fType(t)
+		,isExecutable(false)
 	{
 		fData.asBool = aBool;
 	}
 
 	PSToken(double aReal)
 		:fType(PSTokenType::NUMBER)
+		,isExecutable(false)
 	{
 		fData.asReal = aReal;
 	}
 
 	PSToken(std::shared_ptr<PSArray> value)
 		:fType(PSTokenType::LITERAL_ARRAY)
+		,isExecutable(false)
 	{
 		fData.asArray = value;
 	}
 
 	PSToken(std::shared_ptr<PSDictionary> d)
 		:fType(PSTokenType::DICTIONARY)
+		,isExecutable(false)
 	{
 		fData.asDictionary = d;
 	}
 
-	PSToken(std::function<void(PSVM& vm)> op)
+	PSToken(std::function<void(PSVM & vm)> op)
 		:fType(PSTokenType::OPERATOR)
+		,isExecutable(false)
 	{
 		fData.asOperator = op;
 	}
@@ -149,10 +162,10 @@ struct PSToken
 			return "LITERAL_NAME";
 
 		case PSTokenType::EXECUTABLE_NAME:
-			return std::string("EXECUTABLE_NAME: ")+fData.asString;
+			return std::string("EXECUTABLE_NAME: ")+*fData.asString;
 
 		case PSTokenType::LITERAL_STRING:
-			return std::string("LITERAL_STRING: ") + fData.asString;
+			return std::string("LITERAL_STRING: ") + *fData.asString;
 
 		case PSTokenType::HEXSTRING:
 			return "HEXSTRING";
@@ -170,7 +183,7 @@ struct PSToken
 			return std::string("BOOLEAN: "+std::to_string(fData.asBool));
 
 		case PSTokenType::COMMENT:
-			return std::string("COMMENT: ")+fData.asString;
+			return std::string("COMMENT: ")+*fData.asString;
 		}
 
 		return "UNKNOWN";

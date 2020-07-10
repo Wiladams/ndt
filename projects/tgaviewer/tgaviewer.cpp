@@ -8,7 +8,8 @@ BLImage* diffuse = nullptr;
 void preload()
 {
 	targa::TargaMeta meta;
-	diffuse = targa::readFromFile("models\\grid.tga", meta);
+	//diffuse = targa::readFromFile("models\\grid.tga", meta);
+	diffuse = targa::readFromFile("models\\floor_diffuse.tga", meta);
 
 	printf("loaded diffuse: %p\n", diffuse);
 }
