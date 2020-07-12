@@ -43,6 +43,8 @@ class PSVM
 	int fBuildProcDepth = 0;
 
 public:
+	PSVM();
+
 	// Operand stack
 	PSStack& operandStack() { return fOperandStack; }
 	shared_ptr<PSToken> popOperand() { return fOperandStack.pop(); }

@@ -2,13 +2,28 @@
 #include "random.hpp"
 #include "stopwatch.hpp"
 
-//using namespace maths;
+
+static MouseEventHandler gMouseMovedHandler = nullptr;
+static MouseEventHandler gMouseClickedHandler = nullptr;
+static MouseEventHandler gMousePressedHandler = nullptr;
+static MouseEventHandler gMouseReleasedHandler = nullptr;
+static MouseEventHandler gMouseWheelHandler = nullptr;
+static MouseEventHandler gMouseDraggedHandler = nullptr;
+
 
 namespace p5 {
 
     int width = 0;              // width of the canvas
     int height = 0;             // height of the canvas
     int frameCount = 0;         // how many frames drawn so far
+
+    // Mouse Globals
+    bool mouseIsPressed = false;
+    int mouseX = 0;
+    int mouseY = 0;
+    int mouseDelta = 0;
+    int pmouseX = 0;
+    int pmouseY = 0;
 
     Pixel* pixels = nullptr;    // a pointer to the raw pixels of app canvas
 
@@ -555,4 +570,70 @@ namespace p5 {
 void onFrame()
 {
     p5::frameCount = p5::frameCount + 1;
+}
+
+void preload()
+{
+    HMODULE hInst = ::GetModuleHandleA(NULL);
+
+
+    gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
+    gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
+    gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
+    gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
+    gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
+    gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
+
+}
+
+void mouseEvent(const MouseEvent& e)
+{
+    //printf("p5::mouseEvent: %d, %d\n", e.x, e.y);
+    // assign new mouse position
+// BUGBUG - having these globals here might not be a good idea
+// maybe they should be application specific
+// assign previous mouse position
+    p5::pmouseX = p5::mouseX;
+    p5::pmouseY = p5::mouseY;
+    p5::mouseX = e.x;
+    p5::mouseY = e.y;
+    p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
+
+
+    switch (e.activity) {
+
+
+    case MOUSEMOVED:
+
+        if (gMouseMovedHandler != nullptr) {
+            gMouseMovedHandler(e);
+        }
+        break;
+
+    case MOUSEDRAGGED:
+        if (p5::mouseIsPressed && (gMouseDraggedHandler != nullptr)) {
+            gMouseDraggedHandler(e);
+        }
+    break;
+
+    case MOUSEPRESSED:
+        if (gMousePressedHandler != nullptr) {
+            gMousePressedHandler(e);
+        }
+        break;
+    case MOUSERELEASED:
+        if (gMouseReleasedHandler != nullptr) {
+            gMouseReleasedHandler(e);
+        }
+        if (gMouseClickedHandler != nullptr) {
+            gMouseClickedHandler(e);
+        }
+        break;
+    case MOUSEWHEEL:
+        p5::mouseDelta = e.delta;
+        if (gMouseWheelHandler != nullptr) {
+            gMouseWheelHandler(e);
+        }
+        break;
+    }
 }

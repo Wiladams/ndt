@@ -65,7 +65,7 @@ union PSTokenData
 
 	intptr_t	asPointer;
 
-	std::shared_ptr<std::string> asString;
+	std::string * asString;
 	
 	std::function<void(PSVM & vm)> asOperator;
 	std::shared_ptr<PSArray> asArray;
@@ -100,12 +100,21 @@ public:
 	{
 	}
 
-	PSToken(std::string& aString, PSTokenType t)
+	PSToken(const char *data, const int len, PSTokenType t)
+		: fType(t)
+		, isExecutable(false)
+	{
+		fData.asString = new std::string(data, len);
+	}
+
+	/*
+	PSToken(const std::string aString, PSTokenType t)
 		: fType(t)
 		,isExecutable(false)
 	{
-		fData.asString = std::make_shared<std::string>(aString);
+		fData.asString = std::make_shared<std::string *>(new std::string(aString));
 	}
+	*/
 	
 	PSToken(bool aBool, PSTokenType t)
 		:fType(t)
@@ -150,16 +159,16 @@ public:
 	{
 		switch (fType) {
 		case PSTokenType::LITERAL_ARRAY:
-			return "LITERAL_ARRAY";
+			return std::string("LITERAL_ARRAY");
 
 		case PSTokenType::PROCEDURE:
-			return "PROCEDURE";
+			return std::string("PROCEDURE");
 
 		case PSTokenType::OPERATOR:
-			return "OPERATOR";
+			return std::string("OPERATOR");
 
 		case PSTokenType::LITERAL_NAME:
-			return "LITERAL_NAME";
+			return std::string("LITERAL_NAME");
 
 		case PSTokenType::EXECUTABLE_NAME:
 			return std::string("EXECUTABLE_NAME: ")+*fData.asString;
@@ -168,16 +177,16 @@ public:
 			return std::string("LITERAL_STRING: ") + *fData.asString;
 
 		case PSTokenType::HEXSTRING:
-			return "HEXSTRING";
+			return std::string("HEXSTRING");
 
 		case PSTokenType::NUMBER:
 			return std::string("NUMBER: ")+std::to_string(fData.asReal);
 
 		case PSTokenType::NUMBER_INT:
-			return "NUMBER_INT";
+			return std::string("NUMBER_INT");
 
 		case PSTokenType::NUMBER_FLOAT:
-			return "NUMBER_FLOAT";
+			return std::string("NUMBER_FLOAT");
 
 		case PSTokenType::BOOLEAN:
 			return std::string("BOOLEAN: "+std::to_string(fData.asBool));
@@ -186,6 +195,6 @@ public:
 			return std::string("COMMENT: ")+*fData.asString;
 		}
 
-		return "UNKNOWN";
+		return std::string("UNKNOWN");
 	}
 };

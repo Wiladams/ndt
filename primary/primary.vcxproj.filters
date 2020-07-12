@@ -219,6 +219,15 @@
     <ClInclude Include="textscan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gwindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windowmgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uievent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

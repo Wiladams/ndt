@@ -33,7 +33,13 @@ extern "C" {
 
     EXPORT extern Pixel* pixels;
 
-
+    // Mouse Globals
+    EXPORT extern bool mouseIsPressed;
+    EXPORT extern int mouseX;
+    EXPORT extern int mouseY;
+    EXPORT extern int mouseDelta;
+    EXPORT extern int pmouseX;
+    EXPORT extern int pmouseY;
 
 #ifdef __cplusplus
 }

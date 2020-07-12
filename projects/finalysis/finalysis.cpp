@@ -9,13 +9,14 @@
 
 using namespace p5;
 
-std::shared_ptr<FileStream> fStream;
+
 int histogram[256];
 int biggest;
 
 
 namespace fs = std::filesystem;
 
+/*
 void listFiles()
 {
 	for (auto& p : fs::directory_iterator("c:\\windows\\fonts")) {
@@ -23,7 +24,37 @@ void listFiles()
 			std::cout << p.path() << "  " << p.path().filename() << "  " <<  p.path().extension() << '\n';
 	}
 }
+*/
 
+void createHistogram(std::string filename)
+{
+	memset(histogram, 0, sizeof(histogram));
+	biggest = 0;
+
+	std::shared_ptr<FileStream> fStream = std::make_shared<FileStream>(filename.c_str());
+
+	//printf("fStream, data: %p size: %ld\n", fStream->data(), fStream->size());
+
+	// populate the histogram
+	size_t num = 0;
+	if (fStream->isValid()) {
+		while (!fStream->isEOF()) {
+			num++;
+			uint8_t c = fStream->readOctet();
+			histogram[c] += 1;
+		}
+	}
+	else {
+		printf("fStream - NOT VALID\n");
+	}
+
+	// Run through the histogram to see what 
+	// the biggest value is
+	biggest = 0;
+	for (size_t i = 0; i < 256; i++) {
+		biggest = maths::Max(biggest, histogram[i]);
+	}
+}
 void draw()
 {
 	background(245, 246, 247);
@@ -48,30 +79,13 @@ void draw()
 
 void setup()
 {
-	listFiles();
-
 	createCanvas(1024, 768);
-	fStream = std::make_shared<FileStream>("earthmap2k.jpg");
+	dropFiles();
+}
 
-	//printf("fStream, data: %p size: %ld\n", fStream->data(), fStream->size());
-
-	// populate the histogram
-	size_t num = 0;
-	if (fStream->isValid()) {
-		while (!fStream->isEOF()) {
-			num++;
-			uint8_t c = fStream->readOctet();
-			histogram[c] += 1;
-		}
-	}
-	else {
-		printf("fStream - NOT VALID\n");
-	}
-
-	// Run through the histogram to see what 
-	// the biggest value is
-	biggest = 0;
-	for (size_t i = 0; i < 256; i++) {
-		biggest = MAX(biggest, histogram[i]);
-	}
+void fileDrop(const FileDropEvent& e)
+{
+	// assuming there's at least one file that 
+	// has been dropped.
+	createHistogram(e.filenames[0]);
 }

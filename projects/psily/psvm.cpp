@@ -14,11 +14,14 @@ using std::make_shared;
 
 
 // Setup a dispatch table for base operators
+//class PSDictionary : public std::unordered_map<std::string, std::shared_ptr<PSToken> >
+
+//std::unordered_map < std::string, std::shared_ptr<PSToken> > PSOperators
 std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 {
 	// Stack management
-	{"clear", [](PSVM & vm) {vm.operandStack().clear(); }},
-	/*
+	{"clear", [](PSVM& vm) {vm.operandStack().clear(); }},
+	
 	{"cleartomark", [](PSVM& vm) { vm.operandStack().clearToMark(); }},
 
 	{"copy", [](PSVM& vm) {
@@ -61,7 +64,7 @@ std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 	}},
 
 	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
-
+	
 
 
 	//
@@ -82,7 +85,7 @@ std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 
 		vm.operandStack().push(tok);
 	}},
-
+	
 	{"mul", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
@@ -90,7 +93,8 @@ std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 
 		vm.operandStack().push(tok);
 	}},
-
+	
+	
 	{"div", [](PSVM& vm) {
 		auto num2 = vm.operandStack().pop();
 		auto num1 = vm.operandStack().pop();
@@ -143,7 +147,6 @@ std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 
 		vm.operandStack().push(tok);
 	}},
-	*/
 
 };
 
@@ -157,7 +160,7 @@ std::unordered_map < std::string, std::function<void(PSVM & vm)> > PSOperators
 charset escapeChars("/\\\"bfnrtu");
 charset delimeterChars("()<>[]{}/%");
 charset isWhitespace("\t\n\f\r ");
-charset hexChars("0123456789abcdefABCDEF");
+//charset hexChars("0123456789abcdefABCDEF");
 //charset digitChars("0123456789");
 charset numBeginChars("+-.0123456789");
 
@@ -227,12 +230,12 @@ std::shared_ptr<PSToken> beginLiteralString(PSScanner&, std::shared_ptr<BinStrea
 
 	auto ending = bs->tell();
 	auto len = ending - starting;
-	std::string value((char*)startPtr, len);
+	//std::string value((char*)startPtr, len);
 
 	// Skip over closing delimeter
 	bs->skip(1);
 
-	auto tok = std::make_shared<PSToken>(value, PSTokenType::LITERAL_STRING);
+	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::LITERAL_STRING);
 
 	return tok;
 }
@@ -265,9 +268,10 @@ std::shared_ptr<PSToken> beginComment(PSScanner&, std::shared_ptr<BinStream> bs)
 	}
 	auto ending = bs->tell();
 	auto len = ending - starting;
-	std::string value((char*)startPtr, len);
+	//std::string value((char*)startPtr, len);
+	//printf("beginComment: %s\n", value.c_str());
 
-	auto tok = std::make_shared<PSToken>(value, PSTokenType::COMMENT);
+	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::COMMENT);
 
 	return tok;
 }
@@ -298,7 +302,7 @@ std::shared_ptr<PSToken> PSScanner::lex_name()
 
 	//printf("lex_name: %s\n", name.c_str());
 
-	auto tok = std::make_shared<PSToken>(value, PSTokenType::EXECUTABLE_NAME);
+	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
 
 	if (value == "true" || (value == "false")) {
 		if (value == "true") {
@@ -567,15 +571,17 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 	}
 }
 
-void PSVM::eval(shared_ptr<BinStream> bs)
+void PSVM::eval(std::shared_ptr<BinStream> bs)
 {
-	auto scnr = make_shared<PSScanner>(*this, bs);
+	PSScanner scnr(*this, bs);
 
 	//Iterate through tokens
 	while (!bs->isEOF()) {
-		auto tok = scnr->nextToken();
+		auto tok = scnr.nextToken();
 		if (tok == nullptr)
 			break;
+
+		printf("token: %s\n", tok->toString().c_str());
 
 		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
 			execName(tok);
@@ -590,4 +596,12 @@ void PSVM::eval(std::string s)
 {
 	//auto bs = make_shared<BinStream>(s.c_str(), s.length());
 	//eval(bs);
+}
+
+PSVM::PSVM()
+{
+	for (std::pair<std::string, std::function<void(PSVM& vm)> > elem : PSOperators) {
+		fDictionaryStack.def(elem.first, make_shared<PSToken>(elem.second));
+	}
+
 }

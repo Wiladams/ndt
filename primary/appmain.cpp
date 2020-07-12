@@ -44,13 +44,8 @@ static KeyEventHandler gKeyReleasedHandler = nullptr;
 static KeyEventHandler gKeyTypedHandler = nullptr;
 
 // Mouse
-static WinMSGObserver gMouseHandler = nullptr;
-static MouseEventHandler gMouseMovedHandler = nullptr;
-static MouseEventHandler gMouseClickedHandler = nullptr;
-static MouseEventHandler gMousePressedHandler = nullptr;
-static MouseEventHandler gMouseReleasedHandler = nullptr;
-static MouseEventHandler gMouseWheelHandler = nullptr;
-static MouseEventHandler gMouseDraggedHandler = nullptr;
+static WinMSGObserver gMouseMessageHandler = nullptr;
+static MouseEventHandler gMouseEventHandler = nullptr;
 
 // Joystick
 static WinMSGObserver gJoystickHandler = nullptr;
@@ -109,13 +104,7 @@ int clientTop;
 int keyCode = 0;
 int keyChar = 0;
 
-// Mouse Globals
-bool mouseIsPressed = false;
-int mouseX = 0;
-int mouseY = 0;
-int mouseDelta = 0;
-int pmouseX = 0;
-int pmouseY = 0;
+
 
 // Raw Mouse input
 int rawMouseX = 0;
@@ -301,8 +290,11 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 
-
-LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*
+    Turn Windows mouse messages into mouse events which can
+    be dispatched by the application.
+*/
+LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {   
     LRESULT res = 0;
     MouseEvent e;
@@ -319,17 +311,7 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.mbutton = (wParam & MK_MBUTTON) != 0;
     e.xbutton1 = (wParam & MK_XBUTTON1) != 0;
     e.xbutton2 = (wParam & MK_XBUTTON2) != 0;
-    
 
-    // assign new mouse position
-    // BUGBUG - having these globals here might not be a good idea
-    // maybe they should be application specific
-    // assign previous mouse position
-    pmouseX = mouseX;
-    pmouseY = mouseY;
-    mouseX = e.x;
-    mouseY = e.y;
-    mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
 
     switch(msg) {
         case WM_LBUTTONDBLCLK:
@@ -339,15 +321,6 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOUSEMOVE:
             e.activity = MOUSEMOVED;
-
-            if (gMouseMovedHandler != nullptr) {
-                gMouseMovedHandler(e);
-            }
-
-            if (mouseIsPressed && (gMouseDraggedHandler != nullptr)) {
-                e.activity = MOUSEDRAGGED;
-                gMouseDraggedHandler(e);
-            }
             break;
 
         case WM_LBUTTONDOWN:
@@ -355,39 +328,25 @@ LRESULT HandleMouseEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_MBUTTONDOWN:
         case WM_XBUTTONDOWN:
             e.activity = MOUSEPRESSED;
-
-            if (gMousePressedHandler != nullptr) {
-                gMousePressedHandler(e);
-            }
             break;
         case WM_LBUTTONUP:
         case WM_RBUTTONUP:
         case WM_MBUTTONUP:
         case WM_XBUTTONUP:
             e.activity = MOUSERELEASED;
-
-            // call mouseReleased()
-            if (gMouseReleasedHandler != nullptr) {
-                gMouseReleasedHandler(e);
-            }
-            if (gMouseClickedHandler != nullptr) {
-                gMouseClickedHandler(e);
-            }
             break;
         case WM_MOUSEWHEEL:
             e.activity = MOUSEWHEEL;
             e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
-            mouseDelta = e.delta;
-            if (gMouseWheelHandler != nullptr) {
-                gMouseWheelHandler(e);
-            }
             break;
-        case WM_MOUSELEAVE:
-        //print("WM_MOUSELEAVE")
+
         default:
             
         break;
     }
+
+    if (gMouseEventHandler != nullptr)
+        gMouseEventHandler(e);
 
     return res;
 }
@@ -647,7 +606,7 @@ void setupHandlers()
 
     // Start with our default handlers
     gKeyboardHandler = HandleKeyboardEvent;
-    gMouseHandler = HandleMouseEvent;
+    gMouseMessageHandler = HandleMouseMessage;
     gJoystickHandler = HandleJoystickEvent;
     gTouchHandler = HandleTouchEvent;
     gPointerHandler = HandlePointerEvent;
@@ -669,7 +628,7 @@ void setupHandlers()
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
     if (handler != nullptr) {
-        gMouseHandler = handler;
+        gMouseMessageHandler = handler;
     }
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "joystickHandler");
@@ -706,12 +665,7 @@ void setupHandlers()
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 
     // be called automatically
-    gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
-    gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
-    gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
-    gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
-    gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
-    gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
+    gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
 
     // Keyboard event handling
     gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
@@ -786,8 +740,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     } else if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
         // Handle all mouse messages
-		if (gMouseHandler != nullptr) {
-			return gMouseHandler(hWnd, msg, wParam, lParam);
+		if (gMouseMessageHandler != nullptr) {
+			return gMouseMessageHandler(hWnd, msg, wParam, lParam);
 		}
     } else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
         // Handle all keyboard messages

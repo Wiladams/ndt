@@ -48,6 +48,7 @@ public:
 			if (item->fType == PSTokenType::MARK)
 				break;
 		}
+		return *this;
 	}
 
 	// Duplicate the item at the top of the stack
@@ -69,6 +70,8 @@ public:
 			// need to consider deep copy depending on the thing?
 			push(tok);
 		}
+
+		return *this;
 	}
 
 	// Exchange the two items that are atop
@@ -118,6 +121,7 @@ public:
 	// them in place
 	bool roll(int n, int j)
 	{	
+		return false;
 	}
 
 	// Peek the top of the stack
