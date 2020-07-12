@@ -49,7 +49,7 @@ EXPORT extern Surface * gAppSurface;
 //EXPORT extern UINT_PTR gAppTimerID;
 EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
-EXPORT extern bool gIsLayered;
+
 
 // Globals we expect the user to consume
 EXPORT extern int displayWidth;
@@ -61,12 +61,6 @@ EXPORT extern int canvasHeight;
 EXPORT extern int clientLeft;
 EXPORT extern int clientTop;
 
-// Keyboard Globals
-EXPORT extern int keyCode;
-EXPORT extern int keyChar;
-
-
-
 // Location of mouse in screen coordinates
 EXPORT extern int rawMouseX;
 EXPORT extern int rawMouseY;
@@ -76,25 +70,13 @@ EXPORT extern int rawMouseY;
 // an app framework
 EXPORT void onFrame();  // Per frame
 EXPORT void onLoop();   // each time through event loop
+EXPORT void onLoad();	// upon loading application
 
 // These should be implemented by a module to be loaded
 EXPORT void draw();
 EXPORT void preload();
 EXPORT void setup();
 EXPORT void update(const double dt);
-
-// IO Event Handlers
-EXPORT void keyPressed(const KeyEvent &e);
-EXPORT void keyReleased(const KeyEvent &e);
-EXPORT void keyTyped(const KeyEvent &e);
-
-EXPORT void mouseEvent(const MouseEvent& e);
-EXPORT void mouseClicked(const MouseEvent &e);
-EXPORT void mouseDragged(const MouseEvent &e);
-EXPORT void mouseMoved(const MouseEvent &e);
-EXPORT void mousePressed(const MouseEvent &e);
-EXPORT void mouseReleased(const MouseEvent &e);
-EXPORT void mouseWheel(const MouseEvent &e);
 
 EXPORT void joyPressed(const JoystickEvent& e);
 EXPORT void joyReleased(const JoystickEvent& e);
@@ -132,7 +114,7 @@ EXPORT bool touch();
 EXPORT bool noTouch();
 EXPORT bool isTouch();
 
-// Handling dropped files
+// Turn on/off file drop handling
 EXPORT bool dropFiles();
 EXPORT bool noDropFiles();
 

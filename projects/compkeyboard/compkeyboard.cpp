@@ -164,18 +164,15 @@ void drawNeutral(IGraphics *ctx)
 void keyReleased(const KeyEvent& event)
 {
     // toggle layered
-    //printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
+    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
     if (event.keyCode == VK_ESCAPE) {
-        if (isLayered())
-            noLayered();
-        else
-            layered();
+        halt();
     }
 }
 
 void draw()
 {
-    if (!gIsLayered) {
+    if (!isLayered()) {
         background(0xc0);
     } else {
         clear();

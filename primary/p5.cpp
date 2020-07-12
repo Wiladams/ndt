@@ -1,7 +1,7 @@
 #include "p5.hpp"
 #include "random.hpp"
 #include "stopwatch.hpp"
-
+#include <iostream>
 
 static MouseEventHandler gMouseMovedHandler = nullptr;
 static MouseEventHandler gMouseClickedHandler = nullptr;
@@ -10,12 +10,21 @@ static MouseEventHandler gMouseReleasedHandler = nullptr;
 static MouseEventHandler gMouseWheelHandler = nullptr;
 static MouseEventHandler gMouseDraggedHandler = nullptr;
 
+// Keyboard event handling
+static KeyEventHandler gKeyPressedHandler = nullptr;
+static KeyEventHandler gKeyReleasedHandler = nullptr;
+static KeyEventHandler gKeyTypedHandler = nullptr;
+
 
 namespace p5 {
 
     int width = 0;              // width of the canvas
     int height = 0;             // height of the canvas
     int frameCount = 0;         // how many frames drawn so far
+
+    // Keyboard globals
+    int keyCode = 0;
+    int keyChar = 0;
 
     // Mouse Globals
     bool mouseIsPressed = false;
@@ -572,7 +581,7 @@ void onFrame()
     p5::frameCount = p5::frameCount + 1;
 }
 
-void preload()
+void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
@@ -584,6 +593,38 @@ void preload()
     gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
     gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
 
+    // Look for implementation of keyboard events
+    gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
+    gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
+    gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+}
+
+void keyboardEvent(const KeyEvent& e)
+{
+    //std::cout << "keyboardEvent: " << e.activity << "\n" ;
+
+    switch (e.activity) {
+
+
+    case KEYPRESSED:
+        p5::keyCode = e.keyCode;
+        if (gKeyPressedHandler) {
+            gKeyPressedHandler(e);
+        }
+        break;
+    case KEYRELEASED:
+        p5::keyCode = e.keyCode;
+        if (gKeyReleasedHandler) {
+            gKeyReleasedHandler(e);
+        }
+        break;
+    case KEYTYPED:
+        p5::keyChar = e.keyCode;
+        if (gKeyTypedHandler) {
+            gKeyTypedHandler(e);
+        }
+        break;
+    }
 }
 
 void mouseEvent(const MouseEvent& e)

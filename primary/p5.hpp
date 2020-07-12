@@ -21,6 +21,27 @@
 
 #include "apphost.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+// IO Event Handlers
+EXPORT void keyboardEvent(const KeyEvent& e);
+EXPORT void keyPressed(const KeyEvent& e);
+EXPORT void keyReleased(const KeyEvent& e);
+EXPORT void keyTyped(const KeyEvent& e);
+
+EXPORT void mouseEvent(const MouseEvent& e);
+EXPORT void mouseClicked(const MouseEvent& e);
+EXPORT void mouseDragged(const MouseEvent& e);
+EXPORT void mouseMoved(const MouseEvent& e);
+EXPORT void mousePressed(const MouseEvent& e);
+EXPORT void mouseReleased(const MouseEvent& e);
+EXPORT void mouseWheel(const MouseEvent& e);
+
+#ifdef __cplusplus
+}
+#endif
+
 namespace p5 {
 
 
@@ -33,6 +54,10 @@ extern "C" {
 
     EXPORT extern Pixel* pixels;
 
+    // Keyboard Globals
+    EXPORT extern int keyCode;
+    EXPORT extern int keyChar;
+
     // Mouse Globals
     EXPORT extern bool mouseIsPressed;
     EXPORT extern int mouseX;
@@ -40,6 +65,7 @@ extern "C" {
     EXPORT extern int mouseDelta;
     EXPORT extern int pmouseX;
     EXPORT extern int pmouseY;
+
 
 #ifdef __cplusplus
 }

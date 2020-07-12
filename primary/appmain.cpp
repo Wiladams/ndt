@@ -29,6 +29,7 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gLoopHandler = nullptr;
 static VOIDROUTINE gFrameHandler = nullptr;
+static VOIDROUTINE gOnloadHandler = nullptr;
 static VOIDROUTINE gPreloadHandler = nullptr;
 static VOIDROUTINE gSetupHandler = nullptr;
 static VOIDROUTINE gPreSetupHandler = nullptr;
@@ -38,10 +39,8 @@ static PFNDOUBLE1 gUpdateHandler = nullptr;
 static WinMSGObserver gPaintHandler = nullptr;
 
 // Keyboard
-static WinMSGObserver gKeyboardHandler = nullptr;
-static KeyEventHandler gKeyPressedHandler = nullptr;
-static KeyEventHandler gKeyReleasedHandler = nullptr;
-static KeyEventHandler gKeyTypedHandler = nullptr;
+static WinMSGObserver gKeyboardMessageHandler = nullptr;
+static KeyEventHandler gKeyboardEventHandler = nullptr;
 
 // Mouse
 static WinMSGObserver gMouseMessageHandler = nullptr;
@@ -99,12 +98,6 @@ unsigned int displayDpi = 0;
 // Client Area globals
 int clientLeft;
 int clientTop;
-
-// Keyboard globals
-int keyCode = 0;
-int keyChar = 0;
-
-
 
 // Raw Mouse input
 int rawMouseX = 0;
@@ -243,7 +236,7 @@ void setFrameRate(int newRate)
 
 
 
-LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
     KeyEvent e;
@@ -253,37 +246,29 @@ LRESULT HandleKeyboardEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.isExtended = (lParam & 0x1000000) != 0;    // 24
     e.wasDown = (lParam & 0x40000000) != 0;    // 30
 
-//printf("HandleKeyboardEvent: %04x\n", msg);
+//printf("HandleKeyboardMessage: %04x\n", msg);
 
     switch(msg) {
-
-        
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             e.activity = KEYPRESSED;
-            keyCode = e.keyCode;
-            if (gKeyPressedHandler) {
-                gKeyPressedHandler(e);
-            }
+
             break;
         case WM_KEYUP:
         case WM_SYSKEYUP:
             e.activity = KEYRELEASED;
-            keyCode = e.keyCode;
-            if (gKeyReleasedHandler) {
-                gKeyReleasedHandler(e);
-            }
+
             break;
         case WM_CHAR:
         case WM_SYSCHAR:
-            keyChar = (int)wParam;
             e.activity = KEYTYPED;
-
-            if (gKeyTypedHandler) {
-                gKeyTypedHandler(e);
-            }
             break;
     }
+
+    if (gKeyboardEventHandler != nullptr)
+        gKeyboardEventHandler(e);
+    else
+        std::cout << "NO KEYBOARD EVENT HANDLER!!\n";
 
     return res;
 }
@@ -604,9 +589,10 @@ void setupHandlers()
     // to find handler functions
     HMODULE hInst = GetModuleHandleA(NULL);
 
-    // Start with our default handlers
-    gKeyboardHandler = HandleKeyboardEvent;
+    // Start with our default message handlers
+    gKeyboardMessageHandler = HandleKeyboardMessage;
     gMouseMessageHandler = HandleMouseMessage;
+
     gJoystickHandler = HandleJoystickEvent;
     gTouchHandler = HandleTouchEvent;
     gPointerHandler = HandlePointerEvent;
@@ -623,7 +609,7 @@ void setupHandlers()
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "keyboardHandler");
     if (handler != nullptr) {
-        gKeyboardHandler = handler;
+        gKeyboardMessageHandler = handler;
     }
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
@@ -658,7 +644,9 @@ void setupHandlers()
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
+
     gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
+    gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
 
 
 
@@ -666,11 +654,12 @@ void setupHandlers()
     // If the user implements various event handlers, they will 
     // be called automatically
     gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
+    //std::cout << "gMouseEventHandler: " << gMouseEventHandler << "\n";
 
     // Keyboard event handling
-    gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
-    gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
-    gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "keyboardEvent");
+    //std::cout << "gKeyboardEventHandler: " << gKeyboardEventHandler << "\n";
+
 
     // Joystick
     gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
@@ -745,8 +734,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
     } else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
         // Handle all keyboard messages
-        if (gKeyboardHandler != nullptr) {
-            gKeyboardHandler(hWnd, msg, wParam, lParam);
+        if (gKeyboardMessageHandler != nullptr) {
+            gKeyboardMessageHandler(hWnd, msg, wParam, lParam);
         }
     } else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
         //printf("MM_JOYxxx: %p\n", gJoystickHandler);
@@ -934,6 +923,10 @@ void run()
 {
     // Make sure we have all the event handlers connected
     setupHandlers();
+
+    if (gOnloadHandler != nullptr) {
+        gOnloadHandler();
+    }
 
     if (gPreloadHandler != nullptr) {
         gPreloadHandler();
