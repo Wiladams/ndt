@@ -145,6 +145,9 @@
     <ClCompile Include="..\..\primary\p5.cpp" />
     <ClCompile Include="starfield.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="star.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

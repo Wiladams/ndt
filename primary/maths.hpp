@@ -21,7 +21,7 @@
 #include <cmath>
 
 #include "bitbang.h"
-#include "random.hpp"
+
 
 namespace maths {
     typedef double Float;
@@ -39,15 +39,6 @@ namespace maths {
     static constexpr Float Inv4Pi = 0.07957747154594766788;
 
     static constexpr Float Sqrt2 = 1.41421356237309504880;
-
-
-
-
-
-
-
-
-
 
 
     /*
@@ -156,7 +147,7 @@ namespace maths {
     {
         return (1 - t) * v1 + t * v2;
     }
-
+    /*
     template <typename U, typename T, typename V>
     inline double Map(U x, T olow, T ohigh, V rlow, V rhigh)
     {
@@ -164,6 +155,12 @@ namespace maths {
     }
 
     template<>
+    inline double Map(double x, double olow, double ohigh, double rlow, double rhigh)
+    {
+        return rlow + (x - olow) * ((rhigh - rlow) / (ohigh - olow));
+    }
+    */
+    
     inline double Map(double x, double olow, double ohigh, double rlow, double rhigh)
     {
         return rlow + (x - olow) * ((rhigh - rlow) / (ohigh - olow));

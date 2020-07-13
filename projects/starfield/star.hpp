@@ -9,8 +9,8 @@ struct Star {
 	double y;
 	double z;
 	double pz;
-	double width;
-	double height;
+	double fWidth;
+	double fHeight;
 
 	Star()
 	{
@@ -18,8 +18,8 @@ struct Star {
 		y = 0;
 		z = 0;
 		pz = 0;
-		width = 0;
-		height = 0;
+		fWidth = 0;
+		fHeight = 0;
 	}
 
 	Star(const double w, const double h)
@@ -29,12 +29,13 @@ struct Star {
 
 	void init(const double w, const double h)
 	{
-		width = w;
-		height = h;
-		x = random(-width, width);
-		y = random(-height, height);
-		z = random(width);
+		fWidth = w;
+		fHeight = h;
+		x = random(-w, w);
+		y = random(-h, h);
+		z = random(w);
 		pz = z;
+		std::cout << "star::init " << x << " " << y << " " << z << std::endl;
 	}
 
 	void update(const double speed)
@@ -48,24 +49,28 @@ struct Star {
 		}
 	}
 
-	void draw(Surface& g)
+	void draw(IGraphics * ctx)
 	{
-		g.fill(color(255));
-		g.noStroke();
+		//printf("draw\n");
+		//ctx->fill(color(255));
+		//ctx->noStroke();
 
 		auto sx = map(x / z, 0, 1, 0, width);
 		auto sy = map(y / z, 0, 1, 0, height);
 
 		auto r = map(z, 0, width, 8, 0);
-
-		g.ellipse(sx, sy, r, r);
+		//std::cout << "radius: " << r << std::endl;
+		//ctx->ellipse(sx, sy, r, r);
 
 		auto px = map(x / pz, 0, 1, 0, width);
 		auto py = map(y / pz, 0, 1, 0, height);
 
 		pz = z;
 
-		g.stroke(color(255));
-		line(px, py, sx, sy);
+		//ctx->stroke(color(255));
+		ctx->stroke(255);
+		ctx->fill(255);
+		ctx->line(px, py, sx, sy);
+		//printf("star line: %3.2f,%3.2f <=> %3.2f,%3.2f\n", px, py, sx, sy);
 	}
 };

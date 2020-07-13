@@ -52,7 +52,7 @@ void keyReleased(const KeyEvent& event)
 
 void draw()
 {
-    if (!gIsLayered)
+    if (!isLayered())
         background(0xc0);
     else
         clear();

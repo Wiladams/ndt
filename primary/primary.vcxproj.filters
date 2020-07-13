@@ -228,6 +228,9 @@
     <ClInclude Include="uievent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="joystick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

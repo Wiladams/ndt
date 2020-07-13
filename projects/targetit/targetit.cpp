@@ -27,10 +27,11 @@ BLImage backgroundImage;
 BLImage foregroundSurface;
 ScreenSnapshot *snappy=nullptr;
 
-double Distance(const Vec2f& v1, const Vec2f& v2)
+double Distance(const vec2& v1, const vec2& v2)
 {
-	Vec2f diff = v2 - v1;
-	return sqrt((diff.x * diff.x) + (diff.y * diff.y));
+	auto diff = v2 - v1;
+	return diff.length();
+	//return sqrt((diff.x * diff.x) + (diff.y * diff.y));
 }
 
 void resetBoard()
@@ -195,8 +196,8 @@ void setup()
 
 	resetBoard();
 	
-	Vec2f lowerCorner(0, height - 1);
-	Vec2f upperCorner(width - 1, 0);
+	vec2f lowerCorner(0, height - 1);
+	vec2f upperCorner(width - 1, 0);
 	MaxTrace = Distance(lowerCorner, upperCorner);
 
 	frameRate(60);

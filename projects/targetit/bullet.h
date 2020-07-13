@@ -1,12 +1,14 @@
 #pragma once
 
 #include "p5.hpp"
-#include "geometry.h"
+#include "grmath.h"
 #include "graphic.hpp"
+
+using namespace p5;
 
 class Bullet : public virtual IDrawable
 {
-	Vec2f fOrigin;
+	vec2f fOrigin;
 
 	float fDuration;
 	double fStartTime;
@@ -14,12 +16,12 @@ class Bullet : public virtual IDrawable
 	bool fFinished;
 
 public:
-	Vec2f fDestination;
+	vec2f fDestination;
 
 	//
 	// Default to a quarter second of animation
 	//
-	Bullet(const Vec2f& origin, const Vec2f& destination, float duration=0.25f)
+	Bullet(const vec2f& origin, const vec2f& destination, float duration=0.25f)
 		: fOrigin(origin),
 		fDestination(destination),
 		fDuration(duration),

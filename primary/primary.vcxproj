@@ -175,6 +175,7 @@
     <ClInclude Include="gwindow.h" />
     <ClInclude Include="imagesampler.h" />
     <ClInclude Include="IShader.h" />
+    <ClInclude Include="joystick.h" />
     <ClInclude Include="LayeredWindow.hpp" />
     <ClInclude Include="List.hpp" />
     <ClInclude Include="math3d.h" />

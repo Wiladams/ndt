@@ -38,7 +38,7 @@ public:
 		ctx->push();
 
 		for (int i = 0; i < 4; i++) {
-			double angle = i * HALF_PI;
+			double angle = i * maths::PiOver2;
 			ctx->rotate(angle, fCenterX, fCenterY);
 
 			// darker fat line

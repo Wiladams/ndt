@@ -81,6 +81,16 @@ public:
     }
 };
 
+template<size_t DIM, typename T>
+vec<DIM, T> operator-(const vec<DIM, T> &a, const vec<DIM, T>& b) 
+{
+    vec<DIM, T> res;
+
+    for (size_t i = DIM; i--; res[i] = a[i] - b[i]);
+
+    return res;
+}
+
 // Two dimensional vector of specified type
 template <typename T> 
 struct vec<2, T>
@@ -116,6 +126,8 @@ struct vec<2, T>
         assert(i < 2);
         return i <= 0 ? x : y;
     }
+
+    T length() { return std::sqrt(x * x + y * y); }
 };
 
 
@@ -506,9 +518,11 @@ template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std:
 }
 
 // Some concrete types
-using vec2i = vec<2, int>; 
+using vec2 = vec<2, float>; 
+using ivec2 = vec<2, int>;
 using vec2f = vec<2, float>;
-using vec2  = vec<2, double>;
+using dvec2  = vec<2, double>;
+
 
 using vec3i = vec<3, int>;
 using vec3f = vec<3, float>;

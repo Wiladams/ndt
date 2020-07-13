@@ -7,14 +7,15 @@
 #include "p5.hpp"
 
 #include <array>
-#include "Star.hpp"
+#include "star.hpp"
 #include "joystick.h"
 
 using namespace p5;
 
 double speed = 1;
 static const double MaxSpeed = 300;
-static const int MaxStars = 2400;
+//static const int MaxStars = 2400;
+static const int MaxStars = 10;
 static const int bottomMargin = 160; 
 
 int centerX;
@@ -74,24 +75,29 @@ void draw()
 		int mx = (int)map(mouseX, 0, width - 1, width - 1, 0);
 		int my = (int)map(mouseY, height - bottomMargin, height, height - bottomMargin, 0);
 
+		std::cout << "mx: " << mx << " my: " << my << std::endl;
+
 		// When you want to use the position for steering
 		// you'll want to center to track the mouse position
 		centerX = mx + posOffsetX;
 		centerY = my + posOffsetY;
 	}
+	std::cout << centerX << " " << centerY << std::endl;
 
 	push();
 	translate(centerX, centerY);
 	for (int i = 0; i < stars.size(); i++)
 	{
 		stars[i].update(speed);
-		stars[i].draw(*gAppSurface);
+		stars[i].draw(gAppSurface);
 	}
 	pop();
 
 	noStroke();
 	fill(127);
 	rect(0, height - bottomMargin, width, bottomMargin);
+
+	noLoop();
 }
 
 void setup()
@@ -103,6 +109,6 @@ void setup()
 	}
 
 	centerX = width / 2;
-	layered();
+	//layered();
 	setWindowPosition(0, 0);
 }

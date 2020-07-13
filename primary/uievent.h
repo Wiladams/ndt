@@ -32,6 +32,7 @@ struct MouseEvent {
     bool xbutton2;
 };
 
+// Keyboard interactions
 enum {
     KEYPRESSED,
     KEYRELEASED,
@@ -47,7 +48,7 @@ struct KeyEvent {
     bool wasDown;       // 30
 };
 
-
+// Touch interactions
 enum {
     TOUCH_DOWN,
     TOUCH_UP,
@@ -70,12 +71,14 @@ struct TouchEvent {
     int h;
 };
 
+// Pointer interactions
 struct PointerEvent {
     int id;
     int x;
     int y;
 };
 
+// File drop interactions
 struct FileDropEvent {
     int x;
     int y;

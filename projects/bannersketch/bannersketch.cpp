@@ -68,7 +68,7 @@ void keyTyped(const KeyEvent& event)
 {
 	// toggle between layered and not layered
 	if (keyCode == ' ') {
-		if (gIsLayered) {
+		if (isLayered()) {
 			noLayered();
 		}
 		else {
@@ -89,7 +89,7 @@ void keyReleased(const KeyEvent& event)
 
 void draw() {
 	// Fill background black
-	if (gIsLayered) {
+	if (isLayered()) {
 		clear();
 		//background(100, 100, 100, 0);
 	} else {
