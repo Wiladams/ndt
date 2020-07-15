@@ -161,26 +161,8 @@ void drawNeutral(IGraphics *ctx)
 }
 
 
-void keyReleased(const KeyEvent& event)
-{
-    // toggle layered
-    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
-    if (event.keyCode == VK_ESCAPE) {
-        halt();
-    }
-}
 
-void draw()
-{
-    if (!isLayered()) {
-        background(0xc0);
-    } else {
-        clear();
-    }
 
-    drawNeutral(gAppSurface);
-    drawKeyStates(gAppSurface);
-}
 
 void setup()
 {
@@ -190,4 +172,26 @@ void setup()
     // slightly bluish
     gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
     gradient.addStop(1.0, BLRgba32(0xFF9f9fff));
+}
+
+void draw()
+{
+    if (!isLayered()) {
+        background(0xc0);
+    }
+    else {
+        clear();
+    }
+
+    drawNeutral(gAppSurface);
+    drawKeyStates(gAppSurface);
+}
+
+void keyReleased(const KeyEvent& event)
+{
+    // toggle layered
+    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
+    if (event.keyCode == VK_ESCAPE) {
+        halt();
+    }
 }

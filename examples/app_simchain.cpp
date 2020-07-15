@@ -149,7 +149,7 @@ void keyTyped(const KeyEvent &event)
     // If the user types a '<sp>' reset
     // the chain to 1 node
     if (keyCode == ' ') {
-        if (gIsLayered)
+        if (isLayered())
             noLayered();
         else
             layered();
@@ -159,7 +159,7 @@ void keyTyped(const KeyEvent &event)
 
 void draw()
 {
-    if (gIsLayered)
+    if (isLayered())
     {
         // MUST do this clear first if you want a 
         // fairly transparent background

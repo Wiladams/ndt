@@ -1,5 +1,3 @@
-// view3d.cpp : Defines the exported functions for the DLL application.
-//
 
 #include <vector>
 #include <limits>
@@ -7,17 +5,10 @@
 #include <stdio.h>
 
 #include "p5.hpp"
-#include "MonthTile.hpp"
 #include "threed.h"
 #include "waveobjloader.h"
 #include "colorshader.hpp"
 #include "flatshader.h"
-
-//template <> template <> vec<3, int>  ::vec(const vec<3, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)), z(int(v.z + .5f)) {}
-//template <> template <> vec<3, float>::vec(const vec<3, int>& v) : x(v.x), y(v.y), z(v.z) {}
-//template <> template <> vec<2, int>  ::vec(const vec<2, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)) {}
-//template <> template <> vec<2, float>::vec(const vec<2, int>& v) : x(v.x), y(v.y) {}
-
 
 using namespace p5;
 
@@ -43,24 +34,55 @@ float viewHeight = 1;
 
 std::vector<ModelShader *> models;
 
-CalendarMonthTile mayTile(2020, 5, 8, 8);
-CalendarMonthTile juneTile(2020, 6, 212, 8);
+
+// Other models to be loaded
+//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new ColorShader(BLRgba32(220, 190, 68))));
+//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new FlatShader(BLRgba32(220, 190, 68))));
+//models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
 
 void loadModels()
 {
 	floorModel = aliaswave::loadModel("models/floor.obj");
 
 	models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new DiffuseShader()));
-	//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new ColorShader(BLRgba32(220, 190, 68))));
-	//models.push_back(new ModelShader(aliaswave::loadModel("models/african_head/african_head.obj"), new FlatShader(BLRgba32(220, 190, 68))));
-
 	models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new DiffuseShader()));
-	//models.push_back(new ModelShader(aliaswave::loadModel("models/diablo3_pose/diablo3_pose.obj"), new ColorShader(BLRgba32(220, 190, 68))));
 	models.push_back(new ModelShader(aliaswave::loadModel("models/boggie/body.obj"), new DiffuseShader()));
 
 	model = models.at(0);
 }
 
+void setup()
+{
+	createCanvas(800, 800);
+
+	D = new ThreeD(gAppSurface, width, height);
+	changePosition(viewAngle, viewRadius, viewHeight);
+
+	loadModels();
+}
+
+void draw()
+{
+	if (isLayered())
+		clear();
+	else
+		background(120);
+
+	// Clear out zbuffer each time through
+	D->clearZBuffer();
+
+	DiffuseShader dshader;
+
+
+	// Make sure there are no outstanding 2D calls
+	// and get a handle in the pixel pointer
+	loadPixels();
+
+	D->renderMesh(floorModel, dshader);
+	D->renderMesh(model->fModel, *model->fShader);
+
+	updatePixels();
+}
 
 void changePosition(float angle, float radius, float height)
 {
@@ -90,7 +112,7 @@ void keyReleased(const KeyEvent& e)
 	}
 }
 
-void keyPressed(const KeyEvent &e)
+void keyPressed(const KeyEvent& e)
 {
 	switch (keyCode) {
 	case VK_RIGHT: {
@@ -99,6 +121,7 @@ void keyPressed(const KeyEvent &e)
 		changePosition(viewAngle, viewRadius, loc.y);
 	}
 	break;
+	
 	case VK_LEFT: {
 		viewAngle -= 15;
 		auto loc = D->getCameraLocation();
@@ -111,62 +134,25 @@ void keyPressed(const KeyEvent &e)
 		changePosition(viewAngle, viewRadius, viewHeight);
 	}
 	break;
-		case VK_DOWN: {
-			viewHeight -= 0.2;
-			changePosition(viewAngle, viewRadius, viewHeight);
-		}
-		break;
+	
+	case VK_DOWN: {
+		viewHeight -= 0.2;
+		changePosition(viewAngle, viewRadius, viewHeight);
+	}
+	                            break;
 	}
 }
 
-void mouseWheel(const MouseEvent &e)
+void mouseWheel(const MouseEvent& e)
 {
 	if (mouseDelta > 0) {
 		viewRadius -= 0.25;
 		changePosition(viewAngle, viewRadius, viewHeight);
-	} else if (mouseDelta < 0) {
+	}
+	else if (mouseDelta < 0) {
 		viewRadius += 0.25;
 		changePosition(viewAngle, viewRadius, viewHeight);
 	}
 
 	mouseDelta = 0;
-
-}
-
-void draw()
-{
-	if (isLayered())
-		clear();
-	else
-		background(120);
-
-	// Clear out zbuffer each time through
-	D->clearZBuffer();
-
-	DiffuseShader dshader;
-
-
-	// Make sure there are no outstanding 2D calls
-	// and get a handle in the pixel pointer
-	loadPixels();
-	
-	D->renderMesh(floorModel, dshader);
-	D->renderMesh(model->fModel, *model->fShader);
-
-	updatePixels();
-
-	// Draw whatever 2D stuff we want on top
-	//mayTile.draw(gAppSurface);
-	//juneTile.draw(gAppSurface);
-}
-
-void setup()
-{
-	createCanvas(800, 800);
-	//layered();
-	//setWindowPosition(48, displayHeight - height);
-	D = new ThreeD(gAppSurface, width, height);
-	changePosition(viewAngle, viewRadius, viewHeight);
-
-	loadModels();
 }

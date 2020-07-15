@@ -4,31 +4,8 @@
 
 #include <joystickapi.h>
 #include "maths.hpp"
+#include "uievent.h"
 
-// For joystick activity
-enum {
-	JOYPRESSED,
-	JOYRELEASED,
-	JOYMOVED,
-	JOYZMOVED
-};
-
-struct JoystickEvent {
-	unsigned int ID;
-	int activity;			// What kind of joystick action is it
-	int buttons;			// Bitfield of buttons being pressed
-	int numButtonsPressed;	// total number of buttons currently pressed
-	int flags;
-	int POV;				// Value of hat switch
-
-	// Axes values, return -1.0..1.0
-	double x;
-	double y;
-	double z;
-	double r;
-	double u;
-	double v;
-};
 
 struct Joystick {
 	unsigned int fID;		// The joystick id

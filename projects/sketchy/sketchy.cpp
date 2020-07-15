@@ -16,7 +16,7 @@ uint8_t encBuff[1024*64];
 size_t encBuffLen = 1024 * 64;
 
 BinStream bs(encBuff, encBuffLen);
-GraphicsEncoder enc(bs);
+//GraphicsEncoder enc(bs);
 
 
 //BinStream subrange = bs.range(0, bs.tell());

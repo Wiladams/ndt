@@ -59,7 +59,8 @@ void draw()
 {
 	clear();
 
-	if (joy1.isValid()) {
+	//if (joy1.isValid()) {
+	if (false) {
 		// Get joystick position information
 		JoystickEvent je;
 		joy1.getPosition(je);

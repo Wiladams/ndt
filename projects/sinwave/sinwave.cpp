@@ -8,8 +8,6 @@ void setup()
 
 typedef float (*CFUNC)(float u);
 
-
-
 void draw()
 {
     clear();
@@ -24,7 +22,7 @@ void draw()
 	// Cosine curve
 	double lastcosy = map(cos(0), -1, 1, maxy - 1, 0);
 	for (int x = (int)lastx+1; x <= maxx; x++) {
-		double angx = map(x, minx, maxx, 0, frequency*2 * PI);
+		double angx = map(x, minx, maxx, 0, frequency*2 * maths::Pi);
 
 		double cosx = cos(angx);
 		double cosy = map(cosx, -1, 1, (double)maxy - 1, 0);
@@ -44,18 +42,14 @@ void draw()
 	double lastsiny = map(sin(0), -1, 1, (double)maxy - 1, 0);
 	
 	for (int x = (int)lastx+1; x < (int)maxx - 1; x++) {
-		double angx = map(x, 0, (double)maxx - 1, 0, frequency * 2 * PI*2);
+		double angx = map(x, 0, (double)maxx - 1, 0, frequency * 2 * maths::Pi2);
 
-		double sinx = sin(angx-(PI/2.0));	// shift phase to be opposite with cosx
+		double sinx = sin(angx-(maths::PiOver2));	// shift phase to be opposite with cosx
 		double siny = map(sinx, -1, 1, (double)maxy - 1, 0);
 		stroke(255, 0, 0);
 		line(lastx, lastsiny, x, siny);
 		lastsiny = siny;
 
-
 		lastx = x;
 	}
-	
-
-
 }

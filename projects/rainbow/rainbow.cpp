@@ -1,31 +1,12 @@
 #include "p5.hpp"
 
 #include "colorsampler.h"
-
 #include "graphic.hpp"
 #include "bezier.hpp"
 
 using namespace p5;
 
-
-// Colors of the rainbow
-uint8_t gAlpha = 255;
-/*
-Pixel rColors[] = {
-	{255,0,0,gAlpha},
-	{255,165,0, gAlpha},
-	{255, 255,0,gAlpha},
-	{0,255,0,gAlpha},
-	{0,0,255,gAlpha},
-	{93,118,203,gAlpha},
-	{143,94,154,gAlpha},
-};
-int nColors = sizeof(rColors) / sizeof(Pixel);
-
-BLGradient gradient(BLLinearGradientValues(0, 0, 0, 0));
-*/
 BLImage potOfGold;
-
 
 
 class GradientBezier : public virtual IDrawable
@@ -74,13 +55,7 @@ public:
 
 void preload()
 {
-	// Create the gradient to represent the rainbow colors
-	//for (int i = 0; i < nColors; i++) {
-	//	double offset = map(i, 0, nColors - 1, 0, 1);
-	//	gradient.addStop(offset, rColors[i]);
-	//}
-
-	// Load the various images
+	// Load the pot of gold image
 	auto err = potOfGold.readFromFile("potofgold.png");
 
 	if (err)
@@ -89,7 +64,10 @@ void preload()
 
 void setup()
 {
+	// Create a canvas to cover the whole screen
 	createCanvas(displayWidth, displayHeight);
+	
+	// Make the background invisible
 	layered();
 	setWindowPosition(0, 0);
 }
@@ -100,19 +78,20 @@ void draw()
 {
 	static const int baseSize = 300;
 
+	// Clear the background before drawing
 	clear();
-
 
 	// draw pot of gold at end of rainbow
 	int potX = width - potOfGold.width() - 200;
 	int potY = height - potOfGold.height() - 300;
 
+	// Draw the pot of gold first
 	p5::image(potOfGold, potX, potY);
-	gAppSurface->flush();
+	flush();
+
 
 	// Draw the actual rainbow
 	int yoffset = 0;
-	//GradientSampler1D colorSampler(gradient);
 	VisibleLightSampler colorSampler;
 
 	strokeWeight(2);
@@ -130,7 +109,7 @@ void draw()
 		grad.addStop(0.80, c1);
 		grad.addStop(1.0, c0);
 
-		int finalX = map(x, 0, baseSize, potX+potOfGold.width()-10, potX+30);
+		int finalX = map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
 		int finalY = potY+36;
 
 		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY,1200);
@@ -143,7 +122,7 @@ void draw()
 	noLoop();
 }
 
-
+// Exit the program if the user presses escape
 void keyReleased(const KeyEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)

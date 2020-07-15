@@ -2,6 +2,8 @@
 
 #include "p5.hpp"
 
+using namespace p5;
+
 class DrawingTool
 {
 protected:
