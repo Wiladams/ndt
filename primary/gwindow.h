@@ -8,7 +8,8 @@ class GWindow : public GView
 
 public:
 	GWindow(int x, int y, int w, int h)
-		: GView(BLRect(x,y,w,h))
+		: GView(BLRect(x,y,w,h)),
+		fClientArea(0,0,w,h)
 	{
 
 	}

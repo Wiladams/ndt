@@ -39,7 +39,7 @@ class GView : public IDrawable
 public:
     GView(const BLRect& frame)
         : fFrame(frame),
-        fDebug(true)
+        fDebug(false)
     {
         fTransform = BLMatrix2D::makeIdentity();
     }
@@ -54,6 +54,22 @@ public:
 
     shared_ptr<IDrawable> getPage() { return fPage; }
 
+    virtual void drawBackground(IGraphics* ctx)
+    {
+        ctx->flush();
+    }
+
+    virtual void drawContent(IGraphics* ctx)
+    {
+        if (nullptr != fPage) {
+            fPage->draw(ctx);
+        }
+    }
+
+    virtual void drawForeground(IGraphics* ctx) 
+    {
+        ctx->flush();
+    }
 
     virtual void draw(IGraphics* ctx)
     {
@@ -67,20 +83,17 @@ public:
             ctx->rect(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
         }
 
-        // set the clip to our frame
-        // call draw on our embedded page
-        if (nullptr != fPage) {
-            ctx->push();
-            ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
-            
-            // BUGBUG - maybe perform arbitrary transform?
-            auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-            //ctx->translate(fFrame.x, fFrame.y);
-            ctx->translate(pt.x, pt.y);
+        ctx->push();
+        ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
-            fPage->draw(ctx);
-            ctx->pop();
-        }
+        // BUGBUG - maybe perform arbitrary transform?
+        auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+        //ctx->translate(fFrame.x, fFrame.y);
+        ctx->translate(pt.x, pt.y);
+
+        drawBackground(ctx);
+        drawContent(ctx);
+        drawForeground(ctx);
 
         ctx->pop();
     }
