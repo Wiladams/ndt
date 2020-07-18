@@ -12,30 +12,25 @@ using namespace p5;
 
 class FileHistogram : public IDrawable
 {
-	int histogram[256];
-	int biggest;
+	size_t histogram[256];
+	size_t biggest;
+	size_t size;
 
-	void createHistogram(std::string& filename)
+	void createHistogram(BinStream& bs)
 	{
 		memset(histogram, 0, sizeof(histogram));
 		biggest = 0;
 
-		std::shared_ptr<FileStream> fStream = std::make_shared<FileStream>(filename.c_str());
-
-		//printf("fStream, data: %p size: %ld\n", fStream->data(), fStream->size());
-
 		// populate the histogram
-		size_t num = 0;
-		if (fStream->isValid()) {
-			while (!fStream->isEOF()) {
-				num++;
-				uint8_t c = fStream->readOctet();
-				histogram[c] += 1;
-			}
+		size = 0;
+
+		while (!bs.isEOF()) 
+		{
+			size++;
+			uint8_t c = bs.readOctet();
+			histogram[c] += 1;
 		}
-		else {
-			printf("fStream - NOT VALID\n");
-		}
+
 
 		// Run through the histogram to see what 
 		// the biggest value is
@@ -45,10 +40,13 @@ class FileHistogram : public IDrawable
 		}
 	}
 
+
+
 public:
-	FileHistogram(std::string& filename)
+
+	FileHistogram(BinStream& bs)
 	{
-		createHistogram(filename);
+		createHistogram(bs);
 	}
 
 	void draw(IGraphics* ctx)
@@ -73,7 +71,17 @@ public:
 
 	static shared_ptr<FileHistogram> fromFile(std::string filename)
 	{
-		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(filename);
+		FileStream fStream(filename.c_str());
+		if (!fStream.isValid())
+			return nullptr;
+
+		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(fStream);
+		return res;
+	}
+
+	static shared_ptr<FileHistogram> fromStream(BinStream &bs)
+	{
+		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(bs);
 		return res;
 	}
 };

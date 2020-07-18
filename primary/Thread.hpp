@@ -1,5 +1,6 @@
 #pragma once
-#include <windows.h>
+//#include <windows.h>
+#include <process.h>
 
 /*
     This is rudimentary thread support.  You can easily
@@ -15,6 +16,8 @@
     Threads are a fairly low level primitive.  More advanced
     constructs can be composed from threads.
 */
+typedef unsigned(__stdcall* THREAD_ROUTINE)(void*) ;
+
 
 class Thread
 {
@@ -22,6 +25,7 @@ class Thread
     HANDLE fHandle;
     DWORD fThreadId;
     int fLastError;
+    //uintptr_t fHandle;
 
 public:
     Thread(PTHREAD_START_ROUTINE routine, void * lpParameter)
@@ -39,7 +43,24 @@ public:
             // return without indicating we're valid
             return ;
         }
+        /*
+        void * security = nullptr;
+        unsigned int stackSize=0;
+        void * arglist = nullptr;
+        unsigned int initflag = 0;
+        unsigned int *thrdaddr = nullptr;
+        
+        HANDLE handle = (HANDLE)_beginthreadex(nullptr, stackSize, blThreadEntryPointWrapper, thread, flags, nullptr);
 
+        uintptr_t _beginthreadex(
+            security,
+            stack_size,
+            routine,
+            arglist,
+            initflag,
+            thrdaddr
+        );
+        */
         fThreadId = lpThreadId;
     }
 
@@ -62,6 +83,7 @@ public:
     bool terminate(unsigned long exitCode=0)
     {
         bool success = ::TerminateThread(fHandle, exitCode) != 0;
+        //_endthreadex(exitCode);
 
         return success;
     }

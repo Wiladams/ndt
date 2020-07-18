@@ -11,18 +11,7 @@ class PSArray;
 class PSDictionary;
 class PSVM;
 
-/*
-enum class PSTokenFlags : uint32_t
-{
-	NONE			= 0x00,
-	EXECUTABLE		= 0x01,
-};
 
-inline PSTokenFlags operator|(PSTokenFlags a, PSTokenFlags b)
-{
-	return static_cast<PSTokenFlags>(static_cast<int>(a) | static_cast<int>(b));
-}
-*/
 // Enumerate the kinds of tokens that we will see
 // This is used everywhere from the scanner to interpreter and VM
 enum class PSTokenType : uint32_t

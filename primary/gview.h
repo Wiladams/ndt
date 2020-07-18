@@ -44,11 +44,24 @@ public:
         fTransform = BLMatrix2D::makeIdentity();
     }
 
+    bool contains(int x, int y)
+    {
+        return ((x >= fFrame.x) && (y >= fFrame.y) &&
+            (x - fFrame.x <= fFrame.w) &&
+            (y - fFrame.y <= fFrame.h));
+    }
+
     void setTransform(BLMatrix2D& m) {    fTransform = m;}
     BLMatrix2D& getTransform() { return fTransform; }
 
     void setFrame(const BLRect& frame) { fFrame = frame; }
     virtual BLRect& getFrame() {return fFrame;}
+
+    void moveTo(double x, double y)
+    {
+        fFrame.x = x;
+        fFrame.y = y;
+    }
 
     void setPage(shared_ptr<IDrawable> page) {fPage = page;}
 
@@ -88,7 +101,6 @@ public:
 
         // BUGBUG - maybe perform arbitrary transform?
         auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-        //ctx->translate(fFrame.x, fFrame.y);
         ctx->translate(pt.x, pt.y);
 
         drawBackground(ctx);

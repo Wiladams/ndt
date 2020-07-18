@@ -6,6 +6,11 @@
 // Drag-n-Drop a file onto the open window.  It's histogram
 // should show up
 //
+// Packing references
+// https://web.archive.org/web/20170109223003/http://clb.demon.fi/files/RectangleBinPack.pdf
+// https://github.com/Lalaland/PixelPacker
+//
+
 #include "p5.hpp"
 
 
@@ -15,26 +20,101 @@
 
 using namespace p5;
 
-std::shared_ptr<FileHistoWindow> histowindow = nullptr;
-std::deque<std::shared_ptr<GWindow> > windows;
 
-int wX = 10;
-int wY = 10;
+class WindowManager : public IDrawable
+{
+	int wX = 10;
+	int wY = 10;
+
+	std::deque<std::shared_ptr<GWindow> > windows;
+
+public:
+	void draw(IGraphics* ctx)
+	{
+		for (std::shared_ptr<GWindow> win : windows) 
+		{
+			win->draw(gAppSurface);
+		}
+	}
+
+	void addWindow(std::shared_ptr<GWindow> win)
+	{
+		// do rudimentary layout as we add windows
+		//layout();
+
+		int x = wX;
+		int y = wY;
+		wX += 256 - 10;
+		wY += 10;
+
+		if (wX > width - 256) {
+			wX = 10;
+			wY += 256 + 8;
+		}
+
+		win->moveTo(x, y);
+
+		windows.push_back(win);
+	}
+
+	std::shared_ptr<GWindow> windowAt(int x, int y)
+	{
+		// traverse through windows in reverse order
+		// return when one of them contains the mouse point
+		std::deque<shared_ptr<GWindow> >::reverse_iterator rit = windows.rbegin();
+		for (rit = windows.rbegin(); rit != windows.rend(); ++rit)
+		{
+			if ((*rit)->contains(x, y))
+				return *rit;
+		}
+
+		return nullptr;
+	}
+
+	void moveToFront(std::shared_ptr<GWindow> win)
+	{
+		std::deque<std::shared_ptr<GWindow> >::iterator it = windows.begin();
+		for (it = windows.begin(); it != windows.end(); ++it)
+		{
+			if (*it == win) {
+				windows.erase(it);
+				windows.push_back(win);
+				break;
+			}
+		}
+	}
+
+	void mousePressed(const MouseEvent& e)
+	{
+		// Figure out which window is being 
+		// clicked
+		auto win = windowAt(e.x, e.y);
+
+		// if not clicked on a view, then simply return
+		if (nullptr == win)
+			return;
+
+		// bring it to the front
+		moveToFront(win);
+
+		std::cout << "WindowManager.mousePressed " << e.x << ", " << e.y << std::endl;
+	}
+};
+
+
+WindowManager winman;
 
 void draw()
 {
 	background(245, 246, 247);
-
-	for (std::shared_ptr<GWindow> win : windows) {
-		win->draw(gAppSurface);
-	}
+	winman.draw(gAppSurface);
 }
 
 void setup()
 {
 	createCanvas(1024, 768);
 	dropFiles();
-	noLoop();
+	//noLoop();
 }
 
 void fileDrop(const FileDropEvent& e)
@@ -43,20 +123,20 @@ void fileDrop(const FileDropEvent& e)
 	// has been dropped.
 	for (int i = 0; i < e.filenames.size(); i++)
 	{
-		int x = wX;
-		int y = wY;
-		wX += 256 + 10;
-		
-
-		if (wX > width - 256) {
-			wX = 10;
-			wY += 256 + 8;
-		}
-
-		auto win = std::make_shared<FileHistoWindow>(e.filenames[i], x, y);
-
-		windows.push_back(win);
+		auto win = std::make_shared<FileHistoWindow>(e.filenames[i], 0, 0);
+		winman.addWindow(win);
 	}
 
 	redraw();
+}
+
+void mousePressed(const MouseEvent& e)
+{
+	winman.mousePressed(e);
+}
+
+void mouseDragged(const MouseEvent& e)
+{
+	std::cout << "mouseDragged" << std::endl;
+	// figure out which window we're dragging
 }

@@ -13,4 +13,9 @@ public:
 	{
 
 	}
+
+	virtual void mouseEvent(const MouseEvent& e)
+	{
+		std::cout << "GWindow.mouseEvent" << std::endl;
+	}
 };

@@ -649,14 +649,18 @@ void mouseEvent(const MouseEvent& e)
         if (gMouseMovedHandler != nullptr) {
             gMouseMovedHandler(e);
         }
-        break;
 
+        if (p5::mouseIsPressed && gMouseDraggedHandler) {
+            gMouseDraggedHandler(e);
+        }
+        break;
+        /*
     case MOUSEDRAGGED:
         if (p5::mouseIsPressed && (gMouseDraggedHandler != nullptr)) {
             gMouseDraggedHandler(e);
         }
     break;
-
+    */
     case MOUSEPRESSED:
         if (gMousePressedHandler != nullptr) {
             gMousePressedHandler(e);

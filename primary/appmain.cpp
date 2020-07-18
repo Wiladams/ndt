@@ -296,7 +296,7 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.mbutton = (wParam & MK_MBUTTON) != 0;
     e.xbutton1 = (wParam & MK_XBUTTON1) != 0;
     e.xbutton2 = (wParam & MK_XBUTTON2) != 0;
-
+    bool isPressed = e.lbutton || e.rbutton || e.mbutton;
 
     switch(msg) {
         case WM_LBUTTONDBLCLK:
