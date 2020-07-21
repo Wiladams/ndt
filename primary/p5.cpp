@@ -3,6 +3,7 @@
 #include "stopwatch.hpp"
 #include <iostream>
 
+static MouseEventHandler gMouseEventHandler = nullptr;
 static MouseEventHandler gMouseMovedHandler = nullptr;
 static MouseEventHandler gMouseClickedHandler = nullptr;
 static MouseEventHandler gMousePressedHandler = nullptr;
@@ -585,7 +586,7 @@ void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
-
+    gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
     gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
     gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
     gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
@@ -627,9 +628,9 @@ void keyboardEvent(const KeyEvent& e)
     }
 }
 
-void mouseEvent(const MouseEvent& e)
+void onMouseEvent(const MouseEvent& e)
 {
-    //printf("p5::mouseEvent: %d, %d\n", e.x, e.y);
+    //printf("p5::onMouseEvent: %d, %d\n", e.x, e.y);
     // assign new mouse position
 // BUGBUG - having these globals here might not be a good idea
 // maybe they should be application specific
@@ -640,6 +641,9 @@ void mouseEvent(const MouseEvent& e)
     p5::mouseY = e.y;
     p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
 
+    if (gMouseEventHandler) {
+        gMouseEventHandler(e);
+    }
 
     switch (e.activity) {
 

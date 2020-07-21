@@ -44,7 +44,7 @@ static KeyEventHandler gKeyboardEventHandler = nullptr;
 
 // Mouse
 static WinMSGObserver gMouseMessageHandler = nullptr;
-static MouseEventHandler gMouseEventHandler = nullptr;
+static MouseEventHandler gOnMouseEventHandler = nullptr;
 
 // Joystick
 static WinMSGObserver gJoystickHandler = nullptr;
@@ -333,8 +333,8 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    if (gMouseEventHandler != nullptr)
-        gMouseEventHandler(e);
+    if (gOnMouseEventHandler != nullptr)
+        gOnMouseEventHandler(e);
 
     return res;
 }
@@ -656,8 +656,8 @@ void setupHandlers()
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 
     // be called automatically
-    gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
-    //std::cout << "gMouseEventHandler: " << gMouseEventHandler << "\n";
+    gOnMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "onMouseEvent");
+
 
     // Keyboard event handling
     gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "keyboardEvent");

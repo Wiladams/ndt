@@ -8,14 +8,19 @@
 
 // Basic type to encapsulate a mouse event
 enum {
+    // These are based on regular events
     MOUSEMOVED,
     MOUSEPRESSED,
     MOUSERELEASED,
+    MOUSEWHEEL,
+
+    // These are based on application semantics
     MOUSECLICKED,
     MOUSEDRAGGED,
-    MOUSEWHEEL,
+
     MOUSEENTERED,
-    MOUSELEFT
+    MOUSEHOVER,         // like move, when we don't have focus
+    MOUSELEFT           // exited boundary
 };
 
 struct MouseEvent {

@@ -17,103 +17,10 @@
 #include <memory>
 #include <deque>
 #include "filehisto.h"
+#include "histoman.h"
+#include "histowindow.h"
 
 using namespace p5;
-
-
-class HistoManager : public IDrawable
-{
-	int wX = 10;
-	int wY = 10;
-
-	std::deque<std::shared_ptr<GWindow> > windows;
-
-public:
-	void draw(IGraphics* ctx)
-	{
-		for (std::shared_ptr<GWindow> win : windows) 
-		{
-			win->draw(ctx);
-			ctx->flush();
-		}
-	}
-
-	void addWindow(std::shared_ptr<GWindow> win)
-	{
-		// do rudimentary layout as we add windows
-		//layout();
-
-		int x = wX;
-		int y = wY;
-		wX += 256 - 10;
-		wY += 10;
-
-		if (wX > width - 256) {
-			wX = 10;
-			wY += 256 + 8;
-		}
-
-		win->moveTo(x, y);
-
-		windows.push_back(win);
-	}
-
-	std::shared_ptr<GWindow> windowAt(int x, int y)
-	{
-		// traverse through windows in reverse order
-		// return when one of them contains the mouse point
-		std::deque<shared_ptr<GWindow> >::reverse_iterator rit = windows.rbegin();
-		for (rit = windows.rbegin(); rit != windows.rend(); ++rit)
-		{
-			if ((*rit)->contains(x, y))
-				return *rit;
-		}
-
-		return nullptr;
-	}
-
-	void moveToFront(std::shared_ptr<GWindow> win)
-	{
-		std::deque<std::shared_ptr<GWindow> >::iterator it = windows.begin();
-		for (it = windows.begin(); it != windows.end(); ++it)
-		{
-			if (*it == win) {
-				windows.erase(it);
-				windows.push_back(win);
-				break;
-			}
-		}
-	}
-
-	void mousePressed(const MouseEvent& e)
-	{
-		// Figure out which window is being 
-		// clicked
-		auto win = windowAt(e.x, e.y);
-
-		// if not clicked on a view, then simply return
-		if (nullptr == win)
-			return;
-
-		// bring it to the front
-		moveToFront(win);
-		win->mousePressed(e);
-
-		std::cout << "WindowManager.mousePressed " << e.x << ", " << e.y << std::endl;
-	}
-
-	void mouseDragged(const MouseEvent& e)
-	{		
-		// figure out which window we're dragging
-		auto win = windowAt(e.x, e.y);
-
-		// if not clicked on a view, then simply return
-		if (nullptr == win)
-			return;
-
-		win->mouseDragged(e);
-	}
-};
 
 
 HistoManager winman;
@@ -146,12 +53,8 @@ void fileDrop(const FileDropEvent& e)
 	redraw();
 }
 
-void mousePressed(const MouseEvent& e)
+void mouseEvent(const MouseEvent& e)
 {
-	winman.mousePressed(e);
+	winman.mouseEvent(e);
 }
 
-void mouseDragged(const MouseEvent& e)
-{
-	winman.mouseDragged(e);
-}

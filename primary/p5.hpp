@@ -30,6 +30,7 @@ EXPORT void keyPressed(const KeyEvent& e);
 EXPORT void keyReleased(const KeyEvent& e);
 EXPORT void keyTyped(const KeyEvent& e);
 
+EXPORT void onMouseEvent(const MouseEvent& e);
 EXPORT void mouseEvent(const MouseEvent& e);
 EXPORT void mouseClicked(const MouseEvent& e);
 EXPORT void mouseDragged(const MouseEvent& e);
