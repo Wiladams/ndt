@@ -4,6 +4,7 @@
 
 class GWindow : public GView
 {
+protected:
 	BLRect fClientArea;
 
 public:
@@ -14,8 +15,4 @@ public:
 
 	}
 
-	virtual void mouseEvent(const MouseEvent& e)
-	{
-		std::cout << "GWindow.mouseEvent" << std::endl;
-	}
 };

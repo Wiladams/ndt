@@ -31,6 +31,7 @@ using std::shared_ptr;
 
 class GView : public IDrawable
 {
+protected:
     BLMatrix2D fTransform;
     BLRect fFrame;
     shared_ptr<IDrawable> fPage;
@@ -56,6 +57,13 @@ public:
 
     void setFrame(const BLRect& frame) { fFrame = frame; }
     virtual BLRect& getFrame() {return fFrame;}
+
+    void moveBy(double dx, double dy)
+    {
+        //printf("moveBy: %f, %f\n", dx, dy);
+        fFrame.x += dx;
+        fFrame.y += dy;
+    }
 
     void moveTo(double x, double y)
     {
@@ -96,7 +104,6 @@ public:
             ctx->rect(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
         }
 
-        ctx->push();
         ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
         // BUGBUG - maybe perform arbitrary transform?
@@ -107,10 +114,11 @@ public:
         drawContent(ctx);
         drawForeground(ctx);
 
+        ctx->noClip();
         ctx->pop();
     }
 
-    void mouseMoved(const MouseEvent& e)
+    virtual void mouseMoved(const MouseEvent& e)
     {
         // translate according to the transformation
         auto pt = fTransform.mapPoint(e.x, e.y);
@@ -118,6 +126,21 @@ public:
         newEvent.x = pt.x + fFrame.x;
         newEvent.y = pt.y + fFrame.y;
         //fPage.mouseMoved(newEvent);
+    }
+
+    virtual void mouseDragged(const MouseEvent& e)
+    {
+        // do nothing
+    }
+
+    virtual void mousePressed(const MouseEvent& e)
+    {
+        // do nothing
+    }
+
+    virtual void mouseReleased(const MouseEvent& e)
+    {
+        // do nothing
     }
 
     void translateBy(double x, double y)

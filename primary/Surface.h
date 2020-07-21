@@ -64,10 +64,13 @@ public:
         //BLResult bResult = blImageCreateFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fData, bytesPerRow, nullptr, nullptr);
         BLResult bResult = blImageInitAsFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fData, (intptr_t)bytesPerRow, nullptr, nullptr);
 
+        // BUGBUG - with multi-thread, flush/sync doesn't quite seem
+        // to be in sync, causing tearing.
         // Initialize the BLContext
         BLContextCreateInfo createInfo{};
         createInfo.threadCount = threadCount;
         bResult = getBlend2dContext().begin(fImage, createInfo);
+        //bResult = getBlend2dContext().begin(fImage);
 
 
         getBlend2dContext().setFillStyle(BLRgba32(0xffffffff));

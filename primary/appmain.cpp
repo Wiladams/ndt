@@ -152,6 +152,13 @@ void fakeRedraw(void* param, int64_t tickCount)
 
 void forceRedraw(void* param, int64_t tickCount)
 {
+    //std::cout << "forceRedraw" << std::endl;
+
+    if ((gAppSurface == nullptr)) {
+        printf("forceRedraw, NULL PTRs\n");
+        return;
+    }
+
     if (gFrameHandler != nullptr) {
         gFrameHandler();
     }
@@ -160,18 +167,14 @@ void forceRedraw(void* param, int64_t tickCount)
         gDrawHandler();
     }
 
+    gAppSurface->flush();
+
     if (!gIsLayered) {
         // if we're not layered, then do a regular
         // sort of WM_PAINT based drawing
         InvalidateRect(gAppWindow->getHandle(), NULL, 1);
     }
     else {
-        if ((gAppSurface == nullptr)) {
-            printf("forceRedraw, NULL PTRs\n");
-            return;
-        }
-
-        gAppSurface->flush();
         LayeredWindowInfo lw(canvasWidth, canvasHeight);
         lw.display(gAppWindow->getHandle(), ((Surface *)gAppSurface)->getDC());
     }
@@ -504,9 +507,9 @@ LRESULT HandlePointerEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-LRESULT HandlePaintEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    //printf("HandlePaintEvent\n");
+    //printf("HandlePaintMessage\n");
 
     LRESULT res = 0;
     PAINTSTRUCT ps;
@@ -596,7 +599,7 @@ void setupHandlers()
     gJoystickHandler = HandleJoystickEvent;
     gTouchHandler = HandleTouchEvent;
     gPointerHandler = HandlePointerEvent;
-    gPaintHandler = HandlePaintEvent;
+    gPaintHandler = HandlePaintMessage;
     gFileDropHandler = HandleFileDropEvent;
 
     // The user can specify their own handlers for io and
@@ -767,7 +770,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     else if (msg == WM_PAINT) {
         //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
-            gPaintHandler(hWnd, msg, wParam, lParam);
+            // painting is actually handled in ERASEBKGND
+            //gPaintHandler(hWnd, msg, wParam, lParam);
         }
         else
         {
@@ -775,7 +779,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             res = DefWindowProcA(hWnd, msg, wParam, lParam);
         }
     } else if (msg == WM_DROPFILES) {
-        printf("WM_DROPFILES\n");
+        //printf("WM_DROPFILES\n");
         if (gFileDropHandler != nullptr)
         {
             gFileDropHandler(hWnd, msg, wParam, lParam);
@@ -994,6 +998,8 @@ User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_H
 
 // do any initialization that needs to occur 
 // in the very beginning
+// The most interesting initialization at the moment
+// is the networking subsystem
 bool prolog()
 {
     // Initialize Windows networking

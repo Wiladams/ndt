@@ -248,7 +248,12 @@ public:
     //
     virtual void flush()
     {
-        fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
+        BLResult bResult = fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
+        if (bResult != BL_SUCCESS)
+        {
+            std::cout << "BLGraphics.flush(), ERROR: " << bResult << std::endl;
+        }
+
         resetCommandCount();
     }
 

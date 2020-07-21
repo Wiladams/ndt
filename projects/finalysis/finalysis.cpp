@@ -21,7 +21,7 @@
 using namespace p5;
 
 
-class WindowManager : public IDrawable
+class HistoManager : public IDrawable
 {
 	int wX = 10;
 	int wY = 10;
@@ -33,7 +33,8 @@ public:
 	{
 		for (std::shared_ptr<GWindow> win : windows) 
 		{
-			win->draw(gAppSurface);
+			win->draw(ctx);
+			ctx->flush();
 		}
 	}
 
@@ -96,13 +97,26 @@ public:
 
 		// bring it to the front
 		moveToFront(win);
+		win->mousePressed(e);
 
 		std::cout << "WindowManager.mousePressed " << e.x << ", " << e.y << std::endl;
+	}
+
+	void mouseDragged(const MouseEvent& e)
+	{		
+		// figure out which window we're dragging
+		auto win = windowAt(e.x, e.y);
+
+		// if not clicked on a view, then simply return
+		if (nullptr == win)
+			return;
+
+		win->mouseDragged(e);
 	}
 };
 
 
-WindowManager winman;
+HistoManager winman;
 
 void draw()
 {
@@ -115,6 +129,8 @@ void setup()
 	createCanvas(1024, 768);
 	dropFiles();
 	//noLoop();
+	//frameRate(15);
+	//layered();
 }
 
 void fileDrop(const FileDropEvent& e)
@@ -137,6 +153,5 @@ void mousePressed(const MouseEvent& e)
 
 void mouseDragged(const MouseEvent& e)
 {
-	std::cout << "mouseDragged" << std::endl;
-	// figure out which window we're dragging
+	winman.mouseDragged(e);
 }
