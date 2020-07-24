@@ -73,6 +73,7 @@ EXPORT void onLoop();   // each time through event loop
 EXPORT void onLoad();	// upon loading application
 
 // These should be implemented by a module to be loaded
+EXPORT void handleComposition();
 EXPORT void draw();
 EXPORT void preload();
 EXPORT void setup();

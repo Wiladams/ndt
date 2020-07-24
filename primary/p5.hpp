@@ -20,6 +20,9 @@
 #include <stdlib.h>
 
 #include "apphost.h"
+#include "gwindow.h"
+
+#include <memory>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +33,7 @@ EXPORT void keyPressed(const KeyEvent& e);
 EXPORT void keyReleased(const KeyEvent& e);
 EXPORT void keyTyped(const KeyEvent& e);
 
-EXPORT void onMouseEvent(const MouseEvent& e);
+EXPORT void handleMouseEvent(const MouseEvent& e);
 EXPORT void mouseEvent(const MouseEvent& e);
 EXPORT void mouseClicked(const MouseEvent& e);
 EXPORT void mouseDragged(const MouseEvent& e);
@@ -155,7 +158,9 @@ struct P5Vector {
     };
 
 
-
+    // Windowing functions
+    void addWindow(std::shared_ptr<GWindow> win);
+    std::shared_ptr<GWindow> window(int x, int y, int w, int h);
 
     void angleMode(int mode) noexcept;
     void ellipseMode(const ELLIPSEMODE mode) noexcept;

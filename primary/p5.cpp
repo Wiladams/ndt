@@ -1,6 +1,8 @@
 #include "p5.hpp"
 #include "random.hpp"
 #include "stopwatch.hpp"
+#include "windowmgr.h"
+
 #include <iostream>
 
 static MouseEventHandler gMouseEventHandler = nullptr;
@@ -16,6 +18,8 @@ static KeyEventHandler gKeyPressedHandler = nullptr;
 static KeyEventHandler gKeyReleasedHandler = nullptr;
 static KeyEventHandler gKeyTypedHandler = nullptr;
 
+static std::shared_ptr<WindowManager> gWindowManager;
+static VOIDROUTINE gDrawHandler = nullptr;
 
 namespace p5 {
 
@@ -39,6 +43,22 @@ namespace p5 {
 
 
     static StopWatch SWatch;    // Stopwatch used for time 
+
+
+    // Window management
+    void addWindow(std::shared_ptr<GWindow> win)
+    {
+        if (nullptr != gWindowManager)
+            gWindowManager->addWindow(win);
+    }
+
+    std::shared_ptr<GWindow> window(int x, int y, int w, int h)
+    {
+        auto win = std::make_shared<GWindow>(x, y, w, h);
+        addWindow(win);
+
+        return win;
+    }
 
     double seconds() noexcept
     {
@@ -93,6 +113,8 @@ namespace p5 {
     {
         forceRedraw(nullptr, 0);
     }
+
+
 
     // State management
     void push() noexcept
@@ -539,6 +561,8 @@ namespace p5 {
 
         gAppWindow->setCanvasSize(aWidth, aHeight);
         gAppWindow->show();
+
+        gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
     }
 
     void fullscreen() noexcept
@@ -589,6 +613,31 @@ namespace p5 {
     }
 };  // namespace p5
 
+//
+// The following routines have to be located outside
+// the namespace, or the application framework won't be
+// able to find them with getProcAddress()
+//
+
+    // This is called by the application framework
+    // giving us an opportunity to do composition
+    // before final display
+void handleComposition() noexcept
+{
+    // Allow the user's drawing to happen first
+    // This could be captured in drawBackground/drawForeground/draw
+    if (gDrawHandler != nullptr) {
+        gDrawHandler();
+    }
+
+    // If we have a window manager, tell it to draw
+    if (nullptr != gWindowManager) {
+        gWindowManager->draw(gAppSurface);
+    }
+    gAppSurface->flush();
+}
+
+
 void onFrame()
 {
     p5::frameCount = p5::frameCount + 1;
@@ -598,6 +647,10 @@ void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
+    // Look for implementation of drawing handler
+    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
+
+    // Look for implementation of mouse events
     gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
     gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
     gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
@@ -640,9 +693,9 @@ void keyboardEvent(const KeyEvent& e)
     }
 }
 
-void onMouseEvent(const MouseEvent& e)
+void handleMouseEvent(const MouseEvent& e)
 {
-    //printf("p5::onMouseEvent: %d, %d\n", e.x, e.y);
+    //printf("p5::handleMouseEvent: %d, %d\n", e.x, e.y);
     // assign new mouse position
 // BUGBUG - having these globals here might not be a good idea
 // maybe they should be application specific
@@ -652,6 +705,10 @@ void onMouseEvent(const MouseEvent& e)
     p5::mouseX = e.x;
     p5::mouseY = e.y;
     p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
+
+    if (nullptr != gWindowManager) {
+        gWindowManager->mouseEvent(e);
+    }
 
     if (gMouseEventHandler) {
         gMouseEventHandler(e);

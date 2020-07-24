@@ -13,17 +13,13 @@
 
 #include "p5.hpp"
 
-
 #include <memory>
 #include <deque>
 #include "filehisto.h"
-#include "histoman.h"
-#include "histowindow.h"
+
 
 using namespace p5;
 
-
-HistoManager winman;
 
 void draw()
 {
@@ -31,10 +27,7 @@ void draw()
 		background(0);	// (245 , 246, 247);
 	else
 		clear();
-	flush();
 
-	winman.draw(gAppSurface);
-	flush();
 
 	noStroke();
 	fill(255, 0, 0);
@@ -44,12 +37,12 @@ void draw()
 
 void setup()
 {
-	//createCanvas(1024, 768);
-	fullscreen();
+	createCanvas(1024, 768);
+	//fullscreen();
 
 	dropFiles();	// allow dropping of files
 
-	frameRate(15);
+	//frameRate(15);
 	//commandThreshold(10);
 }
 
@@ -59,16 +52,11 @@ void fileDrop(const FileDropEvent& e)
 	// has been dropped.
 	for (int i = 0; i < e.filenames.size(); i++)
 	{
-		auto win = std::make_shared<FileHistoWindow>(e.filenames[i], 0, 0);
-		winman.addWindow(win);
+		auto win = window(0, 0, 256, 256);
+		win->setBackgroundColor(Pixel(255, 255, 255, 60));
+		win->setTitle(e.filenames[i]);
+		win->setPage(FileHistogram::fromFile(e.filenames[i]));
 	}
-
-	//redraw();
-}
-
-void mouseEvent(const MouseEvent& e)
-{
-	winman.mouseEvent(e);
 }
 
 void keyReleased(const KeyEvent& e)

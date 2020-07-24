@@ -26,7 +26,8 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 
 // Application routines
-static VOIDROUTINE gDrawHandler = nullptr;
+static VOIDROUTINE gCompositionHandler = nullptr;
+
 static VOIDROUTINE gLoopHandler = nullptr;
 static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gOnloadHandler = nullptr;
@@ -44,7 +45,7 @@ static KeyEventHandler gKeyboardEventHandler = nullptr;
 
 // Mouse
 static WinMSGObserver gMouseMessageHandler = nullptr;
-static MouseEventHandler gOnMouseEventHandler = nullptr;
+static MouseEventHandler gHandleMouseEventHandler = nullptr;
 
 // Joystick
 static WinMSGObserver gJoystickHandler = nullptr;
@@ -163,9 +164,11 @@ void forceRedraw(void* param, int64_t tickCount)
         gFrameHandler();
     }
 
-    if (gDrawHandler != nullptr) {
-        gDrawHandler();
+    if (gCompositionHandler != nullptr)
+    {
+        gCompositionHandler();
     }
+
 
     gAppSurface->flush();
 
@@ -333,8 +336,8 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    if (gOnMouseEventHandler != nullptr)
-        gOnMouseEventHandler(e);
+    if (gHandleMouseEventHandler != nullptr)
+        gHandleMouseEventHandler(e);
 
     return res;
 }
@@ -645,9 +648,8 @@ void setupHandlers()
     gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
-    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
+    gCompositionHandler = (VOIDROUTINE)GetProcAddress(hInst, "handleComposition");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
-
     gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
     gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
 
@@ -656,7 +658,7 @@ void setupHandlers()
     //printf("mouseHandler: %p\n", gMouseHandler);
     // If the user implements various event handlers, they will 
     // be called automatically
-    gOnMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "onMouseEvent");
+    gHandleMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "handleMouseEvent");
 
 
     // Keyboard event handling

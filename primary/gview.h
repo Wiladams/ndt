@@ -94,8 +94,6 @@ public:
 
     virtual void draw(IGraphics* ctx)
     {
-
-
         ctx->push();
         ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
@@ -150,49 +148,7 @@ public:
         fTransform.translate(x, y);
     }
 
-    /*
-        void calcTransform(int &px, int &py)
-        {
-            auto pageSize = page.getPreferredSize();
-            int x = map(px, 0, 1, 0, Max(0, pageSize.width - fFrame.w));
-            int y = map(py, 0, 1, 0, Max(0, pageSize.height - fFrame.h));
 
-            //print("BView.calcTransform: ", x, y)
-            px = x;
-            py = y;
-        }
-
-        void setPosition(int px, int py)
-        {
-            //print("BView.setPosition: ", px, py)
-            Tx, self.Ty = self:calcTransform(px, py)
-        }
-
-        function BView.handleVerticalPositionChange(self, slider)
-            --print("BView.handleVerticalPositionChange: ", slider, slider:getPosition())
-
-            local pos = { x = 0,y = 0 }
-            if slider then
-                pos = slider:getPosition()
-            end
-
-            self : setPosition(pos.x, pos.y)
-        end
-
-        function BView.handleHorizontalPositionChange(self, slider)
-            --print("BView.handleHorizontalPositionChange: ", slider)
-            local ypos = 0;
-            local xpos = 0;
-
-            if slider then
-                xpos = slider:getPosition()
-            end
-
-            self : setPosition(xpos, ypos)
-        end
-
-
-*/
 };
 
 

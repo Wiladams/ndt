@@ -211,6 +211,7 @@
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
     <ClInclude Include="waveobjloader.h" />
+    <ClInclude Include="windowlayout.h" />
     <ClInclude Include="windowmgr.h" />
   </ItemGroup>
   <ItemGroup>

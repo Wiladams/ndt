@@ -35,11 +35,5 @@
     <ClInclude Include="filehisto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="histoman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="histowindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
