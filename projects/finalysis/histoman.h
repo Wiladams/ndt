@@ -7,13 +7,32 @@
 #include <memory>
 #include <deque>
 
+class CascadeLayout {
+	int wX = 10;
+	int wY = 49;
+
+public:
+	void addWindow(std::shared_ptr<GWindow> win)
+	{
+		int x = wX;
+		int y = wY;
+		wX += 256 - 10;
+		wY += 10;
+
+		if (wX > width - 256) {
+			wX = 10;
+			wY += 256 + 8;
+		}
+
+		win->moveTo(x, y);
+	}
+};
+
 class HistoManager : public IDrawable
 {
-	int wX = 10;
-	int wY = 10;
-
 	std::deque<std::shared_ptr<GWindow> > windows;
 	std::shared_ptr<GWindow> fActiveWindow;
+	CascadeLayout fLayout;
 
 public:
 	void draw(IGraphics* ctx)
@@ -27,22 +46,8 @@ public:
 
 	void addWindow(std::shared_ptr<GWindow> win)
 	{
-		// do rudimentary layout as we add windows
-		//layout();
-
-		int x = wX;
-		int y = wY;
-		wX += 256 - 10;
-		wY += 10;
-
-		if (wX > width - 256) {
-			wX = 10;
-			wY += 256 + 8;
-		}
-
-		win->moveTo(x, y);
-
 		windows.push_back(win);
+		fLayout.addWindow(win);
 	}
 
 	std::shared_ptr<GWindow> windowAt(int x, int y)
@@ -109,7 +114,7 @@ public:
 		moveToFront(fActiveWindow);
 		fActiveWindow->mousePressed(e);
 
-		std::cout << "WindowManager.mousePressed " << e.x << ", " << e.y << std::endl;
+		//std::cout << "WindowManager.mousePressed " << e.x << ", " << e.y << std::endl;
 	}
 
 	void mouseMoved(const MouseEvent& e)

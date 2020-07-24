@@ -94,7 +94,10 @@ public:
 
     virtual void draw(IGraphics* ctx)
     {
+
+
         ctx->push();
+        ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
         // Debug, draw frame
         if (fDebug) {
@@ -104,7 +107,6 @@ public:
             ctx->rect(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
         }
 
-        ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
         // BUGBUG - maybe perform arbitrary transform?
         auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);

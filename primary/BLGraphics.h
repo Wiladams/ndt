@@ -149,6 +149,8 @@ private:
         return BLPoint(x, y);
     }
 
+
+
     // Increment command count since last flush
 // We track number of commands since last flush so that
 // we can flush after a certain limit
@@ -208,6 +210,11 @@ public:
 
     // how many threads is the context using
     int threadCount() { return fCtx.queryThreadCount(); }
+
+    void setCommandThreshold(int maxCommands)
+    {
+        fCommandThreshold = maxCommands;
+    }
 
     // Various Modes
     virtual void angleMode(int mode) { fAngleMode = mode; }
@@ -507,10 +514,13 @@ public:
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
         fCtx.fillUtf8Text(xy, fFont, txt);
-
+        
         
         fCtx.strokeUtf8Text(xy, fFont, txt);
 
+        // there are proably a whole lot more 'commands'
+        // generated when rendering text, but we have no 
+        // way of knowing how many.
         incrCmd();
     }
 

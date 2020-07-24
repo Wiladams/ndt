@@ -541,9 +541,21 @@ namespace p5 {
         gAppWindow->show();
     }
 
+    void fullscreen() noexcept
+    {
+        createCanvas(displayWidth, displayHeight);
+        setWindowPosition(0, 0);
+        layered();
+    }
+
     void flush() noexcept
     {
         gAppSurface->flush();
+    }
+
+    void commandThreshold(int threshold) noexcept
+    {
+        gAppSurface->setCommandThreshold(threshold);
     }
 
     void loadPixels() noexcept

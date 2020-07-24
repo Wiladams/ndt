@@ -59,7 +59,7 @@ public:
 
 			// Figure out the color
 			// red smallest, blue highest
-			double wl = map(h, 0, 255, 780, 380);
+			double wl = map(histogram[i], 0, biggest, 780, 380);
 			auto c = ndt::ColorRGBAFromWavelength(wl, 1.5);
 			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
 			

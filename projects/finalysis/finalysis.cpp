@@ -27,17 +27,30 @@ HistoManager winman;
 
 void draw()
 {
-	background(245, 246, 247);
+	if (!isLayered())
+		background(0);	// (245 , 246, 247);
+	else
+		clear();
+	flush();
+
 	winman.draw(gAppSurface);
+	flush();
+
+	noStroke();
+	fill(255, 0, 0);
+	rect(0, 0, width, 48);
+	flush();
 }
 
 void setup()
 {
-	createCanvas(1024, 768);
-	dropFiles();
-	//noLoop();
-	//frameRate(15);
-	//layered();
+	//createCanvas(1024, 768);
+	fullscreen();
+
+	dropFiles();	// allow dropping of files
+
+	frameRate(15);
+	//commandThreshold(10);
 }
 
 void fileDrop(const FileDropEvent& e)
@@ -50,7 +63,7 @@ void fileDrop(const FileDropEvent& e)
 		winman.addWindow(win);
 	}
 
-	redraw();
+	//redraw();
 }
 
 void mouseEvent(const MouseEvent& e)
@@ -58,3 +71,8 @@ void mouseEvent(const MouseEvent& e)
 	winman.mouseEvent(e);
 }
 
+void keyReleased(const KeyEvent& e)
+{
+	if (e.keyCode == VK_ESCAPE)
+		halt();
+}

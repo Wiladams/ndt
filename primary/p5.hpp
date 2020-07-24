@@ -167,6 +167,7 @@ struct P5Vector {
 
     // clearing command cache
     void flush() noexcept;
+    void commandThreshold(int threshold) noexcept;
 
     void redraw() noexcept;
 
@@ -266,6 +267,7 @@ struct P5Vector {
 
     BLImage* createImage(int width, int height) noexcept;
     void createCanvas(long aWidth, long aHeight, const char *title="Application") noexcept;
+    void fullscreen() noexcept;
     Surface * createSurface(long aWidth, long aHeight) noexcept;
 
     void loadPixels() noexcept;

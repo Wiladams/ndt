@@ -15,7 +15,7 @@ public:
 	FileHistoWindow(std::string filename, int x, int y, int w = 256, int h = 256)
 		: GWindow(x, y, w, h),
 		fFilename(filename),
-		fTitleBar(2, 2, 254, 18),
+		fTitleBar(2, 2, 254, 32),
 		fTitleBarColor(225, 220, 220, 127),
 		fLastMouse(0, 0),
 		fIsMoving(false)
@@ -37,7 +37,6 @@ public:
 		ctx->rect(0, 0, 256, 256);
 
 		ctx->pop();
-
 	}
 
 	void drawTitleBar(IGraphics* ctx)
@@ -50,6 +49,7 @@ public:
 		// Draw filename
 		ctx->fill(0);
 		ctx->text(fFilename.c_str(), 4, 16);
+		ctx->flush();
 	}
 
 	void drawForeground(IGraphics* ctx)
