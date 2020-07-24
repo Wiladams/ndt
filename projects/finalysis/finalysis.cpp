@@ -41,9 +41,6 @@ void setup()
 	//fullscreen();
 
 	dropFiles();	// allow dropping of files
-
-	//frameRate(15);
-	//commandThreshold(10);
 }
 
 void fileDrop(const FileDropEvent& e)
