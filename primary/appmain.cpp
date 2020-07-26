@@ -716,16 +716,17 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 case RIM_TYPEMOUSE: {
                     rawMouseX = raw->data.mouse.lLastX;
                     rawMouseY = raw->data.mouse.lLastY;
+                    //mouseEvent();
                     //printf("RAWMOUSE: %d %d\n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
                 }
                 break;
 
-                    case RIM_TYPEKEYBOARD: {
-
-                    }
-                                         break;
-                    }
+                case RIM_TYPEKEYBOARD: {
+                    //keyboardEvent
                 }
+                break;
+            }
+        }
     } else if (msg == WM_DESTROY) {
         // By doing a PostQuitMessage(), a 
         // WM_QUIT message will eventually find its way into the

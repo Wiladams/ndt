@@ -50,6 +50,9 @@
     <ClInclude Include="psarray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ps_base_operators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="hello.ps" />

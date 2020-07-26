@@ -128,6 +128,9 @@ public:
 	// do NOT take the item off the stack
 	std::shared_ptr<PSToken> top()
 	{
+		if (fContainer.size() < 1)
+			return nullptr;
+
 		return fContainer.back();
 	}
 

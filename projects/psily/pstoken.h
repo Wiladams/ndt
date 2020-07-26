@@ -1,11 +1,13 @@
 #pragma once
 
+#include <new>
 #include <cstdint>
 #include <string>
 #include <cstdlib>
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include <iostream>
 
 class PSArray;
 class PSDictionary;
@@ -52,20 +54,33 @@ union PSTokenData
 	float		asFloat;
 	double		asReal;
 
-	intptr_t	asPointer;
+	//intptr_t	asPointer;
 
 	std::string * asString;
 	
-	std::function<void(PSVM & vm)> asOperator;
+	std::function<void (PSVM & vm)> asOperator;
 	std::shared_ptr<PSArray> asArray;
 	std::shared_ptr<PSDictionary> asDictionary;
 
+	PSTokenData() {}	// Need default constructor
+	
+	// Create these constructors for completeness
+	PSTokenData(const bool value) :asBool(value) {}
+	PSTokenData(const int value) :asInt(value) {}
+	PSTokenData(const uint64_t value) :asLongLong(value) {}
+	PSTokenData(const float value) :asFloat(value) {}
+	PSTokenData(const double value) :asReal(value) {}
+	//PSTokenData(const intptr_t value) :asPointer(value) {}
 
-	PSTokenData()		// Need a default constructor
-	{
-		asInt = 0;
-		asOperator = nullptr;
-	}
+	// Create actual constructors for non-trivial types
+	PSTokenData(const std::function<void(PSVM& vm)> &op)
+		: asOperator(op){}
+	
+	PSTokenData(std::shared_ptr<PSDictionary> d)
+		: asDictionary(d) {}
+
+	PSTokenData(std::shared_ptr<PSArray> a)
+		: asArray(a) {}
 
 	~PSTokenData(){}	// Need this destructor
 };
@@ -129,20 +144,24 @@ public:
 	PSToken(std::shared_ptr<PSDictionary> d)
 		:fType(PSTokenType::DICTIONARY)
 		,isExecutable(false)
+		,fData(d)
 	{
-		fData.asDictionary = d;
 	}
 
 	PSToken(std::function<void(PSVM & vm)> op)
 		:fType(PSTokenType::OPERATOR)
-		,isExecutable(false)
+		,isExecutable(true)
+		,fData(op)
 	{
-		fData.asOperator = op;
+		//fData.asOperator = op;
 	}
 
 	~PSToken() {}
 
-	operator int() { return fData.asInt; }
+	//operator int() { return fData.asInt; }
+
+
+
 
 	std::string toString()
 	{
@@ -187,3 +206,47 @@ public:
 		return std::string("UNKNOWN");
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& out, const PSToken & tok)
+{
+	//printf("TOKENOUT: %d\n", (int)tok.fType);
+
+	switch (tok.fType) {
+	case PSTokenType::LITERAL_ARRAY:
+		return out << std::string("LITERAL_ARRAY");
+
+	case PSTokenType::PROCEDURE:
+		return out << std::string("PROCEDURE");
+
+	case PSTokenType::OPERATOR:
+		return out << std::string("OPERATOR");
+
+	case PSTokenType::LITERAL_NAME:
+		return out << *tok.fData.asString;
+
+	case PSTokenType::EXECUTABLE_NAME:
+		return out << *tok.fData.asString;
+
+	case PSTokenType::LITERAL_STRING:
+		//std::cout << "LITERAL STRING: ";
+		return out << *tok.fData.asString;
+
+	case PSTokenType::HEXSTRING:
+		return out << *tok.fData.asString;
+
+	case PSTokenType::NUMBER:
+		return out << std::to_string(tok.fData.asReal);
+
+	case PSTokenType::NUMBER_INT:
+		return out << std::to_string(tok.fData.asInt);
+
+	case PSTokenType::NUMBER_FLOAT:
+		return out << std::to_string(tok.fData.asFloat);
+
+	case PSTokenType::BOOLEAN:
+		return out << std::to_string(tok.fData.asBool);
+
+	case PSTokenType::COMMENT:
+		return out << *tok.fData.asString;
+	}
+}

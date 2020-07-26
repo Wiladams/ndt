@@ -9,6 +9,7 @@
 using namespace p5;
 
 /*
+// Play with memory allocation
 void* operator new(std::size_t n)
 {
 	std::cout << "[allocating " << n << " bytes]\n";
@@ -43,7 +44,7 @@ void preload()
 void setup()
 {
 
-	std::shared_ptr<FileStream> fs = std::make_shared<FileStream>("hello.ps");
+	auto fs = std::make_shared<FileStream>("hello.ps");
 	
 	//printf("fs.isValid(): %d\n", fs->isValid());
 

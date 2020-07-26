@@ -19,11 +19,17 @@ public:
 class PSDictionaryStack : public PSStack
 {
 public:
-	void pushDictionary(std::shared_ptr<PSDictionary> d)
+	void pushDictionary(shared_ptr<PSDictionary> d)
 	{
 		auto tok = make_shared<PSToken>(d);
 		push(tok);
 	}
+
+	//void pushDictionary(std::shared_ptr<PSDictionary> d)
+	//{
+	//	auto tok = make_shared<PSToken>(d);
+	//	push(tok);
+	//}
 
 	// BUGBUG - need some error checking here
 	shared_ptr<PSDictionary> popDictionary()
@@ -33,6 +39,10 @@ public:
 
 	shared_ptr<PSDictionary> currentdict()
 	{
+		auto topItem = top();
+		if (nullptr == topItem)
+			return nullptr;
+
 		if (top()->fType == PSTokenType::MARK) {
 			auto tok = nth(1);
 			return tok->fData.asDictionary;

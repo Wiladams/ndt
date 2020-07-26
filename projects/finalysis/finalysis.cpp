@@ -37,8 +37,8 @@ void draw()
 
 void setup()
 {
-	createCanvas(1024, 768);
-	//fullscreen();
+	//createCanvas(1024, 768);
+	fullscreen();
 
 	dropFiles();	// allow dropping of files
 }
@@ -50,7 +50,7 @@ void fileDrop(const FileDropEvent& e)
 	for (int i = 0; i < e.filenames.size(); i++)
 	{
 		auto win = window(0, 0, 256, 256);
-		win->setBackgroundColor(Pixel(255, 255, 255, 60));
+		win->setBackgroundColor(Pixel(255, 255, 255,255));
 		win->setTitle(e.filenames[i]);
 		win->setPage(FileHistogram::fromFile(e.filenames[i]));
 	}
