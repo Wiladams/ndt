@@ -32,6 +32,8 @@ public:
 	PSScanner(PSVM& vm, std::shared_ptr<BinStream> bs);
 
 	std::shared_ptr<PSToken> nextToken();
+	
+	PSVM & vm() { return fVM; }
 };
 
 

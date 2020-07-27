@@ -5,15 +5,24 @@
 #include <memory>
 
 #include "psstack.h"
+#include "pstoken.h"
 
 using std::make_shared;
 using std::shared_ptr;
+
+class PSVM;
 
 class PSDictionary : public std::unordered_map<std::string, std::shared_ptr<PSToken> >
 {
 
 public:
-
+	PSDictionary(std::unordered_map < std::string, std::function<void(PSVM& vm)> > ops)
+	{
+		for (auto& it : ops)
+		{
+			insert({ it.first, make_shared<PSToken>(it.second) });
+		}
+	}
 };
 
 class PSDictionaryStack : public PSStack

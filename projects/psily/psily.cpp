@@ -44,8 +44,10 @@ void preload()
 void setup()
 {
 
-	auto fs = std::make_shared<FileStream>("hello.ps");
-	
+	//auto fs = std::make_shared<FileStream>("testy\\hello.ps");
+	//auto fs = std::make_shared<FileStream>("testy\\case1.ps");
+	auto fs = std::make_shared<FileStream>("testy\\case2.ps");
+
 	//printf("fs.isValid(): %d\n", fs->isValid());
 
 	PSVM vm;

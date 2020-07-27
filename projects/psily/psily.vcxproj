@@ -160,7 +160,9 @@
     <ClInclude Include="ps_base_operators.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="hello.ps" />
+    <None Include="case1.ps" />
+    <None Include="testy\case2.ps" />
+    <None Include="testy\hello.ps" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

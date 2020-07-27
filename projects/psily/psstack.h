@@ -9,14 +9,26 @@
 //teamplate <typename T>
 class PSStack
 {
-	std::deque<std::shared_ptr<PSToken> > fContainer;
+
 
 public:
+	// BUGBUG - this should not be public
+	// but, it is for now
+	std::deque<std::shared_ptr<PSToken> > fContainer;
+
 	// Return the number of items that are currently 
 	// on the stack
 	size_t length() const
 	{
 		return fContainer.size();
+	}
+
+	// Clear all entries from the stack
+	PSStack& clear()
+	{
+		fContainer.clear();
+
+		return *this;
 	}
 
 	// Count the number of items from the top of the
@@ -26,19 +38,12 @@ public:
 		size_t pos = fContainer.size();
 		while (pos > 0)
 		{
-			if (fContainer.at(pos-1)->fType == PSTokenType::MARK)
+			if (fContainer.at(pos - 1)->fType == PSTokenType::MARK)
 				return pos;
 			pos--;
 		}
 
 		return 0;
-	}
-
-	// Clear all entries from the stack
-	PSStack& clear()
-	{
-		fContainer.clear();
-		return *this;
 	}
 
 	PSStack& clearToMark()
@@ -48,6 +53,7 @@ public:
 			if (item->fType == PSTokenType::MARK)
 				break;
 		}
+
 		return *this;
 	}
 
@@ -89,7 +95,7 @@ public:
 	// Place a marker on the stack
 	PSStack& mark()
 	{
-		//fContainer.push_back(std::make_shared<PSToken>(PSTokenType::MARK, false));
+		fContainer.push_back(std::make_shared<PSToken>(PSTokenType::MARK));
 		return *this;
 	}
 
@@ -109,7 +115,6 @@ public:
 		fContainer.pop_back();
 
 		return a;
-
 	}
 
 	// n is the number of items to consider
@@ -117,7 +122,7 @@ public:
 	// this is a brute force implementation which simply
 	// does a single rotation as many times as is needed
 	// a more direct approach would be to calculate the
-	// new position of each elementand use swaps to put
+	// new position of each element and use swaps to put
 	// them in place
 	bool roll(int n, int j)
 	{	

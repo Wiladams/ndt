@@ -15,10 +15,6 @@ using std::shared_ptr;
 using std::make_shared;
 
 
-
-
-
-
 // These are a convenient way of putting characters together
 // in an easily searchable set.
 // This does not work for unicode sequences, but rather the
@@ -61,17 +57,19 @@ typedef std::shared_ptr<PSToken> (*LexemeFunc)(PSScanner&, std::shared_ptr<BinSt
 std::unordered_map<int, LexemeFunc> lexemeMap;
 
 // [
-std::shared_ptr<PSToken> beginArray(PSScanner&, std::shared_ptr<BinStream> strm)
+std::shared_ptr<PSToken> beginArray(PSScanner& scnr, std::shared_ptr<BinStream> strm)
 {
-	printf("Begin Array\n");
+	scnr.vm().beginArray();
 	return nullptr;
 }
 
 // ]
-std::shared_ptr<PSToken> endArray(PSScanner&, std::shared_ptr<BinStream> strm)
+std::shared_ptr<PSToken> endArray(PSScanner& scnr, std::shared_ptr<BinStream> strm)
 {
-	printf("End Array\n");
-	return nullptr;
+	scnr.vm().endArray();
+	auto arr = scnr.vm().popOperand();
+
+	return arr;
 }
 
 // (
@@ -107,9 +105,37 @@ std::shared_ptr<PSToken> beginLiteralString(PSScanner&, std::shared_ptr<BinStrea
 }
 
 // <
-std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> strm)
+std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> bs)
 {
-	return nullptr;
+	auto starting = bs->tell();
+	auto startPtr = bs->getPositionPointer();
+
+	while (!bs->isEOF()) {
+		auto c = bs->peekOctet();
+		if (c == '>') {
+			break;
+		}
+
+		// deal with embedded chars
+		if (c == '\\') {
+			// BUGBUG
+		}
+
+		bs->skip(1);
+	}
+
+	auto ending = bs->tell();
+	auto len = ending - starting;
+
+	// Skip over closing delimeter
+	bs->skip(1);
+
+	// make a string
+	// then do substitutions to convert hex numbers
+	// into actual bytes
+	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::HEXSTRING);
+
+	return tok;
 }
 
 // {
@@ -270,63 +296,72 @@ PSScanner::PSScanner(PSVM &vm, std::shared_ptr<BinStream> bs)
 // Generate a single token
 std::shared_ptr<PSToken> PSScanner::nextToken()
 {
-	skipspaces();
-	if (fStream->isEOF())
-	{
-		return nullptr;
-	}
-
-	auto c = fStream->readOctet();
-
-	if (lexemeMap[c]) {
-		auto tok = lexemeMap[c](*this, fStream);
-		if (tok != nullptr) {
-			//if (this->fVM->isBuildingProc()) {
-			//	this->fVM->OperandStack:push(tok);
-			//} else {
-			return tok;
-			//}
-		} else {
-			// do nothing
+	while (!fStream->isEOF()) {
+		skipspaces();
+		
+		if (fStream->isEOF())
+		{
 			return nullptr;
 		}
-	} else {
-		// handle the case of numbers
-		// and names that begin with a number
-		if (numBeginChars[c]) 
-		{
-			fStream->skip(-1);
-			auto sentinel = fStream->tell();
-			auto tok = lex_number();
-			if (tok == nullptr) {
-				fStream->seek(sentinel);
-				tok = lex_name();
-			}
 
+		auto c = fStream->readOctet();
+
+		if (lexemeMap[c]) {
+			auto tok = lexemeMap[c](*this, fStream);
 			if (tok != nullptr) {
-				//if (fVM->isBuildingProc()) {
-				//
-				//}
-				//else {
-					return tok;
+				//if (this->fVM->isBuildingProc()) {
+				//	this->fVM->OperandStack:push(tok);
+				//} else {
+				return tok;
 				//}
 			}
-		} else if (isGraph(c)) 
-		{
-			fStream->skip(-1);
-			auto tok = lex_name();
-			//if (fVM->isBuildingProc()) {
-			//fVM->OperandStack:push(tok);
-			//}
-			//else
-			//{
+			else {
+				// do nothing
+				//return nullptr;
+			}
+		}
+		else {
+			// handle the case of numbers
+			// and names that begin with a number
+			if (numBeginChars[c])
+			{
+				fStream->skip(-1);
+				auto sentinel = fStream->tell();
+				auto tok = lex_number();
+				if (tok == nullptr) {
+					fStream->seek(sentinel);
+					tok = lex_name();
+				}
+
+				if (tok != nullptr) {
+					//if (fVM->isBuildingProc()) {
+					//
+					//}
+					//else {
+					return tok;
+					//}
+				}
+			}
+			else if (isGraph(c))
+			{
+				fStream->skip(-1);
+				auto tok = lex_name();
+				//if (fVM->isBuildingProc()) {
+				//fVM->pushOperand(tok);
+				//}
+				//else
+				//{
 				return tok;
-			//}
-		} else {
-			printf("SCANNER UNKNOWN: %c\n", c);
+				//}
+			}
+			else {
+				printf("SCANNER UNKNOWN: %c\n", c);
+			}
 		}
 	}
 
+	// returning a nullptr indicates there are no further
+	// tokens to be scanned
 	return nullptr;
 }
 
@@ -367,7 +402,7 @@ shared_ptr<PSToken> PSVM::endProc()
 {
 	endArray();
 	auto arr = popOperand();
-	arr->isExecutable = true;
+	arr->setExecutable(true);
 	fBuildProcDepth -= 1;
 
 	return arr;
@@ -426,7 +461,7 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 		break;
 
 	case PSTokenType::PROCEDURE:
-		if (op->isExecutable) {
+		if (op->isExecutable()) {
 			execArray(op);
 		}
 		else {
@@ -446,13 +481,15 @@ void PSVM::eval(std::shared_ptr<BinStream> bs)
 	//Iterate through tokens
 	while (!bs->isEOF()) {
 		auto tok = scnr.nextToken();
-		if (tok == nullptr)
+		if (nullptr == tok)
 			break;
 
-		//std::cout << "eval: " << tok->toString() << std::endl;
-
+		std::cout << "eval: " << tok->toString() << std::endl;
 		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
 			execName(tok);
+		}
+		else if (tok->fType == PSTokenType::COMMENT) {
+			// throw comments away, or do document processing
 		}
 		else {
 			pushOperand(tok);
@@ -468,13 +505,8 @@ void PSVM::eval(std::string s)
 
 PSVM::PSVM()
 {
-	// add base operators into dictionary stack
-	auto d = make_shared<PSDictionary>();
-	// add base operators to dictionary
-	for (auto &it : PSOperators) 
-	{
-		d->insert({ it.first, make_shared<PSToken>(it.second) });
-	}
+	auto d = make_shared<PSDictionary>(PSOperators);
+
 
 	fDictionaryStack.pushDictionary(d);
 }

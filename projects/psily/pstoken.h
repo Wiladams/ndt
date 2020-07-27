@@ -25,7 +25,7 @@ enum class PSTokenType : uint32_t
 	LITERAL_NAME,		// /name
 	EXECUTABLE_NAME,	// name
 
-	LITERAL_STRING,				// (string)
+	LITERAL_STRING,		// (string)
 	HEXSTRING,			// <hexstring>
 	NUMBER,				// int, float, hex
 	NUMBER_INT,			// int
@@ -91,77 +91,86 @@ union PSTokenData
 struct PSToken
 {
 private:
+	bool fIsExecutable;
+
 	PSToken(const PSToken& other) = delete;
 
 public:
 	PSTokenType fType;
-	bool isExecutable;
+
 	PSTokenData fData;
 
 	PSToken()
 		:fType(PSTokenType::MARK)
-		,isExecutable(false)
+		, fIsExecutable(false)
 	{
 	}
 
+	PSToken(const PSTokenType kind)
+		: fType(kind), fIsExecutable(false) {}
+
 	PSToken(const char *data, const int len, PSTokenType t)
 		: fType(t)
-		, isExecutable(false)
+		, fIsExecutable(false)
 	{
 		fData.asString = new std::string(data, len);
 	}
 
-	/*
-	PSToken(const std::string aString, PSTokenType t)
+
+	PSToken(const std::string &aString, PSTokenType t)
 		: fType(t)
-		,isExecutable(false)
+		, fIsExecutable(false)
 	{
-		fData.asString = std::make_shared<std::string *>(new std::string(aString));
+		fData.asString = new std::string(aString);
 	}
-	*/
+
 	
 	PSToken(bool aBool, PSTokenType t)
 		:fType(t)
-		,isExecutable(false)
+		, fIsExecutable(false)
 	{
 		fData.asBool = aBool;
 	}
 
 	PSToken(double aReal)
 		:fType(PSTokenType::NUMBER)
-		,isExecutable(false)
+		, fIsExecutable(false)
 	{
 		fData.asReal = aReal;
 	}
 
 	PSToken(std::shared_ptr<PSArray> value)
 		:fType(PSTokenType::LITERAL_ARRAY)
-		,isExecutable(false)
+		, fIsExecutable(false)
+		, fData(value)
 	{
-		fData.asArray = value;
 	}
 
 	PSToken(std::shared_ptr<PSDictionary> d)
 		:fType(PSTokenType::DICTIONARY)
-		,isExecutable(false)
+		, fIsExecutable(false)
 		,fData(d)
 	{
 	}
 
 	PSToken(std::function<void(PSVM & vm)> op)
 		:fType(PSTokenType::OPERATOR)
-		,isExecutable(true)
+		,fIsExecutable(true)
 		,fData(op)
 	{
-		//fData.asOperator = op;
+
 	}
 
 	~PSToken() {}
 
-	//operator int() { return fData.asInt; }
 
 
+	void setExecutable(const bool value)
+	{
+		fIsExecutable = value;
+	}
 
+	bool isExecutable() { return fIsExecutable; }
 
 	std::string toString()
 	{

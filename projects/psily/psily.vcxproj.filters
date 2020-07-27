@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="testy">
+      <UniqueIdentifier>{7133211b-ea12-4f5a-946b-91972bc6bd44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp">
@@ -55,6 +58,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="hello.ps" />
+    <None Include="testy\hello.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="case1.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\case2.ps">
+      <Filter>testy</Filter>
+    </None>
   </ItemGroup>
 </Project>
