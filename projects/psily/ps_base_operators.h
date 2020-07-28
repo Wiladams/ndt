@@ -8,6 +8,7 @@
 #include <random>
 
 // Setup a dispatch table for base operators
+// These will ultimately be copied into a dictionary
 std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 {
 	// Stack management
@@ -55,7 +56,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		vm.operandStack().roll(n->fData.asInt, j->fData.asInt);
 	}},
 
-		//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
+	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
 
 
 
@@ -236,40 +237,133 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	
 
 
-			// rand
-			// srand
-			// rrand
+	// rand
+	{ "rand", [](PSVM& vm) {
+		vm.pushOperand(make_shared<PSToken>((double)vm.randomInt()));
+	} },
+	
+	// srand
+	{ "srand", [](PSVM& vm) {
+		auto seed = vm.popOperand();
+		vm.seedRandomInt((unsigned int)seed->fData.asReal);
+	} },
+
+	// rrand
 
 	//
 	// Array, Packed Array, Dictionary, and string operators
 	//
-			// get
+	// get
+	{ "get", [](PSVM& vm) {
+		auto idx = (size_t)vm.popOperand()->fData.asReal;
+		auto arr = *vm.popOperand()->fData.asArray;
+		auto value = arr[idx];
+		// BUGBUG - check for range and stick a nil token if nothing
+		vm.pushOperand(value);
+	} },
+
 			// put
 			// getinterval
 			// putinterval
 
-		// Dictionary operations
-			// userdict
-			// def
-			// load
-			// store
-			// where
-			// length
+	// Dictionary operations
+	// userdict
+			
+	// def
+	{ "def", [](PSVM& vm) {
+		auto value = vm.popOperand();
+		auto key = vm.popOperand();
 
-		// Array creation
-			// astore
-			// aload
-			// begin
-			// end
-			// [ - beginArray, mark
+		vm.dictionaryStack().def(*key->fData.asString, value);
+	} },
+	
+	// load
+	{ "load", [](PSVM& vm) {
+		auto key = vm.popOperand();
+		auto value = vm.dictionaryStack().load(*key->fData.asString);
 
-			// ] - endArray
-			// array
-			// packedarray
-			// dict
-			// string
-			// search
-			// anchorsearch
+		if (nullptr == value) {
+			// print undefined key
+			return;
+		}
+
+		vm.pushOperand(value);
+	} },
+
+	// store
+	{ "store", [](PSVM& vm) {
+		auto value = vm.popOperand();
+		auto key = vm.popOperand();
+
+		vm.dictionaryStack().store(*key->fData.asString, value);
+	} },
+
+	// where
+	{ "where", [](PSVM& vm) {
+		auto key = vm.popOperand();
+		auto d = vm.dictionaryStack().where(*key->fData.asString);
+
+		if (nullptr == d) {
+			vm.pushOperand(make_shared<PSToken>(false));
+		} else {
+			vm.pushOperand(make_shared<PSToken>(d));
+			vm.pushOperand(make_shared<PSToken>(true));
+		}
+	} },
+
+	// length
+
+	
+	// Array creation
+
+	// astore
+	{ "where", [](PSVM& vm) {
+		auto arrtok = vm.popOperand();
+		auto arr = *arrtok->fData.asArray;
+		auto size = arr.size();
+
+		for (size_t i = 0; i < size; i++) {
+			auto value = vm.popOperand();
+			arr[size - i-1] = value;
+		}
+
+		vm.pushOperand(arrtok);
+	} },
+
+	// aload
+	
+	// begin
+	// pop a dictionary off the operand stack
+	// make it the current dictionary
+	// by placing it atop the dictionary stack
+	{ "begin", [](PSVM& vm) {
+		auto d = vm.popOperand();
+		vm.dictionaryStack().pushDictionary(d->fData.asDictionary);
+	} },
+
+	// end
+	{ "begin", [](PSVM& vm) {
+		auto d = vm.dictionaryStack().popDictionary();
+	} },
+
+	// [ - beginArray, mark
+	// scanner takes care of this one
+
+	
+	// ] - endArray
+	// scanner takes care of this one
+
+	// array
+	// packedarray
+	
+	// dict
+	
+	// string
+	
+	// search
+	
+	// anchorsearch
+	
 	//
 	// Type, Attribute and conversion operators
 	//

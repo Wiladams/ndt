@@ -765,7 +765,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             gPaintHandler(hWnd, msg, wParam, lParam);
         }
 
-        // return non-zero indicating we erase the background
+        // return non-zero indicating we dealt with erasing the background
         res = 1;
     } else if (msg == WM_TIMER) {
         forceRedraw(nullptr, 0);
@@ -778,7 +778,6 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            /* code */
             res = DefWindowProcA(hWnd, msg, wParam, lParam);
         }
     } else if (msg == WM_DROPFILES) {

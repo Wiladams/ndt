@@ -124,9 +124,23 @@ public:
 	// a more direct approach would be to calculate the
 	// new position of each element and use swaps to put
 	// them in place
-	bool roll(int n, int j)
+	PSStack & roll(int n, int j)
 	{	
-		return false;
+		if (j > 0){
+			// Roll the stack 'up' counter clockwise
+			for (size_t outer = 1; outer <= j; outer++)
+			{
+				auto tmp = top();
+
+				for (size_t inner = 1; inner < n; inner++) {
+					
+				}
+			}
+		}
+		else if (j < 0) {
+
+		}
+		return *this;
 	}
 
 	// Peek the top of the stack

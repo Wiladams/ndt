@@ -161,6 +161,7 @@ public:
 
 	}
 
+	// BUGBUG - need to do type specific destruction for complex types
 	~PSToken() {}
 
 

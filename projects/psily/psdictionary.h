@@ -16,7 +16,14 @@ class PSDictionary : public std::unordered_map<std::string, std::shared_ptr<PSTo
 {
 
 public:
+	PSDictionary() {}
+
 	PSDictionary(std::unordered_map < std::string, std::function<void(PSVM& vm)> > ops)
+	{
+		addOperators(ops);
+	}
+
+	void addOperators(std::unordered_map < std::string, std::function<void(PSVM& vm)> > ops)
 	{
 		for (auto& it : ops)
 		{
@@ -34,16 +41,18 @@ public:
 		push(tok);
 	}
 
-	//void pushDictionary(std::shared_ptr<PSDictionary> d)
-	//{
-	//	auto tok = make_shared<PSToken>(d);
-	//	push(tok);
-	//}
 
 	// BUGBUG - need some error checking here
 	shared_ptr<PSDictionary> popDictionary()
 	{
-		pop();
+		auto tok = pop();
+		if (nullptr == tok)
+			return nullptr;
+
+		if (tok->fType != PSTokenType::DICTIONARY)
+			return nullptr;
+
+		return tok->fData.asDictionary;
 	}
 
 	shared_ptr<PSDictionary> currentdict()
@@ -54,6 +63,9 @@ public:
 
 		if (top()->fType == PSTokenType::MARK) {
 			auto tok = nth(1);
+			if (nullptr == tok)
+				return nullptr;
+
 			return tok->fData.asDictionary;
 		}
 
@@ -61,9 +73,13 @@ public:
 	}
 
 	// Associate key and value in current dictionary
-	void def(std::string key, shared_ptr<PSToken> value)
+	bool def(std::string key, shared_ptr<PSToken> value)
 	{
 		auto current = currentdict();
+		
+		if (nullptr == current)
+			return false;
+
 		current->insert_or_assign(key, value);
 	}
 

@@ -3,7 +3,7 @@
 #include "ps_base_operators.h"
 
 #include <cstring>
-
+#include <chrono>
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -371,6 +371,22 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 //
 // Virtual Machine Definition
 //
+
+PSVM::PSVM()
+{
+	// seed random number generator with system time
+	fRandomGen.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+	// Setup dictionary stack
+	// Base operators, graphics, file all go into 
+	// initial userdict
+	auto d = make_shared<PSDictionary>();
+	d->addOperators(PSOperators);
+
+
+	fDictionaryStack.pushDictionary(d);
+}
+
 void PSVM::beginArray()
 {
 	fOperandStack.mark();
@@ -503,10 +519,3 @@ void PSVM::eval(std::string s)
 	//eval(bs);
 }
 
-PSVM::PSVM()
-{
-	auto d = make_shared<PSDictionary>(PSOperators);
-
-
-	fDictionaryStack.pushDictionary(d);
-}
