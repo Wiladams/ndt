@@ -119,6 +119,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\primary</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,16 +154,23 @@
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="psarray.h" />
+    <ClInclude Include="pscanvas.h" />
     <ClInclude Include="psdictionary.h" />
+    <ClInclude Include="psgraphicstate.h" />
+    <ClInclude Include="psmatrix.h" />
     <ClInclude Include="psstack.h" />
     <ClInclude Include="pstoken.h" />
+    <ClInclude Include="pstypes.h" />
     <ClInclude Include="psvm.h" />
     <ClInclude Include="ps_base_operators.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="case1.ps" />
     <None Include="testy\case2.ps" />
+    <None Include="testy\def1.ps" />
     <None Include="testy\hello.ps" />
+    <None Include="testy\pbourke1.ps" />
+    <None Include="testy\pstack1.ps" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

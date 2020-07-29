@@ -56,6 +56,18 @@
     <ClInclude Include="ps_base_operators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pscanvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psmatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psgraphicstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pstypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="testy\hello.ps">
@@ -65,6 +77,15 @@
       <Filter>testy</Filter>
     </None>
     <None Include="testy\case2.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\def1.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\pstack1.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\pbourke1.ps">
       <Filter>testy</Filter>
     </None>
   </ItemGroup>

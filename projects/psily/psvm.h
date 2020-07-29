@@ -22,21 +22,21 @@ class PSScanner
 	std::shared_ptr<BinStream> fStream;
 	PSVM& fVM;
 
-
-	static void StaticConstructor();
-
-	std::shared_ptr<PSToken> lex_number();
-	std::shared_ptr<PSToken> lex_name();
-	std::shared_ptr<PSToken> beginLiteralName();
-
-	bool skipspaces();
+public:
+	int fBuildProcDepth = 0;
 
 public:
 	PSScanner(PSVM& vm, std::shared_ptr<BinStream> bs);
 
-	std::shared_ptr<PSToken> nextToken();
-	
-	PSVM & vm() { return fVM; }
+	PSVM& vm() { return fVM; }
+
+	void incrementProcDepth() { fBuildProcDepth += 1; }
+	void decrementProcDepth() { fBuildProcDepth -= 1; }
+	bool isBuildingProc() { return fBuildProcDepth > 0; }
+
+	shared_ptr<PSToken> endArray();
+	shared_ptr<PSToken> markOperandStack();
+	shared_ptr<PSToken> nextToken();
 };
 
 
@@ -45,8 +45,6 @@ class PSVM
 	PSStack fOperandStack;
 	PSDictionaryStack fDictionaryStack;
 	std::mt19937 fRandomGen;
-
-	int fBuildProcDepth = 0;
 
 public:
 	PSVM();
@@ -63,19 +61,11 @@ public:
 	// Dictionary Stack
 	PSDictionaryStack& dictionaryStack() { return fDictionaryStack; }
 
-	// Handling Array
-	void beginArray();
-	void endArray();
-
-
-	// Handling Procedure construction
-	void beginProc();
-	shared_ptr<PSToken> endProc();
-	bool isBuildingProc() { return fBuildProcDepth > 0; }
-
+	// Executing things
 	void execArray(shared_ptr<PSToken> tok);
 	void execName(shared_ptr<PSToken> tok);
 
+	// Evaluating commands
 	void eval(shared_ptr<BinStream> bs);
 	void eval(std::string s);
 

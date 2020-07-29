@@ -260,3 +260,15 @@ inline std::ostream& operator<<(std::ostream& out, const PSToken & tok)
 		return out << *tok.fData.asString;
 	}
 }
+
+std::variant<	bool,
+	int,
+	uint64_t,
+	float,
+	double,
+	std::string*,
+	std::function<void(PSVM& vm)>,
+	std::shared_ptr<PSArray>,
+	std::shared_ptr<PSDictionary>
+> AToken;
+

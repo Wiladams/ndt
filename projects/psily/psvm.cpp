@@ -10,10 +10,12 @@
 #include <algorithm>
 #include <memory>
 #include <iostream>
+#include <variant>
 
 using std::shared_ptr;
 using std::make_shared;
 
+using namespace ndt;
 
 // These are a convenient way of putting characters together
 // in an easily searchable set.
@@ -27,66 +29,40 @@ charset isWhitespace("\t\n\f\r ");
 charset numBeginChars("+-.0123456789");
 
 
-static inline bool isGraph(int c)
-{
-	return (c > 0x20) && (c < 0x7f);
-}
+
 
 // Skip leading whitespaces in a binstream
-bool PSScanner::skipspaces()
+bool skipspaces(std::shared_ptr<BinStream> bs)
 {
-	while (!fStream->isEOF()) {
-		auto c = fStream->peekOctet();
+	while (!bs->isEOF()) {
+		auto c = bs->peekOctet();
 		if (!isWhitespace(c))
 			break;
-		if (isWhitespace(fStream->peekOctet()))
+		if (isWhitespace(bs->peekOctet()))
 		{
-			fStream->skip(1);
+			bs->skip(1);
 		}
 		else {
 			return true;
 		}
 	}
 
-	return !fStream->isEOF();
+	return !bs->isEOF();
 }
 
-// Definition of a function that can parse a particular lexeme
-typedef std::shared_ptr<PSToken> (*LexemeFunc)(PSScanner&, std::shared_ptr<BinStream> strm);
 
-std::unordered_map<int, LexemeFunc> lexemeMap;
-
-// [
-std::shared_ptr<PSToken> beginArray(PSScanner& scnr, std::shared_ptr<BinStream> strm)
-{
-	scnr.vm().beginArray();
-	return nullptr;
-}
-
-// ]
-std::shared_ptr<PSToken> endArray(PSScanner& scnr, std::shared_ptr<BinStream> strm)
-{
-	scnr.vm().endArray();
-	auto arr = scnr.vm().popOperand();
-
-	return arr;
-}
-
-// (
-std::shared_ptr<PSToken> beginLiteralString(PSScanner&, std::shared_ptr<BinStream> bs)
+//scan identifiers
+std::shared_ptr<PSToken> lex_name(PSScanner& scnr, shared_ptr<BinStream> bs)
 {
 	auto starting = bs->tell();
 	auto startPtr = bs->getPositionPointer();
 
+
+	// read to end of stream, or until delimeter
 	while (!bs->isEOF()) {
 		auto c = bs->peekOctet();
-		if (c == ')') {
+		if (delimeterChars[c] || isWhitespace(c)) {
 			break;
-		}
-
-		// deal with embedded chars
-		if (c == '\\') {
-			// BUGBUG
 		}
 
 		bs->skip(1);
@@ -94,16 +70,71 @@ std::shared_ptr<PSToken> beginLiteralString(PSScanner&, std::shared_ptr<BinStrea
 
 	auto ending = bs->tell();
 	auto len = ending - starting;
-	//std::string value((char*)startPtr, len);
+	std::string value((char*)startPtr, len);
 
-	// Skip over closing delimeter
-	bs->skip(1);
+	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
 
-	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::LITERAL_STRING);
+	if (value == "true" || (value == "false")) {
+		if (value == "true") {
+			tok->fData.asBool = true;
+		}
+		else {
+			tok->fData.asBool = false;
+		}
+
+		tok->fType = PSTokenType::BOOLEAN;
+	}
 
 	return tok;
 }
 
+
+// Dispatch table for individual lexeme processing
+// really this could just be a switch statement within the scanner
+// but this way is more informative coding wise
+std::unordered_map < int, std::function<shared_ptr<PSToken> (PSScanner& scnr, shared_ptr<BinStream> bs)> > lexemeMap
+{
+	// [ - beginArray
+	{'[',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		return scnr.markOperandStack();
+	}},
+	
+	// ] - endArray
+	{']',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		return scnr.endArray();
+	}},
+
+	// ( - literal string
+	{'(',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		auto starting = bs->tell();
+		auto startPtr = bs->getPositionPointer();
+
+		while (!bs->isEOF()) {
+			auto c = bs->peekOctet();
+			if (c == ')') {
+				break;
+			}
+
+			// deal with embedded chars
+			if (c == '\\') {
+				// BUGBUG
+			}
+
+			bs->skip(1);
+		}
+
+		auto ending = bs->tell();
+		auto len = ending - starting;
+		//std::string value((char*)startPtr, len);
+
+		// Skip over closing delimeter
+		bs->skip(1);
+
+		auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::LITERAL_STRING);
+
+		return tok;
+	}},
+		/*
 // <
 std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> bs)
 {
@@ -137,104 +168,98 @@ std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> b
 
 	return tok;
 }
+*/
+	// { - beginProcedure
+	{ '{',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		scnr.markOperandStack();
+		scnr.fBuildProcDepth += 1;
 
-// {
-std::shared_ptr<PSToken> beginProcedure(PSScanner&, std::shared_ptr<BinStream> strm)
+		return nullptr;
+	}},
+
+	// } - endProcedure
+	{ '}',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		auto arr = scnr.endArray();
+
+		arr->setExecutable(true);
+		scnr.fBuildProcDepth -= 1;
+
+		return arr;
+	}},
+
+	// % - begin comment
+	{ '%',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		auto starting = bs->tell();
+		auto startPtr = bs->getPositionPointer();
+
+		while ((bs->peekOctet() != '\n') && !bs->isEOF()) {
+			bs->skip(1);
+		}
+
+		auto ending = bs->tell();
+		auto len = ending - starting;
+
+		auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::COMMENT);
+
+		return tok;
+	} },
+	
+	// '/' - literal name
+	{ '/', [](PSScanner& scnr, shared_ptr<BinStream> bs) {
+		auto tok = lex_name(scnr, bs);
+		tok->fType = PSTokenType::LITERAL_NAME;
+
+		return tok;
+	} },
+
+};
+
+
+
+shared_ptr<PSToken> PSScanner::markOperandStack()
 {
+	vm().operandStack().mark();
 	return nullptr;
 }
 
-// }
-std::shared_ptr<PSToken> endProcedure(PSScanner&, std::shared_ptr<BinStream> strm)
+std::shared_ptr<PSToken> PSScanner::endArray()
 {
-	return nullptr;
-}
+	auto n = vm().operandStack().countToMark();
+	auto arr = make_shared<PSArray>();
 
-std::shared_ptr<PSToken> beginComment(PSScanner&, std::shared_ptr<BinStream> bs)
-{
-	auto starting = bs->tell();
-	auto startPtr = bs->getPositionPointer();
-
-	while ((bs->peekOctet() != '\n') && !bs->isEOF()) {
-		bs->skip(1);
-	}
-	auto ending = bs->tell();
-	auto len = ending - starting;
-	//std::string value((char*)startPtr, len);
-	//printf("beginComment: %s\n", value.c_str());
-
-	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::COMMENT);
-
-	return tok;
-}
-
-
-
-//scan identifiers
-std::shared_ptr<PSToken> PSScanner::lex_name()
-{
-	//printf("lex_name\n");
-	auto starting = fStream->tell();
-	auto startPtr = fStream->getPositionPointer();
-	//name_buff:reset()
-
-	// read to end of stream, or until delimeter
-	while (!fStream->isEOF()) {
-		auto c = fStream->peekOctet();
-		if (delimeterChars[c] || isWhitespace(c)) {
-			break;
-		}
-
-		fStream->skip(1);
+	for (size_t i = 0; i < n; i++) {
+		auto tok = vm().popOperand();
+		arr->push_back(tok);
 	}
 
-	auto ending = fStream->tell();
-	auto len = ending - starting;
-	std::string value((char *)startPtr, len);
+	// pop the marker itself
+	vm().popOperand();
 
-	//printf("lex_name: %s\n", name.c_str());
+	auto scannedTok = make_shared<PSToken>(arr);
 
-	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
-
-	if (value == "true" || (value == "false")) {
-		if (value == "true") {
-			tok->fData.asBool = true;
-		}
-		else {
-			tok->fData.asBool = false;
-		}
-
-		tok->fType = PSTokenType::BOOLEAN;
-	}
-
-	return tok;
+	return scannedTok;
 }
 
-// '/'
-std::shared_ptr<PSToken> PSScanner::beginLiteralName()
-{
-	auto tok = lex_name();
-	tok->fType = PSTokenType::LITERAL_NAME;
 
-	return tok;
-}
+
+
 
 //scan a number
 // something got us here, it was something in numBeginChars
 //valid: 8.35928e-09
 //numBeginChars["+-.[digit]"]
 //If not valid number, return nil
-std::shared_ptr<PSToken> PSScanner::lex_number()
+std::shared_ptr<PSToken> lex_number(PSScanner &scnr, shared_ptr<BinStream> bs)
 {
-	auto starting = fStream->tell();
-	auto startPtr = fStream->getPositionPointer();
+	auto starting = bs->tell();
+	auto startPtr = bs->getPositionPointer();
 	//print("lex_number: ", starting)
 	//First, let's look for a valid starting character
 	// - , +, ., digit
-	if (numBeginChars[fStream->peekOctet()])
+	if (numBeginChars[bs->peekOctet()])
 	{
 		//print("  SKIP 1")
-		fStream->skip(1);
+		bs->skip(1);
 	}
 	else {
 		//print("INVALID START of NUMBER: ", string.char(bs:peekOctet()))
@@ -243,12 +268,12 @@ std::shared_ptr<PSToken> PSScanner::lex_number()
 
 	// scan until a delimeter found
 	while (true) {
-		if (fStream->isEOF())
+		if (bs->isEOF())
 		{
 			break;
 		}
 
-		auto c = fStream->peekOctet();
+		auto c = bs->peekOctet();
 
 		if (isWhitespace(c)) {
 			break;
@@ -258,46 +283,36 @@ std::shared_ptr<PSToken> PSScanner::lex_number()
 			break;
 		}
 
-		fStream->skip(1);
+		bs->skip(1);
 	}
 
 
-	auto ending = fStream->tell();
+	auto ending = bs->tell();
 	auto len = ending - starting;
 	std::string value((char*)startPtr, len);
 	double nValue = std::strtod(value.c_str(), nullptr);
 
-	//print("LEX_NUMBER: ", starting, len, str, value)
 	auto tok = make_shared<PSToken>(nValue);
 	
 	return tok;
-}
-
-void PSScanner::StaticConstructor()
-{
-	lexemeMap['['] = beginArray;
-	lexemeMap[']'] = endArray;
-	lexemeMap['('] = beginLiteralString;
-	lexemeMap['<'] = beginHexString;
-	lexemeMap['{'] = beginProcedure;
-	lexemeMap['}'] = endProcedure;
-	lexemeMap['%'] = beginComment;
 }
 
 
 
 PSScanner::PSScanner(PSVM &vm, std::shared_ptr<BinStream> bs)
 	:fVM(vm),
-	fStream(bs)
+	fStream(bs),
+	fBuildProcDepth(0)
 {
-	StaticConstructor();
 }
+
+
 
 // Generate a single token
 std::shared_ptr<PSToken> PSScanner::nextToken()
 {
 	while (!fStream->isEOF()) {
-		skipspaces();
+		skipspaces(fStream);
 		
 		if (fStream->isEOF())
 		{
@@ -309,15 +324,15 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 		if (lexemeMap[c]) {
 			auto tok = lexemeMap[c](*this, fStream);
 			if (tok != nullptr) {
-				//if (this->fVM->isBuildingProc()) {
-				//	this->fVM->OperandStack:push(tok);
-				//} else {
-				return tok;
-				//}
+				if (isBuildingProc()) {
+					vm().pushOperand(tok);
+				} else {
+					return tok;
+				}
 			}
 			else {
 				// do nothing
-				//return nullptr;
+				// look for next token
 			}
 		}
 		else {
@@ -327,32 +342,30 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 			{
 				fStream->skip(-1);
 				auto sentinel = fStream->tell();
-				auto tok = lex_number();
+				auto tok = lex_number(*this, fStream);
 				if (tok == nullptr) {
 					fStream->seek(sentinel);
-					tok = lex_name();
+					tok = lex_name(*this, fStream);
 				}
 
 				if (tok != nullptr) {
-					//if (fVM->isBuildingProc()) {
-					//
-					//}
-					//else {
-					return tok;
-					//}
+					if (isBuildingProc()) {
+					
+					} else {
+						return tok;
+					}
 				}
 			}
 			else if (isGraph(c))
 			{
 				fStream->skip(-1);
-				auto tok = lex_name();
-				//if (fVM->isBuildingProc()) {
-				//fVM->pushOperand(tok);
-				//}
-				//else
-				//{
-				return tok;
-				//}
+				auto tok = lex_name(*this, fStream);
+				if (isBuildingProc()) 
+				{
+					vm().pushOperand(tok);
+				} else {
+					return tok;
+				}
 			}
 			else {
 				printf("SCANNER UNKNOWN: %c\n", c);
@@ -387,42 +400,6 @@ PSVM::PSVM()
 	fDictionaryStack.pushDictionary(d);
 }
 
-void PSVM::beginArray()
-{
-	fOperandStack.mark();
-}
-
-void PSVM::endArray()
-{
-	auto n = fOperandStack.countToMark();
-	std::shared_ptr<PSArray> arr = make_shared<PSArray>();
-
-	for (size_t i = 0; i < n; i++) {
-		auto tok = popOperand();
-		arr->push_back(tok);
-	}
-
-	// pop the marker itself
-	popOperand();
-
-	pushOperand(make_shared<PSToken>(arr));
-}
-
-void PSVM::beginProc()
-{
-	fOperandStack.mark();
-	fBuildProcDepth += 1;
-}
-
-shared_ptr<PSToken> PSVM::endProc()
-{
-	endArray();
-	auto arr = popOperand();
-	arr->setExecutable(true);
-	fBuildProcDepth -= 1;
-
-	return arr;
-}
 
 void PSVM::execArray(shared_ptr<PSToken> tok)
 {
