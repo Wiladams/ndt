@@ -26,7 +26,7 @@ int posOffsetY = 0;
 std::array<Star, MaxStars> stars;
 Joystick joy1(JOYSTICKID1);
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
 	switch (keyCode) {
 	case VK_ESCAPE: {

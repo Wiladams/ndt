@@ -131,7 +131,7 @@ public:
 Life* l1 = nullptr;
 
 
-void keyTyped(const KeyEvent &event)
+void keyTyped(const KeyboardEvent &event)
 {
     // if [Space] reset life
     if (keyCode == ' ') {
@@ -139,7 +139,7 @@ void keyTyped(const KeyEvent &event)
     }
 }
 
-void keyReleased(const KeyEvent &event)
+void keyReleased(const KeyboardEvent &event)
 {
     if (keyCode == VK_ESCAPE) {
         halt();
@@ -162,9 +162,7 @@ void setup()
 {
     l1 = new Life(displayWidth, displayHeight);
 
-    createCanvas(displayWidth, displayHeight);
-    layered();
-    setWindowPosition(0, 0);
+    fullscreen();
 
     frameRate(30);
 }

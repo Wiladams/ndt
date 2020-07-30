@@ -187,11 +187,11 @@ void draw()
     drawKeyStates(gAppSurface);
 }
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& e)
 {
     // toggle layered
-    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", event.keyCode, event.scanCode);
-    if (event.keyCode == VK_ESCAPE) {
+    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", e.keyCode, e.scanCode);
+    if (e.keyCode == VK_ESCAPE) {
         halt();
     }
 }

@@ -84,7 +84,7 @@ void draw()
 
 }
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	switch (keyCode) {
 		case VK_ESCAPE:
@@ -93,7 +93,7 @@ void keyReleased(const KeyEvent& e)
 	}
 }
 
-void keyPressed(const KeyEvent& e)
+void keyPressed(const KeyboardEvent& e)
 {
 	switch (keyCode) {
 	case VK_RIGHT: {

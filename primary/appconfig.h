@@ -10,8 +10,8 @@
   #define APP_API
 #endif
 
-//#define APP_EXPORT		__declspec(dllexport)
-#define APP_EXPORT
+#define APP_EXPORT		__declspec(dllexport)
+//#define APP_EXPORT
 
 #define APP_INLINE  static inline
 #define APP_EXTERN  extern

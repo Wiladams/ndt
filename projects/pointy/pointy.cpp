@@ -77,12 +77,7 @@ void draw()
 	//noLoop();
 }
 
-LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	LRESULT res = 0;
-	
-	printf("handlePointer: %d\n", msg);
-
-	return res;
-
+void handlePointer(const PointerEvent &e)
+{	
+	printf("handlePointer: \n");
 }

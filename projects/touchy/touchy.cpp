@@ -45,7 +45,7 @@ void draw()
 	std::for_each(touches.begin(), touches.end(), drawTouch);
 }
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
 		halt();

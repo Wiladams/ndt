@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="appconfig.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="apphost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -232,6 +229,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="windowlayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

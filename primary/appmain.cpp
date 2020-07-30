@@ -62,7 +62,8 @@ static TouchEventHandler gTouchMovedHandler = nullptr;
 static TouchEventHandler gTouchHoverHandler = nullptr;
 
 // Pointer
-static WinMSGObserver gPointerHandler = nullptr;
+static WinMSGObserver gPointerMessageHandler = nullptr;
+static PointerEventHandler gPointerEventHandler = nullptr;
 
 // Drag and Drop
 static WinMSGObserver gFileDropHandler = nullptr;
@@ -241,11 +242,14 @@ void setFrameRate(int newRate)
 
 
 
-
+/*
+    Turn Windows keyboard messages into keyevents that can 
+    more easily be handled at the application level
+*/
 LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
-    KeyEvent e;
+    KeyboardEvent e;
     e.keyCode = (int)wParam;
     e.repeatCount =LOWORD(lParam);  // 0 - 15
     e.scanCode = ((lParam & 0xff0000) >> 16);        // 16 - 23
@@ -352,7 +356,7 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 // joystick directly with 'gJoystick1' or 'gJoystick2' and
 // call getPosition() at any time.  Typically during 'update()'
 // or 'draw()'
-LRESULT HandleJoystickEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
@@ -420,7 +424,7 @@ LRESULT HandleJoystickEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
@@ -503,7 +507,7 @@ LRESULT HandleTouchEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-LRESULT HandlePointerEvent(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandlePointerMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
@@ -547,7 +551,7 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
-LRESULT HandleFileDropEvent(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
     HDROP dropHandle = (HDROP)wParam;
@@ -599,11 +603,11 @@ void setupHandlers()
     gKeyboardMessageHandler = HandleKeyboardMessage;
     gMouseMessageHandler = HandleMouseMessage;
 
-    gJoystickHandler = HandleJoystickEvent;
-    gTouchHandler = HandleTouchEvent;
-    gPointerHandler = HandlePointerEvent;
+    gJoystickHandler = HandleJoystickMessage;
+    gTouchHandler = HandleTouchMessage;
+    gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
-    gFileDropHandler = HandleFileDropEvent;
+    gFileDropHandler = HandleFileDropMessage;
 
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
@@ -633,10 +637,7 @@ void setupHandlers()
         gTouchHandler = handler;
     }
 
-    handler = (WinMSGObserver)GetProcAddress(hInst, "handlePointer");
-    if (handler != nullptr) {
-        gPointerHandler = handler;
-    }
+
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "handleFileDrop");
     if (handler != nullptr) {
@@ -677,6 +678,10 @@ void setupHandlers()
     gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
     gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
+
+    // Pointer event routines
+    gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointer");
+
 
     gFileDroppedHandler = (FileDropEventHandler)GetProcAddress(hInst, "fileDrop");
 
@@ -756,8 +761,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
     } else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)){
-        if (gPointerHandler != nullptr) {
-            res = gPointerHandler(hWnd, msg, wParam, lParam);
+        if (gPointerMessageHandler != nullptr) {
+            res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
         }
     } else if (msg == WM_ERASEBKGND) {
         //printf("WM_ERASEBKGND\n");

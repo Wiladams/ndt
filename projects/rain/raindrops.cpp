@@ -33,7 +33,7 @@ static p5::P5Vector windForce(0, 0);
 BLBoxI Obstruction;
 
 
-void keyPressed(const KeyEvent & event)
+void keyPressed(const KeyboardEvent& event)
 {
     switch (keyCode) {
 
@@ -64,7 +64,7 @@ void keyPressed(const KeyEvent & event)
     }
 }
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
     switch (keyCode) {
         case VK_ESCAPE: {

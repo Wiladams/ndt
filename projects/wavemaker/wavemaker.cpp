@@ -44,7 +44,7 @@ void draw()
     //stats.draw();
 }
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
     if (keyCode == VK_ESCAPE) {
         halt();

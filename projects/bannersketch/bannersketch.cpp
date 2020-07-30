@@ -64,7 +64,7 @@ void mouseReleased(const MouseEvent& e)
 	dragging = false;
 }
 
-void keyTyped(const KeyEvent& event)
+void keyTyped(const KeyboardEvent& event)
 {
 	// toggle between layered and not layered
 	if (keyCode == ' ') {
@@ -79,7 +79,7 @@ void keyTyped(const KeyEvent& event)
 
 
 // Press the Esc key to stop the application
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
 	if (keyCode == VK_ESCAPE) {
 		halt();

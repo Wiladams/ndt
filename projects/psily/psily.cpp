@@ -5,9 +5,30 @@
 #include "psvm.h"
 
 #include <iostream>
+#include <string>
+#include <variant>
 
 using namespace p5;
 
+/*
+using TokenData = std::variant<	bool,
+	int,
+	uint64_t,
+	float,
+	double,
+	std::string,
+	std::function<void(PSVM& vm)>,
+	std::shared_ptr<PSArray>,
+	std::shared_ptr<PSDictionary>
+>;
+
+struct AToken {
+	int fType;
+	bool fIsExecutable;
+	TokenData fData;
+
+};
+*/
 
 /*
 // Play with memory allocation

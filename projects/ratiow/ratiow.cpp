@@ -389,7 +389,7 @@ hittable_list blend_mirrors() {
 }
 
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
     point3 lookfrom(13, 2, 3);
     point3 lookat(0, 0, 0);
@@ -503,7 +503,7 @@ void keyReleased(const KeyEvent& e)
     tracer->setCamera(Camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0));
 }
 
-void keyPressed(const KeyEvent& e)
+void keyPressed(const KeyboardEvent& e)
 {
     switch (e.keyCode) {
         case 's':

@@ -123,7 +123,7 @@ void draw()
 }
 
 // Exit the program if the user presses escape
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
 		halt();

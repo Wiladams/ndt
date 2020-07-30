@@ -45,6 +45,7 @@ enum class PSTokenType : uint32_t
 // data associated with a token.  Doing it as a union
 // 'class' will use more storage, but greatly simplifies
 // the storage and usage.
+
 union PSTokenData
 {
 	bool		asBool;
@@ -84,6 +85,9 @@ union PSTokenData
 
 	~PSTokenData(){}	// Need this destructor
 };
+
+
+
 
 // The PSToken holds the data type, the actual data
 // and any flags we want to associated with the token
@@ -261,14 +265,5 @@ inline std::ostream& operator<<(std::ostream& out, const PSToken & tok)
 	}
 }
 
-std::variant<	bool,
-	int,
-	uint64_t,
-	float,
-	double,
-	std::string*,
-	std::function<void(PSVM& vm)>,
-	std::shared_ptr<PSArray>,
-	std::shared_ptr<PSDictionary>
-> AToken;
+
 

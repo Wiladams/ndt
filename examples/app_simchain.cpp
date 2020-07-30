@@ -129,7 +129,7 @@ void reset()
 }
 
 
-void keyReleased(const KeyEvent &event)
+void keyReleased(const KeyboardEvent &event)
 {
     // Up arrow, add more
     // Down arrow, remove one
@@ -144,7 +144,7 @@ void keyReleased(const KeyEvent &event)
 }
 
 
-void keyTyped(const KeyEvent &event)
+void keyTyped(const KeyboardEvent &event)
 {
     // If the user types a '<sp>' reset
     // the chain to 1 node

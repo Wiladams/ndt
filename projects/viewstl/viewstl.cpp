@@ -71,7 +71,7 @@ void changePosition(float angle, float radius, float height)
 		redraw();
 }
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	switch (keyCode) {
 	case VK_SPACE:
@@ -92,7 +92,7 @@ void keyReleased(const KeyEvent& e)
 	}
 }
 
-void keyPressed(const KeyEvent& e)
+void keyPressed(const KeyboardEvent& e)
 {
 	switch (keyCode) {
 		case VK_RIGHT: {

@@ -44,7 +44,7 @@ enum {
     KEYTYPED
 };
 
-struct KeyEvent {
+struct KeyboardEvent {
     int activity;
     int keyCode;        // wparam
     int repeatCount;    // 0 - 15
@@ -121,7 +121,7 @@ extern "C" {
 #endif
 
     // Some generic function signatures
-    typedef void (*KeyEventHandler)(const KeyEvent& e);
+    typedef void (*KeyEventHandler)(const KeyboardEvent& e);
     typedef void (*MouseEventHandler)(const MouseEvent& e);
     typedef void (*JoystickEventHandler)(const JoystickEvent& e);
     typedef void (*TouchEventHandler)(const TouchEvent& e);

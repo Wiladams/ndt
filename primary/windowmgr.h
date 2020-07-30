@@ -172,11 +172,11 @@ public:
 
 	/*
 		Handling Keyboard Events
-		void keyboardEvent(const KeyEvent& e);
+		void keyboardEvent(const KeyboardEvent& e);
 
-		void keyPressed(const KeyEvent& e);
-		void keyReleased(const KeyEvent& e);
-		void keyTyped(const KeyEvent& e);
+		void keyPressed(const KeyboardEvent& e);
+		void keyReleased(const KeyboardEvent& e);
+		void keyTyped(const KeyboardEvent& e);
 	*/
 
 };

@@ -72,7 +72,7 @@ void draw()
 
 }
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
     // Up arrow, add more
     // Down arrow, remove one

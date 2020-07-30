@@ -56,7 +56,7 @@ void fileDrop(const FileDropEvent& e)
 	}
 }
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
 		halt();

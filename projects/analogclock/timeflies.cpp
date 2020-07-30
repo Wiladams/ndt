@@ -32,7 +32,7 @@ void removeClock()
     clocks.pop_back();
 }
 
-void keyReleased(const KeyEvent& event)
+void keyReleased(const KeyboardEvent& event)
 {
     switch (keyCode) {
         case VK_ESCAPE: {

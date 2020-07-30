@@ -107,7 +107,7 @@ bool showTextInputBox = false;
 char textInputFileName[256] = { 0 };
 
 
-void keyPressed(const KeyEvent& e)
+void keyPressed(const KeyboardEvent& e)
 {
     if (e.keyCode == VK_ESCAPE) {
         showMessageBox = !showMessageBox;

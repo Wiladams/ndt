@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
-    <ClInclude Include="appconfig.hpp" />
+    <ClInclude Include="appconfig.h" />
     <ClInclude Include="apphost.h" />
     <ClInclude Include="arcball.h" />
     <ClInclude Include="bezier.hpp" />

@@ -39,7 +39,7 @@ void draw()
 
 int T_SP = ' ';
 
-void keyTyped(const KeyEvent& event)
+void keyTyped(const KeyboardEvent& event)
 {
     // if [Space] save file
     if (keyCode == T_SP) {

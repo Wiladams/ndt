@@ -622,7 +622,7 @@ namespace p5 {
     // This is called by the application framework
     // giving us an opportunity to do composition
     // before final display
-void handleComposition() noexcept
+void handleComposition()
 {
     // Allow the user's drawing to happen first
     // This could be captured in drawBackground/drawForeground/draw
@@ -665,7 +665,7 @@ void onLoad()
     gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
 }
 
-void keyboardEvent(const KeyEvent& e)
+void keyboardEvent(const KeyboardEvent& e)
 {
     //std::cout << "keyboardEvent: " << e.activity << "\n" ;
 

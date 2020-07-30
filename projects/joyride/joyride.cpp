@@ -60,7 +60,7 @@ void joyMovedZ(const JoystickEvent& e)
 	printf("joyMovedZ: %3.2f\n", e.z);
 }
 
-void keyReleased(const KeyEvent& e)
+void keyReleased(const KeyboardEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
 		halt();
