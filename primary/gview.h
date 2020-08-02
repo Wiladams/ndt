@@ -123,8 +123,8 @@ public:
         // translate according to the transformation
         auto pt = fTransform.mapPoint(e.x, e.y);
         auto newEvent(e);
-        newEvent.x = pt.x + fFrame.x;
-        newEvent.y = pt.y + fFrame.y;
+        newEvent.x = (int)(pt.x + fFrame.x);
+        newEvent.y = (int)(pt.y + fFrame.y);
         //fPage.mouseMoved(newEvent);
     }
 

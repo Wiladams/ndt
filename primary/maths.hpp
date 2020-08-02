@@ -139,7 +139,7 @@ namespace maths {
     template <typename T>
     inline T Lerp(const double t, T v1, T v2)
     {
-        return (1 - t) * v1 + t * v2;
+        return (T)((1 - t) * v1 + t * v2);
     }
 
     template<>

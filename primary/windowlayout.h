@@ -40,8 +40,8 @@ public:
 		int x = wX;
 		int y = wY;
 
-		wX += win->getFrame().w + fHorizontalOffset;
-		wY += fVerticalOffset;
+		wX += (int)(win->getFrame().w + fHorizontalOffset);
+		wY += (int)fVerticalOffset;
 
 		if (wX > fWidth - 256) 
 		{

@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include "pstypes.h"
 #include "psstack.h"
-#include "pstoken.h"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -52,7 +52,7 @@ public:
 		if (tok->fType != PSTokenType::DICTIONARY)
 			return nullptr;
 
-		return tok->fData.asDictionary;
+		return std::get<shared_ptr<PSDictionary> >(tok->fData);
 	}
 
 	shared_ptr<PSDictionary> currentdict()
@@ -66,10 +66,10 @@ public:
 			if (nullptr == tok)
 				return nullptr;
 
-			return tok->fData.asDictionary;
+			return std::get<shared_ptr<PSDictionary> >(tok->fData);
 		}
 
-		return top()->fData.asDictionary;
+		return std::get<shared_ptr<PSDictionary> >(top()->fData);
 	}
 
 	// Associate key and value in current dictionary
@@ -89,9 +89,8 @@ public:
 		{
 			auto tok = nth(idx);
 			if (tok->fType == PSTokenType::DICTIONARY) {
-				if (tok->fData.asDictionary->operator[](key) != nullptr)
-				//if (tok->fData.asDictionary->find(key) != nullptr)
-					return tok->fData.asDictionary;
+				if (std::get<shared_ptr<PSDictionary> >(tok->fData)->operator[](key) != nullptr)
+					return std::get<shared_ptr<PSDictionary> >(tok->fData);
 			}
 		}
 

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <random>
+#include <iostream>
 
 // Setup a dispatch table for base operators
 // These will ultimately be copied into a dictionary
@@ -18,8 +19,8 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	{"copy", [](PSVM& vm) {
 		auto tok = vm.operandStack().pop();
-		auto n = tok->fData.asInt;
-		vm.operandStack().copy(n);
+		auto n = (double)*tok;
+		vm.operandStack().copy((size_t)n);
 	}},
 
 	{"count", [](PSVM& vm) {
@@ -42,7 +43,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 		// BUGBUG - use double
 	{"index", [](PSVM& vm) {
 		auto n = vm.operandStack().pop();
-		auto tok = vm.operandStack().nth((size_t)n->fData.asReal);
+		auto tok = vm.operandStack().nth((size_t)(double)*n);
 		vm.pushOperand(tok);
 	}},
 
@@ -53,7 +54,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"roll", [](PSVM& vm) {
 		auto j = vm.operandStack().pop();
 		auto n = vm.operandStack().pop();
-		vm.operandStack().roll(n->fData.asInt, j->fData.asInt);
+		vm.operandStack().roll((int)(double)*n, (int)(double)*j);
 	}},
 
 	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
@@ -66,15 +67,15 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{"add", [](PSVM& vm) {
 			auto num2 = vm.operandStack().pop();
 			auto num1 = vm.operandStack().pop();
-			auto tok = make_shared<PSToken>((double)num1->fData.asReal + num2->fData.asReal);
+			auto tok = make_shared<PSToken>((double)*num1 + (double)*num2);
 
 			vm.pushOperand(tok);
 	}},
 
 	// atan
 	{ "atan", [](PSVM& vm) {
-		auto den = vm.popOperand()->fData.asReal;
-		auto num = vm.popOperand()->fData.asReal;
+		auto den = (double)*vm.popOperand();
+		auto num = (double)*vm.popOperand();
 		auto value = maths::Degrees(std::atan(num / den));
 		vm.pushOperand(make_shared<PSToken>(value));
 	} },
@@ -82,9 +83,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// sub
 	// subtraction
 	{"sub", [](PSVM& vm) {
-			auto num2 = vm.popOperand();
-			auto num1 = vm.popOperand();
-			auto tok = make_shared<PSToken>((double)num1->fData.asReal - num2->fData.asReal);
+			auto num2 = (double)*vm.popOperand();
+			auto num1 = (double)*vm.popOperand();
+			auto tok = make_shared<PSToken>(num1 - num2);
 
 			vm.pushOperand(tok);
 	}},
@@ -93,35 +94,35 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// multiplication
 	// pop two, push one
 	{"mul", [](PSVM& vm) {
-			auto num2 = vm.popOperand();
-			auto num1 = vm.popOperand();
-			auto tok = make_shared<PSToken>((double)num1->fData.asReal * num2->fData.asReal);
+			auto num2 = (double)*vm.popOperand();
+			auto num1 = (double)*vm.popOperand();
+			auto tok = make_shared<PSToken>(num1 * num2);
 
 			vm.pushOperand(tok);
 	}},
 
 
 	{"div", [](PSVM& vm) {
-			auto num2 = vm.popOperand();
-			auto num1 = vm.popOperand();
-			auto tok = make_shared<PSToken>((double)num1->fData.asReal / num2->fData.asReal);
+			auto num2 = (double)*vm.popOperand();
+			auto num1 = (double)*vm.popOperand();
+			auto tok = make_shared<PSToken>(num1 / num2);
 
 			vm.pushOperand(tok);
 	}},
 	
 	// exp
 	{"exp", [](PSVM& vm) {
-			auto base = vm.popOperand();
-			auto exponent = vm.popOperand();
-			auto tok = make_shared<PSToken>(std::pow(base->fData.asReal ,exponent->fData.asReal));
+			auto base = (double)*vm.popOperand();
+			auto exponent = (double)*vm.popOperand();
+			auto tok = make_shared<PSToken>(std::pow(base ,exponent));
 
 			vm.pushOperand(tok);
 	}},
 
 	{"idiv", [](PSVM& vm) {
-			auto b = vm.popOperand();
-			auto a = vm.popOperand();
-			auto q = (double)a->fData.asReal / b->fData.asReal;
+			auto b = (double)*vm.popOperand();
+			auto a = (double)*vm.popOperand();
+			auto q = a / b;
 			if (q >= 0) {
 				q = floor(q);
 			}
@@ -134,9 +135,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	}},
 
 	{"mod", [](PSVM& vm) {
-			auto b = vm.popOperand();
-			auto a = vm.popOperand();
-			auto value = fmod(a->fData.asReal, b->fData.asReal);
+			auto b = (double)*vm.popOperand();
+			auto a = (double)*vm.popOperand();
+			auto value = fmod(a, b);
 
 			auto tok = make_shared<PSToken>(value);
 
@@ -144,9 +145,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	}},
 
 	{ "maximum", [](PSVM& vm) {
-			auto b = vm.popOperand();
-			auto a = vm.popOperand();
-			auto value = std::max(a->fData.asReal, b->fData.asReal);
+			auto b = (double)*vm.popOperand();
+			auto a = (double)*vm.popOperand();
+			auto value = std::max(a, b);
 
 			auto tok = make_shared<PSToken>(value);
 
@@ -154,9 +155,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	}},
 
 	{ "minimum", [](PSVM& vm) {
-			auto b = vm.popOperand();
-			auto a = vm.popOperand();
-			auto value = std::min(a->fData.asReal, b->fData.asReal);
+			auto b = (double)*vm.popOperand();
+			auto a = (double)*vm.popOperand();
+			auto value = std::min(a, b);
 
 			auto tok = make_shared<PSToken>(value);
 
@@ -166,8 +167,8 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// Single argument arithmetic operators
 	// abs
 	{ "abs", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		auto tok = make_shared<PSToken>(std::abs(a->fData.asReal));
+		auto a = (double)*vm.popOperand();
+		auto tok = make_shared<PSToken>(std::abs(a));
 
 		vm.pushOperand(tok);
 
@@ -175,64 +176,64 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	// ceiling
 	{ "ceiling", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::ceil(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::ceil(a)));
 	} },
 
 	// floor
 	{ "floor", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::floor(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::floor(a)));
 	} },
 
 	// neg
 	{ "neg", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(-(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(-(a)));
 	} },
 	
 	// round
 	{ "round", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::round(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::round(a)));
 	} },
 	
 	// truncate
 	{ "truncate", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::trunc(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::trunc(a)));
 	} },
 
 	// sqrt
 	{ "sqrt", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::sqrt(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::sqrt(a)));
 	} },
 
 
 	
 	// ln
 	{ "ln", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::log(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::log(a)));
 	} },
 	
 	// log
 	{ "log", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::log10(a->fData.asReal)));
+		auto a = (double)* vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::log10(a)));
 	} },
 
 	// sin
 	{ "sin", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::sin(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::sin(a)));
 	} },
 	
 	// cos
 	{ "cos", [](PSVM& vm) {
-		auto a = vm.popOperand();
-		vm.pushOperand(make_shared<PSToken>(std::sin(a->fData.asReal)));
+		auto a = (double)*vm.popOperand();
+		vm.pushOperand(make_shared<PSToken>(std::sin(a)));
 	} },
 	
 
@@ -244,8 +245,8 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	
 	// srand
 	{ "srand", [](PSVM& vm) {
-		auto seed = vm.popOperand();
-		vm.seedRandomInt((unsigned int)seed->fData.asReal);
+		auto seed = (double)*vm.popOperand();
+		vm.seedRandomInt((unsigned int)seed);
 	} },
 
 	// rrand
@@ -255,9 +256,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	//
 	// get
 	{ "get", [](PSVM& vm) {
-		auto idx = (size_t)vm.popOperand()->fData.asReal;
-		auto arr = *vm.popOperand()->fData.asArray;
-		auto value = arr[idx];
+		auto idx = (size_t)(double)*vm.popOperand();
+		auto arr = (shared_ptr<PSArray>)*vm.popOperand();
+		auto value = arr->operator[](idx);
 		// BUGBUG - check for range and stick a nil token if nothing
 		vm.pushOperand(value);
 	} },
@@ -272,15 +273,15 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// def
 	{ "def", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = vm.popOperand();
+		auto key = (std::string &)vm.popOperand();
 
-		vm.dictionaryStack().def(*key->fData.asString, value);
+		vm.dictionaryStack().def(key, value);
 	} },
 	
 	// load
 	{ "load", [](PSVM& vm) {
-		auto key = vm.popOperand();
-		auto value = vm.dictionaryStack().load(*key->fData.asString);
+		auto key = (std::string &)vm.popOperand();
+		auto value = vm.dictionaryStack().load(key);
 
 		if (nullptr == value) {
 			// print undefined key
@@ -293,15 +294,15 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// store
 	{ "store", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = vm.popOperand();
+		auto key = (std::string &)vm.popOperand();
 
-		vm.dictionaryStack().store(*key->fData.asString, value);
+		vm.dictionaryStack().store(key, value);
 	} },
 
 	// where
 	{ "where", [](PSVM& vm) {
-		auto key = vm.popOperand();
-		auto d = vm.dictionaryStack().where(*key->fData.asString);
+		auto key = (std::string &)vm.popOperand();
+		auto d = vm.dictionaryStack().where(key);
 
 		if (nullptr == d) {
 			vm.pushOperand(make_shared<PSToken>(false));
@@ -317,14 +318,15 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// Array creation
 
 	// astore
-	{ "where", [](PSVM& vm) {
+	{ "astore", [](PSVM& vm) {
 		auto arrtok = vm.popOperand();
-		auto arr = *arrtok->fData.asArray;
-		auto size = arr.size();
+		auto arr = (shared_ptr<PSArray>)*arrtok;
+
+		auto size = arr->size();
 
 		for (size_t i = 0; i < size; i++) {
 			auto value = vm.popOperand();
-			arr[size - i-1] = value;
+			arr->operator[](size - i-1) = value;
 		}
 
 		vm.pushOperand(arrtok);
@@ -337,8 +339,10 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// make it the current dictionary
 	// by placing it atop the dictionary stack
 	{ "begin", [](PSVM& vm) {
-		auto d = vm.popOperand();
-		vm.dictionaryStack().pushDictionary(d->fData.asDictionary);
+		auto dtok = vm.popOperand();
+		auto d = (shared_ptr<PSDictionary>)*dtok;
+
+		vm.dictionaryStack().pushDictionary(d);
 	} },
 
 	// end
@@ -385,21 +389,22 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{ "print" , [](PSVM& vm) {
 			//std::cout << "PRINT OPERATOR" << std::endl;
 			auto a = vm.popOperand();
-			std::cout << *a << std::endl;
+			//std::visit(PSTokenPrinter(), *a);
+			std::cout << a->fData << std::endl;
 	} },
 
 	// Print out the contents of the current operand stack
 	// without disturbing stack contents
 	{ "stack", [](PSVM& vm) {
 		for (auto& it : vm.operandStack().fContainer) {
-			std::cout << *it << std::endl;
+			std::cout << it->fData << std::endl;
 		}
 	} },
 	
 	// Print detail info on items
 	{ "pstack", [](PSVM& vm) {
 		for (auto& it : vm.operandStack().fContainer) {
-			std::cout << *it << std::endl;
+			std::cout << it->fData << std::endl;
 		}
 	} },
 	
@@ -453,12 +458,12 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	{ "=" , [](PSVM& vm) {
 		auto a = vm.popOperand();
-		std::cout << *a << std::endl;
+		std::cout << a->fData << std::endl;
 	} },
 
 	{ "==" , [](PSVM& vm) {
 		auto a = vm.popOperand();
-		std::cout << *a << std::endl;
+		std::cout << a->fData << std::endl;
 	}},
 
 	// save

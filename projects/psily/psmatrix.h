@@ -67,12 +67,12 @@ struct PSMatrix {
 	// The array contains token values
 	static inline PSMatrix createFromArray(const PSArray& arr)
 	{
-		PSMatrix m{arr[0]->fData.asReal,
-			arr[1]->fData.asReal,
-			arr[2]->fData.asReal,
-			arr[3]->fData.asReal,
-			arr[4]->fData.asReal,
-			arr[5]->fData.asReal };
+		PSMatrix m{(double)*arr[0],
+			(double)*arr[1],
+			(double)*arr[2],
+			(double)*arr[3],
+			(double)*arr[4],
+			(double)*arr[5]};
 
 		return m;
 	}

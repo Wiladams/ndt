@@ -76,10 +76,10 @@ std::shared_ptr<PSToken> lex_name(PSScanner& scnr, shared_ptr<BinStream> bs)
 
 	if (value == "true" || (value == "false")) {
 		if (value == "true") {
-			tok->fData.asBool = true;
+			*tok = true;
 		}
 		else {
-			tok->fData.asBool = false;
+			*tok = false;
 		}
 
 		tok->fType = PSTokenType::BOOLEAN;
@@ -388,7 +388,7 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 PSVM::PSVM()
 {
 	// seed random number generator with system time
-	fRandomGen.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	fRandomGen.seed((unsigned int)(std::chrono::system_clock::now().time_since_epoch().count()));
 
 	// Setup dictionary stack
 	// Base operators, graphics, file all go into 
@@ -403,9 +403,11 @@ PSVM::PSVM()
 
 void PSVM::execArray(shared_ptr<PSToken> tok)
 {
-	for (size_t idx = 0; idx < tok->fData.asArray->size(); idx++)
+	auto arr = (shared_ptr<PSArray>) * tok;
+
+	for (size_t idx = 0; idx < arr->size(); idx++)
 	{
-		auto item = tok->fData.asArray->at(idx);
+		auto item = arr->at(idx);
 
 		switch (item->fType) {
 		case PSTokenType::BOOLEAN:
@@ -419,7 +421,7 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 			break;
 
 		case PSTokenType::OPERATOR:
-			item->fData.asOperator(*this);
+			((std::function<void(PSVM& vm)>) * item)(*this);
 			break;
 
 
@@ -432,10 +434,11 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 
 void PSVM::execName(shared_ptr<PSToken> tok)
 {
-	auto op = fDictionaryStack.load(*tok->fData.asString);
-
+	auto key = (std::string&)tok;
+	auto op = fDictionaryStack.load(key);
+	
 	if (op == nullptr) {
-		printf("UNKNOWN EXECUTABLE NAME: %s\n", (*tok->fData.asString).c_str());
+		std::cout << "UNKNOWN EXECUTABLE NAME: " << key << std::endl;
 		return;
 	}
 
@@ -450,7 +453,7 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 		break;
 
 	case PSTokenType::OPERATOR:
-		op->fData.asOperator(*this);
+		((std::function<void(PSVM& vm)>)*op)(*this);
 		break;
 
 	case PSTokenType::PROCEDURE:
@@ -462,7 +465,7 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 		}
 		break;
 	default:
-		printf("UKNOWN EXECUTABLE TYPE: %d\n", op->fType);
+		std::cout << "UKNOWN EXECUTABLE TYPE: " << (int)op->fType << std::endl;
 		break;
 	}
 }
@@ -477,7 +480,7 @@ void PSVM::eval(std::shared_ptr<BinStream> bs)
 		if (nullptr == tok)
 			break;
 
-		std::cout << "eval: " << tok->toString() << std::endl;
+		std::cout << "eval: " << tok->fData << std::endl;
 		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
 			execName(tok);
 		}

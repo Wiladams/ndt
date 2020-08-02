@@ -3,10 +3,8 @@
 
 
 #include "binstream.hpp"
-#include "pstoken.h"
-#include "psstack.h"
-#include "psarray.h"
-#include "psdictionary.h"
+#include "pstypes.h"
+
 
 #include <memory>
 #include <algorithm>

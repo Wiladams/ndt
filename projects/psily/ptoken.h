@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pstypes.h"
+
 #include <new>
 #include <cstdint>
 #include <string>
@@ -9,36 +11,10 @@
 #include <functional>
 #include <iostream>
 
-class PSArray;
-class PSDictionary;
-class PSVM;
 
 
-// Enumerate the kinds of tokens that we will see
-// This is used everywhere from the scanner to interpreter and VM
-enum class PSTokenType : uint32_t
-{
-	nil,				// a null
-	MARK,				// a noop
 
-	// lexical types
-	LITERAL_NAME,		// /name
-	EXECUTABLE_NAME,	// name
 
-	LITERAL_STRING,		// (string)
-	HEXSTRING,			// <hexstring>
-	NUMBER,				// int, float, hex
-	NUMBER_INT,			// int
-	NUMBER_FLOAT,		// float
-	BOOLEAN,			// true, false
-	COMMENT,			// % to end of line
-
-	// Structural types
-	OPERATOR,			// a function which has been bound
-	LITERAL_ARRAY,		// []
-	PROCEDURE,			// {}
-	DICTIONARY,
-};
 
 // PSTokenData
 // The union data structure used to hold the actual

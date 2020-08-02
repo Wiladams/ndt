@@ -84,8 +84,8 @@ public:
 
 	virtual void mousePressed(const MouseEvent& e)
 	{
-	auto x = (double)e.x - fFrame.x;
-	auto y = (double)e.y - fFrame.y;
+	auto x = (int)((double)e.x - fFrame.x);
+	auto y = (int)((double)e.y - fFrame.y);
 	if (inTitleBar(x, y)) {
 		fIsMoving = true;
 		fLastMouse = { (double)e.x, (double)e.y };
@@ -102,8 +102,8 @@ virtual void mouseMoved(const MouseEvent& e)
 	if (fIsMoving)
 	{
 		// move
-		int dx = e.x - fLastMouse.x;
-		int dy = e.y - fLastMouse.y;
+		auto dx = (e.x - fLastMouse.x);
+		auto dy = (e.y - fLastMouse.y);
 
 		moveBy(dx, dy);
 
