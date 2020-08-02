@@ -109,8 +109,8 @@ void draw()
 		grad.addStop(0.80, c1);
 		grad.addStop(1.0, c0);
 
-		int finalX = map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
-		int finalY = potY+36;
+		int finalX = (int)map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
+		int finalY = (int)(potY+36);
 
 		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY,1200);
 		bez.draw(gAppSurface);

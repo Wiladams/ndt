@@ -63,7 +63,7 @@ public:
 			int offsetx = x;
 			int offsety = y;
 
-			x += win->getFrame().w + fHorizontalOffset;
+			x += (int)(win->getFrame().w + fHorizontalOffset);
 			y += fVerticalOffset;
 
 			if (x > fWidth - 256) {

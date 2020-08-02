@@ -12,24 +12,24 @@ namespace ndt {
         BLRgba t = { 0,0,0,1 };
 
         if (wl >= 380.0 && wl <= 440.0) {
-            t.r = -1.0 * (wl - 440.0) / (440.0 - 380.0);
+            t.r = -1.0f * ((float)wl - 440.0f) / (440.0f - 380.0f);
             t.b = 1.0;
         }
         else if (wl >= 440.0 && wl <= 490.0) {
-            t.g = (wl - 440.0) / (490.0 - 440.0);
+            t.g = ((float)wl - 440.0f) / (490.0f - 440.0f);
             t.b = 1.0;
         }
         else if (wl >= 490.0 && wl <= 510.0) {
             t.g = 1.0;
-            t.b = -1.0 * (wl - 510.0) / (510.0 - 490.0);
+            t.b = -1.0f * ((float)wl - 510.0f) / (510.0f - 490.0f);
         }
-        else if (wl >= 510.0 && wl <= 580.0) {
-            t.r = (wl - 510.0) / (580.0 - 510.0);
+        else if ((wl >= 510.0) && (wl <= 580.0)) {
+            t.r = (float)((wl - 510.0) / (580.0 - 510.0));
             t.g = 1.0;
         }
         else if (wl >= 580.0 && wl <= 645.0) {
             t.r = 1.0;
-            t.g = -1.0 * (wl - 645.0) / (645.0 - 580.0);
+            t.g = (float)(-1.0 * (wl - 645.0) / (645.0 - 580.0));
         }
         else if (wl >= 645.0 && wl <= 780.0) {
             t.r = 1.0;
@@ -43,9 +43,9 @@ namespace ndt {
             s = 0.3 + 0.7 * (wl - 380.0) / (420.0 - 380.0);
         }
 
-        t.r = pow(t.r * s, gamma);
-        t.g = pow(t.g * s, gamma);
-        t.b = pow(t.b * s, gamma);
+        t.r = (float)pow(t.r * s, gamma);
+        t.g = (float)pow(t.g * s, gamma);
+        t.b = (float)pow(t.b * s, gamma);
 
         return t;
     }

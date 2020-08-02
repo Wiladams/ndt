@@ -41,9 +41,9 @@ class VisibleLightSampler : public ISampler1D<BLRgba32>
 public:
 	BLRgba32 operator()(double u) const
 	{
-		double wl = maths::Map(u, 0, 1, 380, 780);
+		auto wl = maths::Map(u, 0, 1, 380, 780);
 		auto c = ndt::ColorRGBAFromWavelength(wl);
-		return BLRgba32(c.r * 255, c.g * 255, c.b * 255);
+		return BLRgba32((uint32_t)(c.r * 255), (uint32_t)(c.g * 255), (uint32_t)(c.b * 255));
 	}
 };
 
