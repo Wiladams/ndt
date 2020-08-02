@@ -11,9 +11,10 @@
 
 #include <cstdio>
 #include <array>
+#include <iostream>
 
-// These are here to be universal
-
+// These are here to be universal, but should probably 
+// be in p5.cpp, or a specific app, like threed
 template <> template <> vec<3, int>  ::vec(const vec<3, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)), z(int(v.z + .5f)) {}
 template <> template <> vec<3, float>::vec(const vec<3, int>& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
 template <> template <> vec<2, int>  ::vec(const vec<2, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)) {}
@@ -22,6 +23,7 @@ template <> template <> vec<2, float>::vec(const vec<2, int>& v) : x((float)v.x)
 
 
 // Some function signatures
+// WinMSGObserver - Function signature for Win32 message handler
 typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
@@ -32,7 +34,7 @@ static VOIDROUTINE gLoopHandler = nullptr;
 static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gOnloadHandler = nullptr;
 static VOIDROUTINE gPreloadHandler = nullptr;
-static VOIDROUTINE gSetupHandler = nullptr;
+//static VOIDROUTINE gSetupHandler = nullptr;
 static VOIDROUTINE gPreSetupHandler = nullptr;
 static PFNDOUBLE1 gUpdateHandler = nullptr;
 
@@ -95,7 +97,8 @@ int canvasHeight = 0;
 
 int displayWidth = 0;
 int displayHeight= 0;
-unsigned int displayDpi = 0;
+//unsigned int displayDpi = 0;
+unsigned int systemDpi = 96;
 
 // Client Area globals
 int clientLeft;
@@ -577,7 +580,7 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
         if (n > 0) {
-            for (int i = 0; i < n; i++) {
+            for (size_t i = 0; i < n; i++) {
                 ::DragQueryFileA(dropHandle, i, namebuff, 512);
                 e.filenames.push_back(std::string(namebuff));
             }
@@ -593,7 +596,7 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 // Setup the routines that will handle
 // keyboard and mouse events
-void setupHandlers()
+void registerHandlers()
 {
     // we're going to look within our own module
     // to find handler functions
@@ -646,25 +649,24 @@ void setupHandlers()
 
 
     // Get the general app routines
+    gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
+    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
+
     gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
-    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+    //gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
     gCompositionHandler = (VOIDROUTINE)GetProcAddress(hInst, "handleComposition");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
-    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
-    gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
 
 
 
-    //printf("mouseHandler: %p\n", gMouseHandler);
+
     // If the user implements various event handlers, they will 
     // be called automatically
     gHandleMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "handleMouseEvent");
 
-
     // Keyboard event handling
-    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "keyboardEvent");
-    //std::cout << "gKeyboardEventHandler: " << gKeyboardEventHandler << "\n";
+    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
 
 
     // Joystick
@@ -930,10 +932,15 @@ bool setCanvasSize(long aWidth, long aHeight)
 
 
 // A basic Windows event loop
+void showAppWindow()
+{
+    gAppWindow->show();
+}
+
 void run()
 {
     // Make sure we have all the event handlers connected
-    setupHandlers();
+    registerHandlers();
 
     if (gOnloadHandler != nullptr) {
         gOnloadHandler();
@@ -943,22 +950,12 @@ void run()
         gPreloadHandler();
     }
 
-    // Call a setup routine if the user specified one
-    if (gSetupHandler != nullptr) {
-        gSetupHandler();
-    }
-
-    // do drawing at least once in case
-    // the user calls noLoop() within 
-    // the setup() routine
-    forceRedraw(nullptr, 0);
-
 
     // Do a typical Windows message pump
     MSG msg;
     LRESULT res;
 
-    gAppWindow->show();
+    showAppWindow();
     deltaTime = appStopWatch.seconds();
 
     while (true) {
@@ -969,11 +966,6 @@ void run()
             gAppLastTime = currentTime;
             gUpdateHandler(deltaTime);
         }
-
-        // dealing with loop(), noLoop(), typically 'draw()'
-        //if (gLooping && (gLoopHandler != nullptr)) {
-        //    gLoopHandler();
-        //}
 
         // we use peekmessage, so we don't stall on a GetMessage
         // should probably throw a wait here
@@ -1015,16 +1007,26 @@ bool prolog()
     WSADATA lpWSAData;
     int res = WSAStartup(version, &lpWSAData);
 
+    // Throughout the application, we want to know the true
+    // physical dots per inch and screen resolution, so the
+    // first thing to do is to let Windows know we are Dpi aware
+    //DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+    
+    //std::cout << "DPI AWARENESS: " << oldContext << std::endl;
+
+    systemDpi = ::GetDpiForSystem();
 
     // Get the screen size
-    //First thing to do is let the system know we are
-    // going to be DPI aware
-    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    displayDpi = ::GetDpiForSystem();
+    auto dpiDpi = ::GetDpiFromDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+    auto dpidisplayWidth = ::GetSystemMetricsForDpi(SM_CXSCREEN, systemDpi);
+    auto dpidisplayHeight = ::GetSystemMetricsForDpi(SM_CYSCREEN, systemDpi);
+    std::cout << "screen size: " << dpidisplayWidth << ", " << dpidisplayHeight << "  dpi: " << dpiDpi << std::endl;
+
     displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
     displayHeight = ::GetSystemMetrics(SM_CYSCREEN);
-    //printf("appmain.prolog, width: %d  height: %d  DPI: %d\n", displayWidth, displayHeight, displayDpi);
-
+    printf("appmain.prolog, width: %d  height: %d  DPI: %d\n", displayWidth, displayHeight, systemDpi);
+    
     // set the canvas a default size to start
     // but don't show it
     setCanvasSize(320, 240);
@@ -1051,11 +1053,12 @@ void epilog()
 /*
     Why on Earth are there two 'main' routines in here?
     the first one 'main()' will be called when the code is compiled
-    as a console application.
+    as a CONSOLE subsystem.
 
     the second one 'WinMain' will be called when the code is compiled
-    as a WINDOWS subsystem.  by having both, we kill two birds with 
-    one stone.
+    as a WINDOWS subsystem.  
+    
+    By having both, we kill two birds with one stone.
 */
 int ndtRun()
 {

@@ -8,7 +8,9 @@
 #include "p5.hpp"
 #include "coloring.h"
 #include "canvas.h"
+
 #include <memory>
+#include <iostream>
 
 using namespace p5;
 
@@ -22,10 +24,14 @@ void setup()
 	setWindowPosition(0, 0);
 
 	canvas = std::make_shared<GCanvas>(width, height);
+
+	noLoop();
 }
 
 void draw()
 {
+	//std::cout << "colorama.draw()" << std::endl;
+
 	background(0xff);
 
 	for (int y = 0; y < height; y+=1) {
@@ -37,6 +43,6 @@ void draw()
 			canvas->set(x, y, p);
 		}
 	}
+
 	image(canvas->getImage(), 0, 0);
-	noLoop();
 }

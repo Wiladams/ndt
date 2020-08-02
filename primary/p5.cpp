@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+static VOIDROUTINE gSetupHandler = nullptr;
+
 static MouseEventHandler gMouseEventHandler = nullptr;
 static MouseEventHandler gMouseMovedHandler = nullptr;
 static MouseEventHandler gMouseClickedHandler = nullptr;
@@ -560,7 +562,8 @@ namespace p5 {
         setCanvasSize(aWidth, aHeight);
 
         gAppWindow->setCanvasSize(aWidth, aHeight);
-        gAppWindow->show();
+
+        showAppWindow();
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
     }
@@ -647,6 +650,10 @@ void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
+
+    // load the setup() function if user specified
+    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+
     // Look for implementation of drawing handler
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
 
@@ -663,9 +670,19 @@ void onLoad()
     gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
     gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
     gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+
+    // Call a setup routine if the user specified one
+    if (gSetupHandler != nullptr) {
+        gSetupHandler();
+    }
+
+    // do drawing at least once in case
+    // the user calls noLoop() within 
+    // the setup() routine
+    forceRedraw(nullptr, 0);
 }
 
-void keyboardEvent(const KeyboardEvent& e)
+void handleKeyboardEvent(const KeyboardEvent& e)
 {
     //std::cout << "keyboardEvent: " << e.activity << "\n" ;
 

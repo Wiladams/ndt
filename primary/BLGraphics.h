@@ -397,13 +397,11 @@ public:
     {
         BLTriangle tri = { x1,y1, x2,y2,x3,y3 };
 
+        fCtx.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
+
         if (fUseFill) {
             fCtx.fillGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
         }
-
-
-            fCtx.strokeGeometry(BL_GEOMETRY_TYPE_TRIANGLE, &tri);
-
 
         incrCmd();
     }
@@ -426,11 +424,11 @@ public:
     
     virtual void polygon(const BLPoint* pts, size_t n)
     {
+        fCtx.strokePolygon(pts, n);
+
         if (fUseFill) {
             fCtx.fillPolygon(pts, n);
         }
-
-        fCtx.strokePolygon(pts, n);
 
         incrCmd();
     }
@@ -444,10 +442,11 @@ public:
 
     virtual void path(const BLPath& path)
     {
+        fCtx.strokePath(path);
+
         if (fUseFill) {
             fCtx.fillPath(path);
         }
-        fCtx.strokePath(path);
 
         incrCmd();
     }

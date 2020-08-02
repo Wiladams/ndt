@@ -19,15 +19,15 @@ double gStiffness = 0.2; // 0.2
     will determine how much it will move in which direction.
 */
 struct Spring2D {
-    int x;
-    int y;
-    int radius;
-    int vx;
-    int vy;
-    float mass;
-    float gravity;
-    float stiffness;
-    float damping;
+    double x;
+    double y;
+    double radius;
+    double vx;
+    double vy;
+    double mass;
+    double gravity;
+    double stiffness;
+    double damping;
     BLRgba32 color;
 
     static const Spring2D empty;
@@ -35,7 +35,7 @@ struct Spring2D {
     Spring2D() {};
 
 
-    Spring2D(int xpos, int ypos, float m, float g, BLRgba32 c)
+    Spring2D(int xpos, int ypos, double m, double g, BLRgba32 c)
     {
         x = xpos;   // The x- and y-coordinates
         y = ypos;
@@ -61,19 +61,19 @@ struct Spring2D {
 
     void update(int targetX, int targetY)
     {
-        float forceX = (targetX - x) * stiffness;
-        float ax = forceX / mass;
+        auto forceX = (targetX - x) * stiffness;
+        auto ax = forceX / mass;
         
         vx = damping * (vx + ax);
         x = x + vx;
-        float forceY = (targetY - y) * stiffness;
+        auto forceY = (targetY - y) * stiffness;
         forceY = forceY + gravity;
-        float ay = forceY / mass;
+        auto ay = forceY / mass;
         vy = damping * (vy + ay);
         y = y + vy;
     }
 
-    void display(int nx, int ny)
+    void display(double nx, double ny)
     {
         noStroke();
         fill(color);

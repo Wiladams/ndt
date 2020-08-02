@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 // IO Event Handlers
-EXPORT void keyboardEvent(const KeyboardEvent& e);
+EXPORT void handleKeyboardEvent(const KeyboardEvent& e);
 EXPORT void keyPressed(const KeyboardEvent& e);
 EXPORT void keyReleased(const KeyboardEvent& e);
 EXPORT void keyTyped(const KeyboardEvent& e);

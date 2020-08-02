@@ -54,7 +54,9 @@ EXPORT extern bool gRunning;
 // Globals we expect the user to consume
 EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
-EXPORT extern unsigned int displayDpi;
+//EXPORT extern unsigned int displayDpi;
+EXPORT extern unsigned int systemDpi;
+
 EXPORT extern int canvasWidth;
 EXPORT extern int canvasHeight;
 
@@ -96,6 +98,7 @@ EXPORT LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 EXPORT void fileDrop(const FileDropEvent& e);
 
 // Controlling the runtime
+EXPORT void showAppWindow();
 EXPORT void halt();
 EXPORT void loop();
 EXPORT void noLoop();

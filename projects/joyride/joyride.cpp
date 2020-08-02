@@ -51,8 +51,8 @@ void joyReleased(const JoystickEvent& e)
 void joyMoved(const JoystickEvent& e)
 {
 	printf("joyMoved: (%d) %32.f, %3.2f\n", e.ID, e.x, e.y);
-	joyX = map(e.x, -1, 1, 0, width - 1);
-	joyY = map(e.y, -1, 1, height-1, 0);
+	joyX = (int)map(e.x, -1, 1, 0, width - 1);
+	joyY = (int)map(e.y, -1, 1, height-1, 0);
 }
 
 void joyMovedZ(const JoystickEvent& e)
