@@ -3,13 +3,6 @@
 
 using namespace p5;
 
-
-void preload()
-{
-	printf("preload\n");
-	printf("preload\n");
-}
-
 void setup()
 {
 	createCanvas(400, 400);
@@ -20,7 +13,7 @@ void draw()
 	printf("draw\n");
 }
 
-void update(float tm)
+void update(const double value)
 {
-
+	std::cout << "update: " << std::to_string(value) << std::endl;
 }

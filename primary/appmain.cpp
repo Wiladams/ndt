@@ -653,7 +653,6 @@ void registerHandlers()
     gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
 
     gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
-    //gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
     gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
     gCompositionHandler = (VOIDROUTINE)GetProcAddress(hInst, "handleComposition");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
@@ -1010,11 +1009,16 @@ bool prolog()
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the
     // first thing to do is to let Windows know we are Dpi aware
+    // set awareness based on monitor, and get change messages when it changes
+    auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
+    //auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
+
     //DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+    
+    // Set the awareness to system, only once at the beginning
+    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(dpiContext);
     
     //std::cout << "DPI AWARENESS: " << oldContext << std::endl;
-
     systemDpi = ::GetDpiForSystem();
 
     // Get the screen size
