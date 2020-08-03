@@ -11,6 +11,7 @@
 #include <ws2tcpip.h>
 #include <mmsystem.h>
 
+#include "appconfig.h"
 #include "bitbang.h"
 #include "NativeWindow.hpp"
 #include "Surface.h"
@@ -41,12 +42,10 @@ EXPORT extern int gargc;
 EXPORT extern char **gargv;
 
 
-EXPORT extern int gFPS;   // Frames per second
 EXPORT extern User32Window * gAppWindow;
 EXPORT extern Surface * gAppSurface;
 
 
-//EXPORT extern UINT_PTR gAppTimerID;
 EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
 
@@ -60,12 +59,6 @@ EXPORT extern unsigned int systemDpi;
 EXPORT extern int canvasWidth;
 EXPORT extern int canvasHeight;
 
-EXPORT extern int clientLeft;
-EXPORT extern int clientTop;
-
-// Location of mouse in screen coordinates
-EXPORT extern int rawMouseX;
-EXPORT extern int rawMouseY;
 
 
 // These are typically implemented by
@@ -81,10 +74,7 @@ EXPORT void preload();
 EXPORT void setup();
 EXPORT void update(const double dt);
 
-EXPORT void joyPressed(const JoystickEvent& e);
-EXPORT void joyReleased(const JoystickEvent& e);
-EXPORT void joyMoved(const JoystickEvent& e);
-EXPORT void joyMovedZ(const JoystickEvent& e);
+
 
 // Touch Events
 EXPORT void touchStarted(const TouchEvent& e);

@@ -20,6 +20,12 @@ static KeyEventHandler gKeyPressedHandler = nullptr;
 static KeyEventHandler gKeyReleasedHandler = nullptr;
 static KeyEventHandler gKeyTypedHandler = nullptr;
 
+// Joystick event handling
+static JoystickEventHandler gJoystickPressedHandler = nullptr;
+static JoystickEventHandler gJoystickReleasedHandler = nullptr;
+static JoystickEventHandler gJoystickMovedHandler = nullptr;
+static JoystickEventHandler gJoystickMovedZHandler = nullptr;
+
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 
@@ -671,6 +677,13 @@ void onLoad()
     gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
     gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
 
+    // Look for implementation of joystick events
+    gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
+    gJoystickReleasedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyReleased");
+    gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
+    gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
+
+
     // Call a setup routine if the user specified one
     if (gSetupHandler != nullptr) {
         gSetupHandler();
@@ -769,6 +782,36 @@ void handleMouseEvent(const MouseEvent& e)
         if (gMouseWheelHandler != nullptr) {
             gMouseWheelHandler(e);
         }
+        break;
+    }
+
+ 
+}
+
+void handleJoystickEvent(const JoystickEvent& e)
+{
+
+    // We can handle up to two joysticks using
+    // this mechanism
+    switch (e.activity) {
+    case JOYPRESSED:
+        if (gJoystickPressedHandler)
+            gJoystickPressedHandler(e);
+        break;
+
+    case JOYRELEASED:
+        if (gJoystickReleasedHandler != nullptr)
+            gJoystickReleasedHandler(e);
+        break;
+
+    case JOYMOVED:
+        if (gJoystickMovedHandler)
+            gJoystickMovedHandler(e);
+        break;
+
+    case JOYZMOVED:
+        if (gJoystickMovedZHandler)
+            gJoystickMovedZHandler(e);
         break;
     }
 }

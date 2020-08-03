@@ -50,11 +50,10 @@ static WinMSGObserver gMouseMessageHandler = nullptr;
 static MouseEventHandler gHandleMouseEventHandler = nullptr;
 
 // Joystick
-static WinMSGObserver gJoystickHandler = nullptr;
-static JoystickEventHandler gJoystickPressedHandler = nullptr;
-static JoystickEventHandler gJoystickReleasedHandler = nullptr;
-static JoystickEventHandler gJoystickMovedHandler = nullptr;
-static JoystickEventHandler gJoystickMovedZHandler = nullptr;
+static WinMSGObserver gJoystickMessageHandler = nullptr;
+static JoystickEventHandler gHandleJoystickEvent = nullptr;
+
+
 
 // Touch
 static WinMSGObserver gTouchHandler = nullptr;
@@ -363,7 +362,6 @@ LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
-
     JoystickEvent e;
 
     // We can handle up to two joysticks using
@@ -372,57 +370,59 @@ LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case MM_JOY1BUTTONDOWN:
         gJoystick1.getPosition(e);
         e.activity = JOYPRESSED;
-        if (gJoystickPressedHandler)
-            gJoystickPressedHandler(e);
+        //if (gJoystickPressedHandler)
+        //    gJoystickPressedHandler(e);
         break;
 
     case MM_JOY2BUTTONDOWN:
         gJoystick2.getPosition(e);
         e.activity = JOYPRESSED;
-        if (gJoystickPressedHandler)
-            gJoystickPressedHandler(e);
+        //if (gJoystickPressedHandler)
+        //    gJoystickPressedHandler(e);
         break;
 
     case MM_JOY1BUTTONUP:
         gJoystick1.getPosition(e);
         e.activity = JOYRELEASED;
-        if (gJoystickReleasedHandler != nullptr)
-            gJoystickReleasedHandler(e);
+        //if (gJoystickReleasedHandler != nullptr)
+        //    gJoystickReleasedHandler(e);
         break;
     case MM_JOY2BUTTONUP:
         gJoystick2.getPosition(e);
         e.activity = JOYRELEASED;
-        if (gJoystickReleasedHandler != nullptr)
-            gJoystickReleasedHandler(e);
+        //if (gJoystickReleasedHandler != nullptr)
+        //    gJoystickReleasedHandler(e);
         break;
 
     case MM_JOY1MOVE:
         gJoystick1.getPosition(e);
         e.activity = JOYMOVED;
-        if (gJoystickMovedHandler)
-            gJoystickMovedHandler(e);
+        //if (gJoystickMovedHandler)
+        //    gJoystickMovedHandler(e);
         break;
     case MM_JOY2MOVE:
         gJoystick2.getPosition(e);
         e.activity = JOYMOVED;
-        if (gJoystickMovedHandler)
-            gJoystickMovedHandler(e);
+        //if (gJoystickMovedHandler)
+        //    gJoystickMovedHandler(e);
         break;
 
     case MM_JOY1ZMOVE:
         gJoystick1.getPosition(e);
         e.activity = JOYZMOVED;
-        if (gJoystickMovedZHandler)
-            gJoystickMovedZHandler(e);
+        //if (gJoystickMovedZHandler)
+        //    gJoystickMovedZHandler(e);
     break;
     case MM_JOY2ZMOVE:
         gJoystick2.getPosition(e);
         e.activity = JOYZMOVED;
-        if (gJoystickMovedZHandler)
-            gJoystickMovedZHandler(e);
+        //if (gJoystickMovedZHandler)
+        //    gJoystickMovedZHandler(e);
         break;
     }
 
+    if (gHandleJoystickEvent != nullptr)
+        gHandleJoystickEvent(e);
 
     return res;
 }
@@ -581,7 +581,7 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         if (n > 0) {
             for (size_t i = 0; i < n; i++) {
-                ::DragQueryFileA(dropHandle, i, namebuff, 512);
+                ::DragQueryFileA(dropHandle, (UINT)i, namebuff, 512);
                 e.filenames.push_back(std::string(namebuff));
             }
             gFileDroppedHandler(e);
@@ -606,7 +606,7 @@ void registerHandlers()
     gKeyboardMessageHandler = HandleKeyboardMessage;
     gMouseMessageHandler = HandleMouseMessage;
 
-    gJoystickHandler = HandleJoystickMessage;
+    gJoystickMessageHandler = HandleJoystickMessage;
     gTouchHandler = HandleTouchMessage;
     gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
@@ -630,9 +630,9 @@ void registerHandlers()
         gMouseMessageHandler = handler;
     }
 
-    handler = (WinMSGObserver)GetProcAddress(hInst, "joystickHandler");
+    handler = (WinMSGObserver)GetProcAddress(hInst, "joystickMessageHandler");
     if (handler != nullptr) {
-        gJoystickHandler = handler;
+        gJoystickMessageHandler = handler;
     }
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
@@ -669,10 +669,9 @@ void registerHandlers()
 
 
     // Joystick
-    gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
-    gJoystickReleasedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyReleased");
-    gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
-    gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
+    gHandleJoystickEvent = (JoystickEventHandler)GetProcAddress(hInst, "handleJoystickEvent");
+
+
 
     // Touch event routines
     gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
@@ -751,8 +750,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
     } else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
         //printf("MM_JOYxxx: %p\n", gJoystickHandler);
-        if (gJoystickHandler != nullptr) {
-            gJoystickHandler(hWnd, msg, wParam, lParam);
+        if (gJoystickMessageHandler != nullptr) {
+            gJoystickMessageHandler(hWnd, msg, wParam, lParam);
         }
     }
     else if (msg == WM_TOUCH) {

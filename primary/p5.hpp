@@ -28,19 +28,27 @@
 extern "C" {
 #endif
 // IO Event Handlers
-EXPORT void handleKeyboardEvent(const KeyboardEvent& e);
+
+// keyboard event processing
 EXPORT void keyPressed(const KeyboardEvent& e);
 EXPORT void keyReleased(const KeyboardEvent& e);
 EXPORT void keyTyped(const KeyboardEvent& e);
 
-EXPORT void handleMouseEvent(const MouseEvent& e);
-EXPORT void mouseEvent(const MouseEvent& e);
+// mouse event processing
+//EXPORT void mouseEvent(const MouseEvent& e);
 EXPORT void mouseClicked(const MouseEvent& e);
 EXPORT void mouseDragged(const MouseEvent& e);
 EXPORT void mouseMoved(const MouseEvent& e);
 EXPORT void mousePressed(const MouseEvent& e);
 EXPORT void mouseReleased(const MouseEvent& e);
 EXPORT void mouseWheel(const MouseEvent& e);
+
+// Handle Joystick events
+EXPORT void joyPressed(const JoystickEvent& e);
+EXPORT void joyReleased(const JoystickEvent& e);
+EXPORT void joyMoved(const JoystickEvent& e);
+EXPORT void joyMovedZ(const JoystickEvent& e);
+
 
 #ifdef __cplusplus
 }

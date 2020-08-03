@@ -3,6 +3,9 @@
 /*
     Data types for ui events
 */
+
+#include "appconfig.h"
+
 #include <vector>
 #include <string>
 
@@ -127,6 +130,10 @@ extern "C" {
     typedef void (*TouchEventHandler)(const TouchEvent& e);
     typedef void (*PointerEventHandler)(const PointerEvent& e);
     typedef void (*FileDropEventHandler)(const FileDropEvent& e);
+
+    APP_EXPORT void handleKeyboardEvent(const KeyboardEvent& e);
+    APP_EXPORT void handleMouseEvent(const MouseEvent& e);
+    APP_EXPORT void handleJoystickEvent(const JoystickEvent& e);
 
 #ifdef __cplusplus
 }
