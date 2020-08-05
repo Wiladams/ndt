@@ -431,7 +431,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // cInputs could be set to a maximum value (10) and
     // we could reuse the same allocated array each time
     // rather than allocating a new one each time.
-    //printf("wm_touch_event 0.0: %d\n", wParam);
+    printf("wm_touch_event 0.0: %d\n", wParam);
     int cInputs = LOWORD(wParam);
     int cbSize = sizeof(TOUCHINPUT);
 
@@ -681,7 +681,9 @@ void registerHandlers()
 
 LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    //printf("MSG: 0x%04x\n", msg);
+    if (msg == 0x240)
+        printf("MSG, TOUCH: 0x%04x\n", msg);
+    
     LRESULT res = 0;
 
     if (msg == WM_INPUT) {
@@ -743,6 +745,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
     }
     else if (msg == WM_TOUCH) {
+        //std::cout << "WM_TOUCH" << std::endl;
+
         // Handle touch specific messages
         if (gTouchMessageHandler != nullptr) {
             res = gTouchMessageHandler(hWnd, msg, wParam, lParam);

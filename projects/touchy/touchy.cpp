@@ -15,10 +15,9 @@ Pixel randomColor()
 
 void setup()
 {
-	//createCanvas(1920, 1080);
-	createCanvas(displayWidth, displayHeight);
-	layered();
-	setWindowPosition(0, 0);
+	createCanvas(1920, 1080);
+	//fullscreen();
+
 	//frameRate(60);
 	
 	// turn on using raw touch input
