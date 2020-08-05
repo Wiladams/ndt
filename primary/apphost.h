@@ -75,13 +75,6 @@ EXPORT void setup();
 EXPORT void update(const double dt);
 
 
-
-// Touch Events
-EXPORT void touchStarted(const TouchEvent& e);
-EXPORT void touchEnded(const TouchEvent& e);
-EXPORT void touchMoved(const TouchEvent& e);
-EXPORT void touchHover(const TouchEvent& e);
-
 // Pointer events
 EXPORT LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

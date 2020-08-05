@@ -53,14 +53,9 @@ static MouseEventHandler gHandleMouseEventHandler = nullptr;
 static WinMSGObserver gJoystickMessageHandler = nullptr;
 static JoystickEventHandler gHandleJoystickEvent = nullptr;
 
-
-
 // Touch
-static WinMSGObserver gTouchHandler = nullptr;
-static TouchEventHandler gTouchStartedHandler = nullptr;
-static TouchEventHandler gTouchEndedHandler = nullptr;
-static TouchEventHandler gTouchMovedHandler = nullptr;
-static TouchEventHandler gTouchHoverHandler = nullptr;
+static WinMSGObserver gTouchMessageHandler = nullptr;
+static TouchEventHandler gHandleTouchEvent = nullptr;
 
 // Pointer
 static WinMSGObserver gPointerMessageHandler = nullptr;
@@ -453,7 +448,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    // construct an even for each item
+    // construct an event for each item
     for (int i = 0; i < cInputs; i++) {
         POINT PT;
         PT.x = pInputs[i].x / 100;
@@ -478,25 +473,23 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // switch based on activity
         if (pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
-            if (gTouchStartedHandler)
-                gTouchStartedHandler(e);
+            e.activity = TOUCH_DOWN;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_UP) {
-            if (gTouchEndedHandler)
-                gTouchEndedHandler(e);
+            e.activity = TOUCH_UP;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_MOVE) {
-            if (gTouchMovedHandler)
-                gTouchMovedHandler(e);
+            e.activity = TOUCH_MOVE;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_INRANGE) {
-            if (gTouchHoverHandler)
-                gTouchHoverHandler(e);
+            e.activity = TOUCH_HOVER;
         }
 
+        if (gHandleTouchEvent != nullptr)
+            gHandleTouchEvent(e);
     }
     delete[] pInputs;
 
@@ -504,8 +497,6 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         // error handling
     }
-
-    //print("wm_touch_event 5.0: ", bResult)
 
     return res;
 }
@@ -607,7 +598,6 @@ void registerHandlers()
     gMouseMessageHandler = HandleMouseMessage;
 
     gJoystickMessageHandler = HandleJoystickMessage;
-    gTouchHandler = HandleTouchMessage;
     gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
     gFileDropHandler = HandleFileDropMessage;
@@ -635,9 +625,10 @@ void registerHandlers()
         gJoystickMessageHandler = handler;
     }
 
-    handler = (WinMSGObserver)GetProcAddress(hInst, "touchHandler");
+    gTouchMessageHandler = HandleTouchMessage;
+    handler = (WinMSGObserver)GetProcAddress(hInst, "touchMessageHandler");
     if (handler != nullptr) {
-        gTouchHandler = handler;
+        gTouchMessageHandler = handler;
     }
 
 
@@ -666,18 +657,15 @@ void registerHandlers()
 
     // Keyboard event handling
     gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
+    //gKeyboardEventHandler = (KeyboardEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
 
 
     // Joystick
     gHandleJoystickEvent = (JoystickEventHandler)GetProcAddress(hInst, "handleJoystickEvent");
 
+    // Touch Event
+    gHandleTouchEvent = (TouchEventHandler)GetProcAddress(hInst, "handleTouchEvent");
 
-
-    // Touch event routines
-    gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
-    gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
-    gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
-    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
 
     // Pointer event routines
     gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointer");
@@ -756,8 +744,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     else if (msg == WM_TOUCH) {
         // Handle touch specific messages
-        if (gTouchHandler != nullptr) {
-            res = gTouchHandler(hWnd, msg, wParam, lParam);
+        if (gTouchMessageHandler != nullptr) {
+            res = gTouchMessageHandler(hWnd, msg, wParam, lParam);
         }
 
     } else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)){

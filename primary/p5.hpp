@@ -35,7 +35,6 @@ EXPORT void keyReleased(const KeyboardEvent& e);
 EXPORT void keyTyped(const KeyboardEvent& e);
 
 // mouse event processing
-//EXPORT void mouseEvent(const MouseEvent& e);
 EXPORT void mouseClicked(const MouseEvent& e);
 EXPORT void mouseDragged(const MouseEvent& e);
 EXPORT void mouseMoved(const MouseEvent& e);
@@ -49,6 +48,11 @@ EXPORT void joyReleased(const JoystickEvent& e);
 EXPORT void joyMoved(const JoystickEvent& e);
 EXPORT void joyMovedZ(const JoystickEvent& e);
 
+// Touch Events
+EXPORT void touchStarted(const TouchEvent& e);
+EXPORT void touchEnded(const TouchEvent& e);
+EXPORT void touchMoved(const TouchEvent& e);
+EXPORT void touchHover(const TouchEvent& e);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 // Basic type to encapsulate a mouse event
 enum {
@@ -123,6 +124,8 @@ struct JoystickEvent {
 extern "C" {
 #endif
 
+    //using KeyboardEventHandler = std::function<void(const KeyboardEvent& e)>;
+
     // Some generic function signatures
     typedef void (*KeyEventHandler)(const KeyboardEvent& e);
     typedef void (*MouseEventHandler)(const MouseEvent& e);
@@ -134,6 +137,7 @@ extern "C" {
     APP_EXPORT void handleKeyboardEvent(const KeyboardEvent& e);
     APP_EXPORT void handleMouseEvent(const MouseEvent& e);
     APP_EXPORT void handleJoystickEvent(const JoystickEvent& e);
+    APP_EXPORT void handleTouchEvent(const TouchEvent& e);
 
 #ifdef __cplusplus
 }

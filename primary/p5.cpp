@@ -26,6 +26,13 @@ static JoystickEventHandler gJoystickReleasedHandler = nullptr;
 static JoystickEventHandler gJoystickMovedHandler = nullptr;
 static JoystickEventHandler gJoystickMovedZHandler = nullptr;
 
+// Touch event handling
+static TouchEventHandler gTouchStartedHandler = nullptr;
+static TouchEventHandler gTouchEndedHandler = nullptr;
+static TouchEventHandler gTouchMovedHandler = nullptr;
+static TouchEventHandler gTouchHoverHandler = nullptr;
+
+
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 
@@ -683,6 +690,12 @@ void onLoad()
     gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
     gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
 
+    // Touch event routines
+    gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
+    gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
+    gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
+    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
+
 
     // Call a setup routine if the user specified one
     if (gSetupHandler != nullptr) {
@@ -814,4 +827,34 @@ void handleJoystickEvent(const JoystickEvent& e)
             gJoystickMovedZHandler(e);
         break;
     }
+}
+
+// Handle a singular touch event
+// dispatch to user provided functions
+void handleTouchEvent(const TouchEvent &e)
+{
+    switch (e.activity)
+    {
+        // switch based on activity
+        case TOUCH_DOWN: {
+            if (gTouchStartedHandler)
+                gTouchStartedHandler(e);
+        }
+
+        case TOUCH_UP: {
+            if (gTouchEndedHandler)
+                gTouchEndedHandler(e);
+        }
+
+        case TOUCH_MOVE: {
+            if (gTouchMovedHandler)
+                gTouchMovedHandler(e);
+        }
+
+        case TOUCH_HOVER: {
+            if (gTouchHoverHandler)
+                gTouchHoverHandler(e);
+        }
+    }
+
 }
