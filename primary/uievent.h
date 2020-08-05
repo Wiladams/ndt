@@ -28,6 +28,7 @@ enum {
 };
 
 struct MouseEvent {
+    int id;
     int activity;
     int x;
     int y;
@@ -49,6 +50,7 @@ enum {
 };
 
 struct KeyboardEvent {
+    int id;
     int activity;
     int keyCode;        // wparam
     int repeatCount;    // 0 - 15
@@ -66,7 +68,6 @@ enum {
 };
 
 struct TouchEvent {
-    //HANDLE device;
     int id;
     int activity;
     int rawX;
@@ -83,6 +84,7 @@ struct TouchEvent {
 // Pointer interactions
 struct PointerEvent {
     int id;
+    int activity;
     int x;
     int y;
 };
@@ -138,6 +140,7 @@ extern "C" {
     APP_EXPORT void handleMouseEvent(const MouseEvent& e);
     APP_EXPORT void handleJoystickEvent(const JoystickEvent& e);
     APP_EXPORT void handleTouchEvent(const TouchEvent& e);
+    APP_EXPORT void handlePointerEvent(const PointerEvent& e);
 
 #ifdef __cplusplus
 }

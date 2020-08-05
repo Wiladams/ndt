@@ -16,6 +16,7 @@ void preload()
 
 void setup()
 {
+	preload();
 	createCanvas(800, 800);
 }
 

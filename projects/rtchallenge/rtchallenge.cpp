@@ -96,7 +96,7 @@ void preload()
 
 void setup()
 {
-
+	preload();
 }
 
 void draw()

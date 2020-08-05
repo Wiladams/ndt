@@ -505,6 +505,12 @@ LRESULT HandlePointerMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
+    if (nullptr != gPointerEventHandler)
+    {
+        PointerEvent e;
+        gPointerEventHandler(e);
+    }
+
     return res;
 }
 
@@ -594,10 +600,10 @@ void registerHandlers()
     HMODULE hInst = GetModuleHandleA(NULL);
 
     // Start with our default message handlers
-    gKeyboardMessageHandler = HandleKeyboardMessage;
-    gMouseMessageHandler = HandleMouseMessage;
 
-    gJoystickMessageHandler = HandleJoystickMessage;
+
+
+
     gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
     gFileDropHandler = HandleFileDropMessage;
@@ -610,27 +616,42 @@ void registerHandlers()
         gPaintHandler = handler;
     }
 
+    gKeyboardMessageHandler = HandleKeyboardMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "keyboardHandler");
     if (handler != nullptr) {
         gKeyboardMessageHandler = handler;
     }
+    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
 
+
+    gMouseMessageHandler = HandleMouseMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
     if (handler != nullptr) {
         gMouseMessageHandler = handler;
     }
+    gHandleMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "handleMouseEvent");
 
+
+    gJoystickMessageHandler = HandleJoystickMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "joystickMessageHandler");
     if (handler != nullptr) {
         gJoystickMessageHandler = handler;
     }
+    gHandleJoystickEvent = (JoystickEventHandler)GetProcAddress(hInst, "handleJoystickEvent");
 
     gTouchMessageHandler = HandleTouchMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "touchMessageHandler");
     if (handler != nullptr) {
         gTouchMessageHandler = handler;
     }
+    gHandleTouchEvent = (TouchEventHandler)GetProcAddress(hInst, "handleTouchEvent");
 
+    gPointerMessageHandler = HandlePointerMessage;
+    handler = (WinMSGObserver)GetProcAddress(hInst, "pointerMessageHandler");
+    if (handler != nullptr) {
+        gPointerMessageHandler = handler;
+    }
+    gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointerEvent");
 
 
     handler = (WinMSGObserver)GetProcAddress(hInst, "handleFileDrop");
@@ -650,25 +671,8 @@ void registerHandlers()
 
 
 
-
-    // If the user implements various event handlers, they will 
-    // be called automatically
-    gHandleMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "handleMouseEvent");
-
-    // Keyboard event handling
-    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
-    //gKeyboardEventHandler = (KeyboardEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
-
-
-    // Joystick
-    gHandleJoystickEvent = (JoystickEventHandler)GetProcAddress(hInst, "handleJoystickEvent");
-
-    // Touch Event
-    gHandleTouchEvent = (TouchEventHandler)GetProcAddress(hInst, "handleTouchEvent");
-
-
     // Pointer event routines
-    gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointer");
+
 
 
     gFileDroppedHandler = (FileDropEventHandler)GetProcAddress(hInst, "fileDrop");

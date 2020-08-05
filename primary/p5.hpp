@@ -54,6 +54,10 @@ EXPORT void touchEnded(const TouchEvent& e);
 EXPORT void touchMoved(const TouchEvent& e);
 EXPORT void touchHover(const TouchEvent& e);
 
+// Pointer Events
+
+// File Drop events
+
 #ifdef __cplusplus
 }
 #endif

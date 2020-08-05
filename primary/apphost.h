@@ -70,13 +70,12 @@ EXPORT void onLoad();	// upon loading application
 // These should be implemented by a module to be loaded
 EXPORT void handleComposition();
 EXPORT void draw();
-EXPORT void preload();
+//EXPORT void preload();
 EXPORT void setup();
 EXPORT void update(const double dt);
 
 
-// Pointer events
-EXPORT LRESULT handlePointer(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 EXPORT void fileDrop(const FileDropEvent& e);
 
@@ -93,6 +92,7 @@ EXPORT bool isLayered();
 
 EXPORT void rawInput();
 EXPORT void noRawInput();
+
 EXPORT void joystick();
 EXPORT void noJoystick();
 

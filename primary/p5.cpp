@@ -32,6 +32,8 @@ static TouchEventHandler gTouchEndedHandler = nullptr;
 static TouchEventHandler gTouchMovedHandler = nullptr;
 static TouchEventHandler gTouchHoverHandler = nullptr;
 
+static PointerEventHandler gPointerHandler = nullptr;
+
 
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
@@ -696,6 +698,7 @@ void onLoad()
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
     gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
 
+    gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
 
     // Call a setup routine if the user specified one
     if (gSetupHandler != nullptr) {
@@ -857,4 +860,9 @@ void handleTouchEvent(const TouchEvent &e)
         }
     }
 
+}
+
+void handlePointerEvent(const PointerEvent& e)
+{
+    std::cout << "p5::handlePointerEvent" << std::endl;
 }

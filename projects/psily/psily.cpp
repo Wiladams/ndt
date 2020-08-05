@@ -8,15 +8,6 @@
 
 using namespace p5;
 
-void preload()
-{
-	std::cout << "preload" << std::endl;
-
-	PSToken sTok(std::string("string"));
-
-	//std::visit(PSTokenPrinter(), sTok.fData);
-}
-
 
 void setup()
 {

@@ -53,17 +53,16 @@ public:
 	}
 };
 
-void preload()
+
+void setup()
 {
 	// Load the pot of gold image
 	auto err = potOfGold.readFromFile("potofgold.png");
 
 	if (err)
 		printf("could not load pot of gold (%d)\n", err);
-}
 
-void setup()
-{
+
 	// Create a canvas to cover the whole screen
 	createCanvas(displayWidth, displayHeight);
 	

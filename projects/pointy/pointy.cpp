@@ -77,7 +77,7 @@ void draw()
 	//noLoop();
 }
 
-void handlePointer(const PointerEvent &e)
+void pointerStarted(const PointerEvent &e)
 {	
-	printf("handlePointer: \n");
+	printf("pointerStarted: \n");
 }
