@@ -36,6 +36,7 @@ enum class PSTokenType : uint32_t
 	DICTIONARY,
 };
 
+/*
 using PSTokenData = std::variant<
 	int, 
 	bool,
@@ -46,32 +47,30 @@ using PSTokenData = std::variant<
 	std::function<void(PSVM& vm)>,
 	std::shared_ptr<PSArray>,
 	std::shared_ptr<PSDictionary> >;
+*/
 
 struct PSToken {
 	PSTokenType fType;
 	bool fIsExecutable = false;
-	//PSTokenData fData;
 	
 	std::variant<
 		int, 
 		bool,
-		//uint64_t,
-		//float,
 		double,
 		std::string,
 		std::function<void(PSVM& vm)>,
 		std::shared_ptr<PSArray>,
 		std::shared_ptr<PSDictionary> > fData;
-	
+	/*
 	PSToken(const PSToken& other)
 		:fType(other.fType),
 		fIsExecutable(other.fIsExecutable),
 		fData(other.fData)
 	{
 	}
-
-	PSToken(const bool value) : fData(value), fType(PSTokenType::BOOLEAN) {}
+	*/
 	PSToken(const int value) : fData(value), fType(PSTokenType::NUMBER_INT) {}
+	PSToken(const bool value) : fData(value), fType(PSTokenType::BOOLEAN) {}
 	PSToken(const double value) : fData(value), fType(PSTokenType::NUMBER) {}
 	PSToken(const std::string value, const PSTokenType kind= PSTokenType::LITERAL_STRING) : fData(value), fType(kind) {}
 	PSToken(const std::function<void(PSVM& vm)> value) : fData(value), fType(PSTokenType::OPERATOR) {}
@@ -110,11 +109,12 @@ struct PSTokenPrinter {
 	void operator()(std::shared_ptr<PSDictionary> value) { std::cout << "DICTIONARY"; }
 };
 */
-
+/*
 std::ostream& operator << (std::ostream& os, PSTokenData const& v) {
 	std::visit([&os](auto const& e) {os << e; }, v);
 	return os;
 }
+*/
 
 #include "psstack.h"
 #include "psarray.h"

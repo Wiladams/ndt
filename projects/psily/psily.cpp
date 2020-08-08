@@ -1,8 +1,8 @@
 #include "p5.hpp"
 
 #include "filestream.h"
-//#include "psvm.h"
-#include "pstypes.h"
+#include "psvm.h"
+
 #include <iostream>
 
 
@@ -21,6 +21,6 @@ void setup()
 
 	//printf("fs.isValid(): %d\n", fs->isValid());
 
-	//PSVM vm;
-	//vm.eval(fs);
+	PSVM vm;
+	vm.eval(fs);
 }

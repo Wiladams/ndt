@@ -431,7 +431,8 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // cInputs could be set to a maximum value (10) and
     // we could reuse the same allocated array each time
     // rather than allocating a new one each time.
-    printf("wm_touch_event 0.0: %d\n", wParam);
+    std::cout << "wm_touch_event: " << wParam << std::endl;
+
     int cInputs = LOWORD(wParam);
     int cbSize = sizeof(TOUCHINPUT);
 
