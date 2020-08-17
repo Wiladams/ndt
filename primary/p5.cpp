@@ -743,9 +743,6 @@ void handleMouseEvent(const MouseEvent& e)
 {
     //printf("p5::handleMouseEvent: %d, %d\n", e.x, e.y);
     // assign new mouse position
-// BUGBUG - having these globals here might not be a good idea
-// maybe they should be application specific
-// assign previous mouse position
     p5::pmouseX = p5::mouseX;
     p5::pmouseY = p5::mouseY;
     p5::mouseX = e.x;

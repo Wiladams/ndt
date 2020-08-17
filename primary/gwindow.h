@@ -17,7 +17,7 @@ public:
 	GWindow(int x, int y, int w, int h)
 		: GView(BLRect(x,y,w,h)),
 		fClientArea(0,0,w,h),
-		fTitleBar(2, 2, 254, 32),
+		fTitleBar(2, 2, w, 32),
 		fTitleBarColor(225, 220, 220, 127),
 		fBackgroundColor(245, 246, 247),
 		fLastMouse(0, 0),
@@ -33,16 +33,24 @@ public:
 
 	void drawBackground(IGraphics* ctx)
 	{
+		//std::cout << "GWindow::drawBackground" << std::endl;
+
 		ctx->push();
 
+
+
 		// Fill in background
+		ctx->noStroke();
 		ctx->fill(fBackgroundColor);
 		ctx->rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
 
-		// draw a little frame
+		// Draw a frame
+		auto frame = getFrame();
+
+		ctx->strokeWeight(2.0);
 		ctx->stroke(0);
 		ctx->noFill();
-		ctx->rect(0, 0, 256, 256);
+		ctx->rect(0, 0, frame.w, frame.h);
 
 		ctx->pop();
 	}

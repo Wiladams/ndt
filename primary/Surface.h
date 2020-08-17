@@ -68,6 +68,7 @@ public:
         // to be in sync, causing tearing.
         // Initialize the BLContext
         BLContextCreateInfo createInfo{};
+        createInfo.commandQueueLimit = 255;
         createInfo.threadCount = threadCount;
         bResult = getBlend2dContext().begin(fImage, createInfo);
         //bResult = getBlend2dContext().begin(fImage);

@@ -55,13 +55,13 @@ public:
 		ctx->fill(0xc0);
 		for (int i = 0; i < 256; i++) {
 			int x = (int)map(i, 0, 255, 1, 254);
-			int h = (int)map(histogram[i], 0, biggest, 0, 255);
+			int h = (int)map((double)histogram[i], 0, (double)biggest, 0, 255);
 
 			// Figure out the color
 			// red smallest, blue highest
-			double wl = map(histogram[i], 0, biggest, 780, 380);
+			double wl = map((double)histogram[i], 0, (double)biggest, 780, 380);
 			auto c = ndt::ColorRGBAFromWavelength(wl, 1.5);
-			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
+			auto p = BLRgba32(uint32_t(c.r * 255), uint32_t(c.g * 255), uint32_t(c.b * 255), 255);
 			
 			ctx->fill(p);
 			ctx->rect(x, (double)255 - h, 2, h);

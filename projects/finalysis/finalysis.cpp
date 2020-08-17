@@ -13,8 +13,6 @@
 
 #include "p5.hpp"
 
-#include <memory>
-#include <deque>
 #include "filehisto.h"
 
 
@@ -23,11 +21,12 @@ using namespace p5;
 
 void draw()
 {
+
+	// Clear to background, whatever it is
 	if (!isLayered())
 		background(0);	// (245 , 246, 247);
 	else
 		clear();
-
 
 	noStroke();
 	fill(255, 0, 0);
@@ -43,6 +42,8 @@ void setup()
 	dropFiles();	// allow dropping of files
 }
 
+// A file drop may contain the names
+// of several files at once
 void fileDrop(const FileDropEvent& e)
 {
 	// assuming there's at least one file that 
@@ -56,6 +57,8 @@ void fileDrop(const FileDropEvent& e)
 	}
 }
 
+// halt the entire application once a user
+// presses the 'escape' key
 void keyReleased(const KeyboardEvent& e)
 {
 	if (e.keyCode == VK_ESCAPE)
