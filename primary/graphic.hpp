@@ -26,30 +26,60 @@ public:
 
 class Graphic : public IGraphic
 {
-	BLRect fBounds{};
-	BLRect fFrame{};
+
+
 	std::vector<std::shared_ptr<IGraphic> > fChildren;
 
 protected:
-	void setFrame(const BLRect& frame) { fFrame = frame; }
+	BLMatrix2D fTransform;  // Internal transformation matrix
+	BLRect fBounds{};
+	BLRect fFrame{};
+
+
 
 
 public:
 	Graphic()
-	{}
+	{
+		fTransform = BLMatrix2D::makeIdentity();
+	}
 
 	Graphic(const BLRect& frame) 
 		:fFrame(frame),
 		fBounds(0,0,frame.w, frame.h)
 	{
+		fTransform = BLMatrix2D::makeIdentity();
 	}
 
 	BLRect getBounds() const { return fBounds; }
-	BLRect getFrame() const { return fFrame; }
 	
+	void setFrame(const BLRect& frame) { fFrame = frame; }
+	virtual BLRect getFrame() const { return fFrame; }
+
+	void translateBy(double x, double y)
+	{
+		fTransform.translate(x, y);
+	}
+
+	void setTransform(BLMatrix2D& m) { fTransform = m; }
+	BLMatrix2D& getTransform() { return fTransform; }
+
+	bool contains(int x, int y)
+	{
+		return ((x >= fFrame.x) && (y >= fFrame.y) &&
+			(x - fFrame.x <= fFrame.w) &&
+			(y - fFrame.y <= fFrame.h));
+	}
+
 	void addChild(std::shared_ptr<IGraphic> child)
 	{
 		fChildren.push_back(child);
+	}
+
+	void moveBy(double dx, double dy)
+	{
+		fFrame.x += dx;
+		fFrame.y += dy;
 	}
 
 	void moveTo(double x, double y)
@@ -60,8 +90,9 @@ public:
 
 	virtual void drawBackground(IGraphics* ctx)
 	{
-		// here for sub-classes
+		//ctx->flush();
 	}
+
 
 	virtual void drawChildren(IGraphics* ctx)
 	{
@@ -79,15 +110,50 @@ public:
 
 	virtual void drawForeground(IGraphics* ctx)
 	{
-		// do whatever for the foreground
+		//ctx->flush();
 	}
 
 	virtual void draw(IGraphics* ctx)
 	{
+		ctx->push();
+		ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+
+
+		// BUGBUG - maybe perform arbitrary transform?
+		auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+		ctx->translate(pt.x, pt.y);
+
 		drawBackground(ctx);
 		drawChildren(ctx);
 		drawSelf(ctx);
 		drawForeground(ctx);
+
+		ctx->noClip();
+		ctx->pop();
 	}
 
+	// Mouse Handling
+	virtual void mouseMoved(const MouseEvent& e)
+	{
+		// translate according to the transformation
+		auto pt = fTransform.mapPoint(e.x, e.y);
+		auto newEvent(e);
+		newEvent.x = (int)(pt.x + fFrame.x);
+		newEvent.y = (int)(pt.y + fFrame.y);
+	}
+
+	virtual void mouseDragged(const MouseEvent& e)
+	{
+		// do nothing
+	}
+
+	virtual void mousePressed(const MouseEvent& e)
+	{
+		// do nothing
+	}
+
+	virtual void mouseReleased(const MouseEvent& e)
+	{
+		// do nothing
+	}
 };

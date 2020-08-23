@@ -178,7 +178,7 @@ ColorEntry svgcolors[] = {
 int nColors = sizeof(svgcolors) / sizeof(ColorEntry);
 
 SVGGraphic hoverGraphic = SVGGraphic::empty;
-GView contentArea(BLRect(4, 4, 792, 592));
+PageView contentArea(BLRect(4, 4, 792, 592));
 
 
 class SVGPage : public IDrawable {

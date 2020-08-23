@@ -5,20 +5,23 @@
 #include "filestream.h"
 #include "layout.h"
 
-class RegisterLabel : public Graphic
+class StringLabel : public IGraphic
 {
 	BLRect fFrame;
-	std::string fLabel;
+	std::string fContent;
 
 public:
-	RegisterLabel(const std::string& str, int x, int y,int w,int h)
-		: fFrame(x,y,w,h),
-		fLabel(str)
+	StringLabel(const std::string content, const double x, const double y, const double w, const double h)
+		:fContent(content),
+		fFrame(x, y, w, h)
+	{}
+
+	virtual BLRect getFrame() const { return fFrame; }
+	
+	virtual void moveTo(const double x, const double y) 
 	{
+		fFrame.x = x; fFrame.y = y;
 	}
-
-	BLRect getFrame() const { return fFrame; }
-
 
 	void draw(IGraphics* ctx)
 	{
@@ -26,8 +29,23 @@ public:
 		ctx->fill(0);
 		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
 		ctx->textSize(14);
-		ctx->text(fLabel.c_str(), fFrame.x, fFrame.y);
+		ctx->text(fContent.c_str(), fFrame.x, fFrame.y);
 	}
+};
+
+class RegisterLabel : public Graphic
+{
+	BLRect fFrame;
+	// Use binary layout
+
+public:
+	RegisterLabel(const std::string& str, int x, int y,int w,int h)
+		: fFrame(x,y,w,h)
+	{
+		addChild(std::make_shared<StringLabel>(str,0,0,20,24));
+	}
+
+	BLRect getFrame() const { return fFrame; }
 };
 
 // A view of all the registers

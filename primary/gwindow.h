@@ -2,7 +2,7 @@
 
 #include "gview.h"
 
-class GWindow : public GView
+class GWindow : public PageView
 {
 protected:
 	BLRect fClientArea;
@@ -15,7 +15,7 @@ protected:
 
 public:
 	GWindow(int x, int y, int w, int h)
-		: GView(BLRect(x,y,w,h)),
+		: PageView(x,y,w,h),
 		fClientArea(0,0,w,h),
 		fTitleBar(2, 2, w, 32),
 		fTitleBarColor(225, 220, 220, 127),

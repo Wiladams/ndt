@@ -28,131 +28,31 @@
 
 using std::shared_ptr;
 
-
-class GView : public IGraphic
+class PageView : public Graphic
 {
-    bool fDebug;
-
-protected:
-    BLRect fFrame;      // Where is it located within parent's coordinates
-    
-    BLMatrix2D fTransform;  // Internal transformation matrix
-
     shared_ptr<IDrawable> fPage;
 
-
 public:
-    GView(const BLRect& frame)
-        : fFrame(frame),
-        fDebug(false)
+    PageView(const BLRect& r)
+        :Graphic(r)
     {
-        fTransform = BLMatrix2D::makeIdentity();
     }
 
-    bool contains(int x, int y)
+    PageView(const double x, const double y, const double w, const double h)
+        : Graphic(BLRect(x, y, w, h))
     {
-        return ((x >= fFrame.x) && (y >= fFrame.y) &&
-            (x - fFrame.x <= fFrame.w) &&
-            (y - fFrame.y <= fFrame.h));
     }
-
-    void setTransform(BLMatrix2D& m) {    fTransform = m;}
-    BLMatrix2D& getTransform() { return fTransform; }
-
-    void setFrame(const BLRect& frame) { fFrame = frame; }
-    virtual BLRect getFrame() const {return fFrame;}
-
-    void moveBy(double dx, double dy)
-    {
-        //printf("moveBy: %f, %f\n", dx, dy);
-        fFrame.x += dx;
-        fFrame.y += dy;
-    }
-
-    void moveTo(double x, double y)
-    {
-        fFrame.x = x;
-        fFrame.y = y;
-    }
-
-    void setPage(shared_ptr<IDrawable> page) {fPage = page;}
 
     shared_ptr<IDrawable> getPage() { return fPage; }
+    void setPage(shared_ptr<IDrawable> page) { fPage = page; }
 
-    virtual void drawBackground(IGraphics* ctx)
-    {
-        ctx->flush();
-    }
-
-    virtual void drawContent(IGraphics* ctx)
+    virtual void drawSelf(IGraphics* ctx)
     {
         if (nullptr != fPage) {
             fPage->draw(ctx);
         }
     }
-
-    virtual void drawForeground(IGraphics* ctx) 
-    {
-        ctx->flush();
-    }
-
-    virtual void draw(IGraphics* ctx)
-    {
-        ctx->push();
-        ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
-
-        // Debug, draw frame
-        if (fDebug) {
-            ctx->noFill();
-            ctx->stroke(255, 0, 0);
-            ctx->strokeWeight(1);
-            ctx->rect(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
-        }
-
-
-        // BUGBUG - maybe perform arbitrary transform?
-        auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-        ctx->translate(pt.x, pt.y);
-
-        drawBackground(ctx);
-        drawContent(ctx);
-        drawForeground(ctx);
-
-        ctx->noClip();
-        ctx->pop();
-    }
-
-    virtual void mouseMoved(const MouseEvent& e)
-    {
-        // translate according to the transformation
-        auto pt = fTransform.mapPoint(e.x, e.y);
-        auto newEvent(e);
-        newEvent.x = (int)(pt.x + fFrame.x);
-        newEvent.y = (int)(pt.y + fFrame.y);
-        //fPage.mouseMoved(newEvent);
-    }
-
-    virtual void mouseDragged(const MouseEvent& e)
-    {
-        // do nothing
-    }
-
-    virtual void mousePressed(const MouseEvent& e)
-    {
-        // do nothing
-    }
-
-    virtual void mouseReleased(const MouseEvent& e)
-    {
-        // do nothing
-    }
-
-    void translateBy(double x, double y)
-    {
-        fTransform.translate(x, y);
-    }
-
-
 };
+
 
 
