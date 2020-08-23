@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gview.h"
+#include "drawable.h"
 
 #include <memory>
 #include <vector>
@@ -21,6 +21,7 @@ protected:
 
 public:
 	virtual BLRect getFrame() const = 0;
+	virtual void moveTo(const double x, const double y) = 0;
 };
 
 class Graphic : public IGraphic

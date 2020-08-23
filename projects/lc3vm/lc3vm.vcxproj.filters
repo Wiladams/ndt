@@ -35,5 +35,8 @@
     <ClInclude Include="lc3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vmview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

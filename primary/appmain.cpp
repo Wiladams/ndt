@@ -1021,11 +1021,11 @@ bool prolog()
     auto dpiDpi = ::GetDpiFromDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     auto dpidisplayWidth = ::GetSystemMetricsForDpi(SM_CXSCREEN, systemDpi);
     auto dpidisplayHeight = ::GetSystemMetricsForDpi(SM_CYSCREEN, systemDpi);
-    std::cout << "screen size: " << dpidisplayWidth << ", " << dpidisplayHeight << "  dpi: " << dpiDpi << std::endl;
+    //std::cout << "screen size: " << dpidisplayWidth << ", " << dpidisplayHeight << "  dpi: " << dpiDpi << std::endl;
 
     displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
     displayHeight = ::GetSystemMetrics(SM_CYSCREEN);
-    printf("appmain.prolog, width: %d  height: %d  DPI: %d\n", displayWidth, displayHeight, systemDpi);
+    //printf("appmain.prolog, width: %d  height: %d  DPI: %d\n", displayWidth, displayHeight, systemDpi);
     
     // set the canvas a default size to start
     // but don't show it

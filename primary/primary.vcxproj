@@ -177,6 +177,7 @@
     <ClInclude Include="IShader.h" />
     <ClInclude Include="joystick.h" />
     <ClInclude Include="LayeredWindow.hpp" />
+    <ClInclude Include="layout.h" />
     <ClInclude Include="List.hpp" />
     <ClInclude Include="math3d.h" />
     <ClInclude Include="maths.hpp" />

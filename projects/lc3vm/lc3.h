@@ -5,10 +5,14 @@
 // https://justinmeiners.github.io/lc3-vm/
 //
 
-#include <cstdint>
 #include <binstream.hpp>
 
-namespace lc3vm
+#include <cstdint>
+#include <functional>
+
+
+
+namespace lc3
 {
 	// Condition flags
 	enum {
@@ -70,291 +74,259 @@ namespace lc3vm
 		TRAP_HALT	= 0x25,		// Halt the program
 	};
 
-	// Storage
-	uint16_t memory[UINT16_MAX];		// Storage for general memory
-	uint16_t reg[R_COUNT];				// Storage for registers
+	struct Lc3VM;
 
-	// Execution
-	bool running = true;
+	using op_func = std::function<void(Lc3VM & vm, uint16_t op)>;
 
-	uint16_t sign_extend(uint16_t x, int bit_count)
-	{
-		if ((x >> (bit_count - 1)) & 1) {
-			x |= (0xffff << bit_count);
-		}
+	struct Lc3VM {
+		// Storage
+		uint16_t memory[UINT16_MAX];		// Storage for general memory
+		uint16_t reg[R_COUNT];				// Storage for registers
 
-		return x;
-	}
+		bool running = true;				// Running state
 
-	// Swap - swap 16-bit value 
-	uint16_t swap16(uint16_t x)
-	{
-		return (x << 8) | (x >> 8);
-	}
 
-	void update_flags(uint16_t r)
-	{
-		if (reg[r] == 0) {
-			reg[R_COND] = FL_ZRO;
-		}
-		else if (reg[r] >> 15)	// a 1 in most significant bit indicates negative
+		// Operator table
+		op_func op_table[16]{
+			ins<0>,ins<1>,ins<2>,ins<3>,
+			ins<4>,ins<5>,ins<6>,ins<7>,
+			NULL,ins<9>,ins<10>,ins<11>,
+			ins<12>,NULL,ins<14>,ins<15>
+		};
+
+
+
+
+
+		// Utility functions
+		static uint16_t sign_extend(uint16_t x, int bit_count)
 		{
-			reg[R_COND] = FL_NEG;
-		}
-		else {
-			reg[R_COND] = FL_POS;
-		}
-	}
-
-	// check for a key
-	uint16_t check_key()
-	{
-		return 0;
-	}
-
-	uint16_t getchar()
-	{
-		return 0;
-	}
-
-	// Memory Access
-	void mem_write(uint16_t address, uint16_t val)
-	{
-		// Don't worry about bounds checking because the address can
-		// only be within valid memory range
-		memory[address] = val;
-	}
-
-	// Reading a value from memory
-	// special cases for memory mapped IO
-	uint16_t mem_read(uint16_t address)
-	{
-		if (address == MR_KBSR) {
-			if (check_key()) {
-				memory[MR_KBSR] = (1 << 15);
-				memory[MR_KBDR] = getchar();
+			if ((x >> (bit_count - 1)) & 1) {
+				x |= (0xffff << bit_count);
 			}
-			else {
-				memory[MR_KBSR] = 0;
-			}
+
+			return x;
 		}
 
-		return memory[address];
-	}
-
-
-	uint16_t read_image_stream(BinStream& bs)
-	{
-		// read origin from stream
-		uint16_t origin = bs.readUInt16();
-
-		// read the rest of the instructions into memory
-		// starting at the indicated origin
-		uint16_t offset = origin;
-		// BUGBUG - should check for offset overflow as well
-		while (!bs.isEOF()) {
-			memory[offset] = bs.readUInt16();
-			offset = offset + 1;
+		// Swap - swap 16-bit value 
+		static uint16_t swap16(uint16_t x)
+		{
+			return (x << 8) | (x >> 8);
 		}
 
-		return origin;
-	}
+		// Instruction dispatch table
+		template <unsigned int op>
+		static void ins(Lc3VM& vm, uint16_t instr) 
+		{
+			uint16_t r0, r1, r2, imm5, imm_flag;
+			uint16_t pc_plus_off, base_plus_off;
 
-	// Instruction dispatch table
-	template <unsigned int op>
-	void ins(uint16_t instr) {
-		uint16_t r0, r1, r2, imm5, imm_flag;
-		uint16_t pc_plus_off, base_plus_off;
+			constexpr uint16_t opbit = (1 << op);	// one bit indicating the operator
 
-		constexpr uint16_t opbit = (1 << op);	// one bit indicating the operator
-
-		if (0x4EEE & opbit) { r0 = (instr >> 9) & 0x7; }
-		if (0x12F3 & opbit) { r1 = (instr >> 6) & 0x7; }
-		if (0x0022 & opbit) {
-			imm_flag = (instr >> 5) & 0x1;
-			if (imm_flag != 0) {
-				imm5 = sign_extend(instr & 0x1F, 5);
+			if (0x4EEE & opbit) { r0 = (instr >> 9) & 0x7; }
+			if (0x12F3 & opbit) { r1 = (instr >> 6) & 0x7; }
+			if (0x0022 & opbit) {
+				imm_flag = (instr >> 5) & 0x1;
+				if (imm_flag != 0) {
+					imm5 = sign_extend(instr & 0x1F, 5);
+				}
+				else
+				{
+					r2 = instr & 0x7;
+				}
 			}
-			else
+
+			if (0x00C0 & opbit) {
+				// base + offset
+				base_plus_off = vm.reg[r1] + sign_extend(instr & 0x3F, 6);
+			}
+
+			if (0x4C0D & opbit) {
+				// indirect address
+				pc_plus_off = vm.reg[R_PC] + sign_extend(instr & 0x1FF, 9);
+			}
+
+			// BR
+			if (0x0001 & opbit) {
+				uint16_t cond = (instr >> 9) & 0x07;
+				if (cond & vm.reg[R_COND]) { vm.reg[R_PC] = pc_plus_off; }
+			}
+
+			// ADD
+			if (0x0002 & opbit) {
+
+				if (imm_flag) {
+					vm.reg[r0] = vm.reg[r1] + imm5;
+				}
+				else {
+					vm.reg[r0] = vm.reg[r1] + vm.reg[r2];
+				}
+			}
+
+			// AND
+			if (0x0020 & opbit) {
+				if (imm_flag) {
+					vm.reg[r0] = vm.reg[r1] + imm5;
+				}
+				else {
+					vm.reg[r0] = vm.reg[r1] & vm.reg[r2];
+				}
+			}
+
+			// NOT
+			if (0x0200 & opbit) { vm.reg[r0] = ~vm.reg[r1]; }
+
+			// JMP
+			if (0x1000 & opbit) { vm.reg[R_PC] = vm.reg[r1]; }
+
+			// JSR
+			if (0x0010 & opbit) {
+				uint16_t long_flag = (instr >> 11) & 1;
+				vm.reg[R_R7] = vm.reg[R_PC];
+				if (long_flag) {
+					pc_plus_off = vm.reg[R_PC] + sign_extend(instr & 0x7FF, 11);
+					vm.reg[R_PC] = pc_plus_off;
+				}
+				else {
+					vm.reg[R_PC] = vm.reg[r1];
+				}
+			}
+
+			// LD
+			if (0x0004 & opbit) { vm.reg[r0] = vm.mem_read(pc_plus_off); }
+
+			// LDI
+			if (0x0400 & opbit) { vm.reg[r0] = vm.mem_read(vm.mem_read(pc_plus_off)); }
+
+			// LDR
+			if (0x0040 & opbit) { vm.reg[r0] = vm.mem_read(base_plus_off); }
+
+			// LEA
+			if (0x4000 & opbit) { vm.reg[r0] = pc_plus_off; }
+
+			// ST
+			if (0x0008 & opbit) { vm.mem_write(pc_plus_off, vm.reg[r0]); }
+
+			// STI
+			if (0x0800 & opbit) { vm.mem_write(vm.mem_read(pc_plus_off), vm.reg[r0]); }
+
+			// STR
+			if (0x0080 & opbit) { vm.mem_write(base_plus_off, vm.reg[r0]); }
+
+			// TRAP
+			if (0x8000 & opbit) {
+				// BUGBUG - fill this out
+			}
+
+			// RTI
+
+			if (0x4666 & opbit) { vm.update_flags(r0); }
+		}
+
+
+		// Constructor that takes a stream
+		// The stream is assumed to be in the appropriate format
+		Lc3VM(BinStream& bs)
+		{
+			//enum {PC_START = 0x3000};
+			// read origin from stream
+			uint16_t origin = bs.readUInt16();
+
+			// read the rest of the instructions into memory
+			// starting at the indicated origin
+			uint16_t offset = origin;
+
+			// BUGBUG - should check for offset overflow as well
+			while (!bs.isEOF()) {
+				memory[offset] = bs.readUInt16();
+				offset = offset + 1;
+			}
+
+			reg[R_PC] = origin;
+		}
+
+		// Instance methods
+		// decode and execute a single instruction
+		void step()
+		{
+			// Fetch
+			uint16_t instr = mem_read(reg[R_PC]++);
+			uint16_t op = instr >> 12;
+
+			op_table[op](*this, instr);
+		}
+
+		// Start running
+		// program should already be in memory
+		void run()
+		{
+			// main loop, run until error, or end of program
+			bool running = true;
+
+			while (running)
 			{
-				r2 = instr & 0x7;
+				step();
 			}
+
+			// shutdown
 		}
 
-		if (0x00C0 & opbit) {
-			// base + offset
-			base_plus_off = reg[r1] + sign_extend(instr & 0x3F, 6);
-		}
-
-		if (0x4C0D & opbit) {
-			// indirect address
-			pc_plus_off = reg[R_PC] + sign_extend(instr & 0x1FF, 9);
-		}
-
-		// BR
-		if (0x0001 & opbit) {
-			uint16_t cond = (instr >> 9) & 0x07;
-			if (cond & reg[R_COND]) { reg[R_PC] = pc_plus_off; }
-		}
-
-		// ADD
-		if (0x0002 & opbit) {
-
-			if (imm_flag) {
-				reg[r0] = reg[r1] + imm5;
+		void update_flags(uint16_t r)
+		{
+			if (reg[r] == 0) {
+				reg[R_COND] = FL_ZRO;
+			}
+			else if (reg[r] >> 15)	// a 1 in most significant bit indicates negative
+			{
+				reg[R_COND] = FL_NEG;
 			}
 			else {
-				reg[r0] = reg[r1] + reg[r2];
+				reg[R_COND] = FL_POS;
 			}
 		}
 
-		// AND
-		if (0x0020 & opbit) {
-			if (imm_flag) {
-				reg[r0] = reg[r1] + imm5;
-			}
-			else {
-				reg[r0] = reg[r1] & reg[r2];
-			}
+		// System Specific
+		// check for a key
+		// check to see if there's a key available
+
+		uint16_t check_key()
+		{
+			return 0;
 		}
 
-		// NOT
-		if (0x0200 & opbit) { reg[r0] = ~reg[r1]; }
-	
-		// JMP
-		if (0x1000 & opbit) { reg[R_PC] = reg[r1]; }
-
-		// JSR
-		if (0x0010 & opbit) {
-			uint16_t long_flag = (instr >> 11) & 1;
-			reg[R_R7] = reg[R_PC];
-			if (long_flag) {
-				pc_plus_off = reg[R_PC] + sign_extend(instr & 0x7FF, 11);
-				reg[R_PC] = pc_plus_off;
-			}
-			else {
-				reg[R_PC] = reg[r1];
-			}
+		// Get a single character from stdio
+		uint16_t getchar()
+		{
+			return 0;
 		}
 
-		// LD
-		if (0x0004 & opbit) { reg[r0] = mem_read(pc_plus_off); }
-
-		// LDI
-		if (0x0400 & opbit) { reg[r0] = mem_read(mem_read(pc_plus_off)); }
-
-		// LDR
-		if (0x0040 & opbit) { reg[r0] = mem_read(base_plus_off); }
-
-		// LEA
-		if (0x4000 & opbit) { reg[r0] = pc_plus_off; }
-
-		// ST
-		if (0x0008 & opbit) { mem_write(pc_plus_off, reg[r0]); }
-
-		// STI
-		if (0x0800 & opbit) { mem_write(mem_read(pc_plus_off), reg[r0]); }
-
-		// STR
-		if (0x0080 & opbit) { mem_write(base_plus_off, reg[r0]); }
-
-		// TRAP
-		if (0x8000 & opbit) {
-			// BUGBUG - fill this out
+		// Memory Access
+		void mem_write(uint16_t address, uint16_t val)
+		{
+			// Don't worry about bounds checking because the address can
+			// only be within valid memory range
+			memory[address] = val;
 		}
 
-		// RTI
+		// Reading a value from memory
+		// special cases for memory mapped IO
+		// keyboard
+		//	MR_KBSR - keyboard status
+		//  MR_KBDR - keyboard data
+		uint16_t mem_read(uint16_t address)
+		{
+			if (address == MR_KBSR) {
+				if (check_key()) {
+					memory[MR_KBSR] = (1 << 15);
+					memory[MR_KBDR] = getchar();
+				}
+				else {
+					memory[MR_KBSR] = 0;
+				}
+			}
 
-		if (0x4666 & opbit) { update_flags(r0); }
-	}
+			return memory[address];
+		}
 
-	// Operator table
-	static void (*op_table[16])(uint16_t) = {
-		ins<0>,ins<1>,ins<2>,ins<3>,
-		ins<4>,ins<5>,ins<6>,ins<7>,
-		NULL,ins<9>,ins<10>,ins<11>,
-		ins<12>,NULL,ins<14>,ins<15>
 	};
-
-	void run(BinStream& bs)
-	{
-		// Read the program into memory
-		// should return the PC_START
-		//enum {PC_START = 0x3000};
-		uint16_t PC_START = read_image_stream(bs);
-		reg[R_PC] = PC_START;
-
-		// main loop, run until error, or end of program
-		bool running = true;
-		
-		while (running)
-		{
-			// Fetch
-			uint16_t instr = mem_read(reg[R_PC]++);
-			uint16_t op = instr >> 12;
-
-			op_table[op](instr);
-		}
-
-		// shutdown
-	}
 }
-
-
-/*
-			// Fetch
-			uint16_t instr = mem_read(reg[R_PC]++);
-			uint16_t op = instr >> 12;
-
-			switch (op)
-			{
-			case OP_ADD:
-				break;
-
-			case OP_AND:
-				//
-				break;
-
-			case OP_NOT:
-				break;
-
-			case OP_BR:
-				break;
-
-			case OP_JMP:
-				break;
-
-			case OP_JSR:
-				break;
-
-			case OP_LD:
-				break;
-
-			case OP_LDI:
-				break;
-
-			case OP_LDR:
-				break;
-
-			case OP_LEA:
-				break;
-
-			case OP_ST:
-				break;
-
-			case OP_STI:
-				break;
-
-			case OP_STR:
-				break;
-
-			case OP_TRAP:
-				break;
-
-			case OP_RES:
-			case OP_RTI:
-			default:
-				// bad opcode
-				break;
-			}
-*/

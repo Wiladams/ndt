@@ -6,6 +6,9 @@
     User32 interface library.  The idea is, if you include this single header
     in your application .cpp file, you have everything you need to create 
     a window of a given size, do drawing, keyboard and mouse handling.
+
+    Notes:
+    https://devblogs.microsoft.com/oldnewthing/20031013-00/?p=42193
 */
 
 
@@ -16,10 +19,16 @@
 #include <cstring>
 
 
+// User32Window 
+// An instance of a User32WindowClass
+// Create one of these as a convenient way to manipulate a native window
+// 
 class User32Window {
 public:
 
     HWND fHandle;
+    WNDCLASSEXA fClass{};
+    bool fMouseInside = false;
 
     // Constructor taking an already allocated
     // window handle.  Use a WindowKind to allocate
@@ -72,7 +81,7 @@ public:
     void moveTo(int x, int y)
     {
         RECT wRect;
-        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        BOOL bResult = ::GetWindowRect(fHandle, &wRect);
         int cx = wRect.right - wRect.left;
         int cy = wRect.bottom - wRect.top;
         int flags = SWP_NOOWNERZORDER | SWP_NOSIZE;
@@ -136,20 +145,20 @@ public:
 
 // In Win32, a window 'class' must be registered
 // before you can use the CreateWindow call.  This
-// WindowClass object makes it easier to handle these
+// User32WindowClass object makes it easier to handle these
 // Window Classes, and do that registration.  As well,
-// it makes it relatively easy to create various instances
+// it makes it relatively easy to create instances
 // of classes.
 class User32WindowClass {
     WNDCLASSEXA fWndClass;      // data structure holding class information
     bool fIsRegistered;
     int fLastError;
 
-    char * fClassName;       // this is only here to guarantee string sticks around
+    char* fClassName;       // this is only here to guarantee string sticks around
     uint16_t    fClassAtom;
 
 public:
-    User32WindowClass(const char *classOrAtom)
+    User32WindowClass(const char* classOrAtom)
         : fLastError(0)
         , fClassAtom(0)
         , fIsRegistered(false)
@@ -172,12 +181,12 @@ public:
         fIsRegistered = true;
     }
 
-    User32WindowClass(const char *className, unsigned int classStyle, WNDPROC wndProc = nullptr)
+    User32WindowClass(const char* className, unsigned int classStyle, WNDPROC wndProc = nullptr)
         :fLastError(0),
         fClassAtom(0),
         fClassName(nullptr),
         fIsRegistered(false),
-        fWndClass{0}
+        fWndClass{ 0 }
     {
         if (className == nullptr) {
             return;
@@ -187,7 +196,7 @@ public:
         memset(&fWndClass, 0, sizeof(fWndClass));
         fWndClass.cbSize = sizeof(WNDCLASSEXA);
         fWndClass.hInstance = GetModuleHandleA(NULL);
-        fWndClass.lpszClassName = fClassName; 
+        fWndClass.lpszClassName = fClassName;
         fWndClass.lpfnWndProc = wndProc;
         fWndClass.style = classStyle;
 
@@ -204,48 +213,49 @@ public:
 
         if (fClassAtom == 0) {
             fLastError = GetLastError();
-            return ;
+            return;
         }
 
         fIsRegistered = true;
     }
 
-    bool isValid() const {return fIsRegistered;}
+    bool isValid() const { return fIsRegistered; }
 
-    int getLastError() const {return fLastError;}
-    const char * getName() const {return fWndClass.lpszClassName;}
+    int getLastError() const { return fLastError; }
+    const char* getName() const { return fWndClass.lpszClassName; }
 
-    User32Window * createWindow(const char *title, int width, int height, int style=WS_OVERLAPPEDWINDOW, int xstyle=0, WNDPROC handler = nullptr)
+    User32Window* createWindow(const char* title, int width, int height, int style = WS_OVERLAPPEDWINDOW, int xstyle = 0, WNDPROC handler = nullptr)
     {
         if (!isValid()) {
             return nullptr;
         }
 
         HMODULE hInst = fWndClass.hInstance;
-        
+
         // Create the window handle
         int winxstyle = xstyle;
         int winstyle = style;
 
         //HMODULE hInst = GetModuleHandleA(NULL);
-	    HWND winHandle = CreateWindowExA(
-		    winxstyle,
-		    fWndClass.lpszClassName,
-		    title,
-		    winstyle,
+        HWND winHandle = CreateWindowExA(
+            winxstyle,
+            fWndClass.lpszClassName,
+            title,
+            winstyle,
             CW_USEDEFAULT, CW_USEDEFAULT,
             width, height,
-		    NULL,
-		    NULL,
-		    fWndClass.hInstance,
-		    NULL);
+            NULL,
+            NULL,
+            fWndClass.hInstance,
+            NULL);
 
         if (winHandle == nullptr) {
             return nullptr;
         }
 
-        User32Window * win = new User32Window(winHandle);
+        User32Window* win = new User32Window(winHandle);
 
         return win;
     }
 };
+

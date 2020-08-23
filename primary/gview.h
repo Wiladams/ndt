@@ -1,7 +1,7 @@
 #pragma once
 
 #include "apphost.h"
-#include "drawable.h"
+#include "graphic.hpp"
 
 #include <memory>
 
@@ -29,13 +29,17 @@
 using std::shared_ptr;
 
 
-class GView : public IDrawable
+class GView : public IGraphic
 {
-protected:
-    BLMatrix2D fTransform;
-    BLRect fFrame;
-    shared_ptr<IDrawable> fPage;
     bool fDebug;
+
+protected:
+    BLRect fFrame;      // Where is it located within parent's coordinates
+    
+    BLMatrix2D fTransform;  // Internal transformation matrix
+
+    shared_ptr<IDrawable> fPage;
+
 
 public:
     GView(const BLRect& frame)
@@ -56,7 +60,7 @@ public:
     BLMatrix2D& getTransform() { return fTransform; }
 
     void setFrame(const BLRect& frame) { fFrame = frame; }
-    virtual BLRect& getFrame() {return fFrame;}
+    virtual BLRect getFrame() const {return fFrame;}
 
     void moveBy(double dx, double dy)
     {

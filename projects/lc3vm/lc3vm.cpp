@@ -1,6 +1,7 @@
 #include "p5.hpp"
 #include "lc3.h"
 #include "filestream.h"
+#include "vmview.h"
 
 #include <memory>
 
@@ -15,6 +16,8 @@ public:
 	{
 		ctx->noStroke();
 		ctx->fill(0);
+		ctx->textSize(24);
+		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
 		ctx->text("Drop Some Code Here", 100, 100);
 	}
 };
@@ -64,12 +67,9 @@ void fileDrop(const FileDropEvent& e)
 	// program
 	for (int i = 0; i < e.filenames.size(); i++)
 	{
-		auto win = window(0, 0, 256, 256);
-		win->setBackgroundColor(Pixel(245, 246, 247, 255));
+		auto win = window(0, 0, 320,480);
 		win->setTitle(e.filenames[i]);
-		//win->setPage(FileHistogram::fromFile(e.filenames[i]));
-		//auto bs = FileStream(gargv[1]);
-		//lc3vm::run(bs);
+		win->setPage(Lc3VMView::fromFilename(e.filenames[i]));
 	}
 }
 

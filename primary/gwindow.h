@@ -80,7 +80,9 @@ public:
 
 		// Draw title
 		ctx->fill(0);
-		ctx->text(fTitle.c_str(), 4, 16);
+		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx->textSize(12);
+		ctx->text(fTitle.c_str(), fTitleBar.x+fTitleBar.w/2, 16);
 		ctx->flush();
 	}
 
