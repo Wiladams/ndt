@@ -1,6 +1,8 @@
 #pragma once
 
-#include "graphic.hpp"
+#include "drawable.h"
+
+#include <deque>
 #include <memory>
 
 /*
@@ -10,7 +12,7 @@
 class ILayoutGraphics {
 public:
 
-	virtual void layout(std::vector<std::shared_ptr<IGraphic> > gs)
+	virtual void layout(std::deque<std::shared_ptr<IGraphic> > gs)
 	{
 		// by default, do nothing
 	}
@@ -41,7 +43,7 @@ public:
 		: fAlign(align),
 		fGap(gap)
 	{
-		std::vector<std::shared_ptr<IGraphic> > gs{
+		std::deque<std::shared_ptr<IGraphic> > gs{
 			primary,
 			secondary
 		};
@@ -55,7 +57,7 @@ public:
 	{
 	}
 
-	virtual void layout(std::vector<std::shared_ptr<IGraphic> > gs)
+	virtual void layout(std::deque<std::shared_ptr<IGraphic> > gs)
 	{
 		// There must be at least two graphics in the vector
 		// only the first two will be part of the layout
@@ -91,5 +93,63 @@ public:
 		}
 
 		secondary->moveTo(sFrame.x, sFrame.y);
+	}
+};
+
+class CascadeLayout : public ILayoutGraphics
+{
+	int wX = 10;
+	int wY = 49;
+	int fWidth;
+	int fHeight;
+	int fVerticalOffset = 10;
+	int fHorizontalOffset = -10;
+	int fVerticalGap = 8;
+
+public:
+	CascadeLayout(int w, int h)
+	{
+		fWidth = w;
+		fHeight = h;
+	}
+
+	virtual void addWindow(std::shared_ptr<IGraphic> win)
+	{
+		int x = wX;
+		int y = wY;
+
+		wX += (int)(win->getFrame().w + fHorizontalOffset);
+		wY += (int)fVerticalOffset;
+
+		if (wX > fWidth - 256)
+		{
+			wX = 10;
+			wY += 256 + fVerticalGap;
+		}
+
+		win->moveTo(x, y);
+	}
+
+	// Perform layout starting from scratch
+	void layout(std::deque<std::shared_ptr<IGraphic> > gs)
+	{
+		int x = 10;
+		int y = 49;
+
+		for (std::shared_ptr<IGraphic> g : gs)
+		{
+			int offsetx = x;
+			int offsety = y;
+
+			x += (int)(g->getFrame().w + fHorizontalOffset);
+			y += fVerticalOffset;
+
+			if (x > fWidth - 256) {
+				x = 10;
+				y += 256 + fVerticalGap;
+			}
+
+			g->moveTo(offsetx, offsety);
+		}
 	}
 };

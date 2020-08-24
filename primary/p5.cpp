@@ -66,7 +66,7 @@ namespace p5 {
     void addWindow(std::shared_ptr<GWindow> win)
     {
         if (nullptr != gWindowManager)
-            gWindowManager->addWindow(win);
+            gWindowManager->addChild(win);
     }
 
     std::shared_ptr<GWindow> window(int x, int y, int w, int h)

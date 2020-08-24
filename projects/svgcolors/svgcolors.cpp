@@ -178,16 +178,21 @@ ColorEntry svgcolors[] = {
 int nColors = sizeof(svgcolors) / sizeof(ColorEntry);
 
 SVGGraphic hoverGraphic = SVGGraphic::empty;
-PageView contentArea(BLRect(4, 4, 792, 592));
 
+std::shared_ptr<GWindow> contentArea = nullptr;
 
-class SVGPage : public IDrawable {
+class SVGPage : public Graphic {
     static BLSize getPreferredSize()
     {
         int rows = (nColors / maxColumns) + 1;
 
         return { (double)(maxColumns * columnSize), (double)(rows * rowSize) };
     }
+
+public:
+    SVGPage()
+        :Graphic(0,0,getPreferredSize().w, getPreferredSize().h)
+    {}
 
     // return the coordinate frame for a specified cell
     BLRect frameForCell(int column, int row)
@@ -300,17 +305,19 @@ void setup()
     textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
     textSize(fontSize);
 
-    contentArea.setPage(std::make_shared<SVGPage>());
+    contentArea = window(4, 4, 792, 592);
+
+    contentArea->addChild(std::make_shared<SVGPage>());
 }
 
 void draw()
 {
     background(245, 246, 247);
-    contentArea.draw(gAppSurface);
+    //contentArea.draw(gAppSurface);
 }
 
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    contentArea.translateBy(0, (e.delta / 120)*scrollSize);
+    contentArea->translateBy(0, (e.delta / 120)*scrollSize);
 }

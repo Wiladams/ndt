@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gview.h"
+#include "graphic.hpp"
 
-class GWindow : public PageView
+class GWindow : public Graphic
 {
 protected:
 	BLRect fClientArea;
@@ -12,10 +12,13 @@ protected:
 	BLRect fTitleBar;
 	Pixel fTitleBarColor;
 	std::string fTitle;
+	
+	// Interaction
+	std::shared_ptr<IGraphic> fActiveGraphic;
 
 public:
 	GWindow(int x, int y, int w, int h)
-		: PageView(x,y,w,h),
+		: Graphic(x,y,w,h),
 		fClientArea(0,0,w,h),
 		fTitleBar(2, 2, w, 32),
 		fTitleBarColor(225, 220, 220, 127),
@@ -29,6 +32,11 @@ public:
 	void setBackgroundColor(const Pixel& c)
 	{
 		fBackgroundColor = c;
+	}
+
+	void setActiveGraphic(std::shared_ptr<IGraphic> g)
+	{
+		fActiveGraphic = g;
 	}
 
 	void drawBackground(IGraphics* ctx)

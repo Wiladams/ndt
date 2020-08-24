@@ -1,15 +1,16 @@
 #pragma once
 
 #include "p5.hpp"
-#include <memory>
 
 #include "filestream.h"
 #include "coloring.h"
-#include "drawable.h"
+#include "graphic.hpp"
+
+#include <memory>
 
 using namespace p5;
 
-class FileHistogram : public IDrawable
+class FileHistogram : public Graphic
 {
 	size_t histogram[256];
 	size_t biggest;
@@ -44,6 +45,7 @@ class FileHistogram : public IDrawable
 public:
 
 	FileHistogram(BinStream& bs)
+		:Graphic(0,0,256,256)
 	{
 		createHistogram(bs);
 	}

@@ -1,45 +1,33 @@
 #pragma once
 
 #include "drawable.h"
+#include "layout.h"
 
 #include <memory>
 #include <vector>
+#include <deque>
 
-/*
-	A Graphic is something that has a preferred
-	size, a boundary, and a frame.  
-	
-	PreferredSize - How big the graphic would like to be
-	Bounds - How big the graphic actually is
-	Frame - The location, within the bounds of the parent frame
-	
-*/
-class IGraphic : public IDrawable 
-{
-protected:
-	virtual ~IGraphic() {};
 
-public:
-	virtual BLRect getFrame() const = 0;
-	virtual void moveTo(const double x, const double y) = 0;
-};
 
 class Graphic : public IGraphic
 {
-
-
-	std::vector<std::shared_ptr<IGraphic> > fChildren;
-
 protected:
+	std::deque<std::shared_ptr<IGraphic> > fChildren;
+	std::shared_ptr<ILayoutGraphics> fLayout;
+
 	BLMatrix2D fTransform;  // Internal transformation matrix
 	BLRect fBounds{};
 	BLRect fFrame{};
 
-
-
-
 public:
 	Graphic()
+	{
+		fTransform = BLMatrix2D::makeIdentity();
+	}
+
+	Graphic(const double x, const double y, const double w, const double h)
+		:fFrame(x, y, w, h),
+		fBounds(0, 0, w, h)
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
@@ -55,6 +43,11 @@ public:
 	
 	void setFrame(const BLRect& frame) { fFrame = frame; }
 	virtual BLRect getFrame() const { return fFrame; }
+
+	void setLayout(std::shared_ptr<ILayoutGraphics> layout)
+	{
+		fLayout = layout;
+	}
 
 	void translateBy(double x, double y)
 	{
@@ -74,12 +67,37 @@ public:
 	void addChild(std::shared_ptr<IGraphic> child)
 	{
 		fChildren.push_back(child);
+		if (nullptr != fLayout) {
+			fLayout->layout(fChildren);
+		}
+	}
+	
+	// Find the topmost window at a given position
+	std::shared_ptr<IGraphic> graphicAt(int x, int y)
+	{
+		// traverse through windows in reverse order
+		// return when one of them contains the mouse point
+		std::deque<std::shared_ptr<IGraphic> >::reverse_iterator rit = fChildren.rbegin();
+		for (rit = fChildren.rbegin(); rit != fChildren.rend(); ++rit)
+		{
+			if ((*rit)->contains(x, y))
+				return *rit;
+		}
+
+		return nullptr;
 	}
 
-	void moveBy(double dx, double dy)
+	void moveToFront(std::shared_ptr<IGraphic> g)
 	{
-		fFrame.x += dx;
-		fFrame.y += dy;
+		std::deque<std::shared_ptr<IGraphic> >::iterator it = fChildren.begin();
+		for (it = fChildren.begin(); it != fChildren.end(); ++it)
+		{
+			if (*it == g) {
+				fChildren.erase(it);
+				fChildren.push_back(g);
+				break;
+			}
+		}
 	}
 
 	void moveTo(double x, double y)
@@ -93,13 +111,18 @@ public:
 		//ctx->flush();
 	}
 
-
 	virtual void drawChildren(IGraphics* ctx)
 	{
-		for (size_t i = 0; i < fChildren.size(); i++)
+		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
-			fChildren[i]->draw(ctx);
+			g->draw(ctx);
 		}
+		ctx->flush();
+
+		//for (size_t i = 0; i < fChildren.size(); i++)
+		//{
+		//	fChildren[i]->draw(ctx);
+		//}
 	}
 
 	virtual void drawSelf(IGraphics* ctx)
@@ -132,7 +155,16 @@ public:
 		ctx->pop();
 	}
 
-	// Mouse Handling
+
+	// Handling mouse events
+	/*
+	void mouseClicked(const MouseEvent& e);
+	void mouseDragged(const MouseEvent& e);
+	void mouseMoved(const MouseEvent& e);
+	void mousePressed(const MouseEvent& e);
+	void mouseReleased(const MouseEvent& e);
+	void mouseWheel(const MouseEvent& e);
+	*/
 	virtual void mouseMoved(const MouseEvent& e)
 	{
 		// translate according to the transformation

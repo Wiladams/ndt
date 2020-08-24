@@ -53,7 +53,7 @@ void fileDrop(const FileDropEvent& e)
 		auto win = window(0, 0, 256, 256);
 		win->setBackgroundColor(Pixel(255, 255, 255,255));
 		win->setTitle(e.filenames[i]);
-		win->setPage(FileHistogram::fromFile(e.filenames[i]));
+		win->addChild(FileHistogram::fromFile(e.filenames[i]));
 	}
 }
 
