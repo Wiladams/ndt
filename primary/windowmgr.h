@@ -105,13 +105,22 @@ public:
 		fActiveGraphic->mouseReleased(e);
 	}
 
-	/*
-		Handling Keyboard Events
-		void keyboardEvent(const KeyboardEvent& e);
 
-		void keyPressed(const KeyboardEvent& e);
-		void keyReleased(const KeyboardEvent& e);
-		void keyTyped(const KeyboardEvent& e);
-	*/
+	//Handling Keyboard Events
+	void keyboardEvent(const KeyboardEvent& e)
+	{}
+
+	void keyboardEvent(const KeyboardEvent& e)
+	{}
+
+	void keyPressed(const KeyboardEvent& e)
+	{}
+
+	void keyReleased(const KeyboardEvent& e)
+	{}
+
+	void keyTyped(const KeyboardEvent& e)
+	{}
+
 
 };

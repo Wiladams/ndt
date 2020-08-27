@@ -159,10 +159,6 @@ public:
 	// Handling mouse events
 	/*
 	void mouseClicked(const MouseEvent& e);
-	void mouseDragged(const MouseEvent& e);
-	void mouseMoved(const MouseEvent& e);
-	void mousePressed(const MouseEvent& e);
-	void mouseReleased(const MouseEvent& e);
 	void mouseWheel(const MouseEvent& e);
 	*/
 	virtual void mouseMoved(const MouseEvent& e)

@@ -49,4 +49,9 @@ public:
 	virtual void mouseDragged(const MouseEvent& e) = 0;
 	virtual void mousePressed(const MouseEvent& e) = 0;
 	virtual void mouseReleased(const MouseEvent& e) = 0;
+
+	// Keyboard events
+	void keyPressed(const KeyboardEvent& e) =0;
+	void keyReleased(const KeyboardEvent& e)=0;
+	void keyTyped(const KeyboardEvent& e)=0;
 };
