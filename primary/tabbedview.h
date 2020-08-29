@@ -11,7 +11,7 @@
 
 class TabbedView : public Graphic {
 
-	BLRect fFrame;		// frame for the whole graphic
+	//BLRect fFrame;		// frame for the whole graphic
 	
 	// Content Area details
 	GPath fWholePath;
@@ -29,7 +29,7 @@ class TabbedView : public Graphic {
 
 public:
 	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
-		: fFrame(frame),
+		: Graphic(frame),
 		fTabParam(tParam),
 		fTabColor(tColor),
 		fTabTitle(title),
@@ -58,6 +58,7 @@ public:
 	void setTabColor(const Pixel& c) { fTabColor = c; }
 
 	void drawBackground(IGraphics* ctx)
+	//virtual void draw(IGraphics* ctx) 
 	{
 		// Stroke the overall outline
 		// Stroke this first, and allow the filling to
@@ -108,12 +109,37 @@ public:
 
 class TabViewSet : public Graphic {
 public:
-	void mouseClicked(const MouseEvent& e)
-	{
-		// start from the back, go forward
+	TabViewSet(const double w, const double h)
+		:Graphic(0, 0, w, h)
+	{}
 
-		// figure out which of the tabbed views
-		// has been clicked, and move that one
-		// to the front.
+	static std::shared_ptr<TabViewSet> create(const double w, const double h)
+	{
+		auto tset = std::make_shared<TabViewSet>(w, h);
+		return tset;
 	}
+
+	void mousePressed(const MouseEvent& e)
+	{
+		// Figure out which window is being 
+		// clicked
+		auto g = graphicAt(e.x, e.y);
+
+		// if not clicked on a view, then simply return
+		if (nullptr == g) {
+			//fActiveGraphic = nullptr;
+			return;
+		}
+
+		// deactivate old active window
+
+		// Activate new active window
+		//setActiveGraphic(win);
+
+		// bring it to the front
+		moveToFront(g);
+		g->mousePressed(e);
+	}
+
+
 };

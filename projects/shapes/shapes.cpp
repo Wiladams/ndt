@@ -2,12 +2,12 @@
 #include "graphic.hpp"
 #include "tabbedview.h"
 
+#include <memory>
 
 using namespace p5;
 
 // A set of tabs
-TabViewSet tabSet;
-
+std::shared_ptr<TabViewSet> tabSet = nullptr;
 
 
 void shape1()
@@ -162,14 +162,19 @@ void shape11()
 // 
 void shape12()
 {
-	tabSet.draw(gAppSurface);
+	tabSet->draw(gAppSurface);
+	gAppSurface->flush();
 }
 
 void draw()
 {
 	background(0xc0);
 	stroke(0);
+	
+	//tabSet->draw(gAppSurface);
+	//flush();
 
+	
 	push();
 	scale(1, 1);
 
@@ -222,15 +227,19 @@ void draw()
 	pop();
 
 	pop();
+	
+
 }
 
 void setup()
 {
 	createCanvas(800, 600);
 
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
+	tabSet = TabViewSet::create(width-16,260);
+
+	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
+	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
+	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
+	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
 
 }

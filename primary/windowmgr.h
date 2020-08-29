@@ -4,7 +4,6 @@
 #include "uievent.h"
 #include "drawable.h"
 #include "gwindow.h"
-//#include "windowlayout.h"
 #include "layout.h"
 
 #include <deque>
@@ -110,8 +109,6 @@ public:
 	void keyboardEvent(const KeyboardEvent& e)
 	{}
 
-	void keyboardEvent(const KeyboardEvent& e)
-	{}
 
 	void keyPressed(const KeyboardEvent& e)
 	{}

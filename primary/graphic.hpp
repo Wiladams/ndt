@@ -14,6 +14,7 @@ class Graphic : public IGraphic
 protected:
 	std::deque<std::shared_ptr<IGraphic> > fChildren;
 	std::shared_ptr<ILayoutGraphics> fLayout;
+	std::shared_ptr<IGraphic> fActiveGraphic;
 
 	BLMatrix2D fTransform;  // Internal transformation matrix
 	BLRect fBounds{};
@@ -21,9 +22,9 @@ protected:
 
 public:
 	Graphic()
-	{
-		fTransform = BLMatrix2D::makeIdentity();
-	}
+		:Graphic(0.0, 0, 0, 0)
+	{}
+
 
 	Graphic(const double x, const double y, const double w, const double h)
 		:fFrame(x, y, w, h),
@@ -34,7 +35,8 @@ public:
 
 	Graphic(const BLRect& frame) 
 		:fFrame(frame),
-		fBounds(0,0,frame.w, frame.h)
+		fBounds(0,0,frame.w, frame.h),
+		fActiveGraphic(nullptr)
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
@@ -85,6 +87,11 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	virtual void setActiveGraphic(std::shared_ptr<IGraphic> g)
+	{
+		fActiveGraphic = g;
 	}
 
 	void moveToFront(std::shared_ptr<IGraphic> g)
@@ -158,9 +165,21 @@ public:
 
 	// Handling mouse events
 	/*
-	void mouseClicked(const MouseEvent& e);
 	void mouseWheel(const MouseEvent& e);
 	*/
+	void mouseEvent(const MouseEvent& e)
+	{
+		// Figure out which child the mouse pointer 
+		// is currently over
+		auto g = graphicAt(e.x, e.y);
+
+		if (nullptr != g) {
+			// adjust coordinates and send it down
+			// to the child?
+		}
+
+	}
+
 	virtual void mouseMoved(const MouseEvent& e)
 	{
 		// translate according to the transformation

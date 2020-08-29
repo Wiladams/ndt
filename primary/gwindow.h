@@ -12,9 +12,6 @@ protected:
 	BLRect fTitleBar;
 	Pixel fTitleBarColor;
 	std::string fTitle;
-	
-	// Interaction
-	std::shared_ptr<IGraphic> fActiveGraphic;
 
 public:
 	GWindow(int x, int y, int w, int h)
@@ -34,10 +31,7 @@ public:
 		fBackgroundColor = c;
 	}
 
-	void setActiveGraphic(std::shared_ptr<IGraphic> g)
-	{
-		fActiveGraphic = g;
-	}
+
 
 	void drawBackground(IGraphics* ctx)
 	{

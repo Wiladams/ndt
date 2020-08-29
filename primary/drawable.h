@@ -51,7 +51,7 @@ public:
 	virtual void mouseReleased(const MouseEvent& e) = 0;
 
 	// Keyboard events
-	void keyPressed(const KeyboardEvent& e) =0;
-	void keyReleased(const KeyboardEvent& e)=0;
-	void keyTyped(const KeyboardEvent& e)=0;
+	//virtual void keyPressed(const KeyboardEvent& e) =0;
+	//virtual void keyReleased(const KeyboardEvent& e)=0;
+	//virtual void keyTyped(const KeyboardEvent& e)=0;
 };
