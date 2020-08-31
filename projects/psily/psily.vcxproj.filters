@@ -38,9 +38,6 @@
     <ClInclude Include="..\..\primary\p5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pstoken.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="psstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,9 +45,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="psdictionary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="psarray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ps_base_operators.h">
@@ -73,9 +67,6 @@
     <None Include="testy\hello.ps">
       <Filter>testy</Filter>
     </None>
-    <None Include="case1.ps">
-      <Filter>testy</Filter>
-    </None>
     <None Include="testy\case2.ps">
       <Filter>testy</Filter>
     </None>
@@ -86,6 +77,9 @@
       <Filter>testy</Filter>
     </None>
     <None Include="testy\pbourke1.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\case1.ps">
       <Filter>testy</Filter>
     </None>
   </ItemGroup>

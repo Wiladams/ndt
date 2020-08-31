@@ -1,7 +1,7 @@
 #pragma once
 
 #include "maths.hpp"
-#include "psarray.h"
+#include "pstypes.h"
 
 struct PSPoint {
 	double x;
@@ -67,12 +67,12 @@ struct PSMatrix {
 	// The array contains token values
 	static inline PSMatrix createFromArray(const PSArray& arr)
 	{
-		PSMatrix m{(double)*arr[0],
-			(double)*arr[1],
-			(double)*arr[2],
-			(double)*arr[3],
-			(double)*arr[4],
-			(double)*arr[5]};
+		PSMatrix m{arr[0]->asDouble(),
+			arr[1]->asDouble(),
+			arr[2]->asDouble(),
+			arr[3]->asDouble(),
+			arr[4]->asDouble(),
+			arr[5]->asDouble() };
 
 		return m;
 	}

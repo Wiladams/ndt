@@ -1,9 +1,10 @@
 #pragma once
 
-#include "pstypes.h"
-
 #include <memory>
 #include <deque>
+
+#include "pstypes.h"
+
 
 // An unbounded stack
 //teamplate <typename T>
@@ -38,8 +39,9 @@ public:
 		size_t pos = fContainer.size();
 		while (pos > 0)
 		{
-			if (fContainer.at(pos - 1)->fType == PSTokenType::MARK)
-				return pos;
+			auto t = fContainer.at(pos - 1);
+			if (t->fType == PSTokenType::MARK)
+				return fContainer.size()-pos;
 			pos--;
 		}
 

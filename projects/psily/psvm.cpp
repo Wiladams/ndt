@@ -1,7 +1,3 @@
-#include "psvm.h"
-#include "textscan.h"
-#include "ps_base_operators.h"
-
 #include <cstring>
 #include <chrono>
 #include <unordered_map>
@@ -11,6 +7,12 @@
 #include <memory>
 #include <iostream>
 #include <variant>
+
+#include "psvm.h"
+#include "textscan.h"
+#include "ps_base_operators.h"
+
+
 
 using std::shared_ptr;
 using std::make_shared;
@@ -72,7 +74,8 @@ std::shared_ptr<PSToken> lex_name(PSScanner& scnr, shared_ptr<BinStream> bs)
 	auto len = ending - starting;
 	std::string value((char*)startPtr, len);
 
-	auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
+	//auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
+	auto tok = std::make_shared<PSToken>(value, PSTokenType::EXECUTABLE_NAME);
 
 	if (value == "true" || (value == "false")) {
 		if (value == "true") {
@@ -125,12 +128,12 @@ std::unordered_map < int, std::function<shared_ptr<PSToken> (PSScanner& scnr, sh
 
 		auto ending = bs->tell();
 		auto len = ending - starting;
-		//std::string value((char*)startPtr, len);
+		std::string value((char*)startPtr, len);
 
 		// Skip over closing delimeter
 		bs->skip(1);
 
-		auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::LITERAL_STRING);
+		auto tok = std::make_shared<PSToken>(value, PSTokenType::LITERAL_STRING);
 
 		return tok;
 	}},
@@ -198,8 +201,9 @@ std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> b
 
 		auto ending = bs->tell();
 		auto len = ending - starting;
+		std::string value((char*)startPtr, len);
 
-		auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::COMMENT);
+		auto tok = std::make_shared<PSToken>(value, PSTokenType::COMMENT);
 
 		return tok;
 	} },
@@ -229,7 +233,8 @@ std::shared_ptr<PSToken> PSScanner::endArray()
 
 	for (size_t i = 0; i < n; i++) {
 		auto tok = vm().popOperand();
-		arr->push_back(tok);
+		//arr->push_back(tok);
+		arr->push_front(tok);
 	}
 
 	// pop the marker itself
@@ -244,11 +249,11 @@ std::shared_ptr<PSToken> PSScanner::endArray()
 
 
 
-//scan a number
+// scan a number
 // something got us here, it was something in numBeginChars
-//valid: 8.35928e-09
-//numBeginChars["+-.[digit]"]
-//If not valid number, return nil
+// valid: 8.35928e-09
+// numBeginChars["+-.[digit]"]
+// If not valid number, return nil
 std::shared_ptr<PSToken> lex_number(PSScanner &scnr, shared_ptr<BinStream> bs)
 {
 	auto starting = bs->tell();
@@ -403,7 +408,7 @@ PSVM::PSVM()
 
 void PSVM::execArray(shared_ptr<PSToken> tok)
 {
-	auto arr = (shared_ptr<PSArray>) * tok;
+	auto arr = tok->asArray();
 
 	for (size_t idx = 0; idx < arr->size(); idx++)
 	{
@@ -421,7 +426,7 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 			break;
 
 		case PSTokenType::OPERATOR:
-			((std::function<void(PSVM& vm)>) * item)(*this);
+			item->asFunction()(*this);
 			break;
 
 
@@ -434,7 +439,7 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 
 void PSVM::execName(shared_ptr<PSToken> tok)
 {
-	auto key = (std::string&)tok;
+	auto key = tok->asString();
 	auto op = fDictionaryStack.load(key);
 	
 	if (op == nullptr) {
@@ -453,7 +458,7 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 		break;
 
 	case PSTokenType::OPERATOR:
-		((std::function<void(PSVM& vm)>)*op)(*this);
+		op->asFunction()(*this);
 		break;
 
 	case PSTokenType::PROCEDURE:
@@ -480,7 +485,11 @@ void PSVM::eval(std::shared_ptr<BinStream> bs)
 		if (nullptr == tok)
 			break;
 
-		std::cout << "eval: " << tok->fData << std::endl;
+		//std::cout << "eval: " << tok->fData << std::endl;
+		std::cout << "eval: ";
+		tok->printValue(std::cout);
+		std::cout << std::endl;
+
 		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
 			execName(tok);
 		}
@@ -493,9 +502,4 @@ void PSVM::eval(std::shared_ptr<BinStream> bs)
 	}
 }
 
-void PSVM::eval(std::string s)
-{
-	//auto bs = make_shared<BinStream>(s.c_str(), s.length());
-	//eval(bs);
-}
 
