@@ -273,14 +273,14 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// def
 	{ "def", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = (std::string &)vm.popOperand();
+		auto key = vm.popOperand()->asString();
 
 		vm.dictionaryStack().def(key, value);
 	} },
 	
 	// load
 	{ "load", [](PSVM& vm) {
-		auto key = (std::string &)vm.popOperand();
+		auto key = vm.popOperand()->asString();
 		auto value = vm.dictionaryStack().load(key);
 
 		if (nullptr == value) {
@@ -294,14 +294,14 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// store
 	{ "store", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = (std::string &)vm.popOperand();
+		auto key = vm.popOperand()->asString();
 
 		vm.dictionaryStack().store(key, value);
 	} },
 
 	// where
 	{ "where", [](PSVM& vm) {
-		auto key = (std::string &)vm.popOperand();
+		auto key = vm.popOperand()->asString();
 		auto d = vm.dictionaryStack().where(key);
 
 		if (nullptr == d) {
@@ -346,7 +346,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	} },
 
 	// end
-	{ "begin", [](PSVM& vm) {
+	{ "end", [](PSVM& vm) {
 		auto d = vm.dictionaryStack().popDictionary();
 	} },
 
@@ -389,8 +389,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	{ "print" , [](PSVM& vm) {
 			//std::cout << "PRINT OPERATOR" << std::endl;
 			auto a = vm.popOperand();
-			//std::visit(PSTokenPrinter(), *a);
-			//std::cout << a->fData << std::endl;
+			a->printValue(std::cout);
 	} },
 
 	// Print out the contents of the current operand stack
@@ -444,12 +443,12 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	// revision
 	{ "revision", [](PSVM& vm) {
-		vm.pushOperand(make_shared<PSToken>((double)1));
+		vm.pushOperand(make_shared<PSToken>((double)1.0));
 	} },
 	
 	// serialnumber
 	{ "serialnumber", [](PSVM& vm) {
-		vm.pushOperand(make_shared<PSToken>((double)1));
+		vm.pushOperand(make_shared<PSToken>((double)1.0));
 	} },
 
 	// Executive

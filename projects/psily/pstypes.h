@@ -113,23 +113,39 @@ struct PSToken {
 	std::ostream& printValue(std::ostream& os)
 	{
 		switch (fType) {
-		case PSTokenType::COMMENT:
-		case PSTokenType::EXECUTABLE_NAME:
-		case PSTokenType::LITERAL_NAME:
-		case PSTokenType::LITERAL_STRING:
-			os << std::get<std::string>(fData);
+			case PSTokenType::MARK:
+				os << "MARK";
+			break;
+			
+			case PSTokenType::NUMBER:
+				os << std::get<double>(fData);
 			break;
 
-		case PSTokenType::NUMBER:
-			os << std::get<double>(fData);
+			case PSTokenType::COMMENT:
+			case PSTokenType::EXECUTABLE_NAME:
+			case PSTokenType::LITERAL_NAME:
+			case PSTokenType::LITERAL_STRING:
+				os << std::get<std::string>(fData);
 			break;
 
-		case PSTokenType::LITERAL_ARRAY: 
-		{
-			std::cout << "LITERAL_ARRAY" << std::endl;
-		}
-		break;
+
+			case PSTokenType::LITERAL_ARRAY: 
+			{
+				os << "ARRAY";
+			}
+			break;
 		
+			case PSTokenType::DICTIONARY:
+				os << "DICTIONARY";
+			break;
+
+			case PSTokenType::PROCEDURE:
+				os << "PROCEDURE";
+			break;
+
+			case PSTokenType::FUNCTION:
+				os << "FUNCTION";
+			break;
 		}
 
 		return os;
@@ -137,26 +153,34 @@ struct PSToken {
 
 	std::ostream& printFullValue(std::ostream& os)
 	{
-		switch (fType) {
-		case PSTokenType::COMMENT:
-		case PSTokenType::EXECUTABLE_NAME:
-		case PSTokenType::LITERAL_NAME:
-		case PSTokenType::LITERAL_STRING:
-		case PSTokenType::NUMBER:
-			printValue(os);
+		switch (fType) 
+		{
 
+			case PSTokenType::LITERAL_ARRAY:
+			{
+				auto arr = *asArray();
+			
+				os << "ARRAY: " << std::to_string(arr.size()) << std::endl;
+				for (auto& it : arr) {
+					it->printValue(os) << std::endl;
+				}
+			}
 			break;
 
-		case PSTokenType::LITERAL_ARRAY:
-		{
-			auto arr = *asArray();
-			
-			std::cout << "LITERAL_ARRAY: " << std::to_string(arr.size()) << std::endl;
-			for (auto& it : arr) {
-				it->printValue(std::cout) << std::endl;
+			case PSTokenType::PROCEDURE:
+			{
+				auto arr = *asArray();
+
+				os << "PROCEDURE: " << std::to_string(arr.size()) << std::endl;
+				for (auto& it : arr) {
+					it->printFullValue(os) << std::endl;
+				}
 			}
-		}
-		break;
+			break;
+
+			default:
+				printValue(os) << std::endl;
+			break;
 
 		}
 

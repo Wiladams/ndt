@@ -170,6 +170,8 @@
     <None Include="testy\hello.ps" />
     <None Include="testy\pbourke1.ps" />
     <None Include="testy\pstack1.ps" />
+    <None Include="testy\typeprocs.ps" />
+    <None Include="testy\version.ps" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

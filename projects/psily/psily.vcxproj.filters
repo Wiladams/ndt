@@ -82,5 +82,11 @@
     <None Include="testy\case1.ps">
       <Filter>testy</Filter>
     </None>
+    <None Include="testy\version.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\typeprocs.ps">
+      <Filter>testy</Filter>
+    </None>
   </ItemGroup>
 </Project>

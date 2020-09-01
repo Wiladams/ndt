@@ -1,0 +1,71 @@
+%!PS
+% Procedures that help in printing types
+% This is already in the interpreter itself, written in C
+% but having these routines in postscript makes for some interesting
+% change capability
+
+% Postscript data types
+% arraytype
+% booleantype
+% dicttype
+% filetype
+% fonttype
+% integertype
+% marktype
+% nametype
+% nulltype
+% operatortype
+% packedarraytype
+% realtype
+% savetype
+% stringtype
+
+% calling format
+% anything ==
+% referenced in pstack and run
+% found in: systemdict
+/==						%
+{
+	//==dict
+	begin
+	/cp
+	0
+	def
+	typeprint
+	NL
+	print
+	end
+} def
+
+/typeprint
+{
+	dup
+	type
+	exec
+} def
+
+/tprint
+{
+	dup
+	length
+	cp
+	add
+	rmargin
+	gt
+	{
+		NL
+		print
+		/cp
+		0 
+		def
+	} if
+
+	dup
+	length
+	cp
+	add
+	/cp
+	exch
+	def
+	print
+} def
