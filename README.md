@@ -77,9 +77,9 @@ Examples
 * Project: [shapes](projects/shapes)
 * Notes: drawing path based shapes
 
-### sinewave
-* ![sinewave](docs/images/sinewave.png?raw=true)
-* Project: [sinewave](projects/sinewave)
+### sinwave
+* ![sinwave](docs/images/sinewave.png?raw=true)
+* Project: [sinwave](projects/sinwave)
 * Notes: display sin and cosine functions
 
 ### svgcolors
