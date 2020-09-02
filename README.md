@@ -78,13 +78,13 @@ Examples
 * Notes: Linear interpolation of color, fast polygon fill
 
 ### parimage
-* ![parimage](docs/images/parimage.png?raw=true)
+![parimage](docs/images/parimage.png?raw=true)</br>
 * Project: [parimage](projects/parimage)
 * Notes: pixel effects (masking, tinting)
 
-### raidbow
-* ![raidbow](docs/images/raidbow.png?raw=true)
-* Project: [raidbow](projects/raidbow)
+### rainbow
+![rainbow](docs/images/rainbow.png?raw=true)</br>
+* Project: [rainbow](projects/rainbow)
 * Notes: color blending, fullscreen, transparency
 
 ### screenplanes
