@@ -47,26 +47,35 @@ The projects directory contains a Visual Studio solutions file which gives you r
 Examples
 ========
 
+### bannersketch
+* ![bannersketch](docs/images/bannersketch.png?raw=true)
+* Project: [GitHub](projects/bannersketch)
+* Notes: semi-transparent, full screen overlay
+
 ### calendar
 * ![calendar](docs/images/calendar.png?raw=true)
 * Project: [GitHub](projects/calendar)
+* Notes: Text of different sizes, calendar object
 
 ### colorama
 * ![colorama](docs/images/colorama.png?raw=true)
 * Project: [GitHub](projects/colorama)
+* Notes: rgb color from frequency, gamma adjust
 
 ### compkeyboard
 * ![compkeyboard](docs/images/compkeyboard.png?raw=true)
 * Project: [GitHub](projects/compkeyboard)
+* Notes: transparent window, raw global keyboard input
 
 ### lerpcolor
 * ![lerpcolor](docs/images/lerpcolor.png?raw=true)
 * Project: [GitHub](projects/lerpcolor)
+* Notes: Linear interpolation of color, fast polygon fill
 
 ### wavemaker
 * ![wavemaker](docs/images/wavemaker.png?raw=true)
 * Project: [GitHub](projects/wavemaker)
-
+* Notes: follow the mouse, using trig functions
 
 Compiling
 =========
