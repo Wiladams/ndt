@@ -49,78 +49,76 @@ Examples
 
 ### analogclock
 <img src="docs/images/timeflies.png" alt="analogclock" width=240/></br>
-![analogclock](docs/images/timeflies.png?raw=true)
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
 
 ### bannersketch
 <img src="docs/images/bannersketch.png" alt="bannersketch" width=240/></br>
-![bannersketch](docs/images/bannersketch.png?raw=true)
 * Project: [bannersketch](projects/bannersketch)
 * Notes: semi-transparent, full screen overlay
 
 ### calendar
-![calendar](docs/images/calendar.png?raw=true)
+<img src="docs/images/calendar.png" alt="calendar" width=240/></br>
 * Project: [calendar](projects/calendar)
 * Notes: Text of different sizes, calendar object
 
 ### colorama
-![colorama](docs/images/colorama.png?raw=true)
+<img src="docs/images/colorama.png" alt="colorama" width=240/></br>
 * Project: [colorama](projects/colorama)
 * Notes: rgb color from frequency, gamma adjust
 
 ### compkeyboard
-![compkeyboard](docs/images/compkeyboard.png?raw=true)
+<img src="docs/images/compkeyboard.png" alt="compkeyboard" width=240/></br>
 * Project: [compkeyboard](projects/compkeyboard)
 * Notes: transparent window, raw global keyboard input, data structures
 
 ### lerpcolor
-![lerpcolor](docs/images/lerpcolor.png?raw=true)
+<img src="docs/images/lerpcolor.png" alt="lerpcolor" width=240/></br>
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
 
 ### parimage
-![parimage](docs/images/parimage.png?raw=true)</br>
+<img src="docs/images/parimage.png" alt="parimage" width=240/></br>
 * Project: [parimage](projects/parimage)
 * Notes: pixel effects (masking, tinting)
 
 ### rainbow
-![rainbow](docs/images/rainbow.png?raw=true)</br>
+<img src="docs/images/rainbow.png" alt="rainbow" width=240/></br>
 * Project: [rainbow](projects/rainbow)
 * Notes: color blending, fullscreen, transparency
 
 ### screenplanes
-![screenplanes](docs/images/screenplanes.png?raw=true)
+<img src="docs/images/screenplanes.png" alt="screenplanes" width=240/></br>
 * Project: [screenplanes](projects/screenplanes)
 * Notes: pixel operations to separate color planes, screen capture
 
 ### shapes
-![shapes](docs/images/shapes.png?raw=true)
+<img src="docs/images/shapes.png" alt="shapes" width=240/></br>
 * Project: [shapes](projects/shapes)
 * Notes: drawing path based shapes
 
 ### sinwave
-![sinwave](docs/images/sinewave.png?raw=true)
+<img src="docs/images/sinewave.png" alt="sinewave" width=240/></br>
 * Project: [sinwave](projects/sinwave)
 * Notes: display sin and cosine functions
 
 ### squardle
-![squardle](docs/images/squardle.png?raw=true)</br>
+<img src="docs/images/squardle.png" alt="squardle" width=240/></br>
 * Project: [squardle](projects/squardle)
 * Notes: drop shadows, painter's algorithm drawing
 
 ### svgcolors
-![svgcolors](docs/images/svgcolor.png?raw=true)</br>
+<img src="docs/images/svgcolor.png" alt="svgcolor" width=240/></br>
 * Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette
 
 ### targaviewer
-![targaviewer](docs/images/targaviewer.png?raw=true)</br>
+<img src="docs/images/targaviewer.png" alt="targaviewer" width=240/></br>
 * Project: [targaviewer](projects/targaviewer)
 * Notes: Display bitmap from .tga file
 
 ### wavemaker
-![wavemaker](docs/images/wavemaker.png?raw=true)
+<img src="docs/images/wavemaker.png" alt="wavemaker" width=240/></br>
 * Project: [wavemaker](projects/wavemaker)
 * Notes: follow the mouse, using trig functions
 
