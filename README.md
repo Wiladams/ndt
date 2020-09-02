@@ -72,6 +72,21 @@ Examples
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
 
+### shapes
+* ![shapes](docs/images/shapes.png?raw=true)
+* Project: [shapes](projects/shapes)
+* Notes: drawing path based shapes
+
+### sinewave
+* ![sinewave](docs/images/sinewave.png?raw=true)
+* Project: [sinewave](projects/sinewave)
+* Notes: display sin and cosine functions
+
+### svgcolor
+* ![svgcolor](docs/images/svgcolor.png?raw=true)
+* Project: [svgcolor](projects/svgcolor)
+* Notes: Display colors from SVG palette
+
 ### wavemaker
 * ![wavemaker](docs/images/wavemaker.png?raw=true)
 * Project: [wavemaker](projects/wavemaker)
