@@ -126,8 +126,6 @@ Most functions in ndt are encapsultated in classes that are in header files.  Th
 Random References
 ==========
 
-C# .net framework code
-https://referencesource.microsoft.com/
 
 https://github.com/Wiladams/NewTOAPIA
 
@@ -142,9 +140,7 @@ Things to try
 =============
 Processing and P5 worlds are full of great things to play with.
 
-http://haptic-data.com/toxiclibsjs/examples/force-directed-graph-p5
+* http://haptic-data.com/toxiclibsjs/examples/force-directed-graph-p5
+* https://natureofcode.com/book/
 
 
-Interesting Books
-=================
-https://natureofcode.com/book/
