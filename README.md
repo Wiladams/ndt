@@ -65,7 +65,7 @@ Examples
 ### compkeyboard
 * ![compkeyboard](docs/images/compkeyboard.png?raw=true)
 * Project: [compkeyboard](projects/compkeyboard)
-* Notes: transparent window, raw global keyboard input
+* Notes: transparent window, raw global keyboard input, data structures
 
 ### lerpcolor
 * ![lerpcolor](docs/images/lerpcolor.png?raw=true)
@@ -82,9 +82,9 @@ Examples
 * Project: [sinewave](projects/sinewave)
 * Notes: display sin and cosine functions
 
-### svgcolor
-* ![svgcolor](docs/images/svgcolor.png?raw=true)
-* Project: [svgcolor](projects/svgcolor)
+### svgcolors
+* ![svgcolors](docs/images/svgcolor.png?raw=true)
+* Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette
 
 ### wavemaker
