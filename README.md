@@ -47,7 +47,9 @@ The projects directory contains a Visual Studio solutions file which gives you r
 Examples
 ========
 
-![calendar](docs/images/calendar.png?raw=true)<br/>
+### calendar
+* ![calendar](docs/images/calendar.png?raw=true)
+* Project: [GitHub](projects/calendar)
 
 Compiling
 =========
