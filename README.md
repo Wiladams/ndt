@@ -51,6 +51,23 @@ Examples
 * ![calendar](docs/images/calendar.png?raw=true)
 * Project: [GitHub](projects/calendar)
 
+### colorama
+* ![colorama](docs/images/colorama.png?raw=true)
+* Project: [GitHub](projects/colorama)
+
+### compkeyboard
+* ![compkeyboard](docs/images/compkeyboard.png?raw=true)
+* Project: [GitHub](projects/compkeyboard)
+
+### lerpcolor
+* ![lerpcolor](docs/images/lerpcolor.png?raw=true)
+* Project: [GitHub](projects/lerpcolor)
+
+### wavemaker
+* ![wavemaker](docs/images/wavemaker.png?raw=true)
+* Project: [GitHub](projects/wavemaker)
+
+
 Compiling
 =========
 Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.  Currently
