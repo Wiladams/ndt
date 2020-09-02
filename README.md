@@ -48,7 +48,7 @@ Examples
 ========
 
 ### analogclock
-![analogclock](docs/images/timeflies.png=240x)
+<img src="docs/images/timeflies.png" alt="analogclock" width=240/>
 ![analogclock](docs/images/timeflies.png?raw=true)
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
