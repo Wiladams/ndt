@@ -48,32 +48,32 @@ Examples
 ========
 
 ### analogclock
-* ![analogclock](docs/images/timeflies.png?raw=true)
+![analogclock](docs/images/timeflies.png?raw=true)
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
 
 ### bannersketch
-* ![bannersketch](docs/images/bannersketch.png?raw=true)
+![bannersketch](docs/images/bannersketch.png?raw=true)
 * Project: [bannersketch](projects/bannersketch)
 * Notes: semi-transparent, full screen overlay
 
 ### calendar
-* ![calendar](docs/images/calendar.png?raw=true)
+![calendar](docs/images/calendar.png?raw=true)
 * Project: [calendar](projects/calendar)
 * Notes: Text of different sizes, calendar object
 
 ### colorama
-* ![colorama](docs/images/colorama.png?raw=true)
+![colorama](docs/images/colorama.png?raw=true)
 * Project: [colorama](projects/colorama)
 * Notes: rgb color from frequency, gamma adjust
 
 ### compkeyboard
-* ![compkeyboard](docs/images/compkeyboard.png?raw=true)
+![compkeyboard](docs/images/compkeyboard.png?raw=true)
 * Project: [compkeyboard](projects/compkeyboard)
 * Notes: transparent window, raw global keyboard input, data structures
 
 ### lerpcolor
-* ![lerpcolor](docs/images/lerpcolor.png?raw=true)
+![lerpcolor](docs/images/lerpcolor.png?raw=true)
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
 
@@ -88,17 +88,17 @@ Examples
 * Notes: color blending, fullscreen, transparency
 
 ### screenplanes
-* ![screenplanes](docs/images/screenplanes.png?raw=true)
+![screenplanes](docs/images/screenplanes.png?raw=true)
 * Project: [screenplanes](projects/screenplanes)
 * Notes: pixel operations to separate color planes, screen capture
 
 ### shapes
-* ![shapes](docs/images/shapes.png?raw=true)
+![shapes](docs/images/shapes.png?raw=true)
 * Project: [shapes](projects/shapes)
 * Notes: drawing path based shapes
 
 ### sinwave
-* ![sinwave](docs/images/sinewave.png?raw=true)
+![sinwave](docs/images/sinewave.png?raw=true)
 * Project: [sinwave](projects/sinwave)
 * Notes: display sin and cosine functions
 
@@ -118,7 +118,7 @@ Examples
 * Notes: Display bitmap from .tga file
 
 ### wavemaker
-* ![wavemaker](docs/images/wavemaker.png?raw=true)
+![wavemaker](docs/images/wavemaker.png?raw=true)
 * Project: [wavemaker](projects/wavemaker)
 * Notes: follow the mouse, using trig functions
 
