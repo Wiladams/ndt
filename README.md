@@ -49,7 +49,7 @@ Examples
 
 ### bannersketch
 * ![bannersketch](docs/images/bannersketch.png?raw=true)
-* Project: [GitHub](projects/bannersketch)
+* Project: [bannersketch](projects/bannersketch)
 * Notes: semi-transparent, full screen overlay
 
 ### calendar
@@ -59,22 +59,22 @@ Examples
 
 ### colorama
 * ![colorama](docs/images/colorama.png?raw=true)
-* Project: [GitHub](projects/colorama)
+* Project: [colorama](projects/colorama)
 * Notes: rgb color from frequency, gamma adjust
 
 ### compkeyboard
 * ![compkeyboard](docs/images/compkeyboard.png?raw=true)
-* Project: [GitHub](projects/compkeyboard)
+* Project: [compkeyboard](projects/compkeyboard)
 * Notes: transparent window, raw global keyboard input
 
 ### lerpcolor
 * ![lerpcolor](docs/images/lerpcolor.png?raw=true)
-* Project: [GitHub](projects/lerpcolor)
+* Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
 
 ### wavemaker
 * ![wavemaker](docs/images/wavemaker.png?raw=true)
-* Project: [GitHub](projects/wavemaker)
+* Project: [wavemaker](projects/wavemaker)
 * Notes: follow the mouse, using trig functions
 
 Compiling
