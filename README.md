@@ -82,6 +82,11 @@ Examples
 * Project: [sinwave](projects/sinwave)
 * Notes: display sin and cosine functions
 
+### squardle
+* ![squardle](docs/images/squardle.png?raw=true)
+* Project: [squardle](projects/squardle)
+* Notes: drop shadows, painter's algorithm drawing
+
 ### svgcolors
 * ![svgcolors](docs/images/svgcolor.png?raw=true)
 * Project: [svgcolors](projects/svgcolors)
