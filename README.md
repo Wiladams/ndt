@@ -72,6 +72,11 @@ Examples
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
 
+### screenplanes
+* ![screenplanes](docs/images/screenplanes.png?raw=true)
+* Project: [screenplanes](projects/screenplanes)
+* Notes: pixel operations to separate color planes, screen capture
+
 ### shapes
 * ![shapes](docs/images/shapes.png?raw=true)
 * Project: [shapes](projects/shapes)
