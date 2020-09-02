@@ -47,6 +47,11 @@ The projects directory contains a Visual Studio solutions file which gives you r
 Examples
 ========
 
+### analogclock
+* ![analogclock](docs/images/timeflies.png?raw=true)
+* Project: [analogclock](projects/analogclock)
+* Notes: animation, transparency, rotation
+
 ### bannersketch
 * ![bannersketch](docs/images/bannersketch.png?raw=true)
 * Project: [bannersketch](projects/bannersketch)
@@ -71,6 +76,16 @@ Examples
 * ![lerpcolor](docs/images/lerpcolor.png?raw=true)
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
+
+### parimage
+* ![parimage](docs/images/parimage.png?raw=true)
+* Project: [parimage](projects/parimage)
+* Notes: pixel effects (masking, tinting)
+
+### raidbow
+* ![raidbow](docs/images/raidbow.png?raw=true)
+* Project: [raidbow](projects/raidbow)
+* Notes: color blending, fullscreen, transparency
 
 ### screenplanes
 * ![screenplanes](docs/images/screenplanes.png?raw=true)
