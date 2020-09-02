@@ -103,12 +103,12 @@ Examples
 * Notes: display sin and cosine functions
 
 ### squardle
-* ![squardle](docs/images/squardle.png?raw=true)
+![squardle](docs/images/squardle.png?raw=true)</br>
 * Project: [squardle](projects/squardle)
 * Notes: drop shadows, painter's algorithm drawing
 
 ### svgcolors
-* ![svgcolors](docs/images/svgcolor.png?raw=true)
+![svgcolors](docs/images/svgcolor.png?raw=true)</br>
 * Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette
 
