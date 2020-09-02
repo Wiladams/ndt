@@ -48,6 +48,7 @@ Examples
 ========
 
 ### analogclock
+![analogclock](docs/images/timeflies.png=240x)
 ![analogclock](docs/images/timeflies.png?raw=true)
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
