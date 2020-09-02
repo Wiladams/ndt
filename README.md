@@ -112,6 +112,11 @@ Examples
 * Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette
 
+### targaviewer
+![targaviewer](docs/images/targaviewer.png?raw=true)</br>
+* Project: [targaviewer](projects/targaviewer)
+* Notes: Display bitmap from .tga file
+
 ### wavemaker
 * ![wavemaker](docs/images/wavemaker.png?raw=true)
 * Project: [wavemaker](projects/wavemaker)
