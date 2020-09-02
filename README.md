@@ -48,12 +48,13 @@ Examples
 ========
 
 ### analogclock
-<img src="docs/images/timeflies.png" alt="analogclock" width=240/>
+<img src="docs/images/timeflies.png" alt="analogclock" width=240/></br>
 ![analogclock](docs/images/timeflies.png?raw=true)
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
 
 ### bannersketch
+<img src="docs/images/bannersketch.png" alt="bannersketch" width=240/></br>
 ![bannersketch](docs/images/bannersketch.png?raw=true)
 * Project: [bannersketch](projects/bannersketch)
 * Notes: semi-transparent, full screen overlay
