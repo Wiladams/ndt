@@ -94,6 +94,8 @@ struct PSToken {
 	void setExecutable(const bool value){fIsExecutable = value;}
 	bool isExecutable() { return fIsExecutable; }
 
+	void setType(const PSTokenType value) { fType = value; }
+
 	PSToken& operator =(const bool value) { fData = value; return *this; }
 	PSToken& operator =(const double value) { fData = value; return *this; }
 	PSToken& operator =(const std::string& value) { fData = value; return *this; }

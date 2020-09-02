@@ -29,7 +29,7 @@ struct FlatShader : public virtual IShader {
 		vec3f bn = (varying_nrm * bar).normalize();
 
 		// figure out the color for the location
-		float diff = MAX(0.f, bn * light_dir);
+		float diff = p5::max(0.f, bn * light_dir);
 		ocolor = fColor;
 		ocolor = colormul(ocolor, diff);
 

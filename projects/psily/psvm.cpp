@@ -74,18 +74,15 @@ std::shared_ptr<PSToken> lex_name(PSScanner& scnr, shared_ptr<BinStream> bs)
 	auto len = ending - starting;
 	std::string value((char*)startPtr, len);
 
-	//auto tok = std::make_shared<PSToken>((char*)startPtr, len, PSTokenType::EXECUTABLE_NAME);
 	auto tok = std::make_shared<PSToken>(value, PSTokenType::EXECUTABLE_NAME);
 
 	if (value == "true" || (value == "false")) {
+		tok->setType(PSTokenType::BOOLEAN);
 		if (value == "true") {
 			*tok = true;
-		}
-		else {
+		} else {
 			*tok = false;
 		}
-
-		tok->fType = PSTokenType::BOOLEAN;
 	}
 
 	return tok;
@@ -99,7 +96,7 @@ std::unordered_map < int, std::function<shared_ptr<PSToken> (PSScanner& scnr, sh
 {
 	// [ - beginArray
 	{'[',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
-		return scnr.markOperandStack();
+		return scnr.beginArray();
 	}},
 	
 	// ] - endArray
@@ -174,20 +171,19 @@ std::shared_ptr<PSToken> beginHexString(PSScanner&, std::shared_ptr<BinStream> b
 */
 	// { - beginProcedure
 	{ '{',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
-		scnr.markOperandStack();
 		scnr.fBuildProcDepth += 1;
-
-		return nullptr;
+		
+		return scnr.markOperandStack();
 	}},
 
 	// } - endProcedure
 	{ '}',[](PSScanner& scnr, shared_ptr<BinStream> bs) {
-		auto arr = scnr.endArray();
-
-		arr->setExecutable(true);
+		auto tok = scnr.endArray();
+		tok->setType(PSTokenType::PROCEDURE);
+		tok->setExecutable(true);
 		scnr.fBuildProcDepth -= 1;
 
-		return arr;
+		return tok;
 	}},
 
 	// % - begin comment
@@ -226,6 +222,11 @@ shared_ptr<PSToken> PSScanner::markOperandStack()
 	return nullptr;
 }
 
+std::shared_ptr<PSToken> PSScanner::beginArray()
+{
+	return markOperandStack();
+}
+
 std::shared_ptr<PSToken> PSScanner::endArray()
 {
 	auto n = vm().operandStack().countToMark();
@@ -238,7 +239,7 @@ std::shared_ptr<PSToken> PSScanner::endArray()
 	}
 
 	// pop the marker itself
-	vm().popOperand();
+	auto op = vm().popOperand();
 
 	auto scannedTok = make_shared<PSToken>(arr);
 

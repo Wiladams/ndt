@@ -520,6 +520,7 @@ template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std:
 // Some concrete types
 using vec2 = vec<2, float>; 
 using ivec2 = vec<2, int>;
+using vec2i = vec<2, int>;
 using vec2f = vec<2, float>;
 using dvec2  = vec<2, double>;
 

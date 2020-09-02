@@ -26,7 +26,7 @@ struct IFragmentShader {
 // does not have a convenient multiply operator on it.
 	inline static BLRgba32 colormul(const BLRgba32& c, float intensity)
 	{
-		intensity = (float)constrain(intensity, 0, 1);
+		intensity = (float)maths::Clamp(intensity, 0, 1);
 		return { (uint32_t)(c.r * intensity), (uint32_t)(c.g * intensity), (uint32_t)(c.b * intensity) };
 	}
 };

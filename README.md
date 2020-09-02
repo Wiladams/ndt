@@ -5,46 +5,49 @@ Newgrammer Development Tools
 A newgrammer is someone who is new to programming.
 
 This repository contains examples of programming using the
-C++ language on the Windows platform.  Although the platform is
-Windows, the graphics subsystem is primarily supported by
-blend2d for vector graphics.
+C++ language on the Windows platform.  The exposure to Windows specifics is fairly minimal.  There is one combination of files which encapsulate putting a window on the screen and capturing user input:
+
+    * apphost.h
+    * appmain.cpp
+
+
+Graphics are supported by the blend2d library.  Other than that, there are no other external dependencies.
 
 In the directory structure, the '\primary' directory contains
 a bunch of very useful stuff that makes the programming super
-easy to play with.  Of particular note are 
+easy to play with.  The most direct and easy way to get started is to use the p5 combination of files
 
-At a bare minimum, you should compile these into your application
-so that you can put a windows on the screen with one line of code.
+    * p5.hpp
+    * p5.cpp
 
-apphost.h
-appmain.cpp
+This will give you an environment wherein you only need to implement a couple of functions to put something on the screen.  It is very similar to the original Processing environment, or p5.js, but done in C++
 
-For even more convenience, you can include the p5 set of functions.  These two files make it possible to write programs that
-roughly follow the P5 model of programming.  Very easy to do fairly
-simple things.
+```C++
 
-p5.hpp
-p5.cpp
+void setup()
+{
+    createCanvas(640,480);
+}
 
 
-At the moment, the projects do not leverage much of WinRT, but
-it does not preclude its usage either.
+void draw()
+{
+    // draw a rectangle
+    rect(10,10,100,100);
+}
+```
 
-For most graphics programming, the easiest thing to do is use the
-p5.hpp/.cpp files.  this gives you a ready made environment which 
-supports mouse, keyboard, joystick, touch, 2D vector graphics, and 
-a stopwatch, out of the box, before you write a single line of code.
 
-This makes for easy exploration.  Most other functions are included
-in .hpp files, so there's no additional libraries to drag in to try
-out simple things.
 
-This is a Windows specific set of code, which makes not attempt at 
-working on any other platform.  It is meant as a teaching tool for 
-those who are relatively new to programming.
 
-The projects directory contains a Visual Studio solutions file which
-gives you ready access to all the coded up examples.
+The code here is windows specific, which makes no attempt at being cross platform.  All windows specifics are encapsulated in the apphost/appmain combination though, so if you want to try your hand at doing cross platform things, porting those two files is pretty much all you would have to deal with.
+
+The projects directory contains a Visual Studio solutions file which gives you ready access to all the coded up examples.
+
+Examples
+========
+
+![calendar](docs/images/calendar.png?raw=true)<br/>
 
 Compiling
 =========
@@ -67,10 +70,6 @@ Need to set C++ runtime to /Mt
 Bits And Bobs
 =============
 
-ndt aims to be as independent as possible.  With the exception of the blend2d vector graphics library, there are no other dependencies.  the intention is to create 
-various functions from scratch, even though they typically already exist.
-Besides creating things from scratch, the environment is rich enough that playing
-with those creations should be relatively easy.
 
 
 Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'library' that programs link against.  Each program is individual, and compiles down to a fairly small size.

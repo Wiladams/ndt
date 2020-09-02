@@ -273,9 +273,10 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// def
 	{ "def", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = vm.popOperand()->asString();
+		auto key = vm.popOperand();
+		auto keyName = key->asString();
 
-		vm.dictionaryStack().def(key, value);
+		vm.dictionaryStack().def(keyName, value);
 	} },
 	
 	// load
@@ -285,6 +286,7 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 		if (nullptr == value) {
 			// print undefined key
+			// BUGBUG
 			return;
 		}
 
@@ -339,8 +341,8 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 	// make it the current dictionary
 	// by placing it atop the dictionary stack
 	{ "begin", [](PSVM& vm) {
-		auto dtok = vm.popOperand();
-		auto d = dtok->asDictionary();
+		auto tok = vm.popOperand();
+		auto d = tok->asDictionary();
 
 		vm.dictionaryStack().pushDictionary(d);
 	} },

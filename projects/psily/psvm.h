@@ -6,6 +6,7 @@
 #include "pstypes.h"
 
 
+
 #include <memory>
 #include <algorithm>
 #include <random>
@@ -32,6 +33,7 @@ public:
 	void decrementProcDepth() { fBuildProcDepth -= 1; }
 	bool isBuildingProc() { return fBuildProcDepth > 0; }
 
+	shared_ptr<PSToken> beginArray();
 	shared_ptr<PSToken> endArray();
 	shared_ptr<PSToken> markOperandStack();
 	shared_ptr<PSToken> nextToken();
