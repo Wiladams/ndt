@@ -54,7 +54,7 @@ Examples
 
 ### calendar
 * ![calendar](docs/images/calendar.png?raw=true)
-* Project: [GitHub](projects/calendar)
+* Project: [calendar](projects/calendar)
 * Notes: Text of different sizes, calendar object
 
 ### colorama
