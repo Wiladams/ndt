@@ -10,7 +10,8 @@
 
 // Setup a dispatch table for base operators
 // These will ultimately be copied into a dictionary
-std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
+// as OPERATOR tokens
+std::unordered_map < std::string, PS_Operator > PSBaseOperators
 {
 	// Stack management
 	{"clear", [](PSVM& vm) {vm.operandStack().clear(); }},
@@ -40,10 +41,9 @@ std::unordered_map < std::string, std::function<void(PSVM& vm)> > PSOperators
 
 	{"exch", [](PSVM& vm) {vm.operandStack().exch(); }},
 
-		// BUGBUG - use double
 	{"index", [](PSVM& vm) {
-		auto n = vm.operandStack().pop();
-		auto tok = vm.operandStack().nth((size_t)n->asDouble());
+		auto n = vm.popOperand()->asDouble();
+		auto tok = vm.operandStack().nth((size_t)n);
 		vm.pushOperand(tok);
 	}},
 

@@ -114,7 +114,7 @@ Examples
 
 ### targaviewer
 <img src="docs/images/targaviewer.png" alt="targaviewer" width=240/></br>
-* Project: [targaviewer](projects/targaviewer)
+* Project: [tgaviewer](projects/tgaviewer)
 * Notes: Display bitmap from .tga file
 
 ### wavemaker

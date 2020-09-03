@@ -24,7 +24,7 @@ void setup()
 	//printf("fs.isValid(): %d\n", fs->isValid());
 
 	PSVM vm;
-	vm.eval(fs);
+	vm.evalStream(fs);
 	
 	noLoop();
 }

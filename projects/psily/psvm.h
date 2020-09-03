@@ -66,7 +66,7 @@ public:
 	void execName(shared_ptr<PSToken> tok);
 
 	// Evaluating commands
-	void eval(shared_ptr<BinStream> bs);
-	void eval(std::string s);
+	void evalStream(shared_ptr<BinStream> bs);
+
 
 };

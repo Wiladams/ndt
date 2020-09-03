@@ -63,6 +63,8 @@ public:
 			return false;
 
 		current->insert_or_assign(key, value);
+
+		return true;
 	}
 
 	shared_ptr<PSDictionary> where(std::string key)

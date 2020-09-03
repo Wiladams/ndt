@@ -400,7 +400,7 @@ PSVM::PSVM()
 	// Base operators, graphics, file all go into 
 	// initial userdict
 	auto d = make_shared<PSDictionary>();
-	d->addOperators(PSOperators);
+	d->addOperators(PSBaseOperators);
 
 
 	fDictionaryStack.pushDictionary(d);
@@ -440,16 +440,21 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 
 void PSVM::execName(shared_ptr<PSToken> tok)
 {
+	// lookup the name in the dictionary stack
 	auto key = tok->asString();
 	auto op = fDictionaryStack.load(key);
 	
+	// if the name is not found, report error and continue
 	if (op == nullptr) {
 		std::cout << "UNKNOWN EXECUTABLE NAME: " << key << std::endl;
 		return;
 	}
 
-	//std::cout << "execName: " << *tok->fData.asString << "  opType: " << std::to_string((int)op->fType) << std::endl;
+	//std::cout << "execName: ";
+	// tok->printValue(std::cout) << std::endl;
 
+	// We found an object associated with the name.  
+	// Take action based on the type of the found object
 	switch (op->fType)
 	{
 	case PSTokenType::BOOLEAN:
@@ -463,6 +468,7 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 		break;
 
 	case PSTokenType::PROCEDURE:
+	case PSTokenType::LITERAL_ARRAY:
 		if (op->isExecutable()) {
 			execArray(op);
 		}
@@ -476,28 +482,27 @@ void PSVM::execName(shared_ptr<PSToken> tok)
 	}
 }
 
-void PSVM::eval(std::shared_ptr<BinStream> bs)
+void PSVM::evalStream(std::shared_ptr<BinStream> bs)
 {
 	PSScanner scnr(*this, bs);
 
-	//Iterate through tokens
+	// Alternate between grabbing a token
+	// and executing something
 	while (!bs->isEOF()) {
 		auto tok = scnr.nextToken();
 		if (nullptr == tok)
 			break;
 
 		//std::cout << "eval: " << tok->fData << std::endl;
-		std::cout << "eval: ";
-		tok->printValue(std::cout);
-		std::cout << std::endl;
+		//std::cout << "eval: ";
+		//tok->printValue(std::cout) << std::endl;
 
 		if (tok->fType == PSTokenType::EXECUTABLE_NAME) {
 			execName(tok);
-		}
-		else if (tok->fType == PSTokenType::COMMENT) {
+		} else if (tok->fType == PSTokenType::COMMENT) {
 			// throw comments away, or do document processing
-		}
-		else {
+		} else {
+			// by default, just place the token on the operand stack
 			pushOperand(tok);
 		}
 	}

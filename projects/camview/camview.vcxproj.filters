@@ -18,7 +18,7 @@
     <ClCompile Include="camview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\core\appmain.cpp">
+    <ClCompile Include="..\..\primary\appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
