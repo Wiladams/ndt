@@ -102,6 +102,11 @@ Examples
 * Project: [sinwave](projects/sinwave)
 * Notes: display sin and cosine functions
 
+### sketchy
+<img src="docs/images/sketchy.png" alt="sketchy" width=240/></br>
+* Project: [sketchy](projects/sketchy)
+* Notes: drawing program, mouse, path, pen
+
 ### squardle
 <img src="docs/images/squardle.png" alt="squardle" width=240/></br>
 * Project: [squardle](projects/squardle)
@@ -110,7 +115,7 @@ Examples
 ### svgcolors
 <img src="docs/images/svgcolor.png" alt="svgcolor" width=240/></br>
 * Project: [svgcolors](projects/svgcolors)
-* Notes: Display colors from SVG palette
+* Notes: Display colors from SVG palette, scroll with mouse wheel
 
 ### targaviewer
 <img src="docs/images/targaviewer.png" alt="targaviewer" width=240/></br>

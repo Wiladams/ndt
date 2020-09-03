@@ -4,8 +4,7 @@ using namespace p5;
 
 
 Pixel appTabColor(255, 253, 205);
-//Pixel appTabColor(0,0,0);
-//Pixel appTabColor(255,255,255);
+
 
 static const int maxLevels = 9;
 static const int maxShadowLength = 6;
