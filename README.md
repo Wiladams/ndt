@@ -72,10 +72,20 @@ Examples
 * Project: [compkeyboard](projects/compkeyboard)
 * Notes: transparent window, raw global keyboard input, data structures
 
+### finalysis
+<img src="docs/images/finalysis.png" alt="finalysis" width=240/></br>
+* Project: [finalysis](projects/finalysis)
+* Notes: windows, file drop, file stream
+
 ### lerpcolor
 <img src="docs/images/lerpcolor.png" alt="lerpcolor" width=240/></br>
 * Project: [lerpcolor](projects/lerpcolor)
 * Notes: Linear interpolation of color, fast polygon fill
+
+### lsystem
+<img src="docs/images/lsystem.png" alt="lsystem" width=240/></br>
+* Project: [lsystem](projects/lsystem)
+* Notes: lindemeyer system, whole desktop transparency
 
 ### parimage
 <img src="docs/images/parimage.png" alt="parimage" width=240/></br>
