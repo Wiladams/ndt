@@ -78,6 +78,11 @@ Examples
 * Project: [shapes](projects/shapes)
 * Notes: drawing path based shapes
 
+### simchain
+<img src="docs/images/simchain.png" alt="simchain" width=240/></br>
+* Project: [simchain](projects/simchain)
+* Notes: simulated springs, full screen, semi-transparent
+
 ### sinwave
 <img src="docs/images/sinewave.png" alt="sinewave" width=240/></br>
 * Project: [sinwave](projects/sinwave)
@@ -87,6 +92,16 @@ Examples
 <img src="docs/images/sketchy.png" alt="sketchy" width=240/></br>
 * Project: [sketchy](projects/sketchy)
 * Notes: drawing program, mouse, path, pen
+
+### snapview
+<img src="docs/images/snapview.png" alt="snapview" width=240/></br>
+* Project: [snapview](projects/snapview)
+* Notes: screen snapshot, mipmap
+
+### spirograph
+<img src="docs/images/spirograph.png" alt="spirograph" width=240/></br>
+* Project: [spirograph](projects/spirograph)
+* Notes: screen snapshot, mipmap
 
 ### squardle
 <img src="docs/images/squardle.png" alt="squardle" width=240/></br>

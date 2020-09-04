@@ -131,6 +131,13 @@ void setup()
 		theString = lindenmayer(theString);
 	}
 
-    layered();
-    setWindowPosition(0, 0);
+    fullscreen();
+}
+
+// halt the entire application once a user
+// presses the 'escape' key
+void keyReleased(const KeyboardEvent& e)
+{
+    if (e.keyCode == VK_ESCAPE)
+        halt();
 }
