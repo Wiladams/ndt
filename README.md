@@ -97,6 +97,11 @@ Examples
 * Project: [rainbow](projects/rainbow)
 * Notes: color blending, fullscreen, transparency
 
+### ratiow
+<img src="docs/images/ratiow.png" alt="ratiow" width=240/></br>
+* Project: [ratiow](projects/ratiow)
+* Notes: ray tracer, buttons
+
 ### screenplanes
 <img src="docs/images/screenplanes.png" alt="screenplanes" width=240/></br>
 * Project: [screenplanes](projects/screenplanes)
