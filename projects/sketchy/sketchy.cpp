@@ -36,7 +36,7 @@ Pixel canvasColor(255,255,255);
 Pixel canvasShadowColor(187, 199, 215);
 
 // Tabs for the toolbar
-TabViewSet tabSet;
+TabViewSet tabSet(800,100);
 
 void draw()
 {

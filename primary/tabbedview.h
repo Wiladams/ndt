@@ -10,8 +10,6 @@
 
 
 class TabbedView : public Graphic {
-
-	//BLRect fFrame;		// frame for the whole graphic
 	
 	// Content Area details
 	GPath fWholePath;
@@ -58,7 +56,6 @@ public:
 	void setTabColor(const Pixel& c) { fTabColor = c; }
 
 	void drawBackground(IGraphics* ctx)
-	//virtual void draw(IGraphics* ctx) 
 	{
 		// Stroke the overall outline
 		// Stroke this first, and allow the filling to

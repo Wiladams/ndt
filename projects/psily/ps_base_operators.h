@@ -8,8 +8,8 @@
 #include <random>
 #include <iostream>
 
-// Setup a dispatch table for base operators
-// These will ultimately be copied into a dictionary
+// Setup a table to contain the base operators
+// These should be copied into a dictionary
 // as OPERATOR tokens
 std::unordered_map < std::string, PS_Operator > PSBaseOperators
 {
@@ -52,9 +52,9 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	{"pop", [](PSVM& vm) {vm.operandStack().pop(); }},
 
 	{"roll", [](PSVM& vm) {
-		auto j = vm.operandStack().pop();
-		auto n = vm.operandStack().pop();
-		vm.operandStack().roll((int)n->asDouble(), (int)j->asDouble());
+		auto j = vm.popOperand()->asDouble();
+		auto n = vm.popOperand()->asDouble();
+		vm.operandStack().roll((int)n, (int)j);
 	}},
 
 	//{"top", [](PSVM& vm) {vm.operandStack().top(); }},
@@ -65,9 +65,9 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	// Arithmetic and Mathematical Operators
 	// Pop two arguments off stack, put result back on stack
 	{"add", [](PSVM& vm) {
-			auto num2 = vm.operandStack().pop();
-			auto num1 = vm.operandStack().pop();
-			auto tok = make_shared<PSToken>(num1->asDouble() + num2->asDouble());
+			auto num2 = vm.popOperand()->asDouble();
+			auto num1 = vm.popOperand()->asDouble();
+			auto tok = make_shared<PSToken>(num1 + num2);
 
 			vm.pushOperand(tok);
 	}},
@@ -281,8 +281,8 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	
 	// load
 	{ "load", [](PSVM& vm) {
-		auto key = vm.popOperand()->asString();
-		auto value = vm.dictionaryStack().load(key);
+		auto keyName = vm.popOperand()->asString();
+		auto value = vm.dictionaryStack().load(keyName);
 
 		if (nullptr == value) {
 			// print undefined key
@@ -296,9 +296,9 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	// store
 	{ "store", [](PSVM& vm) {
 		auto value = vm.popOperand();
-		auto key = vm.popOperand()->asString();
+		auto keyName = vm.popOperand()->asString();
 
-		vm.dictionaryStack().store(key, value);
+		vm.dictionaryStack().store(keyName, value);
 	} },
 
 	// where
@@ -398,7 +398,7 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	// without disturbing stack contents
 	{ "stack", [](PSVM& vm) {
 		for (auto& it : vm.operandStack().fContainer) {
-			//std::cout << it->fData << std::endl;
+			it->printValue(std::cout);
 		}
 	} },
 	
