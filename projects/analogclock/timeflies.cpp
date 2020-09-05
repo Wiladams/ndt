@@ -70,10 +70,7 @@ void setup()
     clocks.push_back(AnalogClock(displayWidth/2, displayHeight/2, 90));
 
     // Create a transparent canvas the size of the screen
-    createCanvas(displayWidth, displayHeight);
+    fullscreen();
 
-    setWindowPosition(0, 0);
-
-    layered();
     frameRate(30);
 }

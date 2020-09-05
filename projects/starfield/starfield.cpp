@@ -76,14 +76,14 @@ void draw()
 		int mx = (int)map(mouseX, 0, width - 1, width - 1, 0);
 		int my = (int)map(mouseY, height - bottomMargin, height, height - bottomMargin, 0);
 
-		std::cout << "mx: " << mx << " my: " << my << std::endl;
+		//std::cout << "mx: " << mx << " my: " << my << std::endl;
 
 		// When you want to use the position for steering
 		// you'll want to center to track the mouse position
 		centerX = mx + posOffsetX;
 		centerY = my + posOffsetY;
 	}
-	std::cout << centerX << " " << centerY << std::endl;
+	//std::cout << centerX << " " << centerY << std::endl;
 
 	push();
 	translate(centerX, centerY);
@@ -98,7 +98,7 @@ void draw()
 	fill(127);
 	rect(0, height - bottomMargin, width, bottomMargin);
 
-	noLoop();
+	//noLoop();
 }
 
 void setup()
@@ -110,6 +110,6 @@ void setup()
 	}
 
 	centerX = width / 2;
-	//layered();
+	layered();
 	setWindowPosition(0, 0);
 }
