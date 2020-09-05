@@ -108,6 +108,11 @@ Examples
 * Project: [squardle](projects/squardle)
 * Notes: drop shadows, painter's algorithm drawing
 
+### starfield
+<img src="docs/images/starfield.png" alt="starfield" width=240/></br>
+* Project: [starfield](projects/starfield)
+* Notes: animation, full screen
+
 ### svgcolors
 <img src="docs/images/svgcolor.png" alt="svgcolor" width=240/></br>
 * Project: [svgcolors](projects/svgcolors)
