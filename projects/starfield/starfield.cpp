@@ -14,8 +14,8 @@ using namespace p5;
 
 double speed = 1;
 static const double MaxSpeed = 300;
-//static const int MaxStars = 2400;
-static const int MaxStars = 10;
+static const int MaxStars = 2400;
+//static const int MaxStars = 10;
 static const int bottomMargin = 160; 
 
 int centerX;
@@ -53,14 +53,12 @@ void mouseWheel(const MouseEvent& e)
 	}
 }
 
-
-
 void draw()
 {
 	clear();
 
-	//if (joy1.isValid()) {
-	if (false) {
+	if (joy1.isValid()) {
+	//if (false) {
 		// Get joystick position information
 		JoystickEvent je;
 		joy1.getPosition(je);
@@ -98,7 +96,7 @@ void draw()
 	fill(127);
 	rect(0, height - bottomMargin, width, bottomMargin);
 
-	//noLoop();
+	flush();
 }
 
 void setup()
