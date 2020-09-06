@@ -5,6 +5,7 @@
 */
 
 #include "appconfig.h"
+#include "pubsub.h"
 
 #include <vector>
 #include <string>
@@ -120,6 +121,11 @@ struct JoystickEvent {
     double u;
     double v;
 };
+
+// Doing C++ pub/sub
+using MouseEventTopic = Topic<MouseEvent &>;
+using KeyboardEventTopic = Topic<KeyboardEvent &>;
+using JoystickEventTopic = Topic<JoystickEvent &>;
 
 
 #ifdef __cplusplus

@@ -120,3 +120,9 @@ EXPORT bool setCanvasSize(long aWidth, long aHeight);
 #ifdef __cplusplus
 }
 #endif
+
+// Make Topic publishers available
+
+EXPORT void subscribe(MouseEventTopic::Subscriber s);
+EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
+EXPORT void subscribe(JoystickEventTopic::Subscriber s);

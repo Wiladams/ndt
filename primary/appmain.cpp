@@ -44,14 +44,17 @@ static WinMSGObserver gPaintHandler = nullptr;
 // Keyboard
 static WinMSGObserver gKeyboardMessageHandler = nullptr;
 static KeyEventHandler gKeyboardEventHandler = nullptr;
+KeyboardEventTopic gKeyboardEventTopic;
 
 // Mouse
 static WinMSGObserver gMouseMessageHandler = nullptr;
 static MouseEventHandler gHandleMouseEventHandler = nullptr;
+MouseEventTopic gMouseEventTopic;
 
 // Joystick
 static WinMSGObserver gJoystickMessageHandler = nullptr;
 static JoystickEventHandler gHandleJoystickEvent = nullptr;
+JoystickEventTopic gJoystickEventTopic;
 
 // Touch
 static WinMSGObserver gTouchMessageHandler = nullptr;
@@ -239,6 +242,12 @@ void setFrameRate(int newRate)
 
 
 
+// Allow subscription to keyboard events
+void subscribe(KeyboardEventTopic::Subscriber s)
+{
+    gKeyboardEventTopic.subscribe(s);
+}
+
 /*
     Turn Windows keyboard messages into keyevents that can 
     more easily be handled at the application level
@@ -276,6 +285,9 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         gKeyboardEventHandler(e);
     else
         std::cout << "NO KEYBOARD EVENT HANDLER!!\n";
+    
+    // publish keyboard event
+    gKeyboardEventTopic.notify(e);
 
     return res;
 }
@@ -286,6 +298,13 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     Turn Windows mouse messages into mouse events which can
     be dispatched by the application.
 */
+
+// Allow subscription to mouse events
+void subscribe(MouseEventTopic::Subscriber s)
+{
+    gMouseEventTopic.subscribe(s);
+}
+
 LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {   
     LRESULT res = 0;
@@ -340,9 +359,18 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (gHandleMouseEventHandler != nullptr)
         gHandleMouseEventHandler(e);
 
+    gMouseEventTopic.notify(e);
+
     return res;
 }
 
+
+
+// Allow subscription to mouse events
+void subscribe(JoystickEventTopic::Subscriber s)
+{
+    gJoystickEventTopic.subscribe(s);
+}
 
 // 
 // Handling the joystick messages through the Windows
@@ -418,6 +446,8 @@ LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     if (gHandleJoystickEvent != nullptr)
         gHandleJoystickEvent(e);
+
+    gJoystickEventTopic.notify(e);
 
     return res;
 }
