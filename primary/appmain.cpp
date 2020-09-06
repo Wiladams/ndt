@@ -3,7 +3,7 @@
 #include "apphost.h"
 
 #include "LayeredWindow.hpp"
-#include "TimeTicker.hpp"
+//#include "TimeTicker.hpp"
 #include "joystick.h"
 #include "stopwatch.hpp"
 
@@ -43,12 +43,10 @@ static WinMSGObserver gPaintHandler = nullptr;
 
 // Keyboard
 static WinMSGObserver gKeyboardMessageHandler = nullptr;
-static KeyEventHandler gKeyboardEventHandler = nullptr;
 KeyboardEventTopic gKeyboardEventTopic;
 
 // Mouse
 static WinMSGObserver gMouseMessageHandler = nullptr;
-static MouseEventHandler gHandleMouseEventHandler = nullptr;
 MouseEventTopic gMouseEventTopic;
 
 // Joystick
@@ -73,7 +71,7 @@ static FileDropEventHandler gFileDroppedHandler = nullptr;
 int gargc;
 char **gargv;
 
-TimeTicker *gAppTicker = nullptr;
+//TimeTicker *gAppTicker = nullptr;
 StopWatch appStopWatch;
 double deltaTime = 0;
 double gAppLastTime = 0;
@@ -216,10 +214,10 @@ void setFrameRate(int newRate)
 {
     gFPS = newRate;
 
-    if (gAppTicker != nullptr) {
-        gAppTicker->stop();
-        delete gAppTicker;
-    }
+    //if (gAppTicker != nullptr) {
+    //    gAppTicker->stop();
+    //    delete gAppTicker;
+    //}
 
     /*
         int64_t interval = (int64_t)(1000.0 / gFPS);
@@ -242,11 +240,7 @@ void setFrameRate(int newRate)
 
 
 
-// Allow subscription to keyboard events
-void subscribe(KeyboardEventTopic::Subscriber s)
-{
-    gKeyboardEventTopic.subscribe(s);
-}
+
 
 /*
     Turn Windows keyboard messages into keyevents that can 
@@ -280,11 +274,6 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             e.activity = KEYTYPED;
             break;
     }
-
-    if (gKeyboardEventHandler != nullptr)
-        gKeyboardEventHandler(e);
-    else
-        std::cout << "NO KEYBOARD EVENT HANDLER!!\n";
     
     // publish keyboard event
     gKeyboardEventTopic.notify(e);
@@ -298,13 +287,6 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     Turn Windows mouse messages into mouse events which can
     be dispatched by the application.
 */
-
-// Allow subscription to mouse events
-void subscribe(MouseEventTopic::Subscriber s)
-{
-    gMouseEventTopic.subscribe(s);
-}
-
 LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {   
     LRESULT res = 0;
@@ -356,9 +338,6 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    if (gHandleMouseEventHandler != nullptr)
-        gHandleMouseEventHandler(e);
-
     gMouseEventTopic.notify(e);
 
     return res;
@@ -366,11 +345,6 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 
-// Allow subscription to mouse events
-void subscribe(JoystickEventTopic::Subscriber s)
-{
-    gJoystickEventTopic.subscribe(s);
-}
 
 // 
 // Handling the joystick messages through the Windows
@@ -622,6 +596,29 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
+
+/*
+    Subscription routines
+*/
+// Allow subscription to keyboard events
+void subscribe(KeyboardEventTopic::Subscriber s)
+{
+    gKeyboardEventTopic.subscribe(s);
+}
+
+// Allow subscription to mouse events
+void subscribe(MouseEventTopic::Subscriber s)
+{
+    gMouseEventTopic.subscribe(s);
+}
+
+// Allow subscription to mouse events
+void subscribe(JoystickEventTopic::Subscriber s)
+{
+    gJoystickEventTopic.subscribe(s);
+}
+
+
 // Setup the routines that will handle
 // keyboard and mouse events
 void registerHandlers()
@@ -652,16 +649,12 @@ void registerHandlers()
     if (handler != nullptr) {
         gKeyboardMessageHandler = handler;
     }
-    gKeyboardEventHandler = (KeyEventHandler)GetProcAddress(hInst, "handleKeyboardEvent");
-
 
     gMouseMessageHandler = HandleMouseMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
     if (handler != nullptr) {
         gMouseMessageHandler = handler;
     }
-    gHandleMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "handleMouseEvent");
-
 
     gJoystickMessageHandler = HandleJoystickMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "joystickMessageHandler");

@@ -661,10 +661,25 @@ void onFrame()
     p5::frameCount = p5::frameCount + 1;
 }
 
+
+
+static void p5keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
+{
+    handleKeyboardEvent(e);
+}
+
+static void p5mouseSubscriber(const MouseEventTopic &p, const MouseEvent& e)
+{
+    handleMouseEvent(e);
+}
+
 void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
+    // setup subscriptions
+    subscribe(p5mouseSubscriber);
+    subscribe(p5keyboardSubscriber);
 
     // load the setup() function if user specified
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
@@ -673,7 +688,7 @@ void onLoad()
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
 
     // Look for implementation of mouse events
-    gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
+    //gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
     gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
     gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
     gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
@@ -753,9 +768,9 @@ void handleMouseEvent(const MouseEvent& e)
         gWindowManager->mouseEvent(e);
     }
 
-    if (gMouseEventHandler) {
-        gMouseEventHandler(e);
-    }
+    //if (gMouseEventHandler) {
+    //    gMouseEventHandler(e);
+    //}
 
     switch (e.activity) {
 
@@ -800,6 +815,8 @@ void handleMouseEvent(const MouseEvent& e)
 
  
 }
+
+
 
 void handleJoystickEvent(const JoystickEvent& e)
 {
