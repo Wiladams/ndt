@@ -126,7 +126,7 @@ struct JoystickEvent {
 using MouseEventTopic = Topic<MouseEvent &>;
 using KeyboardEventTopic = Topic<KeyboardEvent &>;
 using JoystickEventTopic = Topic<JoystickEvent &>;
-
+using FileDropEventTopic = Topic<FileDropEvent&>;
 
 #ifdef __cplusplus
 extern "C" {

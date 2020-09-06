@@ -5,7 +5,6 @@
 	which would give a wider variety of inputs.
 */
 #include "p5.hpp"
-
 #include "graphic.hpp"
 
 using namespace p5;

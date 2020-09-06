@@ -122,14 +122,9 @@ public:
 	{
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
-			g->draw(ctx);
+			if (nullptr != g)
+				g->draw(ctx);
 		}
-		ctx->flush();
-
-		//for (size_t i = 0; i < fChildren.size(); i++)
-		//{
-		//	fChildren[i]->draw(ctx);
-		//}
 	}
 
 	virtual void drawSelf(IGraphics* ctx)

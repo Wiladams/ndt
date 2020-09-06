@@ -126,3 +126,4 @@ EXPORT bool setCanvasSize(long aWidth, long aHeight);
 EXPORT void subscribe(MouseEventTopic::Subscriber s);
 EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 EXPORT void subscribe(JoystickEventTopic::Subscriber s);
+EXPORT void subscribe(FileDropEventTopic::Subscriber s);

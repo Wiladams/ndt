@@ -26,6 +26,9 @@ static JoystickEventHandler gJoystickReleasedHandler = nullptr;
 static JoystickEventHandler gJoystickMovedHandler = nullptr;
 static JoystickEventHandler gJoystickMovedZHandler = nullptr;
 
+// File dropping
+static FileDropEventHandler gFileDroppedHandler = nullptr;
+
 // Touch event handling
 static TouchEventHandler gTouchStartedHandler = nullptr;
 static TouchEventHandler gTouchEndedHandler = nullptr;
@@ -662,70 +665,6 @@ void onFrame()
 }
 
 
-
-static void p5keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
-{
-    handleKeyboardEvent(e);
-}
-
-static void p5mouseSubscriber(const MouseEventTopic &p, const MouseEvent& e)
-{
-    handleMouseEvent(e);
-}
-
-void onLoad()
-{
-    HMODULE hInst = ::GetModuleHandleA(NULL);
-
-    // setup subscriptions
-    subscribe(p5mouseSubscriber);
-    subscribe(p5keyboardSubscriber);
-
-    // load the setup() function if user specified
-    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
-
-    // Look for implementation of drawing handler
-    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
-
-    // Look for implementation of mouse events
-    //gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
-    gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
-    gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
-    gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
-    gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
-    gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
-    gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
-
-    // Look for implementation of keyboard events
-    gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
-    gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
-    gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
-
-    // Look for implementation of joystick events
-    gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
-    gJoystickReleasedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyReleased");
-    gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
-    gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
-
-    // Touch event routines
-    gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
-    gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
-    gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
-    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
-
-    gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
-
-    // Call a setup routine if the user specified one
-    if (gSetupHandler != nullptr) {
-        gSetupHandler();
-    }
-
-    // do drawing at least once in case
-    // the user calls noLoop() within 
-    // the setup() routine
-    forceRedraw(nullptr, 0);
-}
-
 void handleKeyboardEvent(const KeyboardEvent& e)
 {
     //std::cout << "keyboardEvent: " << e.activity << "\n" ;
@@ -813,10 +752,8 @@ void handleMouseEvent(const MouseEvent& e)
         break;
     }
 
- 
+
 }
-
-
 
 void handleJoystickEvent(const JoystickEvent& e)
 {
@@ -846,32 +783,39 @@ void handleJoystickEvent(const JoystickEvent& e)
     }
 }
 
+void handleFileDroppedEvent(const FileDropEvent& e)
+{
+    // do the file drop handling
+    if (nullptr != gFileDroppedHandler)
+        gFileDroppedHandler(e);
+}
+
 // Handle a singular touch event
 // dispatch to user provided functions
-void handleTouchEvent(const TouchEvent &e)
+void handleTouchEvent(const TouchEvent& e)
 {
     switch (e.activity)
     {
         // switch based on activity
-        case TOUCH_DOWN: {
-            if (gTouchStartedHandler)
-                gTouchStartedHandler(e);
-        }
+    case TOUCH_DOWN: {
+        if (gTouchStartedHandler)
+            gTouchStartedHandler(e);
+    }
 
-        case TOUCH_UP: {
-            if (gTouchEndedHandler)
-                gTouchEndedHandler(e);
-        }
+    case TOUCH_UP: {
+        if (gTouchEndedHandler)
+            gTouchEndedHandler(e);
+    }
 
-        case TOUCH_MOVE: {
-            if (gTouchMovedHandler)
-                gTouchMovedHandler(e);
-        }
+    case TOUCH_MOVE: {
+        if (gTouchMovedHandler)
+            gTouchMovedHandler(e);
+    }
 
-        case TOUCH_HOVER: {
-            if (gTouchHoverHandler)
-                gTouchHoverHandler(e);
-        }
+    case TOUCH_HOVER: {
+        if (gTouchHoverHandler)
+            gTouchHoverHandler(e);
+    }
     }
 
 }
@@ -880,3 +824,85 @@ void handlePointerEvent(const PointerEvent& e)
 {
     std::cout << "p5::handlePointerEvent" << std::endl;
 }
+
+
+static void p5keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
+{
+    handleKeyboardEvent(e);
+}
+
+static void p5mouseSubscriber(const MouseEventTopic &p, const MouseEvent& e)
+{
+    handleMouseEvent(e);
+}
+
+static void p5joystickSubscriber(const JoystickEventTopic& p, const JoystickEvent& e)
+{
+    handleJoystickEvent(e);
+}
+
+static void p5filedroppedSubscriber(const FileDropEventTopic& p, const FileDropEvent& e)
+{
+    handleFileDroppedEvent(e);
+}
+
+void onLoad()
+{
+    HMODULE hInst = ::GetModuleHandleA(NULL);
+
+    // setup subscriptions
+    subscribe(p5mouseSubscriber);
+    subscribe(p5keyboardSubscriber);
+    subscribe(p5joystickSubscriber);
+    subscribe(p5filedroppedSubscriber);
+
+    // load the setup() function if user specified
+    gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+
+    // Look for implementation of drawing handler
+    gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
+
+    // Look for implementation of mouse events
+    //gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
+    gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
+    gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
+    gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
+    gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
+    gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
+    gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
+
+    // Look for implementation of keyboard events
+    gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
+    gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
+    gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+
+    // Look for implementation of joystick events
+    gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
+    gJoystickReleasedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyReleased");
+    gJoystickMovedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMoved");
+    gJoystickMovedZHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyMovedZ");
+
+    // File dropping
+    gFileDroppedHandler = (FileDropEventHandler)GetProcAddress(hInst, "fileDrop");
+
+    // Touch event routines
+    gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
+    gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
+    gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
+    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
+
+    gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
+
+    // Call a setup routine if the user specified one
+    if (gSetupHandler != nullptr) {
+        gSetupHandler();
+    }
+
+    // do drawing at least once in case
+    // the user calls noLoop() within 
+    // the setup() routine
+    forceRedraw(nullptr, 0);
+}
+
+
+

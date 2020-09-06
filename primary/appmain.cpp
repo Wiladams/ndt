@@ -41,18 +41,11 @@ static PFNDOUBLE1 gUpdateHandler = nullptr;
 // Painting
 static WinMSGObserver gPaintHandler = nullptr;
 
-// Keyboard
-static WinMSGObserver gKeyboardMessageHandler = nullptr;
+// Topics applications can subscribe to
 KeyboardEventTopic gKeyboardEventTopic;
-
-// Mouse
-static WinMSGObserver gMouseMessageHandler = nullptr;
 MouseEventTopic gMouseEventTopic;
-
-// Joystick
-static WinMSGObserver gJoystickMessageHandler = nullptr;
-static JoystickEventHandler gHandleJoystickEvent = nullptr;
 JoystickEventTopic gJoystickEventTopic;
+FileDropEventTopic gFileDropEventTopic;
 
 // Touch
 static WinMSGObserver gTouchMessageHandler = nullptr;
@@ -63,8 +56,6 @@ static WinMSGObserver gPointerMessageHandler = nullptr;
 static PointerEventHandler gPointerEventHandler = nullptr;
 
 // Drag and Drop
-static WinMSGObserver gFileDropHandler = nullptr;
-static FileDropEventHandler gFileDroppedHandler = nullptr;
 
 
 // Miscellaneous globals
@@ -367,59 +358,40 @@ LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case MM_JOY1BUTTONDOWN:
         gJoystick1.getPosition(e);
         e.activity = JOYPRESSED;
-        //if (gJoystickPressedHandler)
-        //    gJoystickPressedHandler(e);
         break;
 
     case MM_JOY2BUTTONDOWN:
         gJoystick2.getPosition(e);
         e.activity = JOYPRESSED;
-        //if (gJoystickPressedHandler)
-        //    gJoystickPressedHandler(e);
         break;
 
     case MM_JOY1BUTTONUP:
         gJoystick1.getPosition(e);
         e.activity = JOYRELEASED;
-        //if (gJoystickReleasedHandler != nullptr)
-        //    gJoystickReleasedHandler(e);
         break;
     case MM_JOY2BUTTONUP:
         gJoystick2.getPosition(e);
         e.activity = JOYRELEASED;
-        //if (gJoystickReleasedHandler != nullptr)
-        //    gJoystickReleasedHandler(e);
         break;
 
     case MM_JOY1MOVE:
         gJoystick1.getPosition(e);
         e.activity = JOYMOVED;
-        //if (gJoystickMovedHandler)
-        //    gJoystickMovedHandler(e);
         break;
     case MM_JOY2MOVE:
         gJoystick2.getPosition(e);
         e.activity = JOYMOVED;
-        //if (gJoystickMovedHandler)
-        //    gJoystickMovedHandler(e);
         break;
 
     case MM_JOY1ZMOVE:
         gJoystick1.getPosition(e);
         e.activity = JOYZMOVED;
-        //if (gJoystickMovedZHandler)
-        //    gJoystickMovedZHandler(e);
     break;
     case MM_JOY2ZMOVE:
         gJoystick2.getPosition(e);
         e.activity = JOYZMOVED;
-        //if (gJoystickMovedZHandler)
-        //    gJoystickMovedZHandler(e);
         break;
     }
-
-    if (gHandleJoystickEvent != nullptr)
-        gHandleJoystickEvent(e);
 
     gJoystickEventTopic.notify(e);
 
@@ -565,30 +537,28 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // if we have a drop handler, then marshall all the file names
     // and call the event handler. 
     // If the handler does not exist, don't bother with all the work
-    if (gFileDroppedHandler != nullptr) {
-        FileDropEvent e;
-        // Find out where the drop occured
-        POINT pt;
-        ::DragQueryPoint(dropHandle, &pt);
-        e.x = pt.x;
-        e.y = pt.y;
 
-        // First, find out how many files were dropped
-        auto n = ::DragQueryFileA(dropHandle, 0xffffffff, nullptr, 0);
+    FileDropEvent e;
+    // Find out where the drop occured
+    POINT pt;
+    ::DragQueryPoint(dropHandle, &pt);
+    e.x = pt.x;
+    e.y = pt.y;
 
-        // Now that we know how many, query individual files
-        // FileDropEvent
-        char namebuff[512];
+    // First, find out how many files were dropped
+    auto n = ::DragQueryFileA(dropHandle, 0xffffffff, nullptr, 0);
 
+    // Now that we know how many, query individual files
+    // FileDropEvent
+    char namebuff[512];
 
-        if (n > 0) {
-            for (size_t i = 0; i < n; i++) {
-                ::DragQueryFileA(dropHandle, (UINT)i, namebuff, 512);
-                e.filenames.push_back(std::string(namebuff));
-            }
-            gFileDroppedHandler(e);
-
+    if (n > 0) {
+        for (size_t i = 0; i < n; i++) {
+            ::DragQueryFileA(dropHandle, (UINT)i, namebuff, 512);
+            e.filenames.push_back(std::string(namebuff));
         }
+
+        gFileDropEventTopic.notify(e);
     }
 
     ::DragFinish(dropHandle);
@@ -618,6 +588,10 @@ void subscribe(JoystickEventTopic::Subscriber s)
     gJoystickEventTopic.subscribe(s);
 }
 
+void subscribe(FileDropEventTopic::Subscriber s)
+{
+    gFileDropEventTopic.subscribe(s);
+}
 
 // Setup the routines that will handle
 // keyboard and mouse events
@@ -628,13 +602,9 @@ void registerHandlers()
     HMODULE hInst = GetModuleHandleA(NULL);
 
     // Start with our default message handlers
-
-
-
-
     gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
-    gFileDropHandler = HandleFileDropMessage;
+
 
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
@@ -644,25 +614,8 @@ void registerHandlers()
         gPaintHandler = handler;
     }
 
-    gKeyboardMessageHandler = HandleKeyboardMessage;
-    handler = (WinMSGObserver)GetProcAddress(hInst, "keyboardHandler");
-    if (handler != nullptr) {
-        gKeyboardMessageHandler = handler;
-    }
-
-    gMouseMessageHandler = HandleMouseMessage;
-    handler = (WinMSGObserver)GetProcAddress(hInst, "mouseHandler");
-    if (handler != nullptr) {
-        gMouseMessageHandler = handler;
-    }
-
-    gJoystickMessageHandler = HandleJoystickMessage;
-    handler = (WinMSGObserver)GetProcAddress(hInst, "joystickMessageHandler");
-    if (handler != nullptr) {
-        gJoystickMessageHandler = handler;
-    }
-    gHandleJoystickEvent = (JoystickEventHandler)GetProcAddress(hInst, "handleJoystickEvent");
-
+ 
+    // Touch handling
     gTouchMessageHandler = HandleTouchMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "touchMessageHandler");
     if (handler != nullptr) {
@@ -670,6 +623,7 @@ void registerHandlers()
     }
     gHandleTouchEvent = (TouchEventHandler)GetProcAddress(hInst, "handleTouchEvent");
 
+    // Pointer handling
     gPointerMessageHandler = HandlePointerMessage;
     handler = (WinMSGObserver)GetProcAddress(hInst, "pointerMessageHandler");
     if (handler != nullptr) {
@@ -677,11 +631,6 @@ void registerHandlers()
     }
     gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointerEvent");
 
-
-    handler = (WinMSGObserver)GetProcAddress(hInst, "handleFileDrop");
-    if (handler != nullptr) {
-        gFileDropHandler = handler;
-    }
 
 
     // Get the general app routines
@@ -693,13 +642,6 @@ void registerHandlers()
     gCompositionHandler = (VOIDROUTINE)GetProcAddress(hInst, "handleComposition");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
 
-
-
-    // Pointer event routines
-
-
-
-    gFileDroppedHandler = (FileDropEventHandler)GetProcAddress(hInst, "fileDrop");
 
     // Timer
     UINT_PTR nIDEvent = 5;
@@ -758,19 +700,13 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     } else if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
         // Handle all mouse messages
-		if (gMouseMessageHandler != nullptr) {
-			return gMouseMessageHandler(hWnd, msg, wParam, lParam);
-		}
+        HandleMouseMessage(hWnd, msg, wParam, lParam);
     } else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
         // Handle all keyboard messages
-        if (gKeyboardMessageHandler != nullptr) {
-            gKeyboardMessageHandler(hWnd, msg, wParam, lParam);
-        }
+        HandleKeyboardMessage(hWnd, msg, wParam, lParam);
     } else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
         //printf("MM_JOYxxx: %p\n", gJoystickHandler);
-        if (gJoystickMessageHandler != nullptr) {
-            gJoystickMessageHandler(hWnd, msg, wParam, lParam);
-        }
+        HandleJoystickMessage(hWnd, msg, wParam, lParam);
     }
     else if (msg == WM_TOUCH) {
         //std::cout << "WM_TOUCH" << std::endl;
@@ -807,10 +743,11 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
     } else if (msg == WM_DROPFILES) {
         //printf("WM_DROPFILES\n");
-        if (gFileDropHandler != nullptr)
-        {
-            gFileDropHandler(hWnd, msg, wParam, lParam);
-        }
+        HandleFileDropMessage(hWnd, msg, wParam, lParam);
+        //if (gFileDropHandler != nullptr)
+        //{
+        //    gFileDropHandler(hWnd, msg, wParam, lParam);
+        //}
     } else {
         res = DefWindowProcA(hWnd, msg, wParam, lParam);
     }
