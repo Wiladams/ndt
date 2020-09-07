@@ -1,3 +1,8 @@
+/*
+    Subscribe to various system level topics
+	print out simple messages when data available
+*/
+
 #include "p5.hpp"
 #include "pubsub.h"
 

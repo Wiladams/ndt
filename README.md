@@ -38,6 +38,11 @@ Examples
 * Project: [compkeyboard](projects/compkeyboard)
 * Notes: transparent window, raw global keyboard input, data structures
 
+### desktoplife
+<img src="docs/images/desktoplife.png" alt="desktoplife" width=240/></br>
+* Project: [desktoplife](projects/desktoplife)
+* Notes: desktop, automata, rectangle drawing
+
 ### finalysis
 <img src="docs/images/finalysis.png" alt="finalysis" width=240/></br>
 * Project: [finalysis](projects/finalysis)
