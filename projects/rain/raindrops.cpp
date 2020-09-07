@@ -33,46 +33,9 @@ static p5::P5Vector windForce(0, 0);
 BLBoxI Obstruction;
 
 
-void keyPressed(const KeyboardEvent& event)
-{
-    switch (keyCode) {
 
-        // direction of the wind
-        case VK_RIGHT:
-            windForce.x += 0.25;
-        break;
 
-        case VK_LEFT:
-            windForce.x -= 0.25;
-        break;
 
-        // Number of rain drops +, -
-        case VK_OEM_PLUS:
-        case VK_ADD:            // The one on the numpad
-            maxDrops += 50;
-            //printf("maxDrops: %d\n", maxDrops);
-            break;
-
-        case VK_OEM_MINUS:
-        case VK_SUBTRACT:       // The one on the numpad
-            maxDrops -= 50;
-            if (maxDrops < 200)
-                maxDrops = 200;
-
-            //printf("maxDrops: %d\n", maxDrops);
-            break;
-    }
-}
-
-void keyReleased(const KeyboardEvent& event)
-{
-    switch (keyCode) {
-        case VK_ESCAPE: {
-            halt();
-        }
-        break;
-    }
-}
 
 void addDrop(int numDrops = 1)
 {
@@ -174,8 +137,51 @@ void setup()
 	createCanvas(displayWidth, displayHeight-40);
 	layered();
 	setWindowPosition(0, 0);
-    //frameRate(4);
+
     // Seed the sky with drops
     for (int i = 1; i <= maxDrops; i++)
         addDrop();
+}
+
+void keyPressed(const KeyboardEvent& event)
+{
+    switch (keyCode) {
+
+        // direction of the wind
+    case VK_RIGHT:
+        windForce.x += 0.25;
+        break;
+
+    case VK_LEFT:
+        windForce.x -= 0.25;
+        break;
+
+        // Number of rain drops +, -
+    case VK_OEM_PLUS:
+    case VK_ADD:            // The one on the numpad
+    case VK_UP:
+        maxDrops += 50;
+        //printf("maxDrops: %d\n", maxDrops);
+        break;
+
+    case VK_OEM_MINUS:
+    case VK_SUBTRACT:       // The one on the numpad
+    case VK_DOWN:
+        maxDrops -= 50;
+        if (maxDrops < 200)
+            maxDrops = 200;
+
+        //printf("maxDrops: %d\n", maxDrops);
+        break;
+    }
+}
+
+void keyReleased(const KeyboardEvent& event)
+{
+    switch (keyCode) {
+    case VK_ESCAPE: {
+        halt();
+    }
+                  break;
+    }
 }

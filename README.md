@@ -58,6 +58,11 @@ Examples
 * Project: [parimage](projects/parimage)
 * Notes: pixel effects (masking, tinting)
 
+### rain
+<img src="docs/images/rain.png" alt="rain" width=240/></br>
+* Project: [rain](projects/rain)
+* Notes: fullscreen, particles, desktop interaction
+
 ### rainbow
 <img src="docs/images/rainbow.png" alt="rainbow" width=240/></br>
 * Project: [rainbow](projects/rainbow)

@@ -6,25 +6,6 @@
 using namespace p5;
 
 
-void drawRaw()
-{
-	background(color(0xc0));
-	stroke(color(255, 0, 0));
-	fill(color(0));
-	rect(100, 100, 200, 200);
-	//flush();
-}
-
-void drawDirect()
-{
-	gAppSurface->background(color(0xc0));
-	gAppSurface->stroke(Pixel(255, 0, 0, 255));
-	gAppSurface->fill(color(0));
-	gAppSurface->rect(100, 100, 200, 200);
-	gAppSurface->stroke(color(255,255,0));
-	gAppSurface->line(10, 10, 100, 100);
-}
-
 void drawRemote()
 {
 	uint8_t buff[4096];
@@ -56,9 +37,7 @@ void drawRemote()
 
 void draw()
 {
-	//drawRaw();
-	drawRemote();
-	//drawDirect();
+    drawRemote();
 }
 
 void setup()
