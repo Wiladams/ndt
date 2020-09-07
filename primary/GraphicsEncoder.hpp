@@ -13,12 +13,6 @@ class GraphicsEncoder : public IGraphics
 
 private:
 
-    bool writeShort(int16_t value)
-    {
-        fBS.writeInt16(value);
-        return true;
-    }
-
     bool writeInt(int value)
     {
         fBS.writeInt32(value);
@@ -303,7 +297,7 @@ public:
     }
 
     // Bitmaps
-    virtual void image(BLImage& img, int x, int y)
+    virtual void image(const BLImage& img, int x, int y)
     {
         writeCommand(GCMD_IMAGE);
         writeCoord(x, y);
@@ -311,7 +305,7 @@ public:
         // maybe runlength encoding
     }
     
-    virtual void scaleImage(BLImage& src,
+    virtual void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight)
     {

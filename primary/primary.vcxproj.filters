@@ -105,9 +105,6 @@
     <ClInclude Include="Thread.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimeTicker.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VfwCameraDevice.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

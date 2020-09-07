@@ -68,6 +68,11 @@ Examples
 * Project: [ratiow](projects/ratiow)
 * Notes: ray tracer, buttons
 
+### remoter
+<img src="docs/images/remoter.png" alt="remoter" width=240/></br>
+* Project: [remoter](projects/remoter)
+* Notes: encode, decode graphics commands
+
 ### screenplanes
 <img src="docs/images/screenplanes.png" alt="screenplanes" width=240/></br>
 * Project: [screenplanes](projects/screenplanes)
