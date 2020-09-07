@@ -63,6 +63,11 @@ Examples
 * Project: [parimage](projects/parimage)
 * Notes: pixel effects (masking, tinting)
 
+### pubit
+<img src="docs/images/pubit.png" alt="pubit" width=240/></br>
+* Project: [pubit](projects/pubit)
+* Notes: pubsub, event topics, joystick, mouse, keyboard
+
 ### rain
 <img src="docs/images/rain.png" alt="rain" width=240/></br>
 * Project: [rain](projects/rain)
