@@ -44,5 +44,8 @@
     <ClInclude Include="perpetualcalendar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="slidingmonth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

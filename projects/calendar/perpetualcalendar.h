@@ -5,9 +5,16 @@
 
 class PerpetualCalendar : public Graphic
 {
+	Calendar::USACalendar fPreviousCalendar;
 	Calendar::USACalendar fCalendar;
+	Calendar::USACalendar fNextCalendar;
+
 	int fMonth;
-	int fDayCode;	// 0 - x
+	int fNextMonth;
+	int fPreviousMonth;
+
+
+
 
 	int fDayCells[6][13]= {
 			{ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7},
@@ -25,27 +32,38 @@ class PerpetualCalendar : public Graphic
 public:
 	PerpetualCalendar(int year, int month, double w, double h)
 		: Graphic(0,0,w,h),
-		fCalendar(year)
+		fCalendar(year),
+		fPreviousCalendar(year),
+		fNextCalendar(year)
 	{
 		cellWidth = w / 13;
 		cellHeight = h / 6;
 
-		setMonth(month);
+		setDate(year, month);
 	}
 
 	// set month [1-12]
-	void setMonth(int month)
+	void setDate(int year, int month)
 	{
 		fMonth = month;
-		fDayCode = fCalendar.dayCodeForMonth(month);
+		fNextMonth = month + 1;
+		fPreviousMonth = month - 1;
 
-		std::cout << "day Code: " << fDayCode << std::endl;
+		if (fMonth == 1) {
+			fPreviousCalendar.setYear(year - 1);
+			fPreviousMonth = 12;
+		}
+
+		if (fMonth == 12) {
+			fNextCalendar.setYear(year + 1);
+			fNextMonth = 1;
+		}
+
 	}
 
 	void drawBackground(IGraphics* ctx)
 	{
 		// draw a black background rectangle to start
-
 		ctx->fill(0);
 		ctx->noStroke();
 		ctx->rect(0, 0, fFrame.w, fFrame.h);
@@ -58,15 +76,51 @@ public:
 		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
 		ctx->noStroke();
 
-		for (int row = 0; row < 6; row++) {
-			for (int col = 0; col < 13; col++) {
+		int monthDayNumber = fCalendar.dayCodeForMonth(fMonth);
+		int daysInMonth = fCalendar.getDaysInMonth(fMonth);
+		int previousDaysInMonth = fPreviousCalendar.getDaysInMonth(fPreviousMonth);
+		int nextDaysInMonth = fNextCalendar.getDaysInMonth(fNextMonth);
+
+		for (int row = 0; row < 6; row++)
+		{
+			for (int col = 0; col < 13; col++)
+			{
+				int date = fDayCells[row][col];
+				
+				// deal with previous month
+				if (date == 0) {
+					date = previousDaysInMonth - monthDayNumber ;
+				}
+
+				// Draw the date
+				auto cellX = (col * cellWidth);
+				auto cellY = (row * cellHeight);
+
+				auto toffsetx = cellGap + ((cellWidth / 2) + (col * cellWidth));
+				auto toffsety = cellGap + ((cellHeight / 2) + (row * cellHeight));
+
+				// Put number in cell
+				ctx->fill(0xFF, 120);
+				ctx->rect(cellX, cellY, cellWidth - (cellGap * 2), cellHeight - (cellGap * 2));
+				ctx->fill(0xff, 0xff, 0xc0);
+				ctx->text(std::to_string(date).c_str(), toffsetx, toffsety);
+
+			}
+		}
+
+		/*
+		for (int row = 0; row < 6; row++) 
+		{
+			for (int col = 0; col < 13; col++) 
+			{
 				auto cellX = (col * cellWidth);
 				auto cellY = (row * cellHeight);
 
 				auto toffsetx = cellGap + ((cellWidth/2) + (col* cellWidth));
 				auto toffsety = cellGap + ((cellHeight / 2) + (row * cellHeight));
 
-				if (fDayCells[row][col] > 0) {
+				auto cellDay = fDayCells[row][col];
+				if ((cellDay > 0) && (cellDay <= daysInMonth)) {
 					// Put number in cell
 					ctx->fill(0xFF,120);
 					ctx->rect(cellX, cellY, cellWidth- (cellGap * 2), cellHeight-(cellGap*2));
@@ -79,11 +133,14 @@ public:
 				}
 			}
 		}
+*/
 	}
 
 	void drawForeground(IGraphics* ctx)
 	{
-		double dayOffset = (6 - fDayCode) * cellWidth;
+		// Draw the rectangle that represents 
+		// the current month
+		double dayOffset = (6.0 - fCalendar.dayCodeForMonth(fMonth) * cellWidth);
 
 		ctx->push();
 		ctx->noFill();

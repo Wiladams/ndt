@@ -2,7 +2,7 @@
 #include "MonthTile.hpp"
 #include "DayTile.hpp"
 #include "yearofmonths.h"
-#include "perpetualcalendar.h"
+#include "slidingmonth.h"
 
 #include <cstdio>
 #include <vector>
@@ -35,7 +35,7 @@ void setup()
 	yomWin->addChild(yom);
 
 	// Setup perpetual calendar
-	auto pc = std::make_shared<PerpetualCalendar>(2020, 9, 560, 240);
+	auto pc = std::make_shared<SlidingMonth>(2020, 9, 240, 240);
 	fr = pc->getFrame();
 	auto pcWin = window(0, 0, fr.w, fr.h);
 	pcWin->addChild(pc);
