@@ -46,14 +46,12 @@ EXPORT extern User32Window * gAppWindow;
 EXPORT extern Surface * gAppSurface;
 
 
-EXPORT extern bool gLooping;
 EXPORT extern bool gRunning;
 
 
 // Globals we expect the user to consume
 EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
-//EXPORT extern unsigned int displayDpi;
 EXPORT extern unsigned int systemDpi;
 
 EXPORT extern int canvasWidth;
@@ -70,7 +68,6 @@ EXPORT void onLoad();	// upon loading application
 // These should be implemented by a module to be loaded
 EXPORT void handleComposition();
 EXPORT void draw();
-//EXPORT void preload();
 EXPORT void setup();
 EXPORT void update(const double dt);
 
@@ -85,6 +82,7 @@ EXPORT void halt();
 EXPORT void loop();
 EXPORT void noLoop();
 EXPORT void forceRedraw(void* param, int64_t tickCount);
+EXPORT void windowRefresh();
 
 EXPORT void layered();
 EXPORT void noLayered();

@@ -249,7 +249,7 @@ struct P5Vector {
 
 
     void set(int x1, int y1, const Pixel& c) noexcept;
-    Pixel get(double x, double y) noexcept;
+    Pixel get(int x, int y) noexcept;
 
     void point(double x, double y) noexcept;
     void line(double x1, double y1, double x2, double y2) noexcept;

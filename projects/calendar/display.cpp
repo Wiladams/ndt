@@ -1,6 +1,8 @@
 #include "p5.hpp"
 #include "MonthTile.hpp"
 #include "DayTile.hpp"
+#include "yearofmonths.h"
+#include "perpetualcalendar.h"
 
 #include <cstdio>
 #include <vector>
@@ -8,85 +10,43 @@
 using namespace p5;
 
 
-
-void keyReleased(const KeyboardEvent &e)
-{
-	if (e.keyCode == VK_ESCAPE) {
-		halt();
-	}
-}
-
-void drawYearOfMonths(IGraphics *ctx)
-{
-	static const int numColumns = 3;
-	static const int numRows = 4;
-	static const int edgeMargin = 4;
-	static const int lineGap = 8;
-
-	std::vector<CalendarMonthTile> months;
-
-	auto cellSize = CalendarMonthTile::getClassPreferredSize();
-
-	int xoffset = edgeMargin;
-	int yoffset = lineGap;
-
-	// Setup 12 monthly tiles for this calendar
-	for (int month = 1; month <= 12; month++) {
-		months.push_back(CalendarMonthTile(2020, month, xoffset, yoffset));
-		if (month % 3 > 0) {
-			// continue advancing
-			xoffset += cellSize.w + edgeMargin;
-		}
-		else {
-			// end of row, move to next row
-			xoffset = edgeMargin;
-			yoffset += cellSize.h + lineGap;
-		}
-	}
-
-	
-	for (size_t i = 0; i < months.size(); i++) {
-		months[i].draw(ctx);
-	}
-}
-
-void drawDayTiles(IGraphics* ctx)
-{
-	DayTile dt;
-	
-	dt.setDate(2020, 5, 14);
-	
-	ctx->push();
-	ctx->translate(500, 72);
-
-	dt.draw(ctx);
-	ctx->pop();
-}
-
 void draw()
 {
-	if (isLayered()) {
-		clear();
-		//background(255, 10);
-	} else
-		background(0xc0);
-
-	push();
-	scale(.618, 0.618);
-	drawYearOfMonths(gAppSurface);
-	pop();
-
-	drawDayTiles(gAppSurface);
+	// Start with a clear screen
+	clear();
 }
 
 
 void setup()
-{
-	//createCanvas(cellSize.w*numColumns+(edgeMargin *numColumns-1), cellSize.h*numRows+(edgeMargin *numRows-1));
-	createCanvas(1024, 768);
+{	
+	fullscreen();
 
-	//layered();
-	//setWindowPosition(100, 48);
-	noLoop();
+	// Setup day tile
+	auto ps = DayTile::getPreferredSize();
+	auto dtWindow = window(0, 0, ps.w, ps.h);
+	auto dt = std::make_shared<DayTile>();
+	dt->setDate(2020, 5, 14);
+	dtWindow->addChild(dt);
+
+	// Setup year of months window
+	auto yom = std::make_shared<YearOfMonths>();
+	auto fr = yom->getFrame();
+	auto yomWin = window(0, 0, fr.w, fr.h);
+	yomWin->addChild(yom);
+
+	// Setup perpetual calendar
+	auto pc = std::make_shared<PerpetualCalendar>(2020, 9, 560, 240);
+	fr = pc->getFrame();
+	auto pcWin = window(0, 0, fr.w, fr.h);
+	pcWin->addChild(pc);
+
 }
 
+
+void keyReleased(const KeyboardEvent& e)
+{
+	// quit the whole app with Esc key
+	if (e.keyCode == VK_ESCAPE) {
+		halt();
+	}
+}

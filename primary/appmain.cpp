@@ -15,10 +15,10 @@
 
 // These are here to be universal, but should probably 
 // be in p5.cpp, or a specific app, like threed
-template <> template <> vec<3, int>  ::vec(const vec<3, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)), z(int(v.z + .5f)) {}
-template <> template <> vec<3, float>::vec(const vec<3, int>& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
-template <> template <> vec<2, int>  ::vec(const vec<2, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)) {}
-template <> template <> vec<2, float>::vec(const vec<2, int>& v) : x((float)v.x), y((float)v.y) {}
+//template <> template <> vec<3, int>  ::vec(const vec<3, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)), z(int(v.z + .5f)) {}
+//template <> template <> vec<3, float>::vec(const vec<3, int>& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
+//template <> template <> vec<2, int>  ::vec(const vec<2, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)) {}
+//template <> template <> vec<2, float>::vec(const vec<2, int>& v) : x((float)v.x), y((float)v.y) {}
 
 
 
@@ -34,7 +34,6 @@ static VOIDROUTINE gLoopHandler = nullptr;
 static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gOnloadHandler = nullptr;
 static VOIDROUTINE gPreloadHandler = nullptr;
-//static VOIDROUTINE gSetupHandler = nullptr;
 static VOIDROUTINE gPreSetupHandler = nullptr;
 static PFNDOUBLE1 gUpdateHandler = nullptr;
 
@@ -72,7 +71,6 @@ User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
 
 UINT_PTR gAppTimerID = 0;   // Not global
-bool gLooping = true;
 bool gRunning = true;
 bool gIsLayered = false;
 
@@ -83,7 +81,6 @@ int canvasHeight = 0;
 
 int displayWidth = 0;
 int displayHeight= 0;
-//unsigned int displayDpi = 0;
 unsigned int systemDpi = 96;
 
 // Client Area globals
@@ -136,9 +133,24 @@ void HID_UnregisterDevice(USHORT usage)
 
 
 // Controlling drawing
-void fakeRedraw(void* param, int64_t tickCount)
+void windowRefresh()
 {
-    //printf("FAKE Redraw\n");
+    //std::cout << "windowRefresh" << std::endl;
+
+    if ((gAppSurface == nullptr)) {
+        printf("forceRedraw, NULL PTRs\n");
+        return;
+    }
+
+    if (!gIsLayered) {
+        // if we're not layered, then do a regular
+        // sort of WM_PAINT based drawing
+        InvalidateRect(gAppWindow->getHandle(), NULL, 1);
+    }
+    else {
+        LayeredWindowInfo lw(canvasWidth, canvasHeight);
+        lw.display(gAppWindow->getHandle(), ((Surface*)gAppSurface)->getDC());
+    }
 }
 
 void forceRedraw(void* param, int64_t tickCount)
@@ -205,27 +217,10 @@ void setFrameRate(int newRate)
 {
     gFPS = newRate;
 
-    //if (gAppTicker != nullptr) {
-    //    gAppTicker->stop();
-    //    delete gAppTicker;
-    //}
-
-    /*
-        int64_t interval = (int64_t)(1000.0 / gFPS);
-        gAppTicker = new TimeTicker(interval, fakeRedraw, nullptr);
-
-        if (gLooping) {
-            gAppTicker->start();
-        }
-    */
-
-    //printf("setFrameRate: %d\n", newRate);
     UINT_PTR nIDEvent = 5;
     BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-    //printf("KillTimer: %d %lld\n", bResult, gAppTimerID);
     UINT uElapse = 1000 / gFPS;
     gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
-    //printf("SetTimer: %lld\n", gAppTimerID);
 }
 
 
@@ -649,111 +644,7 @@ void registerHandlers()
 }
 
 
-LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    if (msg == 0x240)
-        printf("MSG, TOUCH: 0x%04x\n", msg);
-    
-    LRESULT res = 0;
 
-    if (msg == WM_INPUT) {
-        //printf("WM_INPUT\n");
-        bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
-        HRAWINPUT inputHandle = (HRAWINPUT)lParam;
-        UINT uiCommand = RID_INPUT;
-        UINT cbSize;
-
-        // First, find out how much space will be needed
-        UINT size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, nullptr, &cbSize, sizeof(RAWINPUTHEADER));
-
-
-        // Allocate space, and try it again
-        std::vector<uint8_t> buff(cbSize, 0);
-        size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, buff.data(), &cbSize, sizeof(RAWINPUTHEADER));
-        //printf("WM_INPUT: %d - %d\n", cbSize, size);
-        if (size == cbSize) {
-            RAWINPUT* raw = (RAWINPUT*)buff.data();
-
-            // See what we got
-            //printf("RAWINPUT: %d\n", raw->header.dwType);
-
-            switch (raw->header.dwType) {
-                case RIM_TYPEMOUSE: {
-                    rawMouseX = raw->data.mouse.lLastX;
-                    rawMouseY = raw->data.mouse.lLastY;
-                    //mouseEvent();
-                    //printf("RAWMOUSE: %d %d\n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-                }
-                break;
-
-                case RIM_TYPEKEYBOARD: {
-                    //keyboardEvent
-                }
-                break;
-            }
-        }
-    } else if (msg == WM_DESTROY) {
-        // By doing a PostQuitMessage(), a 
-        // WM_QUIT message will eventually find its way into the
-        // message queue.
-        PostQuitMessage(0);
-        return 0;
-    } else if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
-        // Handle all mouse messages
-        HandleMouseMessage(hWnd, msg, wParam, lParam);
-    } else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
-        // Handle all keyboard messages
-        HandleKeyboardMessage(hWnd, msg, wParam, lParam);
-    } else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
-        //printf("MM_JOYxxx: %p\n", gJoystickHandler);
-        HandleJoystickMessage(hWnd, msg, wParam, lParam);
-    }
-    else if (msg == WM_TOUCH) {
-        //std::cout << "WM_TOUCH" << std::endl;
-
-        // Handle touch specific messages
-        if (gTouchMessageHandler != nullptr) {
-            res = gTouchMessageHandler(hWnd, msg, wParam, lParam);
-        }
-
-    } else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)){
-        if (gPointerMessageHandler != nullptr) {
-            res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
-        }
-    } else if (msg == WM_ERASEBKGND) {
-        //printf("WM_ERASEBKGND\n");
-        if (gPaintHandler != nullptr) {
-            gPaintHandler(hWnd, msg, wParam, lParam);
-        }
-
-        // return non-zero indicating we dealt with erasing the background
-        res = 1;
-    } else if (msg == WM_TIMER) {
-        forceRedraw(nullptr, 0);
-    }
-    else if (msg == WM_PAINT) {
-        //printf("WM_PAINT\n");
-        if (gPaintHandler != nullptr) {
-            // painting is actually handled in ERASEBKGND
-            //gPaintHandler(hWnd, msg, wParam, lParam);
-        }
-        else
-        {
-            res = DefWindowProcA(hWnd, msg, wParam, lParam);
-        }
-    } else if (msg == WM_DROPFILES) {
-        //printf("WM_DROPFILES\n");
-        HandleFileDropMessage(hWnd, msg, wParam, lParam);
-        //if (gFileDropHandler != nullptr)
-        //{
-        //    gFileDropHandler(hWnd, msg, wParam, lParam);
-        //}
-    } else {
-        res = DefWindowProcA(hWnd, msg, wParam, lParam);
-    }
-
-    return res;
-}
 
 // Controlling the runtime
 void halt() {
@@ -762,21 +653,17 @@ void halt() {
 
 // turn looping on
 void loop() {
-    gLooping = true;
     setFrameRate(gFPS);
 }
 
 // turn looping off
 // we still need to process the windows events
 // but we stop calling draw() on a timer
-void noLoop() {
-    gLooping = false;
-
+void noLoop() 
+{
     // turn off timer
     // so drawing is not called in event loop
     BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-
-    //printf("noLoop: %d  %Id\n", bResult, gAppTimerID);
 }
 
 void rawInput()
@@ -891,6 +778,122 @@ void showAppWindow()
 {
     gAppWindow->show();
 }
+
+LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (msg == 0x240)
+        printf("MSG, TOUCH: 0x%04x\n", msg);
+
+    LRESULT res = 0;
+
+    if (msg == WM_INPUT) {
+        //printf("WM_INPUT\n");
+        bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
+        HRAWINPUT inputHandle = (HRAWINPUT)lParam;
+        UINT uiCommand = RID_INPUT;
+        UINT cbSize;
+
+        // First, find out how much space will be needed
+        UINT size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, nullptr, &cbSize, sizeof(RAWINPUTHEADER));
+
+
+        // Allocate space, and try it again
+        std::vector<uint8_t> buff(cbSize, 0);
+        size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, buff.data(), &cbSize, sizeof(RAWINPUTHEADER));
+        //printf("WM_INPUT: %d - %d\n", cbSize, size);
+        if (size == cbSize) {
+            RAWINPUT* raw = (RAWINPUT*)buff.data();
+
+            // See what we got
+            //printf("RAWINPUT: %d\n", raw->header.dwType);
+
+            switch (raw->header.dwType) {
+            case RIM_TYPEMOUSE: {
+                rawMouseX = raw->data.mouse.lLastX;
+                rawMouseY = raw->data.mouse.lLastY;
+                //mouseEvent();
+                //printf("RAWMOUSE: %d %d\n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+            }
+                              break;
+
+            case RIM_TYPEKEYBOARD: {
+                //keyboardEvent
+            }
+                                 break;
+            }
+        }
+    }
+    else if (msg == WM_DESTROY) {
+        // By doing a PostQuitMessage(), a 
+        // WM_QUIT message will eventually find its way into the
+        // message queue.
+        PostQuitMessage(0);
+        return 0;
+    }
+    else if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
+        // Handle all mouse messages
+        HandleMouseMessage(hWnd, msg, wParam, lParam);
+    }
+    else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
+        // Handle all keyboard messages
+        HandleKeyboardMessage(hWnd, msg, wParam, lParam);
+    }
+    else if ((msg >= MM_JOY1MOVE) && (msg <= MM_JOY2BUTTONUP)) {
+        //printf("MM_JOYxxx: %p\n", gJoystickHandler);
+        HandleJoystickMessage(hWnd, msg, wParam, lParam);
+    }
+    else if (msg == WM_TOUCH) {
+        //std::cout << "WM_TOUCH" << std::endl;
+
+        // Handle touch specific messages
+        if (gTouchMessageHandler != nullptr) {
+            res = gTouchMessageHandler(hWnd, msg, wParam, lParam);
+        }
+
+    }
+    else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
+        if (gPointerMessageHandler != nullptr) {
+            res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
+        }
+    }
+    else if (msg == WM_ERASEBKGND) {
+        //printf("WM_ERASEBKGND\n");
+        if (gPaintHandler != nullptr) {
+            gPaintHandler(hWnd, msg, wParam, lParam);
+        }
+
+        // return non-zero indicating we dealt with erasing the background
+        res = 1;
+    }
+    else if (msg == WM_TIMER) {
+        forceRedraw(nullptr, 0);
+    }
+    else if (msg == WM_PAINT) {
+        //printf("WM_PAINT\n");
+        if (gPaintHandler != nullptr) {
+            // painting is actually handled in ERASEBKGND
+            //gPaintHandler(hWnd, msg, wParam, lParam);
+        }
+        else
+        {
+            res = DefWindowProcA(hWnd, msg, wParam, lParam);
+        }
+    }
+    else if (msg == WM_DROPFILES) {
+        //printf("WM_DROPFILES\n");
+        HandleFileDropMessage(hWnd, msg, wParam, lParam);
+        //if (gFileDropHandler != nullptr)
+        //{
+        //    gFileDropHandler(hWnd, msg, wParam, lParam);
+        //}
+    }
+    else {
+        res = DefWindowProcA(hWnd, msg, wParam, lParam);
+    }
+
+    return res;
+}
+
 
 void run()
 {

@@ -126,6 +126,7 @@ namespace Calendar {
         int getYearDayCode() { return fDayCode; }
 
         // Months run 1..12
+        // Day code: 0..x
         int dayCodeForMonth(const int month) 
         {
             int dayCode = fDayCode;

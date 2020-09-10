@@ -131,6 +131,7 @@ namespace p5 {
 
     void redraw() noexcept
     {
+        //windowRefresh();
         forceRedraw(nullptr, 0);
     }
 

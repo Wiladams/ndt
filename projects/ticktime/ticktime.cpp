@@ -88,7 +88,10 @@ void tickSubscriber(const Topic<double>& p, double e)
 	if (nullptr != _tdisplay)
 		_tdisplay->setSeconds(e);
 	
-	//forceRedraw(nullptr, (int64_t)e);
+	_tdisplay->draw(gAppSurface);
+	gAppSurface->flush();
+
+	windowRefresh();
 }
 
 void draw()
@@ -99,18 +102,20 @@ void draw()
 
 void setup()
 {
+	// turn off looping timer
+	noLoop();
+
 	fullscreen();
 
 	_tdisplay = std::make_shared<TickDisplay>();
 
-	auto win = window(0, 0, 200, 144);
-	win->addChild(_tdisplay);
+	//auto win = window(0, 0, 200, 144);
+	//win->addChild(_tdisplay);
 
 	ttopic.subscribe(tickSubscriber);
 	ttopic.start();
 
-	//noLoop();
-	frameRate(20);
+	//frameRate(20);
 }
 
 void keyReleased(const KeyboardEvent& e)

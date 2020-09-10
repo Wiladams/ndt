@@ -4,7 +4,7 @@
 #include "calendar.hpp"
 #include "graphic.hpp"
 
-class DayTile : Graphic
+class DayTile : public Graphic
 {
 	static const int hourLabelGap = 36;
 	static const int hourLineHeight = 48;
@@ -19,7 +19,8 @@ class DayTile : Graphic
 	
 	Pixel fBackgroundColor{ 0xf0, 0xf0, 0xf0, 127 };
 	float fLevelOfDetail;
-	
+
+public:
 	// Return the size we prefer to be
 	static BLSize getPreferredSize() { return { 300,400 }; }
 
@@ -123,7 +124,7 @@ ctx->text(buff, 32, 24);
 
 		// Weekday long name
 		char buff[32];
-		sprintf_s(buff, 32, "%s", Calendar::WeekDaysLong[fDayOfWeek]);
+		sprintf_s(buff, 32, "%s", Calendar::WeekDaysLong[fDayOfWeek].c_str());
 		ctx->noStroke();
 		ctx->fill(82);
 		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::CENTER);

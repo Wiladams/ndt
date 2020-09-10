@@ -29,25 +29,19 @@
     <ClInclude Include="calendar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\BLGraphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\Surface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DayTile.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\graphic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\primary\p5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MonthTile.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yearofmonths.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="perpetualcalendar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

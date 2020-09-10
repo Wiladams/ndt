@@ -14,7 +14,7 @@ using namespace p5;
 // The amount of detail just changes the rendering, not the size
 // it is up to the user to display in the appropriate size
 
-class CalendarMonthTile : Graphic
+class CalendarMonthTile : public Graphic
 {
 	static const int colWidth = 28;
 	static const int colHeight = 28;
