@@ -23,18 +23,25 @@
 #include "Surface.h"
 
 
-class ScreenSnapshot //: public IEnumerator<PixelBufferRGBA32>
+class ScreenSnapshot
 {
-    Surface fImage;
+
     HDC fScreenDC;
+
+public:
+    Surface fImage;
     int fOriginX;
     int fOriginY;
+    int fWidth;
+    int fHeight;
 
 public:
     ScreenSnapshot(int x, int y, int awidth, int aheight, uint32_t threadCount=0)
         : fImage(awidth, aheight, threadCount),
         fOriginX(x),
-        fOriginY(y)
+        fOriginY(y),
+        fWidth(awidth),
+        fHeight(aheight)
     {
         // create a pixel buffer of the specified size
         fScreenDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);

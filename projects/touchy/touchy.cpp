@@ -49,6 +49,7 @@ void keyReleased(const KeyboardEvent& e)
 	if (e.keyCode == VK_ESCAPE)
 		halt();
 }
+
 void touchStarted(const TouchEvent& e)
 {
 	//printf("touchPressed: %d, %d  %dx%d\n", e.x, e.y, e.w, e.h);
