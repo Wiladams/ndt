@@ -12,14 +12,6 @@
 #include <array>
 #include <iostream>
 
-// These are here to be universal, but should probably 
-// be in p5.cpp, or a specific app, like threed
-//template <> template <> vec<3, int>  ::vec(const vec<3, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)), z(int(v.z + .5f)) {}
-//template <> template <> vec<3, float>::vec(const vec<3, int>& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
-//template <> template <> vec<2, int>  ::vec(const vec<2, float>& v) : x(int(v.x + .5f)), y(int(v.y + .5f)) {}
-//template <> template <> vec<2, float>::vec(const vec<2, int>& v) : x((float)v.x), y((float)v.y) {}
-
-
 
 // Some function signatures
 // WinMSGObserver - Function signature for Win32 message handler
@@ -27,13 +19,8 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 
 // Application routines
-//static VOIDROUTINE gCompositionHandler = nullptr;
-
-//static VOIDROUTINE gLoopHandler = nullptr;
-//static VOIDROUTINE gFrameHandler = nullptr;
+// appmain looks for this routine in the compiled application
 static VOIDROUTINE gOnloadHandler = nullptr;
-//static VOIDROUTINE gPreloadHandler = nullptr;
-//static VOIDROUTINE gPreSetupHandler = nullptr;
 
 
 // Painting
@@ -45,25 +32,12 @@ KeyboardEventTopic gKeyboardEventTopic;
 MouseEventTopic gMouseEventTopic;
 JoystickEventTopic gJoystickEventTopic;
 FileDropEventTopic gFileDropEventTopic;
-
-// Touch
-static WinMSGObserver gTouchMessageHandler = nullptr;
-static TouchEventHandler gHandleTouchEvent = nullptr;
-
-// Pointer
-static WinMSGObserver gPointerMessageHandler = nullptr;
-static PointerEventHandler gPointerEventHandler = nullptr;
-
-// Drag and Drop
-
+TouchEventTopic gTouchEventTopic;
+PointerEventTopic gPointerEventTopic;
 
 // Miscellaneous globals
 int gargc;
 char **gargv;
-
-StopWatch appStopWatch;
-double deltaTime = 0;
-double gAppLastTime = 0;
 
 
 User32Window * gAppWindow = nullptr;
@@ -151,39 +125,7 @@ void screenRefresh()
         lw.display(gAppWindow->getHandle(), ((Surface*)gAppSurface)->getDC());
     }
 }
-/*
-void forceRedraw(void* param, int64_t tickCount)
-{
-    //std::cout << "forceRedraw" << std::endl;
 
-    if ((gAppSurface == nullptr)) {
-        printf("forceRedraw, NULL PTRs\n");
-        return;
-    }
-
-    if (gFrameHandler != nullptr) {
-        gFrameHandler();
-    }
-
-    if (gCompositionHandler != nullptr)
-    {
-        gCompositionHandler();
-    }
-
-
-    gAppSurface->flush();
-
-    if (!gIsLayered) {
-        // if we're not layered, then do a regular
-        // sort of WM_PAINT based drawing
-        InvalidateRect(gAppWindow->getHandle(), NULL, 1);
-    }
-    else {
-        LayeredWindowInfo lw(canvasWidth, canvasHeight);
-        lw.display(gAppWindow->getHandle(), ((Surface *)gAppSurface)->getDC());
-    }
-}
-*/
 
 /*
     Environment
@@ -212,11 +154,6 @@ void noCursor()
 {
     ShowCursor(0);
 }
-
-
-
-
-
 
 
 
@@ -389,12 +326,10 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
-    //TOUCHINPUT pInputs[10];
-
     // cInputs could be set to a maximum value (10) and
     // we could reuse the same allocated array each time
     // rather than allocating a new one each time.
-    std::cout << "wm_touch_event: " << wParam << std::endl;
+    //std::cout << "wm_touch_event: " << wParam << std::endl;
 
     int cInputs = LOWORD(wParam);
     int cbSize = sizeof(TOUCHINPUT);
@@ -452,8 +387,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             e.activity = TOUCH_HOVER;
         }
 
-        if (gHandleTouchEvent != nullptr)
-            gHandleTouchEvent(e);
+        gTouchEventTopic.notify(e);
     }
     delete[] pInputs;
 
@@ -469,11 +403,9 @@ LRESULT HandlePointerMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
-    if (nullptr != gPointerEventHandler)
-    {
-        PointerEvent e;
-        gPointerEventHandler(e);
-    }
+    PointerEvent e;
+
+    gPointerEventTopic.notify(e);
 
     return res;
 }
@@ -595,7 +527,6 @@ void registerHandlers()
     HMODULE hInst = GetModuleHandleA(NULL);
 
     // Start with our default message handlers
-    gPointerMessageHandler = HandlePointerMessage;
     gPaintHandler = HandlePaintMessage;
 
 
@@ -606,25 +537,6 @@ void registerHandlers()
     if (handler != nullptr) {
         gPaintHandler = handler;
     }
-
- 
-    // Touch handling
-    gTouchMessageHandler = HandleTouchMessage;
-    handler = (WinMSGObserver)GetProcAddress(hInst, "touchMessageHandler");
-    if (handler != nullptr) {
-        gTouchMessageHandler = handler;
-    }
-    gHandleTouchEvent = (TouchEventHandler)GetProcAddress(hInst, "handleTouchEvent");
-
-    // Pointer handling
-    gPointerMessageHandler = HandlePointerMessage;
-    handler = (WinMSGObserver)GetProcAddress(hInst, "pointerMessageHandler");
-    if (handler != nullptr) {
-        gPointerMessageHandler = handler;
-    }
-    gPointerEventHandler = (PointerEventHandler)GetProcAddress(hInst, "handlePointerEvent");
-
-
 
     // Get the general app routines
     gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
@@ -821,15 +733,13 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //std::cout << "WM_TOUCH" << std::endl;
 
         // Handle touch specific messages
-        if (gTouchMessageHandler != nullptr) {
-            res = gTouchMessageHandler(hWnd, msg, wParam, lParam);
-        }
-
+        HandleTouchMessage(hWnd, msg, wParam, lParam);
     }
     else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
-        if (gPointerMessageHandler != nullptr) {
-            res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
-        }
+        HandlePointerMessage(hWnd, msg, wParam, lParam);
+        //if (gPointerMessageHandler != nullptr) {
+        //    res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
+        //}
     }
     else if (msg == WM_ERASEBKGND) {
         //printf("WM_ERASEBKGND\n");
@@ -840,9 +750,6 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // return non-zero indicating we dealt with erasing the background
         res = 1;
     }
-    //else if (msg == WM_TIMER) {
-    //    forceRedraw(nullptr, 0);
-    //}
     else if (msg == WM_PAINT) {
         //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
@@ -880,21 +787,12 @@ void run()
     LRESULT res;
 
     showAppWindow();
-    deltaTime = appStopWatch.seconds();
 
     while (true) {
-        /*
-        if (gUpdateHandler != nullptr) {
-
-            double currentTime = appStopWatch.seconds();
-            deltaTime = currentTime- gAppLastTime;
-            gAppLastTime = currentTime;
-            gUpdateHandler(deltaTime);
-        }
-        */
         // we use peekmessage, so we don't stall on a GetMessage
         // should probably throw a wait here
-        BOOL bResult = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
+        // WaitForSingleObject
+        BOOL bResult = ::PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
         
         if (bResult > 0) {
             // If we see a quit message, it's time to stop the program

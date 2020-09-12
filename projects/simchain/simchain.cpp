@@ -97,7 +97,7 @@ Pixel  randomColor()
 }
 
 std::vector<Spring2D> springs;
-Spring2D headSpring = Spring2D(width / 2, height / 2, mass, gravity, randomColor());
+Spring2D headSpring(width / 2, height / 2, mass, gravity, randomColor());
 
 
 void addSpring()
@@ -129,6 +129,13 @@ void reset()
     addSpring();
 }
 
+void setup()
+{
+    fullscreen();
+    //frameRate(30);
+
+    reset();
+}
 
 void keyReleased(const KeyboardEvent& event)
 {
@@ -147,32 +154,10 @@ void keyReleased(const KeyboardEvent& event)
 }
 
 
-void keyTyped(const KeyboardEvent& event)
-{
-    // If the user types a '<sp>' reset
-    // the chain to 1 node
-    if (keyCode == ' ') {
-        if (isLayered())
-            noLayered();
-        else
-            layered();
-
-    }
-}
-
 void draw()
 {
-    if (isLayered())
-    {
-        // MUST do this clear first if you want a 
-        // fairly transparent background
-        clear();
-        background(color(10, 0, 0, 117));
-    }
-    else {
-        background(color(225, 127, 0, 255));
-    }
-
+    clear();
+    background(color(10, 0, 0, 117));
 
     // Let the top spring follow the mouse
     headSpring.update(mouseX, mouseY);
@@ -190,12 +175,4 @@ void draw()
         currentSpring = &springs[i];
     }
 
-}
-
-void setup()
-{
-    fullscreen();
-    setFrameRate(30);
-
-    reset();
 }

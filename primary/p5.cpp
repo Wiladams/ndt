@@ -69,7 +69,8 @@ namespace p5 {
 
 
     static StopWatch SWatch;    // Stopwatch used for time 
-
+    double deltaTime = 0;
+    double gAppLastTime = 0;
 
     // Window management
     void addWindow(std::shared_ptr<GWindow> win)
@@ -345,15 +346,8 @@ namespace p5 {
     void frameRate(int newRate) noexcept
     {
         gFPS = newRate;
-        // suspend time
-        // reset timer's frame rate
-        //UINT_PTR nIDEvent = 5;
-        //BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-        UINT uElapse = 1000 / gFPS;
-        //gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
+        gTickTopic.setFrequency(newRate);
     }
-
-
 
     // turn looping on
     void loop() noexcept
@@ -880,6 +874,16 @@ static void p5joystickSubscriber(const JoystickEventTopic& p, const JoystickEven
     handleJoystickEvent(e);
 }
 
+static void p5touchSubscriber(const TouchEventTopic& p, const TouchEvent& e)
+{
+    handleTouchEvent(e);
+}
+
+static void p5pointerSubscriber(const PointerEvent& p, const PointerEvent& e)
+{
+    handlePointerEvent(e);
+}
+
 static void p5filedroppedSubscriber(const FileDropEventTopic& p, const FileDropEvent& e)
 {
     handleFileDroppedEvent(e);
@@ -898,6 +902,8 @@ void onLoad()
     subscribe(p5keyboardSubscriber);
     subscribe(p5joystickSubscriber);
     subscribe(p5filedroppedSubscriber);
+    subscribe(p5pointerSubscriber);
+    subscribe(p5touchSubscriber);
 
     // load the setup() function if user specified
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");

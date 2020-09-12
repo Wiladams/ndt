@@ -127,6 +127,8 @@ using MouseEventTopic = Topic<MouseEvent &>;
 using KeyboardEventTopic = Topic<KeyboardEvent &>;
 using JoystickEventTopic = Topic<JoystickEvent &>;
 using FileDropEventTopic = Topic<FileDropEvent&>;
+using TouchEventTopic = Topic<TouchEvent&>;
+using PointerEventTopic = Topic<PointerEvent&>;
 
 #ifdef __cplusplus
 extern "C" {
