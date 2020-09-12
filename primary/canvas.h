@@ -16,6 +16,9 @@ public:
 		begin(fImage);	// Single threaded
 	}
 
+    size_t getWidth() { return fImageData.size.w; }
+    size_t getHeight() { return fImageData.size.h; }
+
     BLImage& getImage() { return fImage; }
 
 	// cast to a BLImage

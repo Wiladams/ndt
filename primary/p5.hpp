@@ -24,9 +24,16 @@
 
 #include <memory>
 
+// Things a p5 based application can implement
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+    EXPORT void draw();
+    EXPORT void setup();
+    EXPORT void update(const double dt);
+
 // IO Event Handlers
 
 // keyboard event processing
@@ -57,6 +64,7 @@ EXPORT void touchHover(const TouchEvent& e);
 // Pointer Events
 
 // File Drop events
+EXPORT void fileDrop(const FileDropEvent& e);
 
 #ifdef __cplusplus
 }
@@ -232,6 +240,8 @@ struct P5Vector {
     void stroke(uint8_t gray, uint8_t alpha = 255) noexcept;
     void noStroke() noexcept;
 
+    void loop() noexcept;
+    void noLoop() noexcept;
     void frameRate(int newRate) noexcept;
 
 

@@ -105,7 +105,7 @@ public:
         return fImage;
     }
 
-    void set(int x, int y, const Pixel& c)
+    inline void set(int x, int y, const Pixel& c)
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);
         y = (int)maths::Clamp(y, 0, fHeight - 1);
@@ -114,7 +114,7 @@ public:
         ((Pixel *)fData)[offset] = c;
     }
 
-    Pixel get(int x, int y)
+    inline Pixel get(int x, int y)
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);
         y = (int)maths::Clamp(y, 0, fHeight - 1);

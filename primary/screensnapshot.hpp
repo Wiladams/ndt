@@ -27,13 +27,14 @@ class ScreenSnapshot
 {
 
     HDC fScreenDC;
+    int fWidth;
+    int fHeight;
 
 public:
     Surface fImage;
     int fOriginX;
     int fOriginY;
-    int fWidth;
-    int fHeight;
+
 
 public:
     ScreenSnapshot(int x, int y, int awidth, int aheight, uint32_t threadCount=0)
@@ -50,6 +51,9 @@ public:
     void reset() {
         // do nothing
     }
+
+    size_t width() { return fWidth; }
+    size_t height() { return fHeight; }
 
     Surface & getCurrent()
     {

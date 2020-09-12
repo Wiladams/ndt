@@ -2,10 +2,12 @@
 #include "random.hpp"
 #include "stopwatch.hpp"
 #include "windowmgr.h"
+#include "ticktopic.h"
 
 #include <iostream>
 
 static VOIDROUTINE gSetupHandler = nullptr;
+static PFNDOUBLE1 gUpdateHandler = nullptr;
 
 static MouseEventHandler gMouseEventHandler = nullptr;
 static MouseEventHandler gMouseMovedHandler = nullptr;
@@ -40,6 +42,10 @@ static PointerEventHandler gPointerHandler = nullptr;
 
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
+
+int gFPS = 15;   // Frames per second
+TickTopic gTickTopic(gFPS);
+bool gLooping = true;
 
 namespace p5 {
 
@@ -131,8 +137,7 @@ namespace p5 {
 
     void redraw() noexcept
     {
-        //windowRefresh();
-        forceRedraw(nullptr, 0);
+        screenRefresh();
     }
 
 
@@ -337,12 +342,34 @@ namespace p5 {
         gAppSurface->noStroke();
     }
 
-
     void frameRate(int newRate) noexcept
     {
-        setFrameRate(newRate);
+        gFPS = newRate;
+        // suspend time
+        // reset timer's frame rate
+        //UINT_PTR nIDEvent = 5;
+        //BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
+        UINT uElapse = 1000 / gFPS;
+        //gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
     }
 
+
+
+    // turn looping on
+    void loop() noexcept
+    {
+        gLooping = true;
+        gTickTopic.start();
+    }
+
+    // turn looping off
+    // we still need to process the windows events
+    // but we stop calling draw() on a timer
+    void noLoop() noexcept
+    {
+        gLooping = false;
+        gTickTopic.pause();
+    }
 
     // Clearing is a complete wipe, which will leave 
     // the canvas with fully transparent black
@@ -641,9 +668,9 @@ namespace p5 {
 // able to find them with getProcAddress()
 //
 
-    // This is called by the application framework
-    // giving us an opportunity to do composition
-    // before final display
+// This is called per frame
+// giving us an opportunity to do composition
+// before final display
 void handleComposition()
 {
     // Allow the user's drawing to happen first
@@ -660,9 +687,15 @@ void handleComposition()
 }
 
 
-void onFrame()
+void handleFrameTick(const double secs)
 {
     p5::frameCount = p5::frameCount + 1;
+    
+    // Do whatever drawing the application wants to do
+    handleComposition();
+    
+    // Push our drawing to the screen
+    screenRefresh();
 }
 
 
@@ -827,6 +860,11 @@ void handlePointerEvent(const PointerEvent& e)
 }
 
 
+static void p5frameTickSubscriber(const Topic<double>&p, const double t)
+{
+    handleFrameTick(t);
+}
+
 static void p5keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
 {
     handleKeyboardEvent(e);
@@ -851,7 +889,11 @@ void onLoad()
 {
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
+    // Setup initial frequency
+    gTickTopic.setFrequency(gFPS);
+
     // setup subscriptions
+    gTickTopic.subscribe(p5frameTickSubscriber);
     subscribe(p5mouseSubscriber);
     subscribe(p5keyboardSubscriber);
     subscribe(p5joystickSubscriber);
@@ -859,6 +901,7 @@ void onLoad()
 
     // load the setup() function if user specified
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+    gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
 
     // Look for implementation of drawing handler
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
@@ -902,7 +945,11 @@ void onLoad()
     // do drawing at least once in case
     // the user calls noLoop() within 
     // the setup() routine
-    forceRedraw(nullptr, 0);
+    handleFrameTick(0);
+
+    // Start ticking if the user hasn't called noLoop()
+    if (gLooping)
+        gTickTopic.start();
 }
 
 

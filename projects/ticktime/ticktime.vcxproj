@@ -152,7 +152,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\primary\pubsub.h" />
     <ClInclude Include="..\..\primary\TimeTicker.h" />
-    <ClInclude Include="timertopic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

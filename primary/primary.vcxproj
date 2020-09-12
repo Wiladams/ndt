@@ -206,6 +206,7 @@
     <ClInclude Include="texture.h" />
     <ClInclude Include="Thread.hpp" />
     <ClInclude Include="threed.h" />
+    <ClInclude Include="ticktopic.h" />
     <ClInclude Include="trianglemesh.h" />
     <ClInclude Include="uievent.h" />
     <ClInclude Include="vec3.h" />

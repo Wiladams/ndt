@@ -8,17 +8,17 @@
 
 typedef void (*TIMERCALLBACK)(void* param, int64_t tickCount);
 
-class TimerTopic : public Topic<double>
+class TickTopic : public Topic<double>
 {
-    StopWatch fsw;
-    int64_t fTickCount;
     Thread fThread;
+    StopWatch fsw;
+
+    int64_t fTickCount;
     int64_t fInterval;
 
     static DWORD __stdcall generateTicks(void* param)
     {
-        TimerTopic* ticker = (TimerTopic*)(param);
-        int64_t interval = ticker->getInterval();
+        TickTopic* ticker = (TickTopic*)(param);
 
         StopWatch sw;
         sw.reset();
@@ -27,6 +27,7 @@ class TimerTopic : public Topic<double>
         //printf("GENERATING TICKS\n");
 
         while (true) {
+            auto interval = ticker->getInterval();
             nextMillis += (DWORD)interval;
             DWORD duration = nextMillis - (DWORD)sw.millis();
             if (duration < 0) {
@@ -43,15 +44,18 @@ class TimerTopic : public Topic<double>
 
 public:
     //TIMERCALLBACK callit, void* callitParam
-    TimerTopic(const double freq)
+    TickTopic(const double freq)
         :fInterval((uint64_t)(1000.0/freq))
-        , fThread(TimerTopic::generateTicks, this)
+        , fThread(TickTopic::generateTicks, this)
         , fTickCount(0)
     {
     }
 
 
     int64_t getInterval() { return fInterval; }
+    void setInterval(const uint64_t newInterval) { fInterval = newInterval; }
+    uint64_t setFrequency(const uint64_t freq) { fInterval = ((uint64_t)(1000.0 / freq)); return fInterval; }
+    int64_t getTickCount() { return fTickCount; }
 
     void start()
     {
@@ -60,7 +64,7 @@ public:
 
     void pause()
     {
-        //fThread.suspend();
+        fThread.suspend();
     }
 
     // If we stop

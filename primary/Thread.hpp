@@ -77,6 +77,15 @@ public:
         return ::ResumeThread(fHandle);
     }
 
+    int suspend()
+    {
+        if (!isValid()) {
+            return 0;
+        }
+
+        return ::SuspendThread(fHandle);
+    }
+
     // force a thread to terminate
     // if you're inside the thread, you should 
     // call ExitThread()

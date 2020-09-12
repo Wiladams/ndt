@@ -1,31 +1,34 @@
 #include "p5.hpp"
 #include "screensnapshot.hpp"
+#include "canvas.h"
+
 #include <cstdio>
 
 using namespace p5;
 
-
-
-int captureWidth = 800;
-int captureHeight = 600;
-
-int fragmentWidth = captureWidth / 2;
-int fragmentHeight = captureHeight / 2;
-int margin = 10;
+static const int captureWidth = 800;
+static const int captureHeight = 600;
 
 std::shared_ptr<ScreenSnapshot> ss = nullptr;
 
-Surface colorPlane(fragmentWidth, captureHeight / 2);
 
 
-class ColorPlaneWindow : public GWindow
+
+// Take a source image, and split it into 
+// three plane images
+class ColorPlaneWindow : public Graphic
 {
+    int cellWidth = 64;
+    int cellHeight = 64;
+    int margin = 4;
+
     std::shared_ptr<ScreenSnapshot> fScreenSnapshot;
 
-    Surface redSurface;
-    Surface greenSurface;
-    Surface blueSurface;
-    Surface graySurface;
+    GCanvas redSurface;
+    GCanvas greenSurface;
+    GCanvas blueSurface;
+    GCanvas graySurface;
+
 
     // convert an rgb pixel to a chroma value
     inline uint8_t toGray(const Pixel& pix)
@@ -33,8 +36,6 @@ class ColorPlaneWindow : public GWindow
         return (0.2125 * pix.r) + (0.7154 * pix.g) + (0.0721 * pix.b);
     }
 
-    // Take a source image, and split it into 
-    // three plane images
     // This is an individual pixel operation, which could 
     // probably be done using a blend2d composite command, but since
     // it's a pretty simple operation, it's probably not going to get
@@ -61,25 +62,26 @@ class ColorPlaneWindow : public GWindow
 
 public:
     ColorPlaneWindow(int w, int h, std::shared_ptr<ScreenSnapshot> ss)
-        :GWindow(0,0,w,h),
+        :Graphic(0,0,w,h),
         fScreenSnapshot(ss),
-        redSurface(ss->fWidth,ss->fHeight),
-        greenSurface(ss->fWidth, ss->fHeight),
-        blueSurface(ss->fWidth, ss->fHeight),
-        graySurface(ss->fWidth, ss->fHeight)
+        redSurface(ss->width(),ss->height()),
+        greenSurface(ss->width(), ss->height()),
+        blueSurface(ss->width(), ss->height()),
+        graySurface(ss->width(), ss->height())
     {
+        cellWidth = (w / 2) - (margin/2);
+        cellHeight = (h / 2) - (margin/2);
     }
 
     void drawBackground(IGraphics* ctx)
     {
-        fScreenSnapshot->moveNext();
         splitPlanes();
 
         // red green and blue fragments
-        ctx->scaleImage(redSurface.getBlend2dImage(), 0, 0, redSurface.getWidth(), redSurface.getHeight(), margin, margin, fragmentWidth, fragmentHeight);
-        ctx->scaleImage(greenSurface.getBlend2dImage(), 0, 0, greenSurface.getWidth(), greenSurface.getHeight(), margin + (((fragmentWidth + margin) * 1)), margin, fragmentWidth, fragmentHeight);
-        ctx->scaleImage(blueSurface.getBlend2dImage(), 0, 0, blueSurface.getWidth(), blueSurface.getHeight(), margin, margin + ((fragmentHeight + margin) * 1), fragmentWidth, fragmentHeight);
-        ctx->scaleImage(graySurface.getBlend2dImage(), 0, 0, graySurface.getWidth(), graySurface.getHeight(), margin + (((fragmentWidth + margin) * 1)), margin + ((fragmentHeight + margin) * 1), fragmentWidth, fragmentHeight);
+        ctx->scaleImage(redSurface.getImage(), 0, 0, redSurface.getWidth(), redSurface.getHeight(), margin, margin, cellWidth, cellHeight);
+        ctx->scaleImage(greenSurface.getImage(), 0, 0, greenSurface.getWidth(), greenSurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin, cellWidth, cellHeight);
+        ctx->scaleImage(blueSurface.getImage(), 0, 0, blueSurface.getWidth(), blueSurface.getHeight(), margin, margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
+        ctx->scaleImage(graySurface.getImage(), 0, 0, graySurface.getWidth(), graySurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
     }
 };
 
@@ -90,30 +92,24 @@ void draw()
     clear();
 
     // Get capture current screen
-    //ss->moveNext();
-
-    // Display normal but shrunken
-    //Surface &surf = ss->getCurrent();
-    //BLImage& img = surf.getBlend2dImage();
-
-    // draw into the color plane so it's the right size
-    //colorPlane.scaleImage(img, 0, 0, img.width(), img.height(), 0, 0, colorPlane.getWidth(), colorPlane.getHeight());
-    //colorPlane.flush();
-
-     // Display regular scaled down
-    //scaleImage(colorPlane.getBlend2dImage(), 0,0, colorPlane.getWidth(), colorPlane.getHeight(), 10, 10, fragmentWidth, fragmentHeight);
+    ss->moveNext();
 }
 
 
 void setup()
 {
+    double windowScale = 1;
+
     fullscreen();
-    //createCanvas(1280,800);
     frameRate(30);
 
+    // create a window to hold the split plane graphic
+    auto win = window(0, 0, captureWidth* windowScale, captureHeight* windowScale);
     ss = std::make_shared<ScreenSnapshot>(0, 0, captureWidth, captureHeight);
-    auto win = std::make_shared<ColorPlaneWindow>(captureWidth, captureHeight, ss);
-    addWindow(win);
+    auto splitwin = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
+    win->addChild(splitwin);
+    win->setTitle("Split Panes");
+    win->moveBy(displayWidth / 2, 0);
 }
 
 void keyReleased(const KeyboardEvent& e)

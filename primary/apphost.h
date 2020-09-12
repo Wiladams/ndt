@@ -17,6 +17,7 @@
 #include "Surface.h"
 #include "joystick.h"
 #include "uievent.h"
+#include "pubsub.h"
 
 #include <stdio.h>
 #include <string>
@@ -61,28 +62,16 @@ EXPORT extern int canvasHeight;
 
 // These are typically implemented by
 // an app framework
-EXPORT void onFrame();  // Per frame
-EXPORT void onLoop();   // each time through event loop
 EXPORT void onLoad();	// upon loading application
 
-// These should be implemented by a module to be loaded
-EXPORT void handleComposition();
-EXPORT void draw();
-EXPORT void setup();
-EXPORT void update(const double dt);
 
-
-
-
-EXPORT void fileDrop(const FileDropEvent& e);
 
 // Controlling the runtime
 EXPORT void showAppWindow();
 EXPORT void halt();
-EXPORT void loop();
-EXPORT void noLoop();
-EXPORT void forceRedraw(void* param, int64_t tickCount);
-EXPORT void windowRefresh();
+
+//EXPORT void forceRedraw(void* param, int64_t tickCount);
+EXPORT void screenRefresh();
 
 EXPORT void layered();
 EXPORT void noLayered();
@@ -110,7 +99,7 @@ EXPORT void show();
 EXPORT void hide();
 
 
-EXPORT void setFrameRate(int newRate);
+
 EXPORT void setWindowPosition(int x, int y);
 EXPORT bool setCanvasSize(long aWidth, long aHeight);
 
@@ -120,7 +109,9 @@ EXPORT bool setCanvasSize(long aWidth, long aHeight);
 #endif
 
 // Make Topic publishers available
+using SignalEventTopic = Topic<intptr_t>;
 
+EXPORT void subscribe(SignalEventTopic::Subscriber s);
 EXPORT void subscribe(MouseEventTopic::Subscriber s);
 EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 EXPORT void subscribe(JoystickEventTopic::Subscriber s);

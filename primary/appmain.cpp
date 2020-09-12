@@ -3,7 +3,6 @@
 #include "apphost.h"
 
 #include "LayeredWindow.hpp"
-//#include "TimeTicker.hpp"
 #include "joystick.h"
 #include "stopwatch.hpp"
 
@@ -28,19 +27,20 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 
 // Application routines
-static VOIDROUTINE gCompositionHandler = nullptr;
+//static VOIDROUTINE gCompositionHandler = nullptr;
 
-static VOIDROUTINE gLoopHandler = nullptr;
-static VOIDROUTINE gFrameHandler = nullptr;
+//static VOIDROUTINE gLoopHandler = nullptr;
+//static VOIDROUTINE gFrameHandler = nullptr;
 static VOIDROUTINE gOnloadHandler = nullptr;
-static VOIDROUTINE gPreloadHandler = nullptr;
-static VOIDROUTINE gPreSetupHandler = nullptr;
-static PFNDOUBLE1 gUpdateHandler = nullptr;
+//static VOIDROUTINE gPreloadHandler = nullptr;
+//static VOIDROUTINE gPreSetupHandler = nullptr;
+
 
 // Painting
 static WinMSGObserver gPaintHandler = nullptr;
 
 // Topics applications can subscribe to
+SignalEventTopic gSignalEventTopic;
 KeyboardEventTopic gKeyboardEventTopic;
 MouseEventTopic gMouseEventTopic;
 JoystickEventTopic gJoystickEventTopic;
@@ -61,16 +61,15 @@ static PointerEventHandler gPointerEventHandler = nullptr;
 int gargc;
 char **gargv;
 
-//TimeTicker *gAppTicker = nullptr;
 StopWatch appStopWatch;
 double deltaTime = 0;
 double gAppLastTime = 0;
 
-int gFPS = 15;   // Frames per second
+
 User32Window * gAppWindow = nullptr;
 Surface * gAppSurface = nullptr;
 
-UINT_PTR gAppTimerID = 0;   // Not global
+
 bool gRunning = true;
 bool gIsLayered = false;
 
@@ -133,7 +132,7 @@ void HID_UnregisterDevice(USHORT usage)
 
 
 // Controlling drawing
-void windowRefresh()
+void screenRefresh()
 {
     //std::cout << "windowRefresh" << std::endl;
 
@@ -152,7 +151,7 @@ void windowRefresh()
         lw.display(gAppWindow->getHandle(), ((Surface*)gAppSurface)->getDC());
     }
 }
-
+/*
 void forceRedraw(void* param, int64_t tickCount)
 {
     //std::cout << "forceRedraw" << std::endl;
@@ -184,6 +183,7 @@ void forceRedraw(void* param, int64_t tickCount)
         lw.display(gAppWindow->getHandle(), ((Surface *)gAppSurface)->getDC());
     }
 }
+*/
 
 /*
     Environment
@@ -213,15 +213,7 @@ void noCursor()
     ShowCursor(0);
 }
 
-void setFrameRate(int newRate)
-{
-    gFPS = newRate;
 
-    UINT_PTR nIDEvent = 5;
-    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-    UINT uElapse = 1000 / gFPS;
-    gAppTimerID = SetTimer(gAppWindow->getHandle(), nIDEvent, uElapse, nullptr);
-}
 
 
 
@@ -565,6 +557,12 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 /*
     Subscription routines
 */
+// General signal subscription
+void subscribe(SignalEventTopic::Subscriber s)
+{
+    gSignalEventTopic.subscribe(s);
+}
+
 // Allow subscription to keyboard events
 void subscribe(KeyboardEventTopic::Subscriber s)
 {
@@ -603,7 +601,7 @@ void registerHandlers()
 
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
-    // the one that are inbuilt.
+    // the ones that are inbuilt.
     WinMSGObserver handler = (WinMSGObserver)GetProcAddress(hInst, "onPaint");
     if (handler != nullptr) {
         gPaintHandler = handler;
@@ -630,17 +628,7 @@ void registerHandlers()
 
     // Get the general app routines
     gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
-    gFrameHandler = (VOIDROUTINE)GetProcAddress(hInst, "onFrame");
 
-    gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
-    gPreSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "presetup");
-    gCompositionHandler = (VOIDROUTINE)GetProcAddress(hInst, "handleComposition");
-    gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
-
-
-    // Timer
-    UINT_PTR nIDEvent = 5;
-    setFrameRate(gFPS);
 }
 
 
@@ -651,20 +639,7 @@ void halt() {
     PostQuitMessage(0);
 }
 
-// turn looping on
-void loop() {
-    setFrameRate(gFPS);
-}
 
-// turn looping off
-// we still need to process the windows events
-// but we stop calling draw() on a timer
-void noLoop() 
-{
-    // turn off timer
-    // so drawing is not called in event loop
-    BOOL bResult = KillTimer(gAppWindow->getHandle(), gAppTimerID);
-}
 
 void rawInput()
 {
@@ -865,9 +840,9 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // return non-zero indicating we dealt with erasing the background
         res = 1;
     }
-    else if (msg == WM_TIMER) {
-        forceRedraw(nullptr, 0);
-    }
+    //else if (msg == WM_TIMER) {
+    //    forceRedraw(nullptr, 0);
+    //}
     else if (msg == WM_PAINT) {
         //printf("WM_PAINT\n");
         if (gPaintHandler != nullptr) {
@@ -880,12 +855,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
     }
     else if (msg == WM_DROPFILES) {
-        //printf("WM_DROPFILES\n");
         HandleFileDropMessage(hWnd, msg, wParam, lParam);
-        //if (gFileDropHandler != nullptr)
-        //{
-        //    gFileDropHandler(hWnd, msg, wParam, lParam);
-        //}
     }
     else {
         res = DefWindowProcA(hWnd, msg, wParam, lParam);
@@ -900,14 +870,10 @@ void run()
     // Make sure we have all the event handlers connected
     registerHandlers();
 
+    // call the application's 'onLoad()'
     if (gOnloadHandler != nullptr) {
         gOnloadHandler();
     }
-
-    if (gPreloadHandler != nullptr) {
-        gPreloadHandler();
-    }
-
 
     // Do a typical Windows message pump
     MSG msg;
@@ -917,6 +883,7 @@ void run()
     deltaTime = appStopWatch.seconds();
 
     while (true) {
+        /*
         if (gUpdateHandler != nullptr) {
 
             double currentTime = appStopWatch.seconds();
@@ -924,7 +891,7 @@ void run()
             gAppLastTime = currentTime;
             gUpdateHandler(deltaTime);
         }
-
+        */
         // we use peekmessage, so we don't stall on a GetMessage
         // should probably throw a wait here
         BOOL bResult = PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
