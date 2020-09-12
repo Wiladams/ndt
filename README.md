@@ -2,13 +2,15 @@
 Newgrammer Development Tools
 ============================
 
-A newgrammer is someone who is new to programming.
+A repository of simple applications for new programmers.
 
-This is a repository of programs that can be built fairly easily
-using C++ on the Windows platform.
+These programs are written in C++, and exhibit various concepts
+from data structures, algorithms, threading, memory management
+and the like.
 
-
-
+All the platform specific parts of creating a window, handling
+mouse, keyboard, joystick and the like are conveniently wrapped up
+for easy consumption.
 
 Examples
 ========
