@@ -71,6 +71,12 @@ enum {
 struct TouchEvent {
     int id;
     int activity;
+
+    bool isPrimary;
+    bool isHovering;
+    bool isPalm;
+    bool isPen;
+
     int rawX;
     int rawY;
     int rawWidth;

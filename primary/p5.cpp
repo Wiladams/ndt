@@ -939,7 +939,7 @@ void onLoad()
     gTouchStartedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchStarted");
     gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
-    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHover");
+    gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHovered");
 
     gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
 

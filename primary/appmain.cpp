@@ -334,7 +334,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int cInputs = LOWORD(wParam);
     int cbSize = sizeof(TOUCHINPUT);
 
-    //printf("wm_touch_event 1.0: %d\n", cInputs);
+    printf("HandleTouchMessage 1.0: %d\n", cInputs);
     PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
 
     // 0 == failure?
@@ -355,6 +355,8 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //print("wm_touch_event 4.1: ", PT.x, PT.y)
         auto bResult = ::ScreenToClient(hwnd, &PT);
         //printf("wm_touch_event 4.2: ", bResult, PT.x, PT.y)
+        printf("wm_touch_event, flags: 0x%x\n", pInputs[i].dwFlags);
+
         TouchEvent e;
         e.id = pInputs[i].dwID;
         e.x = PT.x;
@@ -362,6 +364,10 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         e.rawX = pInputs[i].x;
         e.rawY = pInputs[i].y;
 
+        // Deal with masks first
+        //#define TOUCHINPUTMASKF_TIMEFROMSYSTEM  0x0001  // the dwTime field contains a system generated value
+        //#define TOUCHINPUTMASKF_EXTRAINFO       0x0002  // the dwExtraInfo field is valid
+        //#define TOUCHINPUTMASKF_CONTACTAREA     0x0004  // the cxContact and cyContact fields are valid
 
         if ((pInputs[i].dwMask & TOUCHINPUTMASKF_CONTACTAREA) != 0) {
             e.rawWidth = pInputs[i].cxContact;
@@ -370,7 +376,17 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             e.h = e.rawHeight / 100;
         }
 
-        // switch based on activity
+        // figure out kind of activity and attributes
+        /*
+        #define TOUCHEVENTF_MOVE            0x0001
+#define TOUCHEVENTF_DOWN            0x0002
+#define TOUCHEVENTF_UP              0x0004
+#define TOUCHEVENTF_INRANGE         0x0008
+#define TOUCHEVENTF_PRIMARY         0x0010
+#define TOUCHEVENTF_NOCOALESCE      0x0020
+#define TOUCHEVENTF_PEN             0x0040
+#define TOUCHEVENTF_PALM            0x0080
+        */
         if (pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
             e.activity = TOUCH_DOWN;
         }
@@ -383,8 +399,17 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             e.activity = TOUCH_MOVE;
         }
 
+        // Attributes of the event
         if (pInputs[i].dwFlags & TOUCHEVENTF_INRANGE) {
-            e.activity = TOUCH_HOVER;
+            e.isHovering = true;
+        }
+
+        if (pInputs[i].dwFlags & TOUCHEVENTF_PALM) {
+            e.isPalm = true;
+        }
+        
+        if (pInputs[i].dwFlags & TOUCHEVENTF_PEN) {
+            e.isPen = true;
         }
 
         gTouchEventTopic.notify(e);
@@ -678,9 +703,6 @@ void showAppWindow()
 
 LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == 0x240)
-        printf("MSG, TOUCH: 0x%04x\n", msg);
-
     LRESULT res = 0;
 
     if (msg == WM_INPUT) {
@@ -745,12 +767,9 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // Handle touch specific messages
         HandleTouchMessage(hWnd, msg, wParam, lParam);
     }
-    else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
-        HandlePointerMessage(hWnd, msg, wParam, lParam);
-        //if (gPointerMessageHandler != nullptr) {
-        //    res = gPointerMessageHandler(hWnd, msg, wParam, lParam);
-        //}
-    }
+    //else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
+    //    HandlePointerMessage(hWnd, msg, wParam, lParam);
+    //}
     else if (msg == WM_ERASEBKGND) {
         //printf("WM_ERASEBKGND\n");
         if (gPaintHandler != nullptr) {
