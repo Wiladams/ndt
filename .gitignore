@@ -60,4 +60,7 @@ projects/.vs/projects/v16/Solution.VC.db-wal
 !lib/Release/blend2d.dll
 !lib/Release/blend2d.lib
 !projects/x64/Release/blend2d.dll
+!lib/Debug/blend2d.dll
+!lib/Debug/blend2d.lib
+!projects/x64/Debug/blend2d.dll
 
