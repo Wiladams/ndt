@@ -2,15 +2,12 @@
 Newgrammer Development Tools
 ============================
 
-A repository of simple applications for new programmers.
+A repository of simple demo applications that show new programmers how to write code in C++.
 
-These programs are written in C++, and exhibit various concepts
-from data structures, algorithms, threading, memory management
-and the like.
+The various concepts exhibited include data structures, algorithms, threading, memory management, graphics, event handling, and the like.
 
-All the platform specific parts of creating a window, handling
-mouse, keyboard, joystick and the like are conveniently wrapped up
-for easy consumption.
+This code only runs on the Windows platform, but all the platform specific parts of creating a window, handling mouse, keyboard, joystick and the like are conveniently wrapped up in one place, and the programmer doesn't really deal with it.
+
 
 Examples
 ========
@@ -123,7 +120,7 @@ Examples
 ### spirograph
 <img src="docs/images/spirograph.png" alt="spirograph" width=240/></br>
 * Project: [spirograph](projects/spirograph)
-* Notes: screen snapshot, mipmap
+* Notes: algorithmic drawing
 
 ### squardle
 <img src="docs/images/squardle.png" alt="squardle" width=240/></br>
@@ -152,20 +149,34 @@ Examples
 
 Compiling
 =========
-    * apphost.h
-    * appmain.cpp
 
+The projects directory contains a Visual Studio solutions file which gives you ready access to all the coded up examples.
+
+Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.  Currently
+using Visual Studio 2019
+
+Open up the projects.sln file in the \projects\projects.sln
+Make sure you're in Release mode
+Build the entire solution, play with examples
+
+
+Some Details
+============
 
 Graphics are supported by the blend2d library.  Other than that, there are no other external dependencies.
 
 In the directory structure, the '\primary' directory contains
 a bunch of very useful stuff that makes the programming super
-easy to play with.  The most direct and easy way to get started is to use the p5 combination of files
+easy to play with.  The most direct and easy way to get started is to use the p5 combination of files.  These files give you a programming environment which is 
+very familiar to what you would have in p5.js, but using C++ instead of javascript.
+
+    * apphost.h
+    * appmain.cpp
 
     * p5.hpp
     * p5.cpp
 
-This will give you an environment wherein you only need to implement a couple of functions to put something on the screen.  It is very similar to the original Processing environment, or p5.js, but done in C++
+With these files included in your project, you have an environment where you only need to implement a couple of functions to put something on the screen.
 
 ```C++
 
@@ -184,25 +195,13 @@ void draw()
 
 
 
-
-The code here is windows specific, which makes no attempt at being cross platform.  All windows specifics are encapsulated in the apphost/appmain combination though, so if you want to try your hand at doing cross platform things, porting those two files is pretty much all you would have to deal with.
-
-The projects directory contains a Visual Studio solutions file which gives you ready access to all the coded up examples.
-
-Install a relatively recent version of the Visual Studio environment, to get a Visual C++  compiler installed.  Currently
-using Visual Studio 2019
-
-Open up the projects.sln file in the \projects\projects.sln
-Make sure you're in Release mode
-Build the entire solution, play with examples
-
 Creating a new project
 ======================
-Need to link in: ws2_32.lib, blend2d.lib
-Need to set Additional Lib Directories to ..\..\lib\Release
+* Add libraries: blend2d.lib, ws2_32.lib 
+* Set Additional Lib Directories to ..\..\lib\Release
 
-Need to set C/C++ Additional Include Directories - ..\..\primary
-Need to set C++ runtime to /Mt
+* Set C/C++ Additional Include Directories - ..\..\primary
+* Set C++ runtime to /Mt
 
 
 Bits And Bobs
@@ -210,14 +209,12 @@ Bits And Bobs
 
 
 
-Most functions in ndt are encapsultated in classes that are in header files.  That means ndt does not have a 'library' that programs link against.  Each program is individual, and compiles down to a fairly small size.
+Most functions in ndt are in classes that are in header files.  That means ndt does not have a 'library' that programs link against.  Each program is individual, and compiles down to a fairly small size.
 
 
 Random References
 ==========
 
-
-https://github.com/Wiladams/NewTOAPIA
 
 C++ compiler intrinsics
 https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view=vs-2019
