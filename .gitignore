@@ -53,8 +53,11 @@
 projects/.vs/projects/v16/Solution.VC.db-shm
 projects/.vs/projects/v16/Solution.VC.db-wal
 
+# Recipes
+*.exe.recipe
 
 # Inclusions
 !lib/Release/blend2d.dll
 !lib/Release/blend2d.lib
 !projects/x64/Release/blend2d.dll
+

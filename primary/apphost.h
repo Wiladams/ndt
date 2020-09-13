@@ -116,3 +116,5 @@ EXPORT void subscribe(MouseEventTopic::Subscriber s);
 EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 EXPORT void subscribe(JoystickEventTopic::Subscriber s);
 EXPORT void subscribe(FileDropEventTopic::Subscriber s);
+EXPORT void subscribe(TouchEventTopic::Subscriber s);
+EXPORT void subscribe(PointerEventTopic::Subscriber s);

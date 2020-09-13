@@ -518,6 +518,16 @@ void subscribe(FileDropEventTopic::Subscriber s)
     gFileDropEventTopic.subscribe(s);
 }
 
+void subscribe(TouchEventTopic::Subscriber s)
+{
+    gTouchEventTopic.subscribe(s);
+}
+
+void subscribe(PointerEventTopic::Subscriber s)
+{
+    gPointerEventTopic.subscribe(s);
+}
+
 // Setup the routines that will handle
 // keyboard and mouse events
 void registerHandlers()

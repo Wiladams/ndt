@@ -879,7 +879,7 @@ static void p5touchSubscriber(const TouchEventTopic& p, const TouchEvent& e)
     handleTouchEvent(e);
 }
 
-static void p5pointerSubscriber(const PointerEvent& p, const PointerEvent& e)
+static void p5pointerSubscriber(const PointerEventTopic& p, const PointerEvent& e)
 {
     handlePointerEvent(e);
 }
