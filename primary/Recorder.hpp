@@ -48,7 +48,7 @@ public:
         sprintf_s(frameName, 255, "%s%06d.bmp", fBasename.c_str, fCurrentFrame);
         BLImageCodec codec;
         codec.findByName("BMP");
-        fSurface.getBlend2dImage().writeToFile(frameName, codec);
+        fSurface.getImage().writeToFile(frameName, codec);
 
         fCurrentFrame = fCurrentFrame + 1;
     }

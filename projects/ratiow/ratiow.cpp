@@ -510,7 +510,7 @@ void keyPressed(const KeyboardEvent& e)
         case 'S':
             BLImageCodec codec;
             codec.findByName("BMP");
-            gAppSurface->getBlend2dImage().writeToFile("ratiow.bmp", codec);
+            gAppSurface->getImage().writeToFile("ratiow.bmp", codec);
             tracer->getImage().writeToFile("image.bmp", codec);
         break;
     }

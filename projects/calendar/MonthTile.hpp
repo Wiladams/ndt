@@ -48,7 +48,7 @@ public:
 
 
 
-	void drawDayNumbers(IGraphics* ctx)
+	void drawDayNumbers(std::shared_ptr<IGraphics> ctx)
 	{
 		SYSTEMTIME sysTime;
 		GetLocalTime(&sysTime);
@@ -86,7 +86,7 @@ public:
 		}
 	}
 
-	void drawDayHeadings(IGraphics* ctx)
+	void drawDayHeadings(std::shared_ptr<IGraphics> ctx)
 	{
 		int yoffset = 16;
 		int xoffset = 4;
@@ -101,7 +101,7 @@ public:
 		}
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		//printf("MonthDay: (%d) %d\n", fMonth, fCalendar.dayCodeForMonth(fMonth));
 

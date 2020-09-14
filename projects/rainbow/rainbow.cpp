@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	virtual void draw(IGraphics* ctx)
+	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		// Get starting point
 		BLPoint lp = ndt::bezier_point(0, p1, p2, p3, p4);

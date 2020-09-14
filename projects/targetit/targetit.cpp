@@ -159,7 +159,7 @@ void draw()
 		// draw screen image
 		if (snappy != nullptr) {
 			//printf("CAPTURED");
-			auto img = snappy->getCurrent().getBlend2dImage();
+			auto img = snappy->getCurrent().getImage();
 			image(img, 0, 0);
 		}
 	} else {

@@ -52,6 +52,11 @@ public:
 		fContentArea = { fFrame.x + ContentMargin, fFrame.y + fTabParam.h + ContentMargin, fFrame.w - ContentMargin*2, fFrame.h - fTabParam.h-ContentMargin*2 };
 	}
 
+	virtual bool contains(int x, int y)
+	{
+		return fWholePath.contains((double)x, (double)y);
+	}
+
 	void setBackgroundColor(const Pixel& c) { fBackgroundColor = c; }
 	void setTabColor(const Pixel& c) { fTabColor = c; }
 

@@ -157,22 +157,14 @@ void shape11()
 	endShape(SHAPEEND::CLOSE);
 }
 
-// For the color schemes
-// https://flatuicolors.com/palette/us
-// 
-void shape12()
-{
-	tabSet->draw(gAppSurface);
-	gAppSurface->flush();
-}
+
+
 
 void draw()
 {
 	background(0xc0);
 	stroke(0);
 	
-	//tabSet->draw(gAppSurface);
-	//flush();
 
 	
 	push();
@@ -220,15 +212,9 @@ void draw()
 	shape11();
 	pop();
 
-	// Third Row
-	push();
-	translate(0, 300);
-	shape12();
-	pop();
 
 	pop();
-	
-
+	flush();
 }
 
 void setup()
@@ -237,9 +223,15 @@ void setup()
 
 	tabSet = TabViewSet::create(width-16,260);
 
+	// For the color schemes
+	// https://flatuicolors.com/palette/us
+	// 
 	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
 	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
 	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
 	tabSet->addChild(std::make_shared<TabbedView>(BLRect(8, 0, (double)width - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
 
+	auto tabWin = window(0,300,width - 16, 260);
+	tabWin->addChild(tabSet);
+	addWindow(tabWin);
 }

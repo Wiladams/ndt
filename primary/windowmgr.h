@@ -35,7 +35,19 @@ public:
 		// do nothing
 		// So, only application drawing occurs
 	}
+	/*
+	virtual void drawChildren(IGraphics* ctx)
+	{
+		GWindow::drawChildren(ctx);
+	}
 
+	virtual void draw(IGraphics* ctx)
+	{
+		// tell each window to draw using its own drawing context
+
+		// then composite each windows image into the ctx
+	}
+	*/
 	// Handling mouse events
 	void mouseEvent(const MouseEvent& e)
 	{

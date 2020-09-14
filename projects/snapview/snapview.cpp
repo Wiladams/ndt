@@ -33,7 +33,7 @@ void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
 void draw()
 {
     ss->moveNext();
-    auto src = ss->getCurrent().getBlend2dImage();
+    auto src = ss->getCurrent().getImage();
     displayQuad(src, { 0,0,src.width(), src.height() }, 8);
 }
 
@@ -45,7 +45,7 @@ void keyTyped(const KeyboardEvent& event)
     if (keyCode == T_SP) {
         BLImageCodec codec;
         codec.findByName("BMP");
-        gAppSurface->getBlend2dImage().writeToFile("screen.bmp", codec);
+        gAppSurface->getImage().writeToFile("screen.bmp", codec);
     }
 }
 

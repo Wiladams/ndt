@@ -10,7 +10,7 @@ protected:
 
 public:
 
-	virtual void draw(IGraphics* ctx) = 0;
+	virtual void draw(std::shared_ptr<IGraphics> ctx) = 0;
 };
 
 /*

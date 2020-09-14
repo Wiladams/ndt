@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <memory>
 
 // EXPORT allows us to declare a function as exported
 // this will make it possible to then lookup that 
@@ -44,7 +45,7 @@ EXPORT extern char **gargv;
 
 
 EXPORT extern User32Window * gAppWindow;
-EXPORT extern Surface * gAppSurface;
+EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
 
 EXPORT extern bool gRunning;

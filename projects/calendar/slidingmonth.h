@@ -65,7 +65,7 @@ public:
 
 	}
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		// draw a black background rectangle to start
 		ctx->fill(0);
@@ -73,7 +73,7 @@ public:
 		ctx->rect(0, 0, fFrame.w, fFrame.h);
 	}
 
-	void drawDate(IGraphics* ctx, int row, int col, int date, const Pixel &c)
+	void drawDate(std::shared_ptr<IGraphics> ctx, int row, int col, int date, const Pixel &c)
 	{
 		// draw the date
 		auto cellX = (col * cellWidth);
@@ -90,7 +90,7 @@ public:
 	}
 
 
-	void drawSelf(IGraphics* ctx)
+	void drawSelf(std::shared_ptr<IGraphics> ctx)
 	{
 		// draw numeric squares
 		ctx->textSize(12);

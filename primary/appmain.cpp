@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <array>
 #include <iostream>
-
+#include <memory>
 
 // Some function signatures
 // WinMSGObserver - Function signature for Win32 message handler
@@ -41,7 +41,7 @@ char **gargv;
 
 
 User32Window * gAppWindow = nullptr;
-Surface * gAppSurface = nullptr;
+std::shared_ptr<Surface>  gAppSurface = nullptr;
 
 
 bool gRunning = true;
@@ -122,7 +122,7 @@ void screenRefresh()
     }
     else {
         LayeredWindowInfo lw(canvasWidth, canvasHeight);
-        lw.display(gAppWindow->getHandle(), ((Surface*)gAppSurface)->getDC());
+        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
     }
 }
 
@@ -684,10 +684,12 @@ bool setCanvasSize(long aWidth, long aHeight)
     // Create new drawing surface
     if (gAppSurface != nullptr) {
         // Delete old one if it exists
-        delete gAppSurface;
+        //delete gAppSurface;
+        //gAppSurface.reset();
     }
 
-    gAppSurface = new Surface(aWidth, aHeight);
+
+    gAppSurface = std::make_shared<Surface>(aWidth, aHeight);
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 

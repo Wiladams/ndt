@@ -56,7 +56,7 @@ public:
 
 	}
 
-	void drawHourGrid(IGraphics* ctx)
+	void drawHourGrid(std::shared_ptr<IGraphics> ctx)
 	{
 		auto bounds = getBounds();
 		char buff[32];
@@ -114,7 +114,7 @@ ctx->textSize(24);
 ctx->text(buff, 32, 24);
 */
 
-	void drawMonthDay(IGraphics* ctx)
+	void drawMonthDay(std::shared_ptr<IGraphics> ctx)
 	{
 		// Draw nice blue background rectangle for black text
 		auto bounds = getBounds();
@@ -147,7 +147,7 @@ ctx->text(buff, 32, 24);
 		ctx->pop();
 	}
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		// draw background
 		ctx->noStroke();
@@ -156,7 +156,7 @@ ctx->text(buff, 32, 24);
 		ctx->rect(0, 0, bounds.w, bounds.h);
 	}
 
-	void draw(IGraphics* ctx) 
+	void draw(std::shared_ptr<IGraphics> ctx) 
 	{
 		drawBackground(ctx);
 		drawMonthDay(gAppSurface);

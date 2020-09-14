@@ -677,6 +677,7 @@ void handleComposition()
     if (nullptr != gWindowManager) {
         gWindowManager->draw(gAppSurface);
     }
+
     gAppSurface->flush();
 }
 

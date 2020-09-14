@@ -59,7 +59,7 @@ public:
 	void setTransform(BLMatrix2D& m) { fTransform = m; }
 	BLMatrix2D& getTransform() { return fTransform; }
 
-	bool contains(int x, int y)
+	virtual bool contains(int x, int y)
 	{
 		return ((x >= fFrame.x) && (y >= fFrame.y) &&
 			(x - fFrame.x <= fFrame.w) &&
@@ -113,12 +113,12 @@ public:
 		fFrame.y = y;
 	}
 
-	virtual void drawBackground(IGraphics* ctx)
+	virtual void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		//ctx->flush();
 	}
 
-	virtual void drawChildren(IGraphics* ctx)
+	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
 	{
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
@@ -127,18 +127,18 @@ public:
 		}
 	}
 
-	virtual void drawSelf(IGraphics* ctx)
+	virtual void drawSelf(std::shared_ptr<IGraphics> ctx)
 	{
 		// this one sub-classes should implement
 		// if they like
 	}
 
-	virtual void drawForeground(IGraphics* ctx)
+	virtual void drawForeground(std::shared_ptr<IGraphics> ctx)
 	{
 		//ctx->flush();
 	}
 
-	virtual void draw(IGraphics* ctx)
+	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
 		ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
@@ -192,6 +192,7 @@ public:
 	virtual void mousePressed(const MouseEvent& e)
 	{
 		// do nothing
+		printf("Graphic::mousePressed\n");
 	}
 
 	virtual void mouseReleased(const MouseEvent& e)

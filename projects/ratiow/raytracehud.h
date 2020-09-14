@@ -77,5 +77,5 @@ public:
         fSurface.flush();
     }
 
-    BLImage& getImage() { return fSurface.getBlend2dImage(); }
+    BLImage& getImage() { return fSurface.getImage(); }
 };

@@ -16,6 +16,11 @@ class GPath : public BLPath
 	BLPoint fLastPoint;
 
 public:
+	bool contains(double x, double y)
+	{
+		return hitTest({ x,y }, BL_FILL_RULE_NON_ZERO) != 0;
+	}
+
 	// In this case, all parameters are relative to the last
 	// to increments must accumulate
 	void cubicBy(double x1, double y1, double x2, double y2, double x3, double y3)

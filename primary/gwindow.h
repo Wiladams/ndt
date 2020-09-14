@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphic.hpp"
+#include "surface.h"
 
 class GWindow : public Graphic
 {
@@ -12,16 +13,19 @@ protected:
 	BLRect fTitleBar;
 	Pixel fTitleBarColor;
 	std::string fTitle;
+	Surface fSurface;
 
 public:
+
 	GWindow(int x, int y, int w, int h)
-		: Graphic(x,y,w,h),
-		fClientArea(0,0,w,h),
+		: Graphic(x, y, w, h),
+		fClientArea(0, 0, w, h),
 		fTitleBar(2, 2, w, 32),
 		fTitleBarColor(225, 220, 220, 127),
 		fBackgroundColor(245, 246, 247),
 		fLastMouse(0, 0),
-		fIsMoving(false)
+		fIsMoving(false),
+		fSurface(w, h)
 	{
 
 	}

@@ -100,7 +100,7 @@ public:
         return fBitmapDC;
     }
 
-    BLImage& getBlend2dImage()
+    BLImage& getImage()
     {
         return fImage;
     }
