@@ -825,25 +825,29 @@ void handleTouchEvent(const TouchEvent& e)
     switch (e.activity)
     {
         // switch based on activity
-    case TOUCH_DOWN: {
+        case TOUCH_DOWN: {
         if (gTouchStartedHandler)
             gTouchStartedHandler(e);
-    }
+        }
+        break;
 
-    case TOUCH_UP: {
-        if (gTouchEndedHandler)
-            gTouchEndedHandler(e);
-    }
+        case TOUCH_UP: {
+            if (gTouchEndedHandler)
+                gTouchEndedHandler(e);
+        }
+        break;
 
-    case TOUCH_MOVE: {
-        if (gTouchMovedHandler)
-            gTouchMovedHandler(e);
-    }
+        case TOUCH_MOVE: {
+            if (gTouchMovedHandler)
+                gTouchMovedHandler(e);
+            }
+        break;
 
     case TOUCH_HOVER: {
         if (gTouchHoverHandler)
             gTouchHoverHandler(e);
     }
+                    break;
     }
 
 }

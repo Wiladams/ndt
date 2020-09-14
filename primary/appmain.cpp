@@ -334,7 +334,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int cInputs = LOWORD(wParam);
     int cbSize = sizeof(TOUCHINPUT);
 
-    printf("HandleTouchMessage 1.0: %d\n", cInputs);
+    //printf("HandleTouchMessage 1.0: %d\n", cInputs);
     PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
 
     // 0 == failure?
@@ -355,7 +355,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //print("wm_touch_event 4.1: ", PT.x, PT.y)
         auto bResult = ::ScreenToClient(hwnd, &PT);
         //printf("wm_touch_event 4.2: ", bResult, PT.x, PT.y)
-        printf("wm_touch_event, flags: 0x%x\n", pInputs[i].dwFlags);
+        //printf("wm_touch_event, flags: 0x%x\n", pInputs[i].dwFlags);
 
         TouchEvent e;
         e.id = pInputs[i].dwID;
