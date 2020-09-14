@@ -104,7 +104,7 @@ class ThreeD {
 
 
 public:
-	ThreeD(IGraphics *ctx, int w, int h)
+	ThreeD(std::shared_ptr<IGraphics> ctx, int w, int h)
 		:fGC(ctx),
 		fWidth(w),
 		fHeight(h)

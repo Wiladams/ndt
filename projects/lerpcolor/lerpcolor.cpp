@@ -16,7 +16,8 @@ int ITERATIONS = 10000;
 void draw()
 {
     //background(255);
-    //clear();
+    clear();
+    //printf("lerpcolor.draw()\n");
 
     BLRgba32 from = color(255, 0, 0, (int)(0.2 * 255));
     BLRgba32 to = color(0, 0, 255, (int)(0.2 * 255));
@@ -67,7 +68,7 @@ void draw()
         // the command queue can get too big and 
         // eat up lots of memory.  A flush will clear
         // the commands, but slow things down a lot
-        //gAppSurface->flush();
+        gAppSurface->flush();
     }
 
 }
@@ -98,9 +99,9 @@ void setup()
     background(255);
     noStroke();
 
-    createCanvas(720, 400);
-    frameRate(30);
+    //createCanvas(720, 400);
+    fullscreen();
 
-    //blendMode(BL_COMP_OP_SRC_COPY);
+    frameRate(5);
 }
   

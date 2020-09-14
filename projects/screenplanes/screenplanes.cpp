@@ -12,8 +12,6 @@ static const int captureHeight = 600;
 std::shared_ptr<ScreenSnapshot> ss = nullptr;
 
 
-
-
 // Take a source image, and split it into 
 // three plane images
 class ColorPlaneWindow : public Graphic
@@ -73,7 +71,7 @@ public:
         cellHeight = (h / 2) - (margin/2);
     }
 
-    void drawBackground(IGraphics* ctx)
+    void drawBackground(std::shared_ptr<IGraphics> ctx)
     {
         splitPlanes();
 
@@ -101,7 +99,7 @@ void setup()
     double windowScale = 1;
 
     fullscreen();
-    frameRate(30);
+    frameRate(20);
 
     // create a window to hold the split plane graphic
     auto win = window(0, 0, captureWidth* windowScale, captureHeight* windowScale);

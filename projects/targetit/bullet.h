@@ -41,7 +41,7 @@ public:
 	}
 
 	
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		if (fFinished)
 			return;

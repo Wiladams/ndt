@@ -16,7 +16,7 @@ struct GTarget : public virtual IDrawable
 	{
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->noStroke();
 		ctx->fill(255, 0, 0);

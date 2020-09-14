@@ -231,7 +231,7 @@ public:
 
 
 
-    void drawEntry(IGraphics* ctx, ColorEntry acolor, int column, int row)
+    void drawEntry(std::shared_ptr<IGraphics> ctx, ColorEntry acolor, int column, int row)
     {
         double lum = (0.2125 * acolor.value.r) + (0.7154 * acolor.value.g) + (0.0721 * acolor.value.b);
 
@@ -257,7 +257,7 @@ public:
     }
 
 
-    void drawForeground(IGraphics* ctx)
+    void drawForeground(std::shared_ptr<IGraphics> ctx)
     {
         if (hoverGraphic == SVGGraphic::empty)
             return;
@@ -271,7 +271,7 @@ public:
     }
 
     // Draw everything normal
-    void drawBackground(IGraphics* ctx)
+    void drawBackground(std::shared_ptr<IGraphics> ctx)
     {
         auto column = 1;
         auto row = 1;
@@ -289,7 +289,7 @@ public:
         }
     }
 
-    void draw(IGraphics *ctx)
+    void draw(std::shared_ptr<IGraphics> ctx)
     {
         drawBackground(ctx);
         drawForeground(ctx);

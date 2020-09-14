@@ -30,18 +30,18 @@ public:
 		setLayout(std::make_shared<CascadeLayout>(w,h));
 	}
 
-	virtual void drawBackground(IGraphics* ctx)
+	virtual void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		// do nothing
 		// So, only application drawing occurs
 	}
 	/*
-	virtual void drawChildren(IGraphics* ctx)
+	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
 	{
 		GWindow::drawChildren(ctx);
 	}
 
-	virtual void draw(IGraphics* ctx)
+	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		// tell each window to draw using its own drawing context
 

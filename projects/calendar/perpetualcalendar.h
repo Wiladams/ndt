@@ -61,7 +61,7 @@ public:
 
 	}
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		// draw a black background rectangle to start
 		ctx->fill(0);
@@ -69,7 +69,7 @@ public:
 		ctx->rect(0, 0, fFrame.w, fFrame.h);
 	}
 
-	void drawSelf(IGraphics* ctx)
+	void drawSelf(std::shared_ptr<IGraphics> ctx)
 	{
 		// draw numeric squares
 		ctx->textSize(12);
@@ -136,7 +136,7 @@ public:
 */
 	}
 
-	void drawForeground(IGraphics* ctx)
+	void drawForeground(std::shared_ptr<IGraphics> ctx)
 	{
 		// Draw the rectangle that represents 
 		// the current month

@@ -16,7 +16,7 @@ public:
 
 	}
 
-	virtual void draw(IGraphics* ctx) {}
+	virtual void draw(std::shared_ptr<IGraphics> ctx) {}
 
 	virtual void mousePressed(const MouseEvent &e){}
 	virtual void mouseReleased(const MouseEvent& e) {}
@@ -39,7 +39,7 @@ public:
 	{
 	}
 
-	void draw(IGraphics *ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		if (fIsDragging) {
 			ctx->stroke(Pixel(255, 0, 0));
@@ -89,7 +89,7 @@ public:
 	{
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		if (fIsDragging) {
 			ctx->push();
@@ -152,7 +152,7 @@ public:
 	{
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		if (fIsDragging) {
 			ctx->push();

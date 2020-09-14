@@ -142,7 +142,7 @@ public:
 
     int getPadding() {return 2; }
 
-    void drawFrame(IGraphics *ctx, int x, int y, int w, int h, int style)
+    void drawFrame(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h, int style)
     {
         if (style == GUIStyle::Sunken) {
             ctx->stroke(fHighlightColor);
@@ -179,7 +179,7 @@ public:
         }
     }
 
-    void drawSunkenRect(IGraphics* ctx, int x, int y, int w, int h)
+    void drawSunkenRect(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h)
     {
         ctx->fill(fBaseColor);
         ctx->noStroke();
@@ -188,7 +188,7 @@ public:
         drawFrame(ctx, x, y, w, h, GUIStyle::Sunken);
     }
 
-    void drawRaisedRect(IGraphics* ctx, int x, int y, int w, int h)
+    void drawRaisedRect(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h)
     {
         ctx->noStroke();
         ctx->fill(fBaseColor);

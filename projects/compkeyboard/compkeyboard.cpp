@@ -100,7 +100,7 @@ BLRoundRect insetRoundRect(const BLRoundRect& rrect, double cx, double cy)
 }
 
 
-void drawKeyStates(IGraphics *ctx)
+void drawKeyStates(std::shared_ptr<IGraphics> ctx)
 {   
     for (int i = 0; i < nKeys; i++)
     {
@@ -115,7 +115,7 @@ void drawKeyStates(IGraphics *ctx)
     }
 }
 
-void drawNeutral(IGraphics *ctx)
+void drawNeutral(std::shared_ptr<IGraphics> ctx)
 {
     ctx->fill(127);
     ctx->stroke(10);

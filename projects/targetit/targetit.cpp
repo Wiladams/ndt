@@ -100,7 +100,7 @@ void joyPressed(const JoystickEvent& e)
 	}
 }
 
-void drawBullets(IGraphics* ctx)
+void drawBullets(std::shared_ptr<IGraphics> ctx)
 {
 	size_t nBullets = bullets.size();
 	//printf("draw, bullets: %d\n", nBullets);
@@ -124,12 +124,13 @@ void drawBullets(IGraphics* ctx)
 	}
 }
 
-void drawTargets(IGraphics* ctx) {
+void drawTargets(std::shared_ptr<IGraphics> ctx) 
+{
 	for (size_t i = 0; i < targets.size(); i++)
 		targets[i].draw(ctx);
 }
 
-void drawScore(IGraphics *ctx)
+void drawScore(std::shared_ptr<IGraphics> ctx)
 {
 	// draw rounded rect in top left corner
 	ctx->stroke(0xC0);

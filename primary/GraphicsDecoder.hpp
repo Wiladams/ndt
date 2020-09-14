@@ -10,7 +10,7 @@
 class GraphicsDecoder
 {
     BinStream &fBS;
-    IGraphics * fGraphics;
+    std::shared_ptr<IGraphics> fGraphics;
 
     // Some convenience readers
     uint16_t readCommand()
@@ -60,7 +60,7 @@ class GraphicsDecoder
 
 public:
     
-    GraphicsDecoder(BinStream &bs, IGraphics *g)
+    GraphicsDecoder(BinStream &bs, std::shared_ptr<IGraphics> g)
     :fBS(bs),
     fGraphics(g)
     {

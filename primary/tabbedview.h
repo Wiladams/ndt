@@ -60,7 +60,7 @@ public:
 	void setBackgroundColor(const Pixel& c) { fBackgroundColor = c; }
 	void setTabColor(const Pixel& c) { fTabColor = c; }
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		// Stroke the overall outline
 		// Stroke this first, and allow the filling to

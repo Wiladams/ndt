@@ -23,7 +23,7 @@ public:
 		fFrame.x = x; fFrame.y = y;
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->noStroke();
 		ctx->fill(0);
@@ -88,7 +88,7 @@ public:
 		// View of memory
 	}
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
 		ctx->noStroke();

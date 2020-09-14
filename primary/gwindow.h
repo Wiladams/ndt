@@ -37,7 +37,7 @@ public:
 
 
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		//std::cout << "GWindow::drawBackground" << std::endl;
 
@@ -73,7 +73,7 @@ public:
 			(y - fTitleBar.y <= fTitleBar.h));
 	}
 	
-	void drawTitleBar(IGraphics* ctx)
+	void drawTitleBar(std::shared_ptr<IGraphics> ctx)
 	{
 		// If there's no title, don't draw anything
 		if (fTitle.empty())
@@ -92,7 +92,7 @@ public:
 		ctx->flush();
 	}
 
-	void drawForeground(IGraphics* ctx)
+	void drawForeground(std::shared_ptr<IGraphics> ctx)
 	{
 		drawTitleBar(ctx);
 	}

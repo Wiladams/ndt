@@ -132,7 +132,7 @@ void reset()
 void setup()
 {
     fullscreen();
-    //frameRate(30);
+    frameRate(30);
 
     reset();
 }

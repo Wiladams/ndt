@@ -50,7 +50,7 @@ public:
 		createHistogram(bs);
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		// Display histogram
 		ctx->noStroke();

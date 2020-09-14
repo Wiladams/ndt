@@ -46,7 +46,7 @@ public:
     shared_ptr<IDrawable> getPage() { return fPage; }
     void setPage(shared_ptr<IDrawable> page) { fPage = page; }
 
-    virtual void drawSelf(IGraphics* ctx)
+    virtual void drawSelf(std::shared_ptr<IGraphics> ctx)
     {
         if (nullptr != fPage) {
             fPage->draw(ctx);

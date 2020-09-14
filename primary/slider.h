@@ -121,7 +121,7 @@ public:
         return slider;
     }
 
-    void drawBackground(IGraphics* ctx)
+    void drawBackground(std::shared_ptr<IGraphics> ctx)
     {
         //print("slider.drawBackground: ", self.frame.x, self.frame.y, self.frame.width, self.frame.height)
         //draw line between endpoints

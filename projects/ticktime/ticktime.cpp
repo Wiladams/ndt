@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	void drawBackground(IGraphics* ctx)
+	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
 		ctx->fill(160);
@@ -28,7 +28,7 @@ public:
 		ctx->pop();
 	}
 
-	void drawForeground(IGraphics* ctx)
+	void drawForeground(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
 		ctx->fill(10, 10, 10, 70);
@@ -36,7 +36,7 @@ public:
 		ctx->pop();
 	}
 
-	void drawSelf(IGraphics* ctx)
+	void drawSelf(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
 

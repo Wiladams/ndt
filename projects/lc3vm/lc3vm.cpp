@@ -12,7 +12,7 @@ std::shared_ptr<GWindow> appWindow=nullptr;
 class AppView : public IDrawable
 {
 public:
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->noStroke();
 		ctx->fill(0);

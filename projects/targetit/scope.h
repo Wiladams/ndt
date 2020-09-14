@@ -22,7 +22,7 @@ public:
 		fCenterY = y;
 	}
 
-	void draw(IGraphics* ctx)
+	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		// Draw a targeting circle
 		// Maybe do a radial gradient so it
