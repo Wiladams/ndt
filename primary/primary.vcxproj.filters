@@ -240,6 +240,9 @@
     <ClInclude Include="ticktopic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="secondtime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

@@ -27,7 +27,7 @@ class Surface : public BLGraphics
 
 
 public:
-    Surface(long awidth, long aheight, uint32_t threadCount=4)
+    Surface(long awidth, long aheight, uint32_t threadCount=0)
         : fWidth(awidth),
         fHeight(aheight)
     {

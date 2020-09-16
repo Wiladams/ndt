@@ -28,6 +28,9 @@ protected:
 	virtual ~IGraphic() {};
 
 public:
+	virtual std::shared_ptr<IGraphics> getPreferredRenderer() const { return nullptr; }
+
+
 	virtual bool contains(int x, int y)
 	{
 		auto f = getFrame();
@@ -45,6 +48,7 @@ public:
 		moveTo(f.x + dx, f.y + dy);
 	}
 
+	virtual void mouseEvent(const MouseEvent& e) = 0;
 	virtual void mouseMoved(const MouseEvent& e) = 0;
 	virtual void mouseDragged(const MouseEvent& e) = 0;
 	virtual void mousePressed(const MouseEvent& e) = 0;

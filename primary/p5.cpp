@@ -52,6 +52,7 @@ namespace p5 {
     int width = 0;              // width of the canvas
     int height = 0;             // height of the canvas
     int frameCount = 0;         // how many frames drawn so far
+    int droppedFrames = 0;
 
     // Keyboard globals
     int keyCode = 0;
@@ -85,6 +86,12 @@ namespace p5 {
         addWindow(win);
 
         return win;
+    }
+
+    void windowToFront(std::shared_ptr<GWindow> win)
+    {
+        if (nullptr != gWindowManager)
+            gWindowManager->moveToFront(win);
     }
 
     double seconds() noexcept
@@ -347,6 +354,11 @@ namespace p5 {
     {
         gFPS = newRate;
         gTickTopic.setFrequency(newRate);
+    }
+
+    int getFrameRate() noexcept
+    {
+        return gFPS;
     }
 
     // turn looping on
@@ -732,14 +744,14 @@ void handleMouseEvent(const MouseEvent& e)
     p5::mouseY = e.y;
     p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
 
+    // If there is a window manager, let it have first crack
+    // at the mouse event.
     if (nullptr != gWindowManager) {
         gWindowManager->mouseEvent(e);
     }
 
-    //if (gMouseEventHandler) {
-    //    gMouseEventHandler(e);
-    //}
-
+    // If the user has implemented explicit mouse handling routines
+    // send the event there.
     switch (e.activity) {
 
 
@@ -861,6 +873,8 @@ void handlePointerEvent(const PointerEvent& e)
 
 static void p5frameTickSubscriber(const Topic<double>&p, const double t)
 {
+    //droppedFrames = p.droppedFrames();
+
     handleFrameTick(t);
 }
 
@@ -892,6 +906,11 @@ static void p5pointerSubscriber(const PointerEventTopic& p, const PointerEvent& 
 static void p5filedroppedSubscriber(const FileDropEventTopic& p, const FileDropEvent& e)
 {
     handleFileDroppedEvent(e);
+}
+
+void onUnload()
+{
+    gTickTopic.stop();
 }
 
 void onLoad()

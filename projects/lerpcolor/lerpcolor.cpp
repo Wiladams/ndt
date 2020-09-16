@@ -8,10 +8,12 @@
     ESC - Exit
 */
 #include "p5.hpp"
+#include "framestats.h"
 
 using namespace p5;
 
 int ITERATIONS = 10000;
+FrameStats _stats;
 
 void draw()
 {
@@ -71,6 +73,7 @@ void draw()
         gAppSurface->flush();
     }
 
+    _stats.draw(gAppSurface);
 }
 
 void keyReleased(const KeyboardEvent& event)
@@ -99,8 +102,8 @@ void setup()
     background(255);
     noStroke();
 
-    //createCanvas(720, 400);
-    fullscreen();
+    createCanvas(720, 400);
+    //fullscreen();
 
     frameRate(5);
 }

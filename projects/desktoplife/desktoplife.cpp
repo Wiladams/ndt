@@ -1,13 +1,11 @@
 #include "p5.hpp"
 
+
 using namespace p5;
 
 /*
     Game of life running on the entire desktop as a layered window
 */
-
-int gScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
-int gScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
 
 int ** Array2D(int rows, int columns)
 {

@@ -7,10 +7,12 @@
 #include "p5.hpp"
 #include "graphic.hpp"
 
+
 using namespace p5;
 
 int joyX;
 int joyY;
+
 
 void printJoystick(const Joystick& j)
 {
@@ -49,7 +51,7 @@ void joyReleased(const JoystickEvent& e)
 
 void joyMoved(const JoystickEvent& e)
 {
-	printf("joyMoved: (%d) %32.f, %3.2f\n", e.ID, e.x, e.y);
+	printf("joyMoved: (%d) %3.2f, %3.2f\n", e.ID, e.x, e.y);
 	joyX = (int)map(e.x, -1, 1, 0, width - 1);
 	joyY = (int)map(e.y, -1, 1, height-1, 0);
 }
@@ -70,6 +72,8 @@ void setup()
 	createCanvas(400, 400);
 
 	joystick();		// turn on joystick messages
+
+	frameRate(30);
 }
 
 void draw()

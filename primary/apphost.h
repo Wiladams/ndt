@@ -64,7 +64,7 @@ EXPORT extern int canvasHeight;
 // These are typically implemented by
 // an app framework
 EXPORT void onLoad();	// upon loading application
-
+EXPORT void onUnload();
 
 
 // Controlling the runtime

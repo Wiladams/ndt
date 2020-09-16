@@ -10,67 +10,67 @@
 #include <memory>
 
 
-
 /*
 	Window manager
 
+	Controls layout of new windows
 	Controls where events are sent
-
 	Brings windows to the forefront and back depending on clicks
+	Sends UI events to correct window
 */
 
-class WindowManager : public GWindow
+class WindowManager : public Graphic
 {
 protected:
 
 public:
 	WindowManager(int w, int h)
-		:GWindow(0,0,w,h)
+		:Graphic(0,0,w,h)
 	{
 		setLayout(std::make_shared<CascadeLayout>(w,h));
 	}
 
-	virtual void drawBackground(std::shared_ptr<IGraphics> ctx)
+	virtual void drawForeground(std::shared_ptr<IGraphics> ctx)
 	{
-		// do nothing
-		// So, only application drawing occurs
-	}
-	/*
-	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
-	{
-		GWindow::drawChildren(ctx);
-	}
-
-	virtual void draw(std::shared_ptr<IGraphics> ctx)
-	{
-		// tell each window to draw using its own drawing context
-
 		// then composite each windows image into the ctx
 	}
-	*/
+
+/*
 	// Handling mouse events
+	// called from p5 event topic typically
 	void mouseEvent(const MouseEvent& e)
 	{
-		// Figure out which window the mouse pointer 
-		// is currently over
-		auto win = graphicAt(e.x, e.y);
+		auto g = graphicAt(e.x, e.y);
 
-		// Call an appropriate event
-		// handler depending on activity
-		switch (e.activity) {
-		case MOUSEPRESSED:
-			mousePressed(e);
-			break;
+		//std::cout << "windowManager.mouseEvent original: " << e.x << ", " << e.y << " window: " << g << std::endl;
 
-		case MOUSEMOVED:
-			mouseMoved(e);
-			break;
+		if (g != nullptr) {
+			// If it's a sub-graphic, then continue down the chain
+			auto newEvent = e;
+			newEvent.x = e.x - g->getFrame().x;
+			newEvent.y = e.y - g->getFrame().y;
+		
+			g->mouseEvent(newEvent);
+		}
+		else {
+			// If the mouse event didn't land on a child
+			// then do our own processing
+			switch (e.activity) {
+			case MOUSEPRESSED:
+				mousePressed(e);
+				break;
 
-		case MOUSERELEASED:
-			mouseReleased(e);
-			break;
+			case MOUSEMOVED:
+				mouseMoved(e);
+				break;
+
+			case MOUSERELEASED:
+				mouseReleased(e);
+				break;
+			}
 		}
 	}
+*/
 
 	void mousePressed(const MouseEvent& e)
 	{

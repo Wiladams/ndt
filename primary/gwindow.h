@@ -13,7 +13,8 @@ protected:
 	BLRect fTitleBar;
 	Pixel fTitleBarColor;
 	std::string fTitle;
-	Surface fSurface;
+
+	std::shared_ptr<Surface> fSurface;	// backing store for drawing
 
 public:
 
@@ -24,26 +25,25 @@ public:
 		fTitleBarColor(225, 220, 220, 127),
 		fBackgroundColor(245, 246, 247),
 		fLastMouse(0, 0),
-		fIsMoving(false),
-		fSurface(w, h)
+		fIsMoving(false)
 	{
-
+		fSurface = std::make_shared<Surface>(w, h);
 	}
+
+	std::shared_ptr<IGraphics> getPreferredRenderer() const { return fSurface; }
+
+	BLImage& getImage() { return fSurface->getImage(); }
 
 	void setBackgroundColor(const Pixel& c)
 	{
 		fBackgroundColor = c;
 	}
 
-
-
 	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		//std::cout << "GWindow::drawBackground" << std::endl;
 
 		ctx->push();
-
-
 
 		// Fill in background
 		ctx->noStroke();
@@ -59,6 +59,11 @@ public:
 		ctx->rect(0, 0, frame.w, frame.h);
 
 		ctx->pop();
+	}
+
+	void compose(std::shared_ptr<IGraphics> ctx)
+	{
+		ctx->image(fSurface->getImage(), 0, 0);
 	}
 
 	void setTitle(const std::string& title)
@@ -100,12 +105,26 @@ public:
 
 	virtual void mousePressed(const MouseEvent& e)
 	{
-	auto x = (int)((double)e.x - fFrame.x);
-	auto y = (int)((double)e.y - fFrame.y);
-	if (inTitleBar(x, y)) {
-		fIsMoving = true;
-		fLastMouse = { (double)e.x, (double)e.y };
+		auto x = (int)((double)e.x - fFrame.x);
+		auto y = (int)((double)e.y - fFrame.y);
+
+		// Check for a graphic at the location
+		// if it exists, then send the mouse activity there
+		auto win = graphicAt(x, y);
+
+		if (win) {
+			win->mousePressed(e);
+		} else {
+			// if a child hasn't handled it already
+			// then allow ourselves to handle the event
+			if (inTitleBar(x, y))
+			{
+				fIsMoving = true;
+				fLastMouse = { (double)e.x, (double)e.y };
+				//windowToFront(this);
+			}
 		}
+
 	}
 
 virtual void mouseMoved(const MouseEvent& e)

@@ -1,13 +1,14 @@
 #include "p5.hpp"
 #include "screensnapshot.hpp"
 #include "canvas.h"
-
+#include "framestats.h"
 #include <cstdio>
 
 using namespace p5;
 
 static const int captureWidth = 800;
 static const int captureHeight = 600;
+FrameStats _stats;
 
 std::shared_ptr<ScreenSnapshot> ss = nullptr;
 
@@ -91,6 +92,8 @@ void draw()
 
     // Get capture current screen
     ss->moveNext();
+
+    _stats.draw(gAppSurface);
 }
 
 
@@ -99,7 +102,7 @@ void setup()
     double windowScale = 1;
 
     fullscreen();
-    frameRate(20);
+    //frameRate(30);
 
     // create a window to hold the split plane graphic
     auto win = window(0, 0, captureWidth* windowScale, captureHeight* windowScale);

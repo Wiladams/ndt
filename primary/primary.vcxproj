@@ -195,6 +195,7 @@
     <ClInclude Include="Recorder.hpp" />
     <ClInclude Include="sampler.hpp" />
     <ClInclude Include="screensnapshot.hpp" />
+    <ClInclude Include="secondtime.h" />
     <ClInclude Include="slider.h" />
     <ClInclude Include="Stack.hpp" />
     <ClInclude Include="stopwatch.hpp" />

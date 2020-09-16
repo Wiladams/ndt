@@ -21,7 +21,7 @@ typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 // Application routines
 // appmain looks for this routine in the compiled application
 static VOIDROUTINE gOnloadHandler = nullptr;
-
+static VOIDROUTINE gOnUnloadHandler = nullptr;
 
 // Painting
 static WinMSGObserver gPaintHandler = nullptr;
@@ -575,7 +575,7 @@ void registerHandlers()
 
     // Get the general app routines
     gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
-
+    gOnUnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onUnload");
 }
 
 
@@ -835,6 +835,8 @@ void run()
             res = DispatchMessageA(&msg);
         }
     }
+    
+
 }
 
 
@@ -905,6 +907,10 @@ bool prolog()
 // exiting application
 void epilog()
 {
+    if (gOnUnloadHandler != nullptr) {
+        gOnUnloadHandler();
+    }
+
     WSACleanup();
 }
 

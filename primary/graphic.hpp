@@ -15,6 +15,8 @@ protected:
 	std::deque<std::shared_ptr<IGraphic> > fChildren;
 	std::shared_ptr<ILayoutGraphics> fLayout;
 	std::shared_ptr<IGraphic> fActiveGraphic;
+	
+
 
 	BLMatrix2D fTransform;  // Internal transformation matrix
 	BLRect fBounds{};
@@ -40,6 +42,7 @@ public:
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
+
 
 	BLRect getBounds() const { return fBounds; }
 	
@@ -122,8 +125,11 @@ public:
 	{
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
-			if (nullptr != g)
-				g->draw(ctx);
+			// BUGBUG - really there shouldn't be any nullptr graphics
+			if (nullptr == g)
+				continue;
+
+			g->draw(ctx);
 		}
 	}
 
@@ -137,6 +143,9 @@ public:
 	{
 		//ctx->flush();
 	}
+
+	virtual void compose(std::shared_ptr<IGraphics> ctx)
+	{}
 
 	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
@@ -152,36 +161,63 @@ public:
 		drawChildren(ctx);
 		drawSelf(ctx);
 		drawForeground(ctx);
+		compose(ctx);
 
 		ctx->noClip();
 		ctx->pop();
+		
 	}
 
 
 	// Handling mouse events
-	/*
-	void mouseWheel(const MouseEvent& e);
-	*/
-	void mouseEvent(const MouseEvent& e)
+	virtual void mouseEvent(const MouseEvent& e)
 	{
+		// translate according to the transformation
+		//auto pt = fTransform.mapPoint(e.x, e.y);
+		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << " modified: " << pt.x << ", " << pt.y << std::endl;
+		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << std::endl;
+
 		// Figure out which child the mouse pointer 
 		// is currently over
 		auto g = graphicAt(e.x, e.y);
 
-		if (nullptr != g) {
-			// adjust coordinates and send it down
-			// to the child?
+		// translate according to the transformation
+		//auto pt = fTransform.mapPoint(e.x, e.y);
+		//auto newEvent(e);
+		//newEvent.x = (int)(pt.x + fFrame.x);
+		//newEvent.y = (int)(pt.y + fFrame.y);
+
+		if (g != nullptr) {
+			// If it's a sub-graphic, then continue down the chain
+			auto newEvent(e);
+			newEvent.x = e.x - g->getFrame().x;
+			newEvent.y = e.y - g->getFrame().y;
+
+			g->mouseEvent(newEvent);
+		}
+		else {
+			// If the mouse event didn't land on a child
+			// then do our own processing
+			switch (e.activity) {
+			case MOUSEPRESSED:
+				mousePressed(e);
+				break;
+
+			case MOUSEMOVED:
+				mouseMoved(e);
+				break;
+
+			case MOUSERELEASED:
+				mouseReleased(e);
+				break;
+			}
 		}
 
 	}
 
 	virtual void mouseMoved(const MouseEvent& e)
 	{
-		// translate according to the transformation
-		auto pt = fTransform.mapPoint(e.x, e.y);
-		auto newEvent(e);
-		newEvent.x = (int)(pt.x + fFrame.x);
-		newEvent.y = (int)(pt.y + fFrame.y);
+		// do nothing
 	}
 
 	virtual void mouseDragged(const MouseEvent& e)
@@ -199,4 +235,26 @@ public:
 	{
 		// do nothing
 	}
+
+/*
+	void mouseWheel(const MouseEvent& e)
+	{
+	}
+*/
+
+	virtual void onMouseMoved(const MouseEvent& e)
+	{
+		// do nothing
+	}
+
+	virtual void onMousePressed(const MouseEvent& e)
+	{
+		// do nothing
+	}
+	
+	virtual void onMouseReleased(const MouseEvent& e)
+	{
+		// do nothing
+	}
+
 };

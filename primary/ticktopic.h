@@ -28,10 +28,18 @@ class TickTopic : public Topic<double>
 
         while (true) {
             auto interval = ticker->getInterval();
-            nextMillis += (DWORD)interval;
+
+            while (nextMillis <= (DWORD)sw.millis())
+            {
+                nextMillis += (DWORD)interval;
+                printf("dropped frame: %d\n", nextMillis);
+            }
+
             DWORD duration = nextMillis - (DWORD)sw.millis();
             if (duration < 0) {
+                //ticker->dropFrame();
                 duration = 0;
+                //printf("dropped frame\n");
             }
 
             WaitOnAddress(&interval, &interval, 8, (DWORD)duration);

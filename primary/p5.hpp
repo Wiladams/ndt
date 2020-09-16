@@ -79,6 +79,7 @@ extern "C" {
     EXPORT extern int width;
     EXPORT extern int height;
     EXPORT extern int frameCount;
+    EXPORT extern int droppedFrames;
 
     EXPORT extern Pixel* pixels;
 
@@ -185,6 +186,7 @@ struct P5Vector {
     // Windowing functions
     void addWindow(std::shared_ptr<GWindow> win);
     std::shared_ptr<GWindow> window(int x, int y, int w, int h);
+    void windowToFront(std::shared_ptr<GWindow> win);
 
     void angleMode(int mode) noexcept;
     void ellipseMode(const ELLIPSEMODE mode) noexcept;
@@ -243,7 +245,7 @@ struct P5Vector {
     void loop() noexcept;
     void noLoop() noexcept;
     void frameRate(int newRate) noexcept;
-
+    int getFrameRate() noexcept;
 
     void clear() noexcept;
     void clearRect(double x, double y, double w, double h) noexcept;

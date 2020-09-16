@@ -34,6 +34,8 @@ struct MouseEvent {
     int x;
     int y;
     int delta;
+
+    // derived attributed
     bool control;
     bool shift;
     bool lbutton;
