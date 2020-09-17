@@ -144,8 +144,7 @@ public:
 		//ctx->flush();
 	}
 
-	virtual void compose(std::shared_ptr<IGraphics> ctx)
-	{}
+
 
 	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
@@ -161,7 +160,6 @@ public:
 		drawChildren(ctx);
 		drawSelf(ctx);
 		drawForeground(ctx);
-		compose(ctx);
 
 		ctx->noClip();
 		ctx->pop();
@@ -189,7 +187,7 @@ public:
 
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
-			auto newEvent(e);
+			auto newEvent = e;
 			newEvent.x = e.x - g->getFrame().x;
 			newEvent.y = e.y - g->getFrame().y;
 
@@ -199,6 +197,10 @@ public:
 			// If the mouse event didn't land on a child
 			// then do our own processing
 			switch (e.activity) {
+			case MOUSEDRAGGED:
+				mouseDragged(e);
+				break;
+
 			case MOUSEPRESSED:
 				mousePressed(e);
 				break;
@@ -209,6 +211,10 @@ public:
 
 			case MOUSERELEASED:
 				mouseReleased(e);
+				break;
+
+			case MOUSEWHEEL:
+				mouseWheel(e);
 				break;
 			}
 		}
@@ -236,25 +242,12 @@ public:
 		// do nothing
 	}
 
-/*
-	void mouseWheel(const MouseEvent& e)
-	{
-	}
-*/
-
-	virtual void onMouseMoved(const MouseEvent& e)
+	virtual void mouseWheel(const MouseEvent& e)
 	{
 		// do nothing
 	}
 
-	virtual void onMousePressed(const MouseEvent& e)
-	{
-		// do nothing
-	}
-	
-	virtual void onMouseReleased(const MouseEvent& e)
-	{
-		// do nothing
-	}
+
+
 
 };

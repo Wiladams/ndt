@@ -277,6 +277,8 @@ public:
         auto row = 1;
 
 
+        ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+        ctx->textSize(fontSize);
 
         for (int i = 0; i < nColors; i++)
         {
@@ -288,36 +290,27 @@ public:
             }
         }
     }
-
-    void draw(std::shared_ptr<IGraphics> ctx)
-    {
-        drawBackground(ctx);
-        drawForeground(ctx);
-    }
 };
 
-
+std::shared_ptr<SVGPage> page = nullptr;
 
 void setup()
 {
     createCanvas(800, 600);
 
-    textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-    textSize(fontSize);
-
+    // Create a window to hold stuff
     contentArea = window(4, 4, 792, 592);
-
-    contentArea->addChild(std::make_shared<SVGPage>());
+    page = std::make_shared<SVGPage>();
+    contentArea->addChild(page);
 }
 
 void draw()
 {
     background(245, 246, 247);
-    //contentArea.draw(gAppSurface);
 }
 
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    contentArea->translateBy(0, (e.delta / 120)*scrollSize);
+    page->translateBy(0, (e.delta / 120)*scrollSize);
 }

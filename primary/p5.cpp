@@ -736,7 +736,7 @@ void handleKeyboardEvent(const KeyboardEvent& e)
 
 void handleMouseEvent(const MouseEvent& e)
 {
-    //printf("p5::handleMouseEvent: %d, %d\n", e.x, e.y);
+    //printf("p5::handleMouseEvent: %d (%d, %d)\n", e.activity, e.x, e.y);
     // assign new mouse position
     p5::pmouseX = p5::mouseX;
     p5::pmouseY = p5::mouseY;
@@ -749,7 +749,7 @@ void handleMouseEvent(const MouseEvent& e)
     if (nullptr != gWindowManager) {
         gWindowManager->mouseEvent(e);
     }
-
+    
     // If the user has implemented explicit mouse handling routines
     // send the event there.
     switch (e.activity) {
@@ -765,13 +765,7 @@ void handleMouseEvent(const MouseEvent& e)
             gMouseDraggedHandler(e);
         }
         break;
-        /*
-    case MOUSEDRAGGED:
-        if (p5::mouseIsPressed && (gMouseDraggedHandler != nullptr)) {
-            gMouseDraggedHandler(e);
-        }
-    break;
-    */
+
     case MOUSEPRESSED:
         if (gMousePressedHandler != nullptr) {
             gMousePressedHandler(e);
@@ -792,7 +786,7 @@ void handleMouseEvent(const MouseEvent& e)
         }
         break;
     }
-
+    
 
 }
 

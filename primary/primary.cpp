@@ -1,19 +1,18 @@
 #include "p5.hpp"
-#include "texture.h"
+
 
 using namespace p5;
 
 void setup()
 {
 	createCanvas(400, 400);
+
+	auto win = window(0, 0, 300, 300);
+	win->setTitle("Primary Window");
 }
 
 void draw()
 {
-	printf("draw\n");
-}
-
-void update(const double value)
-{
-	std::cout << "update: " << std::to_string(value) << std::endl;
+	clear();
+	//printf("draw\n");
 }

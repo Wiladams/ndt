@@ -1,10 +1,13 @@
 #include "p5.hpp"
 #include "ticktopic.h"
 #include "secondtime.h"
+#include "framestats.h"
 
 #include <memory>
 
 using namespace p5;
+
+FrameStats _stats;
 
 
 class TickDisplay : public Graphic
@@ -13,7 +16,7 @@ class TickDisplay : public Graphic
 
 public:
 	TickDisplay()
-		:Graphic(0, 0, 200, 144)
+		:Graphic(300, 0, 200, 144)
 	{
 	}
 
@@ -37,7 +40,9 @@ public:
 
 	void drawSelf(std::shared_ptr<IGraphics> ctx)
 	{
+
 		ctx->push();
+
 
 		ctx->noStroke();
 
@@ -78,12 +83,15 @@ void tickSubscriber(const Topic<double>& p, double e)
 	_tdisplay->draw(gAppSurface);
 	gAppSurface->flush();
 
+
+
 	screenRefresh();
 }
 
 void draw()
 {
 	clear();
+	_stats.draw(gAppSurface);
 }
 
 void setup()
@@ -94,7 +102,6 @@ void setup()
 	fullscreen();
 
 	_tdisplay = std::make_shared<TickDisplay>();
-
 
 	ttopic.setFrequency(10);
 	ttopic.subscribe(tickSubscriber);

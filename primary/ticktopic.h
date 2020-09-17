@@ -14,6 +14,7 @@ class TickTopic : public Topic<double>
     StopWatch fsw;
 
     int64_t fTickCount;
+    uint64_t fDroppedTicks;
     int64_t fInterval;
 
     static DWORD __stdcall generateTicks(void* param)
@@ -22,27 +23,23 @@ class TickTopic : public Topic<double>
 
         StopWatch sw;
         sw.reset();
-        DWORD nextMillis = (DWORD)sw.millis();
+        auto nextMillis = sw.millis() + ticker->getInterval();
 
         //printf("GENERATING TICKS\n");
 
         while (true) {
             auto interval = ticker->getInterval();
 
-            while (nextMillis <= (DWORD)sw.millis())
+            while (nextMillis <= sw.millis())
             {
-                nextMillis += (DWORD)interval;
-                printf("dropped frame: %d\n", nextMillis);
+                nextMillis += interval;
+                ticker->incrementDropped();
             }
 
-            DWORD duration = nextMillis - (DWORD)sw.millis();
-            if (duration < 0) {
-                //ticker->dropFrame();
-                duration = 0;
-                //printf("dropped frame\n");
-            }
+            DWORD duration = (DWORD)(nextMillis - sw.millis());
 
-            WaitOnAddress(&interval, &interval, 8, (DWORD)duration);
+            // fastest/cheapest in-process waiting primitive
+            WaitOnAddress(&interval, &interval, 8, duration);
 
             ticker->tick(sw.seconds());
         }
@@ -51,7 +48,7 @@ class TickTopic : public Topic<double>
     }
 
 public:
-    //TIMERCALLBACK callit, void* callitParam
+
     TickTopic(const double freq)
         :fInterval((uint64_t)(1000.0/freq))
         , fThread(TickTopic::generateTicks, this)
@@ -64,6 +61,9 @@ public:
     void setInterval(const uint64_t newInterval) { fInterval = newInterval; }
     uint64_t setFrequency(const uint64_t freq) { fInterval = ((uint64_t)(1000.0 / freq)); return fInterval; }
     int64_t getTickCount() { return fTickCount; }
+    
+    uint64_t getDroppedTicks() { return fDroppedTicks; }
+    void incrementDropped() { fDroppedTicks++; }
 
     void start()
     {

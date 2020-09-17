@@ -1,10 +1,9 @@
 #pragma once
 
 #include "apphost.h"
-#include "uievent.h"
-#include "drawable.h"
+#include "p5.hpp"
 #include "gwindow.h"
-#include "layout.h"
+
 
 #include <deque>
 #include <memory>
@@ -18,6 +17,22 @@
 	Brings windows to the forefront and back depending on clicks
 	Sends UI events to correct window
 */
+void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect &r, size_t maxOffset, Pixel & c)
+{
+	auto shadow = c;
+	
+	ctx->push();
+	ctx->noStroke();
+
+	for (int i = 1; i <= maxOffset; i++)
+	{
+		auto alpha = p5::map(i, 1, maxOffset, 20, 5);
+		shadow.a = (uint32_t)alpha;
+		ctx->fill(shadow);
+		ctx->rect(r.x + i, r.y + i, r.w, r.h);
+	}
+	ctx->pop();
+}
 
 class WindowManager : public Graphic
 {
@@ -30,32 +45,38 @@ public:
 		setLayout(std::make_shared<CascadeLayout>(w,h));
 	}
 
-	virtual void drawForeground(std::shared_ptr<IGraphics> ctx)
+	// Maybe we want to do some special drawing
+	// around each window
+	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
 	{
-		// then composite each windows image into the ctx
+		auto shadow = ctx->color(0x40);
+
+		for (std::shared_ptr<IGraphic> g : fChildren)
+		{
+			auto f = g->getFrame();
+
+			//drawDropShadow(ctx, f, 12, shadow);
+
+			// Now draw the child
+			g->draw(ctx);
+		}
 	}
 
-/*
 	// Handling mouse events
-	// called from p5 event topic typically
-	void mouseEvent(const MouseEvent& e)
+	virtual void mouseEvent(const MouseEvent& e)
 	{
+		// Figure out which child the mouse pointer 
+		// is currently over
 		auto g = graphicAt(e.x, e.y);
-
-		//std::cout << "windowManager.mouseEvent original: " << e.x << ", " << e.y << " window: " << g << std::endl;
 
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			auto newEvent = e;
 			newEvent.x = e.x - g->getFrame().x;
 			newEvent.y = e.y - g->getFrame().y;
-		
-			g->mouseEvent(newEvent);
-		}
-		else {
-			// If the mouse event didn't land on a child
-			// then do our own processing
-			switch (e.activity) {
+
+			switch (e.activity) 
+			{
 			case MOUSEPRESSED:
 				mousePressed(e);
 				break;
@@ -68,9 +89,14 @@ public:
 				mouseReleased(e);
 				break;
 			}
+
+			g->mouseEvent(newEvent);
 		}
+
+		// If we didn't land on anything, don't do anything
+
 	}
-*/
+
 
 	void mousePressed(const MouseEvent& e)
 	{
@@ -91,9 +117,10 @@ public:
 
 		// bring it to the front
 		moveToFront(win);
-		win->mousePressed(e);
+		//win->mousePressed(e);
 	}
 
+	/*
 	void mouseMoved(const MouseEvent& e)
 	{
 		//std::cout << "WindowManager.mouseMoved " << e.x << ", " << e.y << std::endl;
@@ -115,7 +142,7 @@ public:
 
 		fActiveGraphic->mouseReleased(e);
 	}
-
+	*/
 
 	//Handling Keyboard Events
 	void keyboardEvent(const KeyboardEvent& e)

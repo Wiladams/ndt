@@ -61,9 +61,31 @@ public:
 		ctx->pop();
 	}
 
+	void draw(std::shared_ptr<IGraphics> ctx)
+	{
+		fSurface->push();
+		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+
+
+		// BUGBUG - maybe perform arbitrary transform?
+		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+		//ctx->translate(pt.x, pt.y);
+
+		drawBackground(fSurface);
+		drawChildren(fSurface);
+		drawSelf(fSurface);
+		drawForeground(fSurface);
+
+		//ctx->noClip();
+		ctx->pop();
+
+		compose(ctx);
+	}
+
 	void compose(std::shared_ptr<IGraphics> ctx)
 	{
-		ctx->image(fSurface->getImage(), 0, 0);
+		ctx->image(fSurface->getImage(), fFrame.x, fFrame.y);
+		//ctx->image(fSurface->getImage(), 0, 0);
 	}
 
 	void setTitle(const std::string& title)
@@ -102,56 +124,54 @@ public:
 		drawTitleBar(ctx);
 	}
 
-
-	virtual void mousePressed(const MouseEvent& e)
+	virtual void mouseEvent(const MouseEvent& e)
 	{
-		auto x = (int)((double)e.x - fFrame.x);
-		auto y = (int)((double)e.y - fFrame.y);
+		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
 
-		// Check for a graphic at the location
-		// if it exists, then send the mouse activity there
-		auto win = graphicAt(x, y);
 
-		if (win) {
-			win->mousePressed(e);
-		} else {
-			// if a child hasn't handled it already
-			// then allow ourselves to handle the event
-			if (inTitleBar(x, y))
+		switch (e.activity)
+		{
+		case MOUSEPRESSED:
+			if (inTitleBar(e.x, e.y))
 			{
 				fIsMoving = true;
 				fLastMouse = { (double)e.x, (double)e.y };
-				//windowToFront(this);
+
+				return;
 			}
+			break;
+
+		case MOUSERELEASED:
+			if (fIsMoving) {
+				fIsMoving = false;
+			}
+			break;
+
+		case MOUSEMOVED:
+			if (fIsMoving) {
+				// move
+				auto dx = (e.x - fLastMouse.x);
+				auto dy = (e.y - fLastMouse.y);
+				//printf("GWindow.mouseEvent(moved): %3.2f %3.2f\n", dx, dy);
+
+				moveBy(dx, dy);
+
+				fLastMouse = { (double)e.x-dx, (double)e.y-dy };
+				return;
+			}
+			break;
+
+		}
+
+		// if we are here, the window itself did not 
+		// handle the event, so allow sub-graphics to deal with it
+		auto win = graphicAt(e.x, e.y);
+
+		if (win) {
+			win->mouseEvent(e);
 		}
 
 	}
 
-virtual void mouseMoved(const MouseEvent& e)
-{
-	//std::cout << "FileHistoWindow.mouseDragged()" << std::endl;
-	// adjust coordinates accounting for our frame
-	auto x = e.x - fFrame.x;
-	auto y = e.y - fFrame.y;
-
-	if (fIsMoving)
-	{
-		// move
-		auto dx = (e.x - fLastMouse.x);
-		auto dy = (e.y - fLastMouse.y);
-
-		moveBy(dx, dy);
-
-		fLastMouse = { (double)e.x, (double)e.y };
-	}
-}
-
-virtual void mouseReleased(const MouseEvent& e)
-{
-	auto x = e.x - fFrame.x;
-	auto y = e.y - fFrame.y;
-
-	fIsMoving = false;
-}
 
 };
