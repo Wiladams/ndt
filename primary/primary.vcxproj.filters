@@ -243,6 +243,9 @@
     <ClInclude Include="secondtime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="framestats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

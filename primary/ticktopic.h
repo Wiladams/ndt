@@ -28,7 +28,7 @@ class TickTopic : public Topic<double>
         //printf("GENERATING TICKS\n");
 
         while (true) {
-            auto interval = ticker->getInterval();
+            int64_t interval = ticker->getInterval();
 
             while (nextMillis <= sw.millis())
             {
@@ -39,7 +39,10 @@ class TickTopic : public Topic<double>
             DWORD duration = (DWORD)(nextMillis - sw.millis());
 
             // fastest/cheapest in-process waiting primitive
-            WaitOnAddress(&interval, &interval, 8, duration);
+            if (WaitOnAddress(&interval, &interval, 8, duration) == 0)
+            {
+                auto err = ::GetLastError();    // 1460 == ERROR_TIMEOUT
+            }
 
             ticker->tick(sw.seconds());
         }
@@ -48,6 +51,13 @@ class TickTopic : public Topic<double>
     }
 
 public:
+
+    TickTopic()
+        :fInterval((uint64_t)(1000.0 / 1.0))
+        , fThread(TickTopic::generateTicks, this)
+        , fTickCount(0)
+    {
+    }
 
     TickTopic(const double freq)
         :fInterval((uint64_t)(1000.0/freq))

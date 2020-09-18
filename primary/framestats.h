@@ -9,7 +9,7 @@ class FrameStats : public Graphic
 
 public:
 	FrameStats()
-		:Graphic(0,0,320, 140)
+		:Graphic(0,0,200, 140)
 	{
 
 	}
@@ -31,8 +31,6 @@ public:
 		ctx->push();
 
 		ctx->noStroke();
-
-
 		ctx->fill(0, 220, 220);
 
 		ctx->textSize(18);

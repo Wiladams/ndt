@@ -1,13 +1,17 @@
 #include "p5.hpp"
 
+#include "framestats.h"
 
 using namespace p5;
+
+FrameStats _stats;
 
 void setup()
 {
 	createCanvas(400, 400);
+	//frameRate(70);
 
-	auto win = window(0, 0, 300, 300);
+	auto win = window(0, 0, 200, 200);
 	win->setTitle("Primary Window");
 }
 
@@ -15,4 +19,5 @@ void draw()
 {
 	clear();
 	//printf("draw\n");
+	_stats.draw(gAppSurface);
 }

@@ -162,6 +162,7 @@
     <ClInclude Include="pstypes.h" />
     <ClInclude Include="psvm.h" />
     <ClInclude Include="ps_base_operators.h" />
+    <ClInclude Include="ps_graphics_operators.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="testy\case1.ps" />

@@ -44,7 +44,7 @@ static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 
 int gFPS = 15;   // Frames per second
-TickTopic gTickTopic(gFPS);
+TickTopic gTickTopic;
 bool gLooping = true;
 
 namespace p5 {

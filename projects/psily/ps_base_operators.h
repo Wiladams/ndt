@@ -375,7 +375,40 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	//
 
 	// type
+	// print the type of the operand on the top of the stack
+	{ "type", [](PSVM& vm) {
+		auto a = vm.operandStack().top();
+		auto tok = make_shared<PSToken>("");
+		switch (a->fType) {
+			PSTokenType::LITERAL_ARRAY:
+			break;
+
+			PSTokenType::BOOLEAN:
+				PSTokenType::DICTIONARY:
+				PSTokenType::NUMBER_INT :
+				PSTokenType::MARK :
+				PSTokenType::LITERAL_NAME :
+				PSTokenType::nil :
+				PSTokenType::OPERATOR :
+				PSTokenType::NUMBER :
+				PSTokenType::LITERAL_STRING :
+				break;
+		}
+		tok->setExecutable(true);
+		vm.pushOperand(tok);
+	} },
+
 	// xcheck
+	{ "xcheck", [](PSVM& vm) {
+		auto a = vm.operandStack().top();
+		if (a->isExecutable()) {
+			vm.pushOperand(make_shared<PSToken>(true));
+		}
+		else {
+			vm.pushOperand(make_shared<PSToken>(false));
+		}
+	} },
+
 	// rcheck
 	// wcheck
 	// cvlit
