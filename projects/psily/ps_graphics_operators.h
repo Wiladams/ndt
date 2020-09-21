@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <random>
 #include <iostream>
+#include <memory>
+
 
 /*
 newpath
@@ -21,12 +23,26 @@ stroke
 // Setup a table to contain the base operators
 // These should be copied into a dictionary
 // as OPERATOR tokens
-std::unordered_map < std::string, PS_Operator > PSBaseOperators
+std::unordered_map < std::string, PS_Operator > PSGraphicOperators
 {
 	// Stack management
-	{"newpath", [](PSVM& vm) {vm.operandStack().clear(); }},
-	{"moveto", [](PSVM& vm) {vm.operandStack().clear(); }},
-	{"lineto", [](PSVM& vm) {vm.operandStack().clear(); }},
-	{"setlinewidth", [](PSVM& vm) {vm.operandStack().clear(); }},
-	{"stroke", [](PSVM& vm) {vm.operandStack().clear(); }},
+	{"newpath", [](PSVM& vm) {
+		vm.operandStack().clear(); 
+	}},
+	
+	{"moveto", [](PSVM& vm) {
+		vm.surface().moveTo();
+	}},
+	
+	{"lineto", [](PSVM& vm) {
+		vm.operandStack().clear(); 
+	}},
+	
+	{"setlinewidth", [](PSVM& vm) {
+		vm.operandStack().clear(); 
+	}},
+	
+	{"stroke", [](PSVM& vm) {
+		vm.operandStack().clear(); 
+	}},
 };

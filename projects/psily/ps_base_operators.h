@@ -301,6 +301,12 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 		vm.dictionaryStack().store(keyName, value);
 	} },
 
+	{ "string", [](PSVM& vm) {
+		auto n = vm.popOperand()->asInt();
+		auto str = PSString(n);
+		vm.pushOperand(make_shared<PSToken>(str));
+	} },
+
 	// where
 	{ "where", [](PSVM& vm) {
 		auto key = vm.popOperand()->asString();
@@ -379,21 +385,24 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	{ "type", [](PSVM& vm) {
 		auto a = vm.operandStack().top();
 		auto tok = make_shared<PSToken>("");
+	
 		switch (a->fType) {
-			PSTokenType::LITERAL_ARRAY:
+			case PSTokenType::LITERAL_ARRAY:
 			break;
 
-			PSTokenType::BOOLEAN:
-				PSTokenType::DICTIONARY:
-				PSTokenType::NUMBER_INT :
-				PSTokenType::MARK :
-				PSTokenType::LITERAL_NAME :
-				PSTokenType::nil :
-				PSTokenType::OPERATOR :
-				PSTokenType::NUMBER :
-				PSTokenType::LITERAL_STRING :
+			case PSTokenType::BOOLEAN:
+			case PSTokenType::DICTIONARY:
+			case PSTokenType::NUMBER_INT :
+			case PSTokenType::MARK :
+			case PSTokenType::LITERAL_NAME :
+			case PSTokenType::nil :
+			case PSTokenType::OPERATOR :
+			case PSTokenType::NUMBER :
+			case PSTokenType::LITERAL_STRING :
 				break;
 		}
+		
+		
 		tok->setExecutable(true);
 		vm.pushOperand(tok);
 	} },
@@ -414,6 +423,7 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	// cvlit
 
 	// cvx
+	// convert to executable
 	{ "cvx", [](PSVM& vm) {
 			auto a = vm.popOperand();
 			a->setExecutable(true);

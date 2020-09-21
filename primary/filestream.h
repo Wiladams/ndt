@@ -39,4 +39,12 @@ public:
 			setData((uint8_t *)fFileMap->data(), fFileMap->size());
 		}
 	}
+
+	void close()
+	{
+		if ((fFileMap != nullptr) && fFileMap->isValid())
+		{
+			fFileMap->close();
+		}
+	}
 };

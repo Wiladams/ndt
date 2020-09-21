@@ -4,7 +4,7 @@
 
 #include "binstream.hpp"
 #include "pstypes.h"
-
+#include "p5.hpp"
 
 
 #include <memory>
@@ -45,6 +45,7 @@ class PSVM
 	PSStack fOperandStack;
 	PSDictionaryStack fDictionaryStack;
 	std::mt19937 fRandomGen;
+	Surface fSurface;
 
 public:
 	PSVM();
@@ -61,12 +62,15 @@ public:
 	// Dictionary Stack
 	PSDictionaryStack& dictionaryStack() { return fDictionaryStack; }
 
+	// Graphics things
+	Surface& surface() { return fSurface; }
+
 	// Executing things
 	void execArray(shared_ptr<PSToken> tok);
 	void execName(shared_ptr<PSToken> tok);
 
 	// Evaluating commands
 	void evalStream(shared_ptr<BinStream> bs);
-
+	void runFilename(std::string filename);
 
 };

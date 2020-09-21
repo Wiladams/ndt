@@ -65,6 +65,9 @@
     <ClInclude Include="ps_graphics_operators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ps_file_operators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="testy\hello.ps">

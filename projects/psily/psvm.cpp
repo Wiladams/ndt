@@ -508,4 +508,9 @@ void PSVM::evalStream(std::shared_ptr<BinStream> bs)
 	}
 }
 
+void PSVM::runFilename(std::string filename)
+{
+	auto fs = std::make_shared<FileStream>(filename);
+	evalStream(fs);
+}
 

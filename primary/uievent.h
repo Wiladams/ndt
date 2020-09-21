@@ -8,8 +8,8 @@
 #include "pubsub.h"
 
 #include <vector>
-#include <string>
-#include <functional>
+//#include <string>
+//#include <functional>
 
 // Basic type to encapsulate a mouse event
 enum {
