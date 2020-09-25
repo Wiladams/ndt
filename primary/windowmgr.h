@@ -26,7 +26,7 @@ void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect &r, size_t maxO
 
 	for (int i = 1; i <= maxOffset; i++)
 	{
-		auto alpha = p5::map(i, 1, maxOffset, 20, 5);
+		auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
 		shadow.a = (uint32_t)alpha;
 		ctx->fill(shadow);
 		ctx->rect(r.x + i, r.y + i, r.w, r.h);
@@ -72,8 +72,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			auto newEvent = e;
-			newEvent.x = e.x - g->getFrame().x;
-			newEvent.y = e.y - g->getFrame().y;
+			newEvent.x = (int)(e.x - g->getFrame().x);
+			newEvent.y = (int)(e.y - g->getFrame().y);
 
 			switch (e.activity) 
 			{

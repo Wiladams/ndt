@@ -227,7 +227,6 @@
     <ClCompile Include="math3d.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="primary.cpp" />
-    <ClCompile Include="waveobjloader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

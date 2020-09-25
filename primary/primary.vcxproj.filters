@@ -254,9 +254,6 @@
     <ClCompile Include="p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="waveobjloader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="primary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

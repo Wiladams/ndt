@@ -18,9 +18,10 @@ void setup()
 	//auto fs = std::make_shared<FileStream>("testy\\def1.ps");
 	//auto fs = std::make_shared<FileStream>("testy\\pstack1.ps");
 	//auto fs = std::make_shared<FileStream>("testy\\pbourke1.ps");
-	auto fs = std::make_shared<FileStream>("testy\\typeprocs.ps");
+	//auto fs = std::make_shared<FileStream>("testy\\typeprocs.ps");
 	//auto fs = std::make_shared<FileStream>("testy\\version.ps");
-	
+	auto fs = std::make_shared<FileStream>("testy\\test_string.ps");
+
 	//printf("fs.isValid(): %d\n", fs->isValid());
 
 	PSVM vm;

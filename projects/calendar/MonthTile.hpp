@@ -69,11 +69,11 @@ public:
 			sprintf_s(buff, 8, "%2d", day);
 		
 			if ((sysTime.wDay == day) && (sysTime.wMonth == fMonth))
-				fill(255);
+				ctx->fill(255);
 			else
-				fill(0);
+				ctx->fill(0);
 
-			text(buff, xoffset, yoffset);
+			ctx->text(buff, xoffset, yoffset);
 
 			if ((day + dayCode) % 7 > 0) {
 				xoffset += CalendarMonthTile::colWidth;
@@ -104,7 +104,6 @@ public:
 	void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		//printf("MonthDay: (%d) %d\n", fMonth, fCalendar.dayCodeForMonth(fMonth));
-
 		ctx->push();
 		ctx->translate(fFrame.x, fFrame.y);
 
@@ -113,12 +112,12 @@ public:
 
 
 		ctx->fill(fBackgroundColor);
-		rect(0, 0, fBounds.w, fBounds.h);
+		ctx->rect(0, 0, fBounds.w, fBounds.h);
 
 		// Draw shadow rect for month title
 
 		ctx->fill(0xa0);
-		rect(0, 0, fBounds.w, 16);
+		ctx->rect(0, 0, fBounds.w, 16);
 
 		// Draw the month long name, and year
 		ctx->fill(0);

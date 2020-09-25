@@ -13,9 +13,9 @@ class TickTopic : public Topic<double>
     Thread fThread;
     StopWatch fsw;
 
-    int64_t fTickCount;
-    uint64_t fDroppedTicks;
-    int64_t fInterval;
+    uint64_t fTickCount=0;
+    uint64_t fDroppedTicks=0;
+    size_t fInterval=1000;
 
     static DWORD __stdcall generateTicks(void* param)
     {
@@ -23,7 +23,7 @@ class TickTopic : public Topic<double>
 
         StopWatch sw;
         sw.reset();
-        auto nextMillis = sw.millis() + ticker->getInterval();
+        double nextMillis = sw.millis() + ticker->getInterval();
 
         //printf("GENERATING TICKS\n");
 
@@ -53,9 +53,7 @@ class TickTopic : public Topic<double>
 public:
 
     TickTopic()
-        :fInterval((uint64_t)(1000.0 / 1.0))
-        , fThread(TickTopic::generateTicks, this)
-        , fTickCount(0)
+        : fThread(TickTopic::generateTicks, this)
     {
     }
 
@@ -69,7 +67,7 @@ public:
 
     int64_t getInterval() { return fInterval; }
     void setInterval(const uint64_t newInterval) { fInterval = newInterval; }
-    uint64_t setFrequency(const uint64_t freq) { fInterval = ((uint64_t)(1000.0 / freq)); return fInterval; }
+    uint64_t setFrequency(const size_t freq) { fInterval = ((uint64_t)(1000.0 / freq)); return fInterval; }
     int64_t getTickCount() { return fTickCount; }
     
     uint64_t getDroppedTicks() { return fDroppedTicks; }

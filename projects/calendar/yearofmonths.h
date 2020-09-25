@@ -20,7 +20,6 @@ public:
 
 		// Setup 12 monthly tiles for this calendar
 		for (int month = 1; month <= 12; month++) {
-			//months.push_back(CalendarMonthTile(2020, month, xoffset, yoffset));
 			addChild(std::make_shared<CalendarMonthTile>(2020, month, xoffset, yoffset));
 
 			if (month % 3 > 0) {
@@ -35,7 +34,5 @@ public:
 		}
 
 		setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
-
 	}
-
 };

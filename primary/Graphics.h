@@ -146,7 +146,7 @@ typedef BLRgba32 Pixel;
 class IGraphics
 {
 public:
-    virtual ~IGraphics() {}
+    //virtual ~IGraphics() {}
 
     virtual void angleMode(int newMode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
@@ -194,7 +194,7 @@ public:
     virtual void fill(int r, int g, int b, int a) {fill(color(r,g,b,a));}
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
-    void fill(int gray) { fill(color(gray, gray, gray, 255)); }
+    inline virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
     virtual void noFill() = 0;
 
     virtual void stroke(const Pixel& c) = 0;

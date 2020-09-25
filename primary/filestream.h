@@ -29,6 +29,11 @@ public:
 	// If the file can not be mapped, then the data pointer
 	// of the BinStream will not be set and isValid() will 
 	// be false.
+	FileStream(const std::string& s, bool littleendian = true)
+		:FileStream(s.c_str(), littleendian)
+	{
+	}
+
 	FileStream(const char* filename, bool littleendian = true)
 		: BinStream(nullptr, 0, 0, littleendian),
 		fFileName(filename)

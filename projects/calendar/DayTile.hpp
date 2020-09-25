@@ -156,9 +156,9 @@ ctx->text(buff, 32, 24);
 		ctx->rect(0, 0, bounds.w, bounds.h);
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx) 
+	void drawSelf(std::shared_ptr<IGraphics> ctx) 
 	{
 		drawBackground(ctx);
-		drawMonthDay(gAppSurface);
+		drawMonthDay(ctx);
 	}
 };

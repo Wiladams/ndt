@@ -188,8 +188,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			auto newEvent = e;
-			newEvent.x = e.x - g->getFrame().x;
-			newEvent.y = e.y - g->getFrame().y;
+			newEvent.x = (int)(e.x - g->getFrame().x);
+			newEvent.y = (int)(e.y - g->getFrame().y);
 
 			g->mouseEvent(newEvent);
 		}

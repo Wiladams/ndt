@@ -21,25 +21,29 @@ void setup()
 {	
 	fullscreen();
 
+	/*
 	// Setup day tile
 	auto ps = DayTile::getPreferredSize();
 	auto dtWindow = window(0, 0, ps.w, ps.h);
 	auto dt = std::make_shared<DayTile>();
 	dt->setDate(2020, 5, 14);
 	dtWindow->addChild(dt);
+	*/
 
+	
 	// Setup year of months window
 	auto yom = std::make_shared<YearOfMonths>();
 	auto fr = yom->getFrame();
 	auto yomWin = window(0, 0, fr.w, fr.h);
 	yomWin->addChild(yom);
-
+	
+	/*
 	// Setup perpetual calendar
 	auto pc = std::make_shared<SlidingMonth>(2020, 9, 240, 240);
-	fr = pc->getFrame();
-	auto pcWin = window(0, 0, fr.w, fr.h);
+	auto pcfr = pc->getFrame();
+	auto pcWin = window(0, 0, pcfr.w, pcfr.h);
 	pcWin->addChild(pc);
-
+	*/
 }
 
 

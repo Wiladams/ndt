@@ -37,6 +37,9 @@ public:
 		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
 
 		char buff[256];
+		sprintf_s(buff, "Seconds: %3.2f", fTime.fBaseTime);
+		ctx->text(buff, 10, 18);
+
 		sprintf_s(buff, "%3zd : %02zd : %02zd.%2zd", fTime.fHours, fTime.fMinutes, fTime.fSeconds, fTime.fTenths);
 		ctx->text(buff, 10, 44);
 		

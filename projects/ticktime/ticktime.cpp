@@ -1,13 +1,11 @@
 #include "p5.hpp"
 #include "ticktopic.h"
 #include "secondtime.h"
-#include "framestats.h"
+
 
 #include <memory>
 
 using namespace p5;
-
-FrameStats _stats;
 
 
 class TickDisplay : public Graphic
@@ -91,7 +89,6 @@ void tickSubscriber(const Topic<double>& p, double e)
 void draw()
 {
 	clear();
-	_stats.draw(gAppSurface);
 }
 
 void setup()

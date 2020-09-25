@@ -477,7 +477,7 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 
 	// version
 	{ "version", [](PSVM& vm) {
-		vm.pushOperand(make_shared<PSToken>(std::string("3.0"), PSTokenType::LITERAL_STRING));
+		vm.pushOperand(make_shared<PSToken>(PSString("3.0"), PSTokenType::LITERAL_STRING));
 	} },
 
 	// realtime

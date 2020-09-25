@@ -9,7 +9,7 @@ FrameStats _stats;
 void setup()
 {
 	createCanvas(400, 400);
-	//frameRate(70);
+	frameRate(1);
 
 	auto win = window(0, 0, 200, 200);
 	win->setTitle("Primary Window");

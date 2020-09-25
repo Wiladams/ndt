@@ -84,7 +84,7 @@ public:
 
 	void compose(std::shared_ptr<IGraphics> ctx)
 	{
-		ctx->image(fSurface->getImage(), fFrame.x, fFrame.y);
+		ctx->image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
 		//ctx->image(fSurface->getImage(), 0, 0);
 	}
 

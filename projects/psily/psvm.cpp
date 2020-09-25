@@ -392,6 +392,7 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 //
 
 PSVM::PSVM()
+	: fSurface(816, 1056)
 {
 	// seed random number generator with system time
 	fRandomGen.seed((unsigned int)(std::chrono::system_clock::now().time_since_epoch().count()));

@@ -4,6 +4,7 @@
 // split it out into hours,minutes, seconds, tenths
 //
 struct SecondTime {
+	double fBaseTime;
 	size_t fHours = 0;
 	size_t fMinutes = 0;
 	size_t fSeconds = 0;
@@ -11,6 +12,7 @@ struct SecondTime {
 
 	void setSeconds(double d)
 	{
+		fBaseTime = d;
 		double gSecondsPerHour = 60 * 60;
 
 		double hours = d / (gSecondsPerHour);

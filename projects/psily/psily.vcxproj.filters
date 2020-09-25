@@ -53,9 +53,6 @@
     <ClInclude Include="pscanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="psmatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="psgraphicstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,6 +63,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ps_file_operators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="psdriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\filestream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\mmap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,6 +98,9 @@
       <Filter>testy</Filter>
     </None>
     <None Include="testy\typeprocs.ps">
+      <Filter>testy</Filter>
+    </None>
+    <None Include="testy\test_string.ps">
       <Filter>testy</Filter>
     </None>
   </ItemGroup>

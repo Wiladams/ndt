@@ -49,7 +49,7 @@ struct Star {
 		}
 	}
 
-	void draw(IGraphics * ctx)
+	void draw(std::shared_ptr<Surface> ctx)
 	{
 		//printf("draw\n");
 		//ctx->fill(color(255));
@@ -67,9 +67,9 @@ struct Star {
 
 		pz = z;
 
-		//ctx->stroke(color(255));
-		ctx->stroke(255);
-		ctx->fill(255);
+
+		ctx->stroke(ctx->color(255));
+		ctx->fill(ctx->color(255));
 		ctx->line(px, py, sx, sy);
 		//printf("star line: %3.2f,%3.2f <=> %3.2f,%3.2f\n", px, py, sx, sy);
 	}

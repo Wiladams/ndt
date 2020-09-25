@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pstypes.h"
+
 /*
     // device independent state
     CTM         array       current transformation matrix
@@ -18,11 +20,16 @@
 */
 struct PSState {
     
+    PSPoint fPosition;
     // path
     // clipping path
     // clipping path stack
     double fWidth;
-
+    double fLineWidth;
+    int fLineCap;
+    double fMiterLimit;
+    // pattern
+    // strokeAdjust;
 };
 
 class PSDriver {
