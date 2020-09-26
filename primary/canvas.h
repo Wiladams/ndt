@@ -25,7 +25,6 @@ public:
 	operator const BLImage& () { return fImage; }
 
 
-
     void flush()
     {
         BLContext::flush(BL_CONTEXT_FLUSH_SYNC);

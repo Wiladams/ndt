@@ -1,4 +1,5 @@
 #pragma once
+#define WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 /*
 References:
@@ -167,7 +168,7 @@ public:
             memset(fHostName, 0, sizeof(fHostName));
         }
 
-        strncpy(fHostName, name, sizeof(fHostName));
+        strncpy_s(fHostName, sizeof(fHostName), name, sizeof(fHostName));
     }
     const char * getName() const {return fHostName;}
 

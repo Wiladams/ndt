@@ -73,7 +73,7 @@ static inline void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t
 }
 
 
-static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, size_t startbit, size_t bitcount, bool bigendian = false)
+static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t startbit, const size_t bitcount, bool bigendian = false)
 {
     // Sanity check
     if (nullptr == bytes)
@@ -82,25 +82,25 @@ static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, size_t startbit,
     uint64_t value = 0;
 
     if (bigendian) {
-	    for (int i=bitcount; i>= 0; i--) {
-		    size_t byteoffset=0;
+        for (int i=bitcount; i>= 0; i--) {
+            size_t byteoffset=0;
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);
-		    bool bitval = isset(bytes[byteoffset], bitoffset);
+            bool bitval = isset(bytes[byteoffset], bitoffset);
 //printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
 		    if (bitval) {
 			    value = setbit(value, i);
             }
         }
     } else {
-	    for (int i=0; i<bitcount; i++) {
-		    size_t byteoffset=0;
+        for (size_t i=0; i<bitcount; i++) {
+            size_t byteoffset=0;
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);
-		    bool bitval = isset(bytes[byteoffset], bitoffset);
+            bool bitval = isset(bytes[byteoffset], bitoffset);
 //printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
-		    if (bitval) {
-			    value = setbit(value, i);
+            if (bitval) {
+                value = setbit(value, i);
             }
         }
     }

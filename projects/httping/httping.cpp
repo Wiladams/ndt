@@ -34,11 +34,11 @@ bool pingHttp(const char * hostname)
     char response[recvSize+1];
 
     char request[512];
-    sprintf(request, "GET / HTTP/1.1\r\n"
+    sprintf_s(request, "GET / HTTP/1.1\r\n"
                      "Host: %s\r\n"
                      "\r\n", hostname);
 
-    char * portname = "80";
+    const char * portname = "80";
 
     IPHost *host = IPHost::create(hostname, portname);
 

@@ -145,6 +145,20 @@ public:
     void * getPositionPointer() {return fdata + fcursor;}
 
 
+    // operators to treat stream as array
+    // accessing beyond bounds is undefined, but should
+    // not crash
+    uint8_t operator[](const size_t offset) const
+    {
+        return offset < fsize ? fdata[offset] : 0;
+    }
+
+    // setting a value
+    uint8_t & operator[](const size_t offset)
+    {
+        return fdata[offset];
+    }
+
     // get 8 bits, and don't advance the cursor
     int peekOctet(int offset=0)
     {

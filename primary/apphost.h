@@ -4,6 +4,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+
 #include <windows.h>
 
 #include <windowsx.h>
