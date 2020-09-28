@@ -247,7 +247,9 @@ public:
 		// do nothing
 	}
 
-
-
+	virtual void fileDrop(const FileDropEvent& e)
+	{
+		// do nothing
+	}
 
 };

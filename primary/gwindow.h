@@ -30,7 +30,7 @@ public:
 		fSurface = std::make_shared<Surface>(w, h);
 	}
 
-	std::shared_ptr<IGraphics> getPreferredRenderer() const { return fSurface; }
+	//std::shared_ptr<IGraphics> getPreferredRenderer() const { return fSurface; }
 
 	BLImage& getImage() { return fSurface->getImage(); }
 

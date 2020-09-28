@@ -28,7 +28,7 @@ protected:
 	virtual ~IGraphic() {};
 
 public:
-	virtual std::shared_ptr<IGraphics> getPreferredRenderer() const { return nullptr; }
+	//virtual std::shared_ptr<IGraphics> getPreferredRenderer() const { return nullptr; }
 
 
 	virtual bool contains(int x, int y)
@@ -58,4 +58,7 @@ public:
 	//virtual void keyPressed(const KeyboardEvent& e) =0;
 	//virtual void keyReleased(const KeyboardEvent& e)=0;
 	//virtual void keyTyped(const KeyboardEvent& e)=0;
+
+		// File dropping
+	virtual void fileDrop(const FileDropEvent& e) = 0;
 };

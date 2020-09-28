@@ -3,7 +3,7 @@
 #include "apphost.h"
 #include "p5.hpp"
 #include "gwindow.h"
-
+#include "guistyle.hpp"
 
 #include <deque>
 #include <memory>
@@ -17,22 +17,6 @@
 	Brings windows to the forefront and back depending on clicks
 	Sends UI events to correct window
 */
-void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect &r, size_t maxOffset, Pixel & c)
-{
-	auto shadow = c;
-	
-	ctx->push();
-	ctx->noStroke();
-
-	for (int i = 1; i <= maxOffset; i++)
-	{
-		auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
-		shadow.a = (uint32_t)alpha;
-		ctx->fill(shadow);
-		ctx->rect(r.x + i, r.y + i, r.w, r.h);
-	}
-	ctx->pop();
-}
 
 class WindowManager : public Graphic
 {
@@ -51,13 +35,15 @@ public:
 	{
 		auto shadow = ctx->color(0x40);
 
+		// Here we draw each window
+		// along the way, we can display whatever
+		// chrome we want, or do any rendering effects
+		// drawDropShadow(ctx, f, 12, shadow);
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
 			auto f = g->getFrame();
 
-			//drawDropShadow(ctx, f, 12, shadow);
-
-			// Now draw the child
+			// Tell the window to draw itself into the context
 			g->draw(ctx);
 		}
 	}
@@ -158,5 +144,10 @@ public:
 	void keyTyped(const KeyboardEvent& e)
 	{}
 
-
+	void fileDropped(const FileDropEvent& e)
+	{
+		auto win = graphicAt(e.x, e.y);
+		if (win != nullptr)
+			win->fileDrop(e);
+	}
 };

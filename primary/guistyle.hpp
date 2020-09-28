@@ -63,6 +63,23 @@ Pixel darker(const Pixel&value)
 
 
 
+void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect& r, size_t maxOffset, Pixel& c)
+{
+    auto shadow = c;
+
+    ctx->push();
+    ctx->noStroke();
+
+    for (int i = 1; i <= maxOffset; i++)
+    {
+        auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
+        shadow.a = (uint32_t)alpha;
+        ctx->fill(shadow);
+        ctx->rect(r.x + i, r.y + i, r.w, r.h);
+    }
+    ctx->pop();
+}
+
 
 class GUIStyle
 {

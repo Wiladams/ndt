@@ -820,6 +820,10 @@ void handleJoystickEvent(const JoystickEvent& e)
 
 void handleFileDroppedEvent(const FileDropEvent& e)
 {
+    if (nullptr != gWindowManager) {
+        gWindowManager->fileDropped(e);
+    }
+
     // do the file drop handling
     if (nullptr != gFileDroppedHandler)
         gFileDroppedHandler(e);

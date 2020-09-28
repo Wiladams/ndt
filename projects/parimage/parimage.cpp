@@ -63,7 +63,7 @@ void draw()
 			double u = (float)x / ((float)width - 1);
 			auto c = effect->value(u, v, {});
 
-			set(x, y, BLRgba32(c.r * 255, c.g * 255, c.b * 255));
+			set(x, y, BLRgba32((uint32_t)(c.r * 255), (uint32_t)(c.g * 255), (uint32_t)(c.b * 255)));
 		}
 	}
 
