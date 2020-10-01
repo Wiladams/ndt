@@ -447,12 +447,7 @@ struct ACanvas : GCanvas
 
 	void drawBLine(int y, int beginX, int endX)
 	{
-		auto c = fTexture->value(0, 0, { 0,0,0 });
-		Pixel p; 
-		p.r = uint8_t(c.r * 255);
-		p.g = uint8_t(c.g * 255);
-		p.b = uint8_t(c.b * 255);
-		p.a = 255;
+		auto p = fTexture->pixelValue(0, 0, { 0,0,0 });
 
 		setStrokeStyle(p);
 		strokeLine(BLLine(beginX, y, endX, y));
@@ -466,16 +461,11 @@ struct ACanvas : GCanvas
 		for (int x = beginX; x < endX; x++)
 		{
 			// calculate u, v from texture
-			float u = float(x) / getWidth()-1;
-			float v = float(y) / getHeight() - 1;
-
+			float u = float(x) / (getWidth()-1);
+			float v = float(y) / (getHeight() - 1);
+			
 			// get color value from texture
-
-			auto c = fTexture->value(u, v, { 0,0,0 });
-			p.r = uint8_t(c.r * 255);
-			p.g = uint8_t(c.g * 255);
-			p.b = uint8_t(c.b * 255);
-			p.a = 255;
+			p = fTexture->pixelValue(u, v, { 0,0,0 });
 
 			// draw single pixel
 			set(x, y, p);

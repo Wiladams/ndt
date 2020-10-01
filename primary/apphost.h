@@ -1,5 +1,20 @@
 #pragma once
 
+/*
+	The primary benefit of the apphost.h/appmain.cpp combination is to turn
+	windows specifics into simpler concepts.
+
+	Typical Windows messages, such as mouse and keyboard, and turned into 
+	topics, that other applications can subscribe to.
+
+	A 'main()' is provided, so the application can implement a 'setup()'
+	instead, and not have to worry about whether it is a console or Window
+	target.
+
+	All other aspects of the application are up to the application environment,
+	but at least all the Win32 specific stuff is wrapped up.
+*/
+
 #include <SDKDDKVer.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -14,7 +29,7 @@
 #include <mmsystem.h>
 
 #include "appconfig.h"
-#include "bitbang.h"
+//#include "bitbang.h"
 #include "NativeWindow.hpp"
 #include "Surface.h"
 #include "joystick.h"
@@ -50,7 +65,7 @@ EXPORT extern User32Window * gAppWindow;
 EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
 
-EXPORT extern bool gRunning;
+//EXPORT extern bool gRunning;
 
 
 // Globals we expect the user to consume

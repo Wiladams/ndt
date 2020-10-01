@@ -2,6 +2,7 @@
 using namespace p5;
 
 #include "arttypes.h"
+#include "screensnapshot.hpp"
 
 int gCanvasWidth = 640;
 int gCanvasHeight = 480;
@@ -12,8 +13,8 @@ AVector camDir(-0.2f, 0.0f, 0.0f);
 float fov = FOV_90;
 std::shared_ptr<ACamera> cam;
 std::shared_ptr<ACanvas> can;
-auto cantex = std::make_shared<SolidColorTexture>(0, 0, 1);		// general texture
-
+//auto cantex = std::make_shared<SolidColorTexture>(0, 0, 1);		// solid color texture
+auto cantex = std::make_shared<ScreenSnapshot>(0, 0, gCanvasWidth, gCanvasHeight);
 
 
 
@@ -41,6 +42,7 @@ void draw()
 {
 	clear();
 	can->clear();
+	cantex->next();
 
 	// Rotate camera
 	AVector camDir = cam->direction;
@@ -87,7 +89,7 @@ void test_matrix()
 void setup() 
 {
 	createCanvas(gCanvasWidth, gCanvasHeight);
-	//frameRate(30);
+	frameRate(30);
 	cam = std::make_shared<ACamera>(camLoc, camDir, gCanvasWidth, gCanvasHeight, fov);
 	can = std::make_shared<ACanvas>(gCanvasWidth, gCanvasHeight);
 	can->setTexture(cantex);

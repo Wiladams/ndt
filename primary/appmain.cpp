@@ -44,7 +44,7 @@ User32Window * gAppWindow = nullptr;
 std::shared_ptr<Surface>  gAppSurface = nullptr;
 
 
-bool gRunning = true;
+//bool gRunning = true;
 bool gIsLayered = false;
 
 // Some globals friendly to the p5 environment
@@ -707,7 +707,11 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
 
-    if (msg == WM_INPUT) {
+    if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
+        // Handle all mouse messages
+        HandleMouseMessage(hWnd, msg, wParam, lParam);
+    }
+    else if (msg == WM_INPUT) {
         //printf("WM_INPUT\n");
         bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
         HRAWINPUT inputHandle = (HRAWINPUT)lParam;
@@ -750,10 +754,6 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // message queue.
         PostQuitMessage(0);
         return 0;
-    }
-    else if ((msg >= WM_MOUSEFIRST) && (msg <= WM_MOUSELAST)) {
-        // Handle all mouse messages
-        HandleMouseMessage(hWnd, msg, wParam, lParam);
     }
     else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
         // Handle all keyboard messages

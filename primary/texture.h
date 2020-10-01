@@ -14,7 +14,12 @@ using std::make_shared;
 
 class Texture {
 public:
-    virtual rtcolor value(double u, double v, const vec3& p) const = 0;
+    virtual rtcolor value(const double u, const double v, const vec3& p) const = 0;
+    virtual BLRgba32 pixelValue(double u, double v, const vec3& p) const
+    {
+        auto c = value(u, v, p);
+        return { (uint32_t)(c.r * 255),(uint32_t)(c.g * 255) ,(uint32_t)(c.b * 255)};
+    }
 };
 
 

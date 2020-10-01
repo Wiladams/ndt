@@ -91,7 +91,7 @@ void draw()
     clear();
 
     // Get capture current screen
-    ss->moveNext();
+    ss->next();
 
     _stats.draw(gAppSurface);
 }

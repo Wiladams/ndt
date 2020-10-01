@@ -114,7 +114,7 @@ public:
         ((Pixel *)fData)[offset] = c;
     }
 
-    inline Pixel get(int x, int y)
+    inline Pixel get(int x, int y) const
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);
         y = (int)maths::Clamp(y, 0, fHeight - 1);
