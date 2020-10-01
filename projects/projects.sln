@@ -114,6 +114,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ticktime", "ticktime\tickti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httping", "httping\httping.vcxproj", "{E3DA3BD3-6288-4B74-8741-9F47E6AF7C98}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtant", "rtant\rtant.vcxproj", "{09271AFA-31F0-4811-A55E-BEEA286F0549}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -514,6 +516,14 @@ Global
 		{E3DA3BD3-6288-4B74-8741-9F47E6AF7C98}.Release|x64.Build.0 = Release|x64
 		{E3DA3BD3-6288-4B74-8741-9F47E6AF7C98}.Release|x86.ActiveCfg = Release|Win32
 		{E3DA3BD3-6288-4B74-8741-9F47E6AF7C98}.Release|x86.Build.0 = Release|Win32
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Debug|x64.ActiveCfg = Debug|x64
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Debug|x64.Build.0 = Debug|x64
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Debug|x86.ActiveCfg = Debug|Win32
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Debug|x86.Build.0 = Debug|Win32
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x64.ActiveCfg = Release|x64
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x64.Build.0 = Release|x64
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x86.ActiveCfg = Release|Win32
+		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

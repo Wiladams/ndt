@@ -12,9 +12,8 @@
 //==============================================================================================
 
 
-
-//#include "vec3.h"
 #include "grmath.h"
+#include <cmath>
 
 class perlin {
 public:
@@ -38,12 +37,12 @@ public:
     }
 
     double noise(const point3& p) const {
-        auto u = p.x - floor(p.x);
-        auto v = p.y - floor(p.y);
-        auto w = p.z - floor(p.z);
-        auto i = static_cast<int>(floor(p.x));
-        auto j = static_cast<int>(floor(p.y));
-        auto k = static_cast<int>(floor(p.z));
+        auto u = p.x - std::floor(p.x);
+        auto v = p.y - std::floor(p.y);
+        auto w = p.z - std::floor(p.z);
+        auto i = static_cast<int>(std::floor(p.x));
+        auto j = static_cast<int>(std::floor(p.y));
+        auto k = static_cast<int>(std::floor(p.z));
         vec3 c[2][2][2];
 
         for (int di = 0; di < 2; di++)

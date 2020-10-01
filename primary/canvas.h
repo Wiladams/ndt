@@ -16,8 +16,8 @@ public:
 		begin(fImage);	// Single threaded
 	}
 
-    size_t getWidth() { return fImageData.size.w; }
-    size_t getHeight() { return fImageData.size.h; }
+    inline size_t getWidth() { return fImageData.size.w; }
+    inline size_t getHeight() { return fImageData.size.h; }
 
     BLImage& getImage() { return fImage; }
 
@@ -25,7 +25,7 @@ public:
 	operator const BLImage& () { return fImage; }
 
 
-    void flush()
+    void sync()
     {
         BLContext::flush(BL_CONTEXT_FLUSH_SYNC);
     }
