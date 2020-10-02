@@ -116,6 +116,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httping", "httping\httping.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtant", "rtant\rtant.vcxproj", "{09271AFA-31F0-4811-A55E-BEEA286F0549}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "texcubes", "texcubes\texcubes.vcxproj", "{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -524,6 +526,14 @@ Global
 		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x64.Build.0 = Release|x64
 		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x86.ActiveCfg = Release|Win32
 		{09271AFA-31F0-4811-A55E-BEEA286F0549}.Release|x86.Build.0 = Release|Win32
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Debug|x64.ActiveCfg = Debug|x64
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Debug|x64.Build.0 = Debug|x64
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Debug|x86.ActiveCfg = Debug|Win32
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Debug|x86.Build.0 = Debug|Win32
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Release|x64.ActiveCfg = Release|x64
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Release|x64.Build.0 = Release|x64
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Release|x86.ActiveCfg = Release|Win32
+		{9D1FDE26-A90A-45C6-9D87-C0DEC09EF63A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

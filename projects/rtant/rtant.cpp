@@ -13,8 +13,8 @@ AVector camDir(-0.2f, 0.0f, 0.0f);
 float fov = FOV_90;
 std::shared_ptr<ACamera> cam;
 std::shared_ptr<ACanvas> can;
-//auto cantex = std::make_shared<SolidColorTexture>(0, 0, 1);		// solid color texture
-auto cantex = std::make_shared<ScreenSnapshot>(0, 0, gCanvasWidth, gCanvasHeight);
+auto cantex = std::make_shared<SolidColorTexture>(0, 0, 1);		// solid color texture
+
 
 
 
@@ -42,7 +42,7 @@ void draw()
 {
 	clear();
 	can->clear();
-	cantex->next();
+	//cantex->next();
 
 	// Rotate camera
 	AVector camDir = cam->direction;

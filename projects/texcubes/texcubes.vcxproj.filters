@@ -21,7 +21,7 @@
     <ClCompile Include="..\..\primary\p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rtant.cpp">
+    <ClCompile Include="texcubes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

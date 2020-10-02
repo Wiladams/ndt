@@ -9,12 +9,13 @@
 */
 #include <memory>
 
-#include "maths.hpp"
-#include "p5.hpp"
 #include "texture.h"
 #include "canvas.h"
 
 using AFix = float;
+
+class AScene;
+class AActor;
 
 struct APolyVertex {
 	AFix x;
@@ -30,6 +31,44 @@ struct ATmapCoord {
 
 };
 
+struct ARect {
+	short left;
+	short top;
+	short right;
+	short bottom;
+
+	ARect(short l, short t, short r, short b)
+		:left(l), top(t), right(r), bottom(b)
+	{}
+
+	ARect() {}
+
+	// some computations
+	short width() { return right - left; }
+	short height() { return bottom - top; }
+	bool isEmpty() { return (left > right) || (top >= bottom); }
+	long area() { return (long)(right-left) * (long)(bottom-top); }
+
+	// Tests for points and other rectangles
+
+	// Compute some intersections
+	ARect intersect(ARect& rect)
+	{
+
+	}
+
+	// Calculate smallest extent that encloses both
+	ARect smallestEnclosing(ARect& rect)
+	{
+
+	}
+
+	int disjoint(ARect& rect, ARect* pResultArray)
+	{
+
+	}
+
+};
 // representation of coordinates in a 3D space
 struct AVector {
 	float x=0;
@@ -133,6 +172,7 @@ struct AVector {
 	}
 };
 
+using ACoord3 = AVector;
 
 
 // Matrix representation of 3D transformations
@@ -181,20 +221,20 @@ struct AMatrix
 	{
 		// scale first column by v.x
 		m[0] *= v.x;
-m[3] *= v.x;
-m[6] *= v.x;
+		m[3] *= v.x;
+		m[6] *= v.x;
 
-// scale second column by v.y
-m[1] *= v.y;
-m[4] *= v.y;
-m[7] *= v.y;
+		// scale second column by v.y
+		m[1] *= v.y;
+		m[4] *= v.y;
+		m[7] *= v.y;
 
-// scale third column by v.z
-m[2] *= v.z;
-m[5] *= v.z;
-m[8] *= v.z;
+		// scale third column by v.z
+		m[2] *= v.z;
+		m[5] *= v.z;
+		m[8] *= v.z;
 
-return *this;
+		return *this;
 	}
 
 	// multiply by matrix on the left
@@ -378,16 +418,19 @@ struct APolygon
 
 struct APolyDda
 {
-	short vertIndex;
-	short vertNext;			// index of next vertex
+	short vertIndex=0;
+	short vertNext=0;			// index of next vertex
 	AFix x;					// current x value
 	AFix dx;				// Stepping factor in x
-	short ybeg;				// begin y-coord of span
-	short yend;				// end y-coord of span
+	short ybeg=0;				// begin y-coord of span
+	short yend=0;				// end y-coord of span
 	ATmapCoord tc;			// texture map coordinate
 	ATmapCoord tcDelta;		// x, y delta to texture coord
 
+	APolyDda() {}
 };
+
+
 
 struct ACanvas : GCanvas
 {
@@ -417,6 +460,28 @@ struct ACanvas : GCanvas
 			dda.dx = xdelta / ydelta;
 		else
 			dda.dx = 0;
+	}
+
+	static void setupTmapPolyDda(const APolygon& poly, APolyDda& dda, const size_t ivert, const int dir)
+	{
+		// Do normal poly scanner setup
+		setupPolyDda(poly, dda, ivert, dir);
+
+		// compute initial u,v tmap coords; 
+		// scaling up to w,h of bitmap would be an optimization
+		// but force textures to have bound sizes
+		ATmapCoord& tc = poly.pTmapCoords[dda.vertIndex];
+		dda.tc.u = tc.u;		// * tmap.width;
+		dda.tc.v = tc.v;		// * tmap.height;
+
+		// compute texture map delta
+		ATmapCoord& tcn = poly.pTmapCoords[dda.vertNext];
+		ATmapCoord tcNext(tcn.u, tcn.v);
+		int ydelta = dda.yend - dda.ybeg;
+		if (ydelta > 0) {
+			dda.tcDelta.u = (tcNext.u - dda.tc.u) / ydelta;
+			dda.tcDelta.v = (tcNext.v - dda.tc.v) / ydelta;
+		}
 	}
 
 	ACanvas(int w, int h)
@@ -472,6 +537,18 @@ struct ACanvas : GCanvas
 		}
 	}
 
+	void drawTmapRow(int y, int xleft, int xright, 
+		std::shared_ptr<Texture> tmap, ATmapCoord &tc, ATmapCoord &tcStep)
+	{
+		for (int x = xleft; x < xright; x++) {
+			auto p = tmap->pixelValue(tc.u, tc.v, { 0,0,0 });
+			set(x, y, p);
+
+			tc.u += tcStep.u;
+			tc.v += tcStep.v;
+		}
+	}
+
 	void drawFlatConvexPolygon(const APolygon& poly)
 	{
 		// find topmost vertex of the polygon, set index in vmin
@@ -490,10 +567,11 @@ struct ACanvas : GCanvas
 
 		// set color for all subsequent drawing
 		setTexture(poly.tmap);
+		auto p = poly.tmap->pixelValue(0, 0, { 0,0,0 });
+		push();
+		setStrokeStyle(p);
 
 		// scan until on line-drawer finishes
-
-
 		while (true)
 		{
 			// check left side dda hitting end of run
@@ -523,8 +601,7 @@ struct ACanvas : GCanvas
 			// Fill span between two line-drawers
 			// advance drawers when hit vertices
 			if (y >= clipRect.y0) {
-				drawHLine(y, (int)round(ldda.x), (int)round(rdda.x));
-				//drawBLine(y, (int)round(ldda.x), (int)round(rdda.x));
+				strokeLine(BLLine((int)round(ldda.x), y, (int)round(rdda.x), y));
 			}
 
 			// Advance left and right x-coords by franctional amounts
@@ -535,5 +612,136 @@ struct ACanvas : GCanvas
 			if (++y >= clipRect.y1)
 				break;
 		}
+		pop();
 	}
+
+	void drawTmappedConvexPolygon(const APolygon& poly)
+	{
+		// find topmost vertex of the polygon, set index in vmin
+		size_t vmin = poly.findTopmostPolyVertex();
+
+		// set starting line
+		APolyDda ldda, rdda;
+		int y = int(poly.pVerts[poly.vertIndex[vmin]].y);
+		ldda.yend = rdda.yend = y;
+
+		// set up a polygon scanner for left side
+		// starting from top vertex
+		setupTmapPolyDda(poly, ldda, vmin, +1);
+
+		// setup scanner for right side
+		setupTmapPolyDda(poly, rdda, vmin, -1);
+
+		// scan until on line-drawer finishes
+
+		while (true)
+		{
+			// check left side dda hitting end of run
+			if (y >= ldda.yend)
+			{
+				if (y >= rdda.yend) {
+					if (ldda.vertNext == rdda.vertNext)
+						break;
+
+					// check for flat bottom
+					int vnext = rdda.vertNext - 1;
+
+					if (vnext < 0)
+						vnext = poly.numVerts - 1;
+
+					if (vnext == ldda.vertNext)
+						break;
+				}
+
+				setupTmapPolyDda(poly, ldda, ldda.vertNext, +1);
+			}
+
+			// Check for right dda
+			if (y >= rdda.yend)
+				setupTmapPolyDda(poly, rdda, rdda.vertNext, -1);
+
+			// Fill span between two line-drawers
+			// advance drawers when hit vertices
+			if (y >= clipRect.y0) {
+				int xleft = std::round(ldda.x);
+				int xright = std::round(rdda.x);
+				int width = xright - xleft;
+				if (width > 0) {
+					// Setup and draw texture mapped row of polygon
+					ATmapCoord tc = ldda.tc;
+					ATmapCoord tcStep((rdda.tc.u - tc.u) / width, (rdda.tc.v - tc.v) / width);
+					if (xleft < clipRect.x0) {
+						tc.u += (tcStep.u);
+						tc.v += (tcStep.v);
+						xleft = clipRect.x0;
+					}
+
+					if (xright > clipRect.x1)
+						xright = clipRect.x1;
+
+					drawTmapRow(y, xleft, xright, poly.tmap, tc, tcStep);
+				}
+
+			}
+
+			// Advance left and right x-coords by franctional amounts
+			ldda.x += ldda.dx;
+			rdda.x += rdda.dx;
+
+			// advance left and right tmap coords
+			ldda.tc.u += ldda.tcDelta.u;
+			ldda.tc.v += ldda.tcDelta.v;
+			rdda.tc.u += rdda.tcDelta.u;
+			rdda.tc.v += rdda.tcDelta.v;
+
+			// Advance ypos, exit if run off its bottom
+			if (++y >= clipRect.y1)
+				break;
+		}
+
+	}
+};
+
+struct AScene {
+	static AScene* pFirst;
+
+	enum class UpdateStrategy : unsigned
+	{
+		FULLAREA,
+		SLOPPY,
+		EXACT,
+		UNCHANGED
+	};
+
+private:
+	AScene* next;
+	AScene* prev;
+	Pixel fBackground;		// Background color
+	AFix xScale;
+	AFix yScale;
+	AFix xWorld;
+	AFix yWorld;
+
+	AActor* fFrontActor;
+	AActor* fRearActor;
+
+	double tLastUpdate;		// time of last update
+
+protected:
+	ACanvas* pcv;
+	ARect screenArea;
+	ARectList updateAreas;
+	UpdateStrategy upStrategy;
+	bool scaling;
+
+	void compose(ARect& area);				// recompose
+	virtual void RedrawAndBlit() = 0;		// recompose and update screen
+	virtual void Blit(ARect& area) = 0;		// update screen
+};
+
+struct AActor {
+	AActor* prev;
+	AActor* next;
+
+	AScene* pscene;
 };
