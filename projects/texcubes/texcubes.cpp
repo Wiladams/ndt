@@ -41,7 +41,7 @@ const size_t NUM_CUBE_VERTICES = 8;
 const size_t MAX_CUBES = 5;
 
 APolygon cubeFaces[] = {
-	{ 4,nullptr, {0,3,2,1},nullptr, cantex };
+	{ 4,nullptr, {0,3,2,1},nullptr, cantex },
 };
 
 void setup()

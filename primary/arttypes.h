@@ -47,20 +47,50 @@ struct ARect {
 	short width() { return right - left; }
 	short height() { return bottom - top; }
 	bool isEmpty() { return (left > right) || (top >= bottom); }
-	long area() { return (long)(right-left) * (long)(bottom-top); }
+	long area() { return (long)(right - left) * (long)(bottom - top); }
 
 	// Tests for points and other rectangles
+	// coordinates are exclusive
+	bool contains(int x, int y)
+	{
+		return (x >= left) && (x < right) &&
+			(y >= top) && (y < bottom);
+	}
+
+	bool contains(ARect& rect)
+	{
+		return intersect(rect).equal(rect);
+	}
+
+	// Equality test
+	bool equal(ARect& rect)
+	{
+		return (left == rect.left) &&
+			(top == rect.top) &&
+			(right == rect.right) &&
+			(bottom == rect.bottom);
+	}
 
 	// Compute some intersections
 	ARect intersect(ARect& rect)
 	{
-
+		return {
+			left > rect.left ? left : rect.left,
+			top > rect.top ? top : rect.top,
+			right < rect.right ? right : rect.right,
+			bottom < rect.bottom ? bottom : rect.bottom
+		};
 	}
 
 	// Calculate smallest extent that encloses both
-	ARect smallestEnclosing(ARect& rect)
+	ARect smallestEnclosing(const ARect& rect)
 	{
-
+		return {
+			left < rect.left ? left : rect.left,
+			top < rect.top ? top : rect.top,
+			right > rect.right ? right : rect.right,
+			bottom > rect.bottom ? bottom : rect.bottom
+		};
 	}
 
 	int disjoint(ARect& rect, ARect* pResultArray)
@@ -69,6 +99,7 @@ struct ARect {
 	}
 
 };
+
 // representation of coordinates in a 3D space
 struct AVector {
 	float x=0;
@@ -435,7 +466,7 @@ struct APolyDda
 struct ACanvas : GCanvas
 {
 	std::shared_ptr<Texture> fTexture;
-	BLBoxI clipRect;
+	ARect clipRect;
 
 	// Setup a dda for drawing
 	static void setupPolyDda(const APolygon& poly, APolyDda& dda, const size_t ivert, const int dir)
@@ -600,7 +631,7 @@ struct ACanvas : GCanvas
 
 			// Fill span between two line-drawers
 			// advance drawers when hit vertices
-			if (y >= clipRect.y0) {
+			if (y >= clipRect.top) {
 				strokeLine(BLLine((int)round(ldda.x), y, (int)round(rdda.x), y));
 			}
 
@@ -609,7 +640,7 @@ struct ACanvas : GCanvas
 			rdda.x += rdda.dx;
 
 			// Advance ypos, exit if run off its bottom
-			if (++y >= clipRect.y1)
+			if (++y >= clipRect.bottom)
 				break;
 		}
 		pop();
@@ -662,7 +693,7 @@ struct ACanvas : GCanvas
 
 			// Fill span between two line-drawers
 			// advance drawers when hit vertices
-			if (y >= clipRect.y0) {
+			if (y >= clipRect.top) {
 				int xleft = std::round(ldda.x);
 				int xright = std::round(rdda.x);
 				int width = xright - xleft;
@@ -670,14 +701,14 @@ struct ACanvas : GCanvas
 					// Setup and draw texture mapped row of polygon
 					ATmapCoord tc = ldda.tc;
 					ATmapCoord tcStep((rdda.tc.u - tc.u) / width, (rdda.tc.v - tc.v) / width);
-					if (xleft < clipRect.x0) {
+					if (xleft < clipRect.left) {
 						tc.u += (tcStep.u);
 						tc.v += (tcStep.v);
-						xleft = clipRect.x0;
+						xleft = clipRect.left;
 					}
 
-					if (xright > clipRect.x1)
-						xright = clipRect.x1;
+					if (xright > clipRect.right)
+						xright = clipRect.right;
 
 					drawTmapRow(y, xleft, xright, poly.tmap, tc, tcStep);
 				}
@@ -695,7 +726,7 @@ struct ACanvas : GCanvas
 			rdda.tc.v += rdda.tcDelta.v;
 
 			// Advance ypos, exit if run off its bottom
-			if (++y >= clipRect.y1)
+			if (++y >= clipRect.bottom)
 				break;
 		}
 
@@ -728,16 +759,54 @@ private:
 	double tLastUpdate;		// time of last update
 
 protected:
-	ACanvas* pcv;
-	ARect screenArea;
-	ARectList updateAreas;
+	std::shared_ptr<ACanvas> pcv;
+	ARect fScreenArea;
+	//ARectList updateAreas;
 	UpdateStrategy upStrategy;
 	bool scaling;
 
-	void compose(ARect& area);				// recompose
-	virtual void RedrawAndBlit() = 0;		// recompose and update screen
-	virtual void Blit(ARect& area) = 0;		// update screen
+	void redraw(ARect& area);				// recompose
+	virtual void redrawAndBlit() = 0;		// recompose and update screen
+	virtual void blit(ARect& area) = 0;		// update screen
+
+public:
+	// Constructor
+	AScene(AFix xWorld, AFix yWorld, Pixel bkgnd)
+		:fBackground(bkgnd)
+	{}
+	virtual ~AScene();
+
+	void changeScreenArea(ARect &screenArea, UpdateStrategy upStrat=UpdateStrategy::UNCHANGED, bool updateScreen=true)
+	{}
+
+	// vital statistics
+	ARect screenArea() { return fScreenArea; }
+	short screenWidth() { return fScreenArea.width(); }
+	short screenHeight() { return fScreenArea.height(); }
+	short logWidth() { return pcv->getWidth(); }
+	short logHeight() { return pcv->getHeight(); }
+	AFix worldX() { return xWorld; }
+	AFix worldY() { return yWorld; }
+
+	// Convert between world and canvas coords
+	void convertWorld2Canvas(AFix& x, AFix& y) {
+		x -= xWorld;
+		y -= yWorld;
+	}
+
+	void convertCanvas2World(AFix& x, AFix& y)
+	{
+		x += xWorld;
+		y += yWorld;
+	}
+
+	// Convert between screen (scene-relative) and canvas coords
+	void convertScreen2Canvas(short& x, short& y) {
+		x = int(xScale*(x-fScreenArea.left))
+	}
 };
+
+
 
 struct AActor {
 	AActor* prev;
