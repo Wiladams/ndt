@@ -46,6 +46,7 @@ static VOIDROUTINE gDrawHandler = nullptr;
 int gFPS = 15;   // Frames per second
 TickTopic gTickTopic;
 bool gLooping = true;
+bool gIsFullscreen = false;
 
 namespace p5 {
 
@@ -622,9 +623,16 @@ namespace p5 {
 
     void fullscreen() noexcept
     {
+
         createCanvas(displayWidth, displayHeight);
         setWindowPosition(0, 0);
         layered();
+        gIsFullscreen = true;
+    }
+
+    bool isFullscreen() noexcept
+    {
+        return gIsFullscreen;
     }
 
     void flush() noexcept
@@ -854,11 +862,11 @@ void handleTouchEvent(const TouchEvent& e)
             }
         break;
 
-    case TOUCH_HOVER: {
-        if (gTouchHoverHandler)
-            gTouchHoverHandler(e);
-    }
-                    break;
+    //case TOUCH_HOVER: {
+    //    if (gTouchHoverHandler)
+    //        gTouchHoverHandler(e);
+    //}
+    //                break;
     }
 
 }

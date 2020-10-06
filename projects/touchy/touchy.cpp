@@ -15,10 +15,10 @@ Pixel randomColor()
 
 void setup()
 {
-	createCanvas(1920, 1080);
-	//fullscreen();
+	//createCanvas(1920, 1080);
+	fullscreen();
 
-	//frameRate(60);
+	frameRate(30);
 	
 	// turn on using raw touch input
 	// precludes gesture processing
@@ -31,6 +31,8 @@ void drawTouch(std::pair<int,TouchEvent> pe)
 	auto idx = pe.first;
 	auto e = pe.second;
 
+	printf("drawTouch -  activity: %d pen: %x (%d,%d - %d,%d)\n", e.activity, e.isPen, e.x, e.y, e.w, e.h);
+
 	noStroke();
 	fill(tcolor[idx]);
 	ellipse(e.x, e.y, e.w, e.h);
@@ -38,7 +40,13 @@ void drawTouch(std::pair<int,TouchEvent> pe)
 
 void draw()
 {
-	background(color(245, 246, 247));
+	if (isFullscreen())
+	{
+		clear();
+		background(0, 10);	// do this one if you want a fade
+	} 
+	else
+		background(color(245, 246, 247));
 
 	// Go through list of active touches
 	// and draw them

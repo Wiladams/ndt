@@ -341,6 +341,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     BOOL bResult = GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, cbSize);
 
     if (bResult == 0) {
+        delete[] pInputs;
         auto err = ::GetLastError();
         printf("getTouchInputInfo, ERROR: %d %d\n", bResult, err);
 
@@ -348,32 +349,40 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     // construct an event for each item
+    // BUGBUG - really this should be a deque of events
+    // like with file drops
     for (int i = 0; i < cInputs; i++) {
-        POINT PT;
-        PT.x = pInputs[i].x / 100;
-        PT.y = pInputs[i].y / 100;
-        //print("wm_touch_event 4.1: ", PT.x, PT.y)
-        auto bResult = ::ScreenToClient(hwnd, &PT);
-        //printf("wm_touch_event 4.2: ", bResult, PT.x, PT.y)
-        //printf("wm_touch_event, flags: 0x%x\n", pInputs[i].dwFlags);
+        TOUCHINPUT ti = pInputs[i];
+        TouchEvent e = {};
 
-        TouchEvent e;
-        e.id = pInputs[i].dwID;
+        // convert values to local TouchEvent structure
+        e.id = ti.dwID;
+        e.rawX = ti.x;
+        e.rawY = ti.y;
+
+        POINT PT;
+        PT.x = TOUCH_COORD_TO_PIXEL(ti.x);
+        PT.y = TOUCH_COORD_TO_PIXEL(ti.y);
+
+        // Convert from screen coordinates to local
+        // client coordinates
+        auto bResult = ::ScreenToClient(hwnd, &PT);
+
+        // Assign x,y the client area value of the touch point
         e.x = PT.x;
         e.y = PT.y;
-        e.rawX = pInputs[i].x;
-        e.rawY = pInputs[i].y;
 
-        // Deal with masks first
+
+        // Now, deal with masks
         //#define TOUCHINPUTMASKF_TIMEFROMSYSTEM  0x0001  // the dwTime field contains a system generated value
         //#define TOUCHINPUTMASKF_EXTRAINFO       0x0002  // the dwExtraInfo field is valid
         //#define TOUCHINPUTMASKF_CONTACTAREA     0x0004  // the cxContact and cyContact fields are valid
 
-        if ((pInputs[i].dwMask & TOUCHINPUTMASKF_CONTACTAREA) != 0) {
-            e.rawWidth = pInputs[i].cxContact;
-            e.rawHeight = pInputs[i].cyContact;
-            e.w = e.rawWidth / 100;
-            e.h = e.rawHeight / 100;
+        if ((ti.dwMask & TOUCHINPUTMASKF_CONTACTAREA) != 0) {
+            e.rawWidth = ti.cxContact;
+            e.rawHeight = ti.cyContact;
+            e.w = TOUCH_COORD_TO_PIXEL(e.rawWidth);
+            e.h = TOUCH_COORD_TO_PIXEL(e.rawHeight);
         }
 
         // figure out kind of activity and attributes
@@ -387,21 +396,30 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #define TOUCHEVENTF_PEN             0x0040
 #define TOUCHEVENTF_PALM            0x0080
         */
-        if (pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
+        if (ti.dwFlags & TOUCHEVENTF_DOWN) {
             e.activity = TOUCH_DOWN;
+            e.isDown = true;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_UP) {
             e.activity = TOUCH_UP;
+            e.x = -1;
+            e.y = -1;
+            e.isUp = true;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_MOVE) {
             e.activity = TOUCH_MOVE;
+            e.isMoving = true;
         }
 
         // Attributes of the event
         if (pInputs[i].dwFlags & TOUCHEVENTF_INRANGE) {
             e.isHovering = true;
+        }
+
+        if (ti.dwFlags & TOUCHEVENTF_PRIMARY) {
+            e.isPrimary = true;
         }
 
         if (pInputs[i].dwFlags & TOUCHEVENTF_PALM) {
@@ -769,6 +787,9 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // Handle touch specific messages
         HandleTouchMessage(hWnd, msg, wParam, lParam);
     }
+    //else if (msg == WM_GESTURE) {
+    // we will only receive WM_GESTURE if not receiving WM_TOUCH
+    //}
     //else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
     //    HandlePointerMessage(hWnd, msg, wParam, lParam);
     //}

@@ -67,27 +67,30 @@ enum {
     TOUCH_DOWN,
     TOUCH_UP,
     TOUCH_MOVE,
-    TOUCH_HOVER,
+//    TOUCH_HOVER,
 };
 
 struct TouchEvent {
     int id;
     int activity;
 
+    bool isMoving;
+    bool isUp;
+    bool isDown;
     bool isPrimary;
     bool isHovering;
     bool isPalm;
     bool isPen;
 
-    int rawX;
-    int rawY;
-    int rawWidth;
-    int rawHeight;
+    long rawX;
+    long rawY;
+    unsigned long rawWidth;
+    unsigned long rawHeight;
 
-    int x;
-    int y;
-    int w;
-    int h;
+    long x;
+    long y;
+    size_t w;
+    size_t h;
 };
 
 // Pointer interactions
