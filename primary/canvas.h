@@ -9,12 +9,28 @@ class GCanvas : public BLContext
     BLImageData fImageData;
 
 public:
+    // This constructor will initialize with the given 
+    // data pointer and format
+    GCanvas(int w, int h, void *dataPtr, intptr_t stride, uint32_t pixelFormat = BL_FORMAT_PRGB32)
+    {
+        BLResult bResult = blImageInitAsFromData(&fImage, w, h, pixelFormat, dataPtr, stride, nullptr, nullptr);
+        fImage.getData(&fImageData);
+        
+        BLContextCreateInfo createInfo{};
+        createInfo.commandQueueLimit = 255;
+        createInfo.threadCount = 4;
+        begin(fImage,&createInfo);	// Single threaded
+    }
+
+    // This one will initialize the image with its own data pointer
 	GCanvas(const int w, const int h, uint32_t pixelFormat = BL_FORMAT_PRGB32)
 		: fImage(w, h, pixelFormat)
 	{
         fImage.getData(&fImageData);
 		begin(fImage);	// Single threaded
 	}
+
+
 
     inline size_t getWidth() { return fImageData.size.w; }
     inline size_t getHeight() { return fImageData.size.h; }
@@ -24,6 +40,9 @@ public:
 	// cast to a BLImage
 	operator const BLImage& () { return fImage; }
 
+    //virtual void begin() {
+    //    begin(fImage);
+    //}
 
     void sync()
     {

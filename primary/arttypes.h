@@ -734,7 +734,7 @@ struct ACanvas : GCanvas
 };
 
 struct AScene {
-	static AScene* pFirst;
+	static std::shared_ptr<AScene> pFirst;
 
 	enum class UpdateStrategy : unsigned
 	{
@@ -745,39 +745,107 @@ struct AScene {
 	};
 
 private:
-	AScene* next;
-	AScene* prev;
-	Pixel fBackground;		// Background color
+	std::shared_ptr<AScene> next;
+	std::shared_ptr<AScene> prev;
+
 	AFix xScale;
 	AFix yScale;
 	AFix xWorld;
 	AFix yWorld;
 
-	AActor* fFrontActor;
-	AActor* fRearActor;
+	std::shared_ptr<AActor> fFrontActor;
+	std::shared_ptr<AActor> fRearActor;
 
 	double tLastUpdate;		// time of last update
 
 protected:
 	std::shared_ptr<ACanvas> pcv;
+	Pixel fBackground;		// Background color
+
 	ARect fScreenArea;
 	//ARectList updateAreas;
 	UpdateStrategy upStrategy;
 	bool scaling;
 
 	void redraw(ARect& area);				// recompose
-	virtual void redrawAndBlit() = 0;		// recompose and update screen
-	virtual void blit(ARect& area) = 0;		// update screen
+	//virtual void redrawAndBlit() = 0;		// recompose and update screen
+	virtual void blit(ARect& r)		// update screen
+	{
+		BLRectI area(r.left, r.top, r.width(), r.height());
+
+		//pcv->blitImage(area, img, area);
+	}
 
 public:
 	// Constructor
-	AScene(AFix xWorld, AFix yWorld, Pixel bkgnd)
-		:fBackground(bkgnd)
-	{}
-	virtual ~AScene();
+	AScene(AFix xWorld_, AFix yWorld_, Pixel bkgnd)
+		:fBackground(bkgnd),
+		xWorld(xWorld_),
+		yWorld(yWorld_)
+	{
+	
+		// setup head of list
+		if (pFirst)
+			pFirst->prev = this;
+		next = pFirst;
+		prev = nullptr;
+		pFirst = this;
 
-	void changeScreenArea(ARect &screenArea, UpdateStrategy upStrat=UpdateStrategy::UNCHANGED, bool updateScreen=true)
-	{}
+		// Miscellaneous initialization
+		fFrontActor = nullptr;
+		fRearActor = nullptr;
+		//fLastUpdate = ATime::Read();
+	}
+
+	virtual ~AScene()
+	{
+		// delete actors
+		std::shared_ptr<AActor> pActor = fFrontActor;
+		while (pActor != nullptr) {
+			auto pnext = pActor->next;
+			//delete pActor;
+			pActor = pnext;
+		}
+
+		// unlink this scene from chain of scenes
+		if (next != nullptr)
+			next->prev = prev;
+		if (prev != nullptr)
+			prev->next = next;
+		else
+			pFirst = next;
+	}
+
+	// Allow changing the size of the canvas
+	void changeScreenArea(ARect &screenArea_, UpdateStrategy upStrat=UpdateStrategy::UNCHANGED, bool updateScreen=true)
+	{
+		// copy screen area and update strategy
+		fScreenArea = screenArea_;
+
+		if (upStrat != UpdateStrategy::UNCHANGED)
+			upStrategy = upStrat;
+
+		// check if screen w, h same as canvas w,h
+		// if so, set scaling off
+		if ((fScreenArea.width() == pcv->getWidth()) &&
+			(fScreenArea.height() == pcv->getHeight()))
+		{
+			scaling = false;
+			xScale = AFix(1);
+			yScale = AFix(1);
+		}
+		else {
+			// Set scaling on and force FULLAREA update strategy
+			scaling = true;
+			xScale = AFix(pcv->getWidth() / fScreenArea.width());
+			yScale = AFix(pcv->getHeight() / fScreenArea.height());
+		}
+
+		// update the entire scene
+		if (updateScreen) {
+			changed();
+		}
+	}
 
 	// vital statistics
 	ARect screenArea() { return fScreenArea; }
@@ -802,15 +870,72 @@ public:
 
 	// Convert between screen (scene-relative) and canvas coords
 	void convertScreen2Canvas(short& x, short& y) {
-		x = int(xScale*(x-fScreenArea.left))
+		x = int(xScale * (x - fScreenArea.left));
+	}
+	void convertCanvas2Screen(short& x, short& y) {
+		x = int(AFix(x) / xScale) + fScreenArea.left;
+		y = int(AFix(y) / yScale) + fScreenArea.top;
+	}
+
+	// Add and remove actors
+	void addActor(std::shared_ptr<AActor> pActor)
+	{
+		if (fFrontActor == nullptr) {
+			pActor->next = pActor->prev = nullptr;
+			fFrontActor = fRearActor = pActor;
+			return;
+		}
+
+		// scan for first entry which is in behind new one (p)
+		// keep track of the one behind too (pprev)
+		std::shared_ptr<AActor> pprev = nullptr;
+		std::shared_ptr<AActor> p = fFrontActor;
+		while ((p != nullptr) && (pActor->loc.z > p->loc.z))
+		{
+			pprev = p;
+			p = p->next;
+		}
+
+
+	}
+
+	void removeActor(std::shared_ptr<AActor> pActor);
+	bool resortActor(std::shared_ptr<AActor> pActor);
+
+	// scroll scene
+	void scroll(AFix dx, AFix dy);
+
+	static void updateAll();
+	void update();
+	
+	// The scene changed, so need to do stuff
+	void changed(ARect* parea = nullptr)
+	{
+		// if update strategy is FULLAREA, we don't need
+		// to mark small areas
+		if (upStrategy == UpdateStrategy::FULLAREA)
+			return;
+
+		ARect area(0, 0, pcv->getWidth(), pcv->getHeight());
+		if (parea)
+			area = area.intersect(*parea);
+
+		// calculate intersection of area with scene, if non-empty then add
+		// this rectangle to the update rectlist
+		if (!area.isEmpty()) {
+			if (upStrategy == UpdateStrategy::SLOPPY)
+				updateAreas.AddSloppy(area);
+			else
+				updateAreas.AddUnique(area);
+		}
 	}
 };
 
 
 
 struct AActor {
-	AActor* prev;
-	AActor* next;
+	std::shared_ptr<AActor> prev;
+	std::shared_ptr<AActor> next;
 
 	AScene* pscene;
 };

@@ -1,6 +1,7 @@
 #include "p5.hpp"
 
 #include "framestats.h"
+#include "canvas.h"
 
 using namespace p5;
 

@@ -146,6 +146,7 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="appconfig.h" />
     <ClInclude Include="apphost.h" />
+    <ClInclude Include="appsurface.h" />
     <ClInclude Include="arcball.h" />
     <ClInclude Include="bezier.hpp" />
     <ClInclude Include="binops.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="ticktopic.h" />
     <ClInclude Include="trianglemesh.h" />
     <ClInclude Include="uievent.h" />
+    <ClInclude Include="user32surface.h" />
     <ClInclude Include="vec3.h" />
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
