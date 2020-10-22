@@ -18,6 +18,7 @@
 // reduce dependencies
 #define BINMIN(a,b) (((a)<(b))?(a):(b))
 
+// These unions help with writing float and double values
 typedef union {
     uint32_t u32;
     float f;
@@ -28,16 +29,23 @@ typedef union {
     double d;
 } U64double;
 
+// Basic interface for reading 8-bit values from a source
 class IReadBinary
 {
     virtual uint8_t readOctet() = 0;
 };
 
+// Basic interface for writing 8-bit values to a destination
 class IWriteBinary
 {
     virtual bool writeOctet(const uint8_t octet) = 0;
 };
 
+// 
+// BinStream
+// reads and writes to a chunk of memory
+// This object will not expand the memory
+// 
 class BinStream : public IReadBinary, public IWriteBinary
 {
     uint8_t *fdata;
@@ -88,40 +96,49 @@ public:
 
     // get a subrange of the memory stream
     // returning a new memory stream
+    // This is very useful for getting a subset of a data stream
+    // with bounds checking.  You must be mindful of the lifetime
+    // of the data pointed to though.  There is no provision for 
+    // ensuring the data remains valid outside the context of the 
+    // original stream.  but, since the data pointer was passed in 
+    // from the beginning, that guarantee is already absent.
     BinStream range(size_t pos, size_t size)
     {
         if (pos < 0 || (fsize < 0)) {
-            // BUGBUG - throw exception
             return BinStream();
         }
 
-        if (pos > fsize) {
-            // BUGBUG - throw exception
+        // desired position is beyond end of data
+        if (pos >= fsize) {
             return BinStream();
         }
 
+        // The size asked for is greater than the amount remaining
         if ((size > (fsize - pos))) { 
-            // BUGBUG - throw exception
             return BinStream();
         }
 
         return BinStream(fdata+pos, size, 0 , !fbigend);
     }
 
+    // A convenience to return a range from our current position
     BinStream range(size_t size) {return range(fcursor, size); }
 
 
-    // move to an absolute position
+    // move the position cursor to an absolute offset
+    // from the beginning of the data
+    // if desired position is out of range, do not
+    // reposition, and return false
     bool seek(const size_t pos)
     {
         // if position specified outside of range
         // just set it past end of stream
-        if ((pos > fsize)  || (pos < 0)) {
-            fcursor = fsize;
-            return false;   // , self.cursor;
-        } else {
-            fcursor = pos;
+        if (pos >= fsize) {
+            //fcursor = fsize;
+            return false;
         }
+        
+        fcursor = pos;
  
         return true;
     }
@@ -140,8 +157,10 @@ public:
     // number of bytes.
     bool alignTo(size_t num) {return skip(fcursor % num);}
     
+    // Skip to the next even numbered offset
     bool skipToEven() {return alignTo(2);}
 
+    // Return a pointer to the current position
     void * getPositionPointer() {return fdata + fcursor;}
 
 
@@ -154,12 +173,13 @@ public:
     }
 
     // setting a value
+    // BUGBUG - does not do bounds checking
     uint8_t & operator[](const size_t offset)
     {
         return fdata[offset];
     }
 
-    // get 8 bits, and don't advance the cursor
+    // get next 8-bit byte, but don't advance the cursor
     int peekOctet(int offset=0)
     {
         if (fcursor+offset >= fsize) {
@@ -186,10 +206,16 @@ public:
         return fdata[fcursor-1];
     }
 
+    // readBytes
+    // Copy bytes from the current position into the supplied
+    // buffer.  The number of bytes read is the smaller of
+    // the number desired 'n' and the number actually remaining
+    // in the data buffer.
     size_t readBytes(uint8_t * buff, const size_t n)
     {
+        // asking for fewer than one bytes
+        // returns 0
         if (n < 1) { 
-            // throw exception
             return 0;
         }
 
@@ -197,17 +223,22 @@ public:
         size_t nActual = BINMIN(n, remaining());
     
         // read the minimum between remaining and 'n'
+        // use memcpy_s as that's probably going to be optimized
         uint8_t * ptr = fdata+fcursor;
         memcpy_s(buff, n, ptr,nActual);
 
+        // move the position cursor ahead by the number of 
+        // bytes we actually read.
         skip(nActual);
 
         // return the number of bytes actually read
         return nActual;
     }
 
+    // readStringZ()
     // read in a null terminated string
-    // n - tells us the size of the buffer
+    // n - tells us the size of the buffer we're reading into
+    // 
     size_t readStringZ(const size_t n, char *buff)
     {
         // determine maximum number of bytes we can read
@@ -229,8 +260,7 @@ public:
         return idx;
     }
 
-static const int CR = '\r';
-static const int LF = '\n';
+
 
 // Read a single line up to a maximum specified buffer size
 // A line is designated with one of the following sequences
@@ -242,6 +272,9 @@ static const int LF = '\n';
 // The buffer is null terminated
 size_t readLine(char* buff, const size_t bufflen)
 {
+    static const int CR = '\r';
+    static const int LF = '\n';
+
     if (isEOF()) {
         return 0;
     }
@@ -281,6 +314,7 @@ size_t readLine(char* buff, const size_t bufflen)
     return len;
 }
 
+    // readInt()
     // Read an integer value
     // The parameter 'n' determines how many bytes to read.
     // 'n' can be up to 8 
@@ -311,51 +345,27 @@ size_t readLine(char* buff, const size_t bufflen)
     }
 
     // Read 8-bit signed integer
-    int8_t readInt8()
-    {
-        return (int8_t)readInt(1);
-    }
+    int8_t readInt8(){return (int8_t)readInt(1);}
 
     // Read 8-bit unsigned integer
-    uint8_t readUInt8()
-    {
-        return (uint8_t)readInt(1);
-    }
+    uint8_t readUInt8(){return (uint8_t)readInt(1);}
 
     // Read 16-bit signed integer
-    int16_t readInt16()
-    {
-        return (int16_t)readInt(2);
-    }
+    int16_t readInt16(){return (int16_t)readInt(2);}
 
     // Read 16-bit unsigned integer
-    uint16_t readUInt16()
-    {
-        return (uint16_t)readInt(2);
-    }
+    uint16_t readUInt16(){return (uint16_t)readInt(2);}
 
     // Read Signed 32-bit integer
-    int32_t readInt32()
-    {
-        return (int32_t)readInt(4);
-    }
+    int32_t readInt32(){return (int32_t)readInt(4);}
 
     // Read unsigned 32-bit integer
-    uint32_t readUInt32()
-    {
-        return (uint32_t)readInt(4);
-    }
+    uint32_t readUInt32(){return (uint32_t)readInt(4);}
 
     // Read signed 64-bit integer
-    int64_t readInt64()
-    {
-        return (int64_t)readInt(8);
-    }
+    int64_t readInt64(){return (int64_t)readInt(8);}
 
-    uint64_t readUInt64()
-    {
-        return (uint64_t)readInt(8);
-    }
+    uint64_t readUInt64(){return (uint64_t)readInt(8);}
 
     float readFloat()
     {
@@ -389,7 +399,7 @@ size_t readLine(char* buff, const size_t bufflen)
     }
 
     // Write the specified number of bytes
-    bool writeBytes(const uint8_t *bytes, const size_t n)
+    bool writeBytes(const void *bytes, const size_t n)
     {
         if (bytes == nullptr) {
             return false;
@@ -401,7 +411,7 @@ size_t readLine(char* buff, const size_t bufflen)
         }
 
         // Do a fast memory copy
-        memcpy_s(fdata+fcursor, n, bytes, n);
+        memcpy_s(fdata+fcursor, n, (uint8_t*)bytes, n);
         skip(n);
 
         return true;
@@ -446,45 +456,17 @@ size_t readLine(char* buff, const size_t bufflen)
         return (size_t)i+1;
     }
 
-    size_t writeInt8(const int8_t n)
-    {
-        return writeInt(n, 1);
-    }
+    size_t writeInt8(const int8_t n){return writeInt(n, 1);}
+    size_t writeUInt8(const uint8_t n){return writeInt(n, 1);}
 
-    size_t writeUInt8(const uint8_t n)
-    {
-        return writeInt(n, 1);
-    }
+    size_t writeInt16(int16_t n){return writeInt(n, 2);}
+    size_t writeUInt16(uint16_t n){return writeInt(n, 2);}
 
-    size_t writeInt16(int16_t n)
-    {
-        return writeInt(n, 2);
-    }
+    size_t writeInt32(int32_t n){return writeInt(n, 4);}
+    size_t writeUInt32(uint32_t n){return writeInt(n, 4);}
 
-    size_t writeUInt16(uint16_t n)
-    {
-        return writeInt(n, 2);
-    }
-
-    size_t writeInt32(int32_t n)
-    {
-        return writeInt(n, 4);
-    }
-
-    size_t writeUInt32(uint32_t n)
-    {
-        return writeInt(n, 4);
-    }
-
-    size_t writeInt64(int64_t n)
-    {
-        return writeInt(n, 8);
-    }
-
-    size_t writeUInt64(uint64_t n)
-    {
-        return writeInt(n, 8);
-    }
+    size_t writeInt64(int64_t n){return writeInt(n, 8);}
+    size_t writeUInt64(uint64_t n){return writeInt(n, 8);}
 
     void writeFloat(const float value)
     {
