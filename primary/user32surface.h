@@ -12,6 +12,9 @@ int alignment = 4;
 
 class User32Surface : public AppSurface
 {
+	// This is a most generic window message handler.  If the window sub-class
+	// has a message handler, call that.
+	// Otherwise, call default Window's Procedure
 	static LRESULT CALLBACK ClassMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		LRESULT res = 0;
@@ -78,11 +81,14 @@ class User32Surface : public AppSurface
 
 	BLImage& getImage() { return fImage; }
 
-	LRESULT handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	// by default, don't do anything
+	// sub-classes should implement this
+	virtual LRESULT handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 
 	}
 
+	// Display back buffer to the screen
 	virtual void display()
 	{
 		LayeredWindowInfo lw(width(), height());

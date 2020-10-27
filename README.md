@@ -47,6 +47,11 @@ Examples
 * Project: [finalysis](projects/finalysis)
 * Notes: windows, file drop, file stream
 
+### fontsum
+<img src="docs/images/fontsum.png" alt="fontsum" width=240/></br>
+* Project: [fontsum](projects/fontsum)
+* Notes: font, text size
+
 ### lerpcolor
 <img src="docs/images/lerpcolor.png" alt="lerpcolor" width=240/></br>
 * Project: [lerpcolor](projects/lerpcolor)
