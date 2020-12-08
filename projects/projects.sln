@@ -120,6 +120,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "texcubes", "texcubes\texcub
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fontsum", "fontsum\fontsum.vcxproj", "{1B528FB1-27A5-4368-A582-766CC16D9FF3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calib", "calib\calib.vcxproj", "{6C570C9F-DA9C-4D60-A158-A3F291DCA020}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -544,6 +546,14 @@ Global
 		{1B528FB1-27A5-4368-A582-766CC16D9FF3}.Release|x64.Build.0 = Release|x64
 		{1B528FB1-27A5-4368-A582-766CC16D9FF3}.Release|x86.ActiveCfg = Release|Win32
 		{1B528FB1-27A5-4368-A582-766CC16D9FF3}.Release|x86.Build.0 = Release|Win32
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Debug|x64.ActiveCfg = Debug|x64
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Debug|x64.Build.0 = Debug|x64
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Debug|x86.ActiveCfg = Debug|Win32
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Debug|x86.Build.0 = Debug|Win32
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Release|x64.ActiveCfg = Release|x64
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Release|x64.Build.0 = Release|x64
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Release|x86.ActiveCfg = Release|Win32
+		{6C570C9F-DA9C-4D60-A158-A3F291DCA020}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

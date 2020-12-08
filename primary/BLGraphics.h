@@ -24,6 +24,8 @@ class BLGraphics : public IGraphics
     RECTMODE fRectMode = RECTMODE::CORNER;
 
     bool fUseFill = true;
+    // Drawing Attributes
+    double fDimensionScale = 1.0;
 
     // Text Stuff
     BLFontFace fFontFace;
@@ -214,6 +216,17 @@ public:
     void setCommandThreshold(int maxCommands)
     {
         fCommandThreshold = maxCommands;
+    }
+
+    // Set the underlying pixels per inch 
+    // as well as how many user space units per inch
+    // doing this will allow us to specify all graphics
+    // in some user specified units
+    inline void setPpiUnits(double ppi, double units)
+    {
+        fDimensionScale = ppi / units;
+        fCtx.scale(fDimensionScale);
+        fCtx.userToMeta();
     }
 
     // Various Modes

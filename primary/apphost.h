@@ -72,6 +72,7 @@ EXPORT extern std::shared_ptr<Surface> gAppSurface;
 EXPORT extern int displayWidth;
 EXPORT extern int displayHeight;
 EXPORT extern unsigned int systemDpi;
+EXPORT extern unsigned int systemPpi;
 
 EXPORT extern int canvasWidth;
 EXPORT extern int canvasHeight;

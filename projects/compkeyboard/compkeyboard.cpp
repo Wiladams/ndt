@@ -166,6 +166,8 @@ void drawNeutral(std::shared_ptr<IGraphics> ctx)
 
 void setup()
 {
+    gAppSurface->setPpiUnits(systemDpi, 96);
+
     createCanvas(800, 600);
     layered();
 

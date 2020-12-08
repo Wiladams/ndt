@@ -43,8 +43,6 @@ char **gargv;
 User32Window * gAppWindow = nullptr;
 std::shared_ptr<Surface>  gAppSurface = nullptr;
 
-
-//bool gRunning = true;
 bool gIsLayered = false;
 
 // Some globals friendly to the p5 environment
@@ -54,7 +52,8 @@ int canvasHeight = 0;
 
 int displayWidth = 0;
 int displayHeight= 0;
-unsigned int systemDpi = 96;
+unsigned int systemDpi = 96;    // 96 == px measurement
+unsigned int systemPpi = 192;   // starting pixel density
 
 // Client Area globals
 int clientLeft;
@@ -734,7 +733,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
         HRAWINPUT inputHandle = (HRAWINPUT)lParam;
         UINT uiCommand = RID_INPUT;
-        UINT cbSize;
+        UINT cbSize=0;
 
         // First, find out how much space will be needed
         UINT size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, nullptr, &cbSize, sizeof(RAWINPUTHEADER));
@@ -890,10 +889,7 @@ bool prolog()
     // set awareness based on monitor, and get change messages when it changes
     auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
     //auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
-
-    //DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     
-    // Set the awareness to system, only once at the beginning
     DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(dpiContext);
     
     //std::cout << "DPI AWARENESS: " << oldContext << std::endl;
@@ -903,7 +899,20 @@ bool prolog()
     auto dpiDpi = ::GetDpiFromDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     auto dpidisplayWidth = ::GetSystemMetricsForDpi(SM_CXSCREEN, systemDpi);
     auto dpidisplayHeight = ::GetSystemMetricsForDpi(SM_CYSCREEN, systemDpi);
-    //std::cout << "screen size: " << dpidisplayWidth << ", " << dpidisplayHeight << "  dpi: " << dpiDpi << std::endl;
+    std::cout << "screen pixels: " << dpidisplayWidth << ", " << dpidisplayHeight << "  dpi: " << dpiDpi << std::endl;
+
+    auto dhdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
+
+    auto screenWidth = ::GetDeviceCaps(dhdc, HORZSIZE)/25.4;
+    auto screenHeight = ::GetDeviceCaps(dhdc, VERTSIZE)/25.4;
+    auto pixelWidth = ::GetDeviceCaps(dhdc, LOGPIXELSX);
+    auto pixelHeight = ::GetDeviceCaps(dhdc, LOGPIXELSY);
+    double screenHPpi = (double)dpidisplayWidth / screenWidth;
+    double screenVPpi = (double)dpidisplayHeight / screenHeight;
+    systemPpi = (unsigned int)screenVPpi;
+
+    //std::cout << "screen size: " << screenWidth << ", " << screenHeight <<  std::endl;
+    //std::cout << "screen ppi: " << screenHPpi << ", " << screenVPpi << std::endl;
 
     displayWidth = ::GetSystemMetrics(SM_CXSCREEN);
     displayHeight = ::GetSystemMetrics(SM_CYSCREEN);

@@ -139,7 +139,7 @@ namespace p5 {
         gAppSurface->strokeJoin(join);
     }
 
-    void strokeWeight(int weight) noexcept
+    void strokeWeight(double weight) noexcept
     {
         gAppSurface->strokeWeight(weight);
     }
@@ -921,6 +921,10 @@ void onUnload()
 
 void onLoad()
 {
+    // setup the drawing context
+    // ppi and user units
+    gAppSurface->setPpiUnits(systemPpi, systemPpi);     // default to raw pixels
+
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
     // Setup initial frequency

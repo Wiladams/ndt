@@ -1,5 +1,9 @@
 #pragma once
 
+// Heads Up display for the ray tracing application
+// This displays the interface that allows you to render
+// different scenes
+//
 
 #include "guistyle.hpp"
 #include "Surface.h"
@@ -50,14 +54,15 @@ public:
 
         fSurface.translate(2, 2);
         fSurface.fill(Pixel(0, 0, 0));
-        // First row
+
+        // First row of buttons
         textRaised("F1 - Random", 0, 2, 116, 18);
         textRaised("F2 - Two Spheres", 120, 2, 116, 18);
         textRaised("F3 - Perlin Spheres", 240, 2, 116, 18);
         textRaised("F4 - Earth", 360, 2, 116, 18);
         textRaised("F5 - Simple Light", 480, 2, 116, 18);
 
-        // Second row
+        // Second row of buttons
         textRaised("F6 - Cornell Box", 0, 24, 116, 18);
         textRaised("F7 - Cornell Balls", 120, 24, 116, 18);
         textRaised("F8 - Cornell Smoke", 240, 24, 116, 18);
@@ -65,7 +70,7 @@ public:
         textRaised("F10 - Final Scene", 480, 24, 116, 18);
 
 
-        // Third Row - commands
+        // Third Row of buttons - commands
         fSurface.text(" S - Save", 0, 54);
         char buff[32];
         int buffLen = 32;

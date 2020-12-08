@@ -194,7 +194,7 @@ struct P5Vector {
     void blendMode(int mode) noexcept;
     void strokeCaps(int caps) noexcept;
     void strokeJoin(int join) noexcept;
-    void strokeWeight(int weight) noexcept;
+    void strokeWeight(double weight) noexcept;
 
     // clearing command cache
     void flush() noexcept;

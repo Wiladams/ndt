@@ -57,7 +57,7 @@ public:
 
         // select the DIBSection into the memory context so we can 
         // peform operations with it
-        SelectObject(fBitmapDC, fDIBHandle);
+        ::SelectObject(fBitmapDC, fDIBHandle);
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
@@ -71,9 +71,8 @@ public:
         createInfo.commandQueueLimit = 255;
         createInfo.threadCount = threadCount;
         bResult = getBlend2dContext().begin(fImage, createInfo);
-        //bResult = getBlend2dContext().begin(fImage);
 
-
+        // Start with a fill of white, and stroke of black
         getBlend2dContext().setFillStyle(BLRgba32(0xffffffff));
         getBlend2dContext().setStrokeStyle(BLRgba32(0xff000000));
     }
@@ -81,26 +80,24 @@ public:
     virtual ~Surface()
     {
         fImage.reset();
+
+        // BUGBUG
+        // unload the dib section
+        // and destroy it
     }
 
-    long getWidth() { return fWidth; }
-    long getHeight() { return fHeight; }
-    Pixel * getData() { return (Pixel *)fData; }
+    inline long getWidth() { return fWidth; }
+    inline long getHeight() { return fHeight; }
+    inline Pixel * getData() { return (Pixel *)fData; }
 
     // Calculate whether a point is whithin our bounds
-    bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
+    inline bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
 
-    BITMAPINFO getBitmapInfo()
-    {
-        return fBMInfo;
-    }
+    inline BITMAPINFO getBitmapInfo() {return fBMInfo;}
 
-    HDC getDC()
-    {
-        return fBitmapDC;
-    }
+    inline HDC getDC() {return fBitmapDC;}
 
-    BLImage& getImage()
+    inline BLImage& getImage()
     {
         return fImage;
     }
@@ -123,4 +120,6 @@ public:
         int offset = (y * fWidth) + x;
         return ((Pixel *)fData)[offset];
     }
+
+
  };
