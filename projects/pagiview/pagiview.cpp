@@ -4,7 +4,7 @@
 
 using namespace p5;
 
-GView mainView(BLRect(100, 100, 300, 300));
+PageView mainView(BLRect(100, 100, 300, 300));
 
 void setup()
 {

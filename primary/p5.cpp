@@ -52,6 +52,7 @@ namespace p5 {
 
     int width = 0;              // width of the canvas
     int height = 0;             // height of the canvas
+
     int frameCount = 0;         // how many frames drawn so far
     int droppedFrames = 0;
 
@@ -611,6 +612,9 @@ namespace p5 {
     {
         width = aWidth;
         height = aHeight;
+
+        //canvasWidth = aWidth;
+        //canvasHeight = aHeight;
 
         setCanvasSize(aWidth, aHeight);
 

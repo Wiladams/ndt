@@ -1,12 +1,22 @@
 
+/*
+    The primary function of this file is to act as a bridge between 
+    the Windows environment, and our desired, fairly platform independent
+    application environment.
+
+    All you need to setup a Windows application is this file.  It will 
+    operate either in console, or Windows mode.
+
+    This file deals with user input (mouse, keyboard, pointer, joystick, touch)
+    initiating a pub/sub system for applications to subscribe to.
+*/
 
 #include "apphost.h"
 
 #include "LayeredWindow.hpp"
 #include "joystick.h"
-#include "stopwatch.hpp"
 
-#include <shellapi.h>
+#include <shellapi.h>   // for drag-drop support
 
 #include <cstdio>
 #include <array>
@@ -107,8 +117,6 @@ void HID_UnregisterDevice(USHORT usage)
 // Controlling drawing
 void screenRefresh()
 {
-    //std::cout << "windowRefresh" << std::endl;
-
     if ((gAppSurface == nullptr)) {
         printf("forceRedraw, NULL PTRs\n");
         return;
@@ -141,7 +149,7 @@ void hide()
 
 void cursor()
 {
-    int count = ShowCursor(1);
+    int count = ::ShowCursor(1);
 }
 
 // Show the cursor, if there is one
@@ -151,7 +159,7 @@ void cursor()
 // the cursor absolute rather than relative.
 void noCursor()
 {
-    ShowCursor(0);
+    ::ShowCursor(0);
 }
 
 
@@ -196,7 +204,6 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-
 /*
     Turn Windows mouse messages into mouse events which can
     be dispatched by the application.
@@ -208,8 +215,6 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     e.x = GET_X_LPARAM(lParam);
     e.y = GET_Y_LPARAM(lParam);
-
-    //printf("mouseHandler: 0x%04x  %d %d\n", msg, mouseX, mouseY);
 
     e.control = (wParam & MK_CONTROL) != 0;
     e.shift = (wParam& MK_SHIFT) != 0;
@@ -576,7 +581,7 @@ void registerHandlers()
 {
     // we're going to look within our own module
     // to find handler functions
-    HMODULE hInst = GetModuleHandleA(NULL);
+    HMODULE hInst = ::GetModuleHandleA(NULL);
 
     // Start with our default message handlers
     gPaintHandler = HandlePaintMessage;
@@ -585,14 +590,14 @@ void registerHandlers()
     // The user can specify their own handlers for io and
     // painting.  If they don't specify a handler, then use
     // the ones that are inbuilt.
-    WinMSGObserver handler = (WinMSGObserver)GetProcAddress(hInst, "onPaint");
+    WinMSGObserver handler = (WinMSGObserver)::GetProcAddress(hInst, "onPaint");
     if (handler != nullptr) {
         gPaintHandler = handler;
     }
 
     // Get the general app routines
-    gOnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onLoad");
-    gOnUnloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "onUnload");
+    gOnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onLoad");
+    gOnUnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onUnload");
 }
 
 
@@ -600,7 +605,7 @@ void registerHandlers()
 
 // Controlling the runtime
 void halt() {
-    PostQuitMessage(0);
+    ::PostQuitMessage(0);
 }
 
 
@@ -635,20 +640,20 @@ void noJoystick()
 // Turning Touch input on and off
 bool touch()
 {
-    BOOL bResult = RegisterTouchWindow(gAppWindow->getHandle(), 0);
+    BOOL bResult = ::RegisterTouchWindow(gAppWindow->getHandle(), 0);
     return (bResult != 0);
 }
 
 bool noTouch()
 {
-    BOOL bResult = UnregisterTouchWindow(gAppWindow->getHandle());
+    BOOL bResult = ::UnregisterTouchWindow(gAppWindow->getHandle());
     return (bResult != 0);
 }
 
 bool isTouch()
 {
     ULONG flags = 0;
-    BOOL bResult = IsTouchWindow(gAppWindow->getHandle(), &flags);
+    BOOL bResult = ::IsTouchWindow(gAppWindow->getHandle(), &flags);
     return (bResult != 0);
 }
 
@@ -769,7 +774,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // By doing a PostQuitMessage(), a 
         // WM_QUIT message will eventually find its way into the
         // message queue.
-        PostQuitMessage(0);
+        ::PostQuitMessage(0);
         return 0;
     }
     else if ((msg >= WM_KEYFIRST) && (msg <= WM_KEYLAST)) {
@@ -809,14 +814,14 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            res = DefWindowProcA(hWnd, msg, wParam, lParam);
+            res = ::DefWindowProcA(hWnd, msg, wParam, lParam);
         }
     }
     else if (msg == WM_DROPFILES) {
         HandleFileDropMessage(hWnd, msg, wParam, lParam);
     }
     else {
-        res = DefWindowProcA(hWnd, msg, wParam, lParam);
+        res = ::DefWindowProcA(hWnd, msg, wParam, lParam);
     }
 
     return res;
@@ -851,8 +856,8 @@ void run()
                 break;
             }
 
-            res = TranslateMessage(&msg);
-            res = DispatchMessageA(&msg);
+            res = ::TranslateMessage(&msg);
+            res = ::DispatchMessageA(&msg);
         }
     }
     
@@ -881,7 +886,7 @@ bool prolog()
     // BUGBUG - decide whether or not we care about WSAStartup failing
     uint16_t version = MAKEWORD(2,2);
     WSADATA lpWSAData;
-    int res = WSAStartup(version, &lpWSAData);
+    int res = ::WSAStartup(version, &lpWSAData);
 
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the
@@ -926,7 +931,7 @@ bool prolog()
 
     // Get client area
     RECT cRect;
-    GetClientRect(gAppWindow->getHandle(), &cRect);
+    ::GetClientRect(gAppWindow->getHandle(), &cRect);
     clientLeft = cRect.left;
     clientTop = cRect.top;
 
@@ -941,7 +946,7 @@ void epilog()
         gOnUnloadHandler();
     }
 
-    WSACleanup();
+    ::WSACleanup();
 }
 
 

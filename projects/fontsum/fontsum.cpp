@@ -11,15 +11,15 @@ struct LineEntry {
     size_t lineHeight;
 };
 
-std::array<LineEntry, 8> const lines { {
+std::array<LineEntry, 7> const lines { {
 {12, 16 },
-{18, 24 },
-{24, 36 },
-{36, 48 },
-{48, 60 },
-{60, 72 },
-{72, 96 },
-{96, 120 } } };
+{18, 18 },
+{24, 24 },
+{36, 36 },
+{48, 48 },
+{60, 60 },
+{72, 72 },
+} };
 
 
 class GFontSummary : public Graphic
@@ -29,7 +29,7 @@ class GFontSummary : public Graphic
 public:
     BLSizeI static getPrefferedSize()
     {
-        return { 1280, 768 };
+        return { 3000, 1024 };
     }
 
 
@@ -52,9 +52,9 @@ public:
 
         // Get line stroking done first
         ctx->stroke(0);
-        ctx->strokeWeight(1);
+        ctx->strokeWeight(0.25);
         ctx->line(0, 52, fFrame.w, 52);
-        ctx->line(0, 110, fFrame.w, 110);
+        ctx->line(0, 93.5, fFrame.w, 93.5);
 
 
 
@@ -66,35 +66,34 @@ public:
         ctx->textFont("consolas");
         
 
-        ctx->textSize(12);
-
+        ctx->textSize(8);
         ctx->text("Font Name", 2, 10);
-        ctx->text("Version:", 2, 26);
-        ctx->text("Attributes", 2, 42);
+        ctx->text("Version:", 2, 24);
+        ctx->text("Attributes", 2, 36);
         
 
 
         ctx->textFont(fontFamily.c_str());
-        ctx->textSize(18);
-        ctx->text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 76);
-        ctx->text("1234567890.:,; ' \" (!?) +-*/=", 2, 96);
+        ctx->textSize(14);
+        ctx->text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 67);
+        ctx->text("1234567890.:,; ' \" (!?) +-*/=", 2, 85);
         
-        ctx->translate(0, 110);
+        ctx->translate(0, 90);
 
         for (size_t i = 0; i < lines.size(); i++) {
             auto line = lines[i];
-            //ctx->translate(0, line.lineHeight * 1.5);
             ctx->translate(0, line.lineHeight);
 
             //draw the size indicator
             ctx->textFont("segoe ui");
             ctx->textSize(12);
-            ctx->text(std::to_string(line.size).c_str(), 2, 0);
+            //ctx->text(std::to_string(line.size).c_str(), 0, 0);
 
             // Draw the line of text
             ctx->textFont(fontFamily.c_str());
             ctx->textSize(line.size);
-            ctx->text(lineText.c_str(), 40, 0);
+            //ctx->text(lineText.c_str(), 40, 0);
+            ctx->text(lineText.c_str(), 0, 0);
         }
 
         ctx->pop();
@@ -119,7 +118,10 @@ void draw()
 
 void setup()
 {
-    createCanvas(1024, 768);
+    createCanvas(3000, 1024);
+
+    // Set user space units to be 96/inch
+    gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
 }
 
 

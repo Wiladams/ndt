@@ -189,7 +189,7 @@ void draw()
     r1->update();
 
     // get current screen snapshot
-    snapper->moveNext();
+    snapper->next();
     Surface &surf = snapper->getCurrent();
 
     loadPixels();

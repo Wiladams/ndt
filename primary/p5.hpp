@@ -24,47 +24,62 @@
 
 #include <memory>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    // Some generic function signatures
+    typedef void (*KeyEventHandler)(const KeyboardEvent& e);
+    typedef void (*MouseEventHandler)(const MouseEvent& e);
+    typedef void (*JoystickEventHandler)(const JoystickEvent& e);
+    typedef void (*TouchEventHandler)(const TouchEvent& e);
+    typedef void (*PointerEventHandler)(const PointerEvent& e);
+    typedef void (*FileDropEventHandler)(const FileDropEvent& e);
+#ifdef __cplusplus
+}
+#endif
+
 // Things a p5 based application can implement
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    EXPORT void draw();
-    EXPORT void setup();
-    EXPORT void update(const double dt);
+    APP_EXPORT void draw();
+    APP_EXPORT void setup();
+    APP_EXPORT void update(const double dt);
 
 // IO Event Handlers
 
 // keyboard event processing
-EXPORT void keyPressed(const KeyboardEvent& e);
-EXPORT void keyReleased(const KeyboardEvent& e);
-EXPORT void keyTyped(const KeyboardEvent& e);
+    APP_EXPORT void keyPressed(const KeyboardEvent& e);
+    APP_EXPORT void keyReleased(const KeyboardEvent& e);
+    APP_EXPORT void keyTyped(const KeyboardEvent& e);
 
 // mouse event processing
-EXPORT void mouseClicked(const MouseEvent& e);
-EXPORT void mouseDragged(const MouseEvent& e);
-EXPORT void mouseMoved(const MouseEvent& e);
-EXPORT void mousePressed(const MouseEvent& e);
-EXPORT void mouseReleased(const MouseEvent& e);
-EXPORT void mouseWheel(const MouseEvent& e);
+    APP_EXPORT void mouseClicked(const MouseEvent& e);
+    APP_EXPORT void mouseDragged(const MouseEvent& e);
+    APP_EXPORT void mouseMoved(const MouseEvent& e);
+    APP_EXPORT void mousePressed(const MouseEvent& e);
+    APP_EXPORT void mouseReleased(const MouseEvent& e);
+    APP_EXPORT void mouseWheel(const MouseEvent& e);
 
 // Handle Joystick events
-EXPORT void joyPressed(const JoystickEvent& e);
-EXPORT void joyReleased(const JoystickEvent& e);
-EXPORT void joyMoved(const JoystickEvent& e);
-EXPORT void joyMovedZ(const JoystickEvent& e);
+    APP_EXPORT void joyPressed(const JoystickEvent& e);
+    APP_EXPORT void joyReleased(const JoystickEvent& e);
+    APP_EXPORT void joyMoved(const JoystickEvent& e);
+    APP_EXPORT void joyMovedZ(const JoystickEvent& e);
 
 // Touch Events
-EXPORT void touchStarted(const TouchEvent& e);
-EXPORT void touchEnded(const TouchEvent& e);
-EXPORT void touchMoved(const TouchEvent& e);
-EXPORT void touchHover(const TouchEvent& e);
+    APP_EXPORT void touchStarted(const TouchEvent& e);
+    APP_EXPORT void touchEnded(const TouchEvent& e);
+    APP_EXPORT void touchMoved(const TouchEvent& e);
+    APP_EXPORT void touchHover(const TouchEvent& e);
 
 // Pointer Events
 
 // File Drop events
-EXPORT void fileDrop(const FileDropEvent& e);
+    APP_EXPORT void fileDrop(const FileDropEvent& e);
 
 #ifdef __cplusplus
 }
@@ -76,29 +91,36 @@ namespace p5 {
 #ifdef __cplusplus
 extern "C" {
 #endif
-    EXPORT extern int width;
-    EXPORT extern int height;
-    EXPORT extern int frameCount;
-    EXPORT extern int droppedFrames;
+    // Size of the application area, set through
+    // createCanvas()
+    APP_EXPORT extern int width;
+    APP_EXPORT extern int height;
 
-    EXPORT extern Pixel* pixels;
+    APP_EXPORT extern int frameCount;
+    APP_EXPORT extern int droppedFrames;
+
+    APP_EXPORT extern Pixel* pixels;
 
     // Keyboard Globals
-    EXPORT extern int keyCode;
-    EXPORT extern int keyChar;
+    APP_EXPORT extern int keyCode;
+    APP_EXPORT extern int keyChar;
 
     // Mouse Globals
-    EXPORT extern bool mouseIsPressed;
-    EXPORT extern int mouseX;
-    EXPORT extern int mouseY;
-    EXPORT extern int mouseDelta;
-    EXPORT extern int pmouseX;
-    EXPORT extern int pmouseY;
+    APP_EXPORT extern bool mouseIsPressed;
+    APP_EXPORT extern int mouseX;
+    APP_EXPORT extern int mouseY;
+    APP_EXPORT extern int mouseDelta;
+    APP_EXPORT extern int pmouseX;
+    APP_EXPORT extern int pmouseY;
 
 
 #ifdef __cplusplus
 }
 #endif
+
+
+
+
 
 struct P5Vector {
     double x;
@@ -302,7 +324,7 @@ struct P5Vector {
     void createCanvas(long aWidth, long aHeight, const char *title="Application") noexcept;
     void fullscreen() noexcept;
     bool isFullscreen() noexcept;
-    Surface * createSurface(long aWidth, long aHeight) noexcept;
+    //Surface * createSurface(long aWidth, long aHeight) noexcept;
 
     void loadPixels() noexcept;
     void updatePixels() noexcept;

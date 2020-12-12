@@ -28,13 +28,34 @@
 #include <ws2tcpip.h>
 #include <mmsystem.h>
 
-#include "appconfig.h"
-//#include "bitbang.h"
+#if defined(_WIN32) || defined(_WIN64)
+#define NDT_IS_WINDOWS
+#endif
+
+#if defined(_MSC_VER)
+#define NDT_IS_MSVC
+#endif
+
+#if BUILD_AS_DLL
+#define APP_API		__declspec(dllexport)
+#else
+//  #define APP_API		__declspec(dllimport)
+#define APP_API
+#endif
+
+#define APP_EXPORT		__declspec(dllexport)
+//#define APP_EXPORT
+
+#define APP_INLINE  static inline
+#define APP_EXTERN  extern
+
+
+#include "pubsub.h"
 #include "NativeWindow.hpp"
 #include "Surface.h"
 #include "joystick.h"
 #include "uievent.h"
-#include "pubsub.h"
+
 
 #include <stdio.h>
 #include <string>
@@ -45,7 +66,7 @@
 // function in the .dll using GetProcAddress
 // So, if that's needed, just put EXPORT at the front
 // of a declaration.
-#define EXPORT __declspec(dllexport)
+//#define EXPORT __declspec(dllexport)
 
 
 #ifdef __cplusplus
@@ -57,70 +78,70 @@ typedef void (* VOIDROUTINE)();
 typedef void (*PFNDOUBLE1)(const double param);
 
 // Miscellaneous globals
-EXPORT extern int gargc;
-EXPORT extern char **gargv;
+APP_EXPORT extern int gargc;
+APP_EXPORT extern char **gargv;
 
 
-EXPORT extern User32Window * gAppWindow;
-EXPORT extern std::shared_ptr<Surface> gAppSurface;
+APP_EXPORT extern User32Window * gAppWindow;
+APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
 
 //EXPORT extern bool gRunning;
 
 
 // Globals we expect the user to consume
-EXPORT extern int displayWidth;
-EXPORT extern int displayHeight;
-EXPORT extern unsigned int systemDpi;
-EXPORT extern unsigned int systemPpi;
+APP_EXPORT extern int displayWidth;
+APP_EXPORT extern int displayHeight;
+APP_EXPORT extern unsigned int systemDpi;
+APP_EXPORT extern unsigned int systemPpi;
 
-EXPORT extern int canvasWidth;
-EXPORT extern int canvasHeight;
+APP_EXPORT extern int canvasWidth;
+APP_EXPORT extern int canvasHeight;
 
 
 
 // These are typically implemented by
 // an app framework
-EXPORT void onLoad();	// upon loading application
-EXPORT void onUnload();
+APP_EXPORT void onLoad();	// upon loading application
+APP_EXPORT void onUnload();
 
 
 // Controlling the runtime
-EXPORT void showAppWindow();
-EXPORT void halt();
+APP_EXPORT void showAppWindow();
+APP_EXPORT void halt();
 
 //EXPORT void forceRedraw(void* param, int64_t tickCount);
-EXPORT void screenRefresh();
+APP_EXPORT void screenRefresh();
 
-EXPORT void layered();
-EXPORT void noLayered();
-EXPORT bool isLayered();
+APP_EXPORT void layered();
+APP_EXPORT void noLayered();
+APP_EXPORT bool isLayered();
 
-EXPORT void rawInput();
-EXPORT void noRawInput();
+APP_EXPORT void rawInput();
+APP_EXPORT void noRawInput();
 
-EXPORT void joystick();
-EXPORT void noJoystick();
+APP_EXPORT void joystick();
+APP_EXPORT void noJoystick();
 
 // Touch routines apps can implement
-EXPORT bool touch();
-EXPORT bool noTouch();
-EXPORT bool isTouch();
+APP_EXPORT bool touch();
+APP_EXPORT bool noTouch();
+APP_EXPORT bool isTouch();
 
 // Turn on/off file drop handling
-EXPORT bool dropFiles();
-EXPORT bool noDropFiles();
+APP_EXPORT bool dropFiles();
+APP_EXPORT bool noDropFiles();
 
-EXPORT void cursor();
-EXPORT void noCursor();
+APP_EXPORT void cursor();
+APP_EXPORT void noCursor();
 
-EXPORT void show();
-EXPORT void hide();
+APP_EXPORT void show();
+APP_EXPORT void hide();
 
 
 
-EXPORT void setWindowPosition(int x, int y);
-EXPORT bool setCanvasSize(long aWidth, long aHeight);
+APP_EXPORT void setWindowPosition(int x, int y);
+APP_EXPORT bool setCanvasSize(long aWidth, long aHeight);
 
 
 #ifdef __cplusplus
@@ -130,10 +151,20 @@ EXPORT bool setCanvasSize(long aWidth, long aHeight);
 // Make Topic publishers available
 using SignalEventTopic = Topic<intptr_t>;
 
-EXPORT void subscribe(SignalEventTopic::Subscriber s);
-EXPORT void subscribe(MouseEventTopic::Subscriber s);
-EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
-EXPORT void subscribe(JoystickEventTopic::Subscriber s);
-EXPORT void subscribe(FileDropEventTopic::Subscriber s);
-EXPORT void subscribe(TouchEventTopic::Subscriber s);
-EXPORT void subscribe(PointerEventTopic::Subscriber s);
+
+// Doing C++ pub/sub
+using MouseEventTopic = Topic<MouseEvent&>;
+using KeyboardEventTopic = Topic<KeyboardEvent&>;
+using JoystickEventTopic = Topic<JoystickEvent&>;
+using FileDropEventTopic = Topic<FileDropEvent&>;
+using TouchEventTopic = Topic<TouchEvent&>;
+using PointerEventTopic = Topic<PointerEvent&>;
+
+
+APP_EXPORT void subscribe(SignalEventTopic::Subscriber s);
+APP_EXPORT void subscribe(MouseEventTopic::Subscriber s);
+APP_EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
+APP_EXPORT void subscribe(JoystickEventTopic::Subscriber s);
+APP_EXPORT void subscribe(FileDropEventTopic::Subscriber s);
+APP_EXPORT void subscribe(TouchEventTopic::Subscriber s);
+APP_EXPORT void subscribe(PointerEventTopic::Subscriber s);

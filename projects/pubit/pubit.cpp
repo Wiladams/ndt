@@ -3,10 +3,7 @@
 	print out simple messages when data available
 */
 
-#include "p5.hpp"
-#include "pubsub.h"
-
-using namespace p5;
+#include "apphost.h"
 
 
 void keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
@@ -24,7 +21,7 @@ void joystickSubscriber(const JoystickEventTopic& p, const JoystickEvent& e)
 	std::cout << "joystickSubscriber: " << e.activity << ", " << e.z << std::endl;
 }
 
-void setup()
+void onLoad()
 {
 	joystick();		// turn on joystick messages
 
