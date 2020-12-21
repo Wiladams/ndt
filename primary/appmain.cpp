@@ -575,30 +575,6 @@ void subscribe(PointerEventTopic::Subscriber s)
     gPointerEventTopic.subscribe(s);
 }
 
-// Setup the routines that will handle
-// keyboard and mouse events
-void registerHandlers()
-{
-    // we're going to look within our own module
-    // to find handler functions
-    HMODULE hInst = ::GetModuleHandleA(NULL);
-
-    // Start with our default message handlers
-    gPaintHandler = HandlePaintMessage;
-
-
-    // The user can specify their own handlers for io and
-    // painting.  If they don't specify a handler, then use
-    // the ones that are inbuilt.
-    WinMSGObserver handler = (WinMSGObserver)::GetProcAddress(hInst, "onPaint");
-    if (handler != nullptr) {
-        gPaintHandler = handler;
-    }
-
-    // Get the general app routines
-    gOnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onLoad");
-    gOnUnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onUnload");
-}
 
 
 
@@ -827,13 +803,45 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
+//
+// Look for the dynamic routines that will be used
+// to setup client applications.
+// Most notable is 'onLoad()' and 'onUnload'
+//
+void registerHandlers()
+{
+    // we're going to look within our own module
+    // to find handler functions.  This is because the user's application should
+    // be compiled with the application, so the exported functions should
+    // be attainable using 'GetProcAddress()'
+
+    HMODULE hInst = ::GetModuleHandleA(NULL);
+
+    // Start with our default paint message handler
+    gPaintHandler = HandlePaintMessage;
+
+
+    // One of the primary handlers the user can specify is 'onPaint'.  
+    // If implemented, this function will be called whenever a WM_PAINT message
+    // is seen by the application.
+    WinMSGObserver handler = (WinMSGObserver)::GetProcAddress(hInst, "onPaint");
+    if (handler != nullptr) {
+        gPaintHandler = handler;
+    }
+
+    // Get the general app routines
+    // onLoad()
+    gOnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onLoad");
+    gOnUnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onUnload");
+}
+
 
 void run()
 {
     // Make sure we have all the event handlers connected
     registerHandlers();
 
-    // call the application's 'onLoad()'
+    // call the application's 'onLoad()' if it exists
     if (gOnloadHandler != nullptr) {
         gOnloadHandler();
     }

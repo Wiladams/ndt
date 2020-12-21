@@ -78,11 +78,16 @@ public:
         ctx->text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 67);
         ctx->text("1234567890.:,; ' \" (!?) +-*/=", 2, 85);
         
-        ctx->translate(0, 90);
+        ctx->translate(4, 90);
 
         for (size_t i = 0; i < lines.size(); i++) {
             auto line = lines[i];
             ctx->translate(0, line.lineHeight);
+
+            // draw lines showing our baseline
+            ctx->stroke(255, 0, 0);
+            ctx->line(0, 0, width, 0);
+            ctx->line(0, 0, 0, -((double)line.lineHeight)*0.85);
 
             //draw the size indicator
             ctx->textFont("segoe ui");
@@ -90,6 +95,8 @@ public:
             //ctx->text(std::to_string(line.size).c_str(), 0, 0);
 
             // Draw the line of text
+            ctx->noStroke();
+            ctx->fill(0);
             ctx->textFont(fontFamily.c_str());
             ctx->textSize(line.size);
             //ctx->text(lineText.c_str(), 40, 0);
@@ -109,7 +116,8 @@ void draw()
 
     //GFontSummary s("algerian");
     //GFontSummary s("d:\\Fonts\\Old Copperfield.ttf");
-    GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
+    //GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
+    GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
 
     s.draw(gAppSurface);
 
@@ -118,7 +126,7 @@ void draw()
 
 void setup()
 {
-    createCanvas(3000, 1024);
+    createCanvas(3000, 1280);
 
     // Set user space units to be 96/inch
     gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
