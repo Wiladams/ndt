@@ -102,6 +102,20 @@ public:
         return fImage;
     }
 
+    inline void set(int x, int y, uint32_t c)
+    {
+        // reject pixel if out of boundary
+        if ((x < 0) || (x >= fWidth) ||
+            (y < 0) || (y >= fHeight)){
+            return;
+        }
+
+
+        int offset = (int)(y * fWidth) + (int)x;
+        ((uint32_t*)fData)[offset] = c;
+
+    }
+
     inline void set(int x, int y, const Pixel& c)
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);

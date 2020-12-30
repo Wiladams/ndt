@@ -20,8 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{08F18825-9E63-4BD0-9B1C-53E8D94EFB67}</ProjectGuid>
-    <RootNamespace>primary</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{f1652531-1773-4a1d-bfd4-3f365e6bd689}</ProjectGuid>
+    <RootNamespace>loopy</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -69,45 +70,43 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>blend2d.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -117,16 +116,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\primary</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>blend2d.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -134,105 +130,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\primary</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>blend2d.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="aabb.h" />
-    <ClInclude Include="appconfig.h" />
-    <ClInclude Include="apphost.h" />
-    <ClInclude Include="appsurface.h" />
-    <ClInclude Include="arcball.h" />
-    <ClInclude Include="bezier.hpp" />
-    <ClInclude Include="binops.h" />
-    <ClInclude Include="binstream.hpp" />
-    <ClInclude Include="bitbang.h" />
-    <ClInclude Include="blend2d.h" />
-    <ClInclude Include="BLGraphics.h" />
-    <ClInclude Include="canvas.h" />
-    <ClInclude Include="codec_targa.hpp" />
-    <ClInclude Include="coloring.h" />
-    <ClInclude Include="colorsampler.h" />
-    <ClInclude Include="computicle.hpp" />
-    <ClInclude Include="definitions.h" />
-    <ClInclude Include="dproc_gl.h" />
-    <ClInclude Include="drawable.h" />
-    <ClInclude Include="dxcapture.h" />
-    <ClInclude Include="Event.hpp" />
-    <ClInclude Include="FastNoise.h" />
-    <ClInclude Include="filestream.h" />
-    <ClInclude Include="filesys.h" />
-    <ClInclude Include="framestats.h" />
-    <ClInclude Include="functor.hpp" />
-    <ClInclude Include="GMesh.h" />
-    <ClInclude Include="gpath.h" />
-    <ClInclude Include="graphic.hpp" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="GraphicsDecoder.hpp" />
-    <ClInclude Include="GraphicsEncoder.hpp" />
-    <ClInclude Include="grmath.h" />
-    <ClInclude Include="guistyle.hpp" />
-    <ClInclude Include="gview.h" />
-    <ClInclude Include="gwindow.h" />
-    <ClInclude Include="imagesampler.h" />
-    <ClInclude Include="IShader.h" />
-    <ClInclude Include="joystick.h" />
-    <ClInclude Include="LayeredWindow.hpp" />
-    <ClInclude Include="layout.h" />
-    <ClInclude Include="List.hpp" />
-    <ClInclude Include="math3d.h" />
-    <ClInclude Include="maths.hpp" />
-    <ClInclude Include="mmap.hpp" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="MotionConstraint.h" />
-    <ClInclude Include="MVP3D.h" />
-    <ClInclude Include="NativeWindow.hpp" />
-    <ClInclude Include="Network.hpp" />
-    <ClInclude Include="p5.hpp" />
-    <ClInclude Include="pcap.hpp" />
-    <ClInclude Include="perlin.h" />
-    <ClInclude Include="pubsub.h" />
-    <ClInclude Include="random.hpp" />
-    <ClInclude Include="Recorder.hpp" />
-    <ClInclude Include="sampler.hpp" />
-    <ClInclude Include="screensnapshot.hpp" />
-    <ClInclude Include="secondtime.h" />
-    <ClInclude Include="slider.h" />
-    <ClInclude Include="Stack.hpp" />
-    <ClInclude Include="stopwatch.hpp" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="TcpClient.hpp" />
-    <ClInclude Include="TcpServer.hpp" />
-    <ClInclude Include="TextBox.hpp" />
-    <ClInclude Include="textscan.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="Thread.hpp" />
-    <ClInclude Include="threed.h" />
-    <ClInclude Include="ticktopic.h" />
-    <ClInclude Include="trianglemesh.h" />
-    <ClInclude Include="uievent.h" />
-    <ClInclude Include="user32surface.h" />
-    <ClInclude Include="vec3.h" />
-    <ClInclude Include="VfwCameraDevice.hpp" />
-    <ClInclude Include="VfwCaptureDevice.hpp" />
-    <ClInclude Include="waveobjloader.h" />
-    <ClInclude Include="winapcan.h" />
-    <ClInclude Include="windowlayout.h" />
-    <ClInclude Include="windowmgr.h" />
-    <ClInclude Include="winminap.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="appmain.cpp" />
-    <ClCompile Include="grmath.cpp" />
-    <ClCompile Include="math3d.cpp" />
-    <ClCompile Include="p5.cpp" />
-    <ClCompile Include="primary.cpp" />
-    <ClCompile Include="winminap.cpp" />
+    <ClCompile Include="..\..\primary\appmain.cpp" />
+    <ClCompile Include="loopy.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

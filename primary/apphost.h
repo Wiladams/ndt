@@ -100,13 +100,21 @@ APP_EXPORT extern int canvasHeight;
 
 
 
-// These are typically implemented by
-// an app framework
+// The various 'onxxx' routines are meant to be implemented by
+// application environment code.  If they are implemented
+// the ndt runtime will load them in and call them at appropriate times
+// if they are not implemented, they simply won't be called.
 APP_EXPORT void onLoad();	// upon loading application
 APP_EXPORT void onUnload();
 
+APP_EXPORT void onLoop();	// called each time through application main loop
 
-// Controlling the runtime
+
+// The following routines are part of the ndt runtime, and are called
+// by the implementing application.
+// The control the lifetime of the environment, creation of primary window
+// and whether various parts of the IO system are present
+
 APP_EXPORT void showAppWindow();
 APP_EXPORT void halt();
 

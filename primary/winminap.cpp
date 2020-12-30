@@ -1,17 +1,27 @@
 
 /*
-    The primary function of this file is to act as a bridge between 
-    the Windows environment, and our desired, fairly platform independent
-    application environment.
+    This is the absolute bare minimum required to run an 
+    app on the Windows platform.
 
-    All you need to setup a Windows application is this file.  It will 
-    operate either in console, or Windows mode.
+    To create an app, compile this file into your application
+    and implement a "onLoad()" function.
 
-    This file deals with user input (mouse, keyboard, pointer, joystick, touch)
-    initiating a pub/sub system for applications to subscribe to.
+    There are a couple of functions provided by this runtime,
+    but most of the interaction is through topics, so you subscribe
+    to a topic to get things like UI messages.
+
+    Facilities available
+        onLoad()
+        onUnload()
+
+        halt()          -- call this when you want to stop
+
+
+    createSysWindow(int w, int h, bool layered)
+
 */
 
-#include "apphost.h"
+#include "winminap.h"
 
 #include "LayeredWindow.hpp"
 #include "joystick.h"
@@ -25,7 +35,7 @@
 
 // Some function signatures
 // WinMSGObserver - Function signature for Win32 message handler
-typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+typedef LRESULT(*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 // Application routines
@@ -49,10 +59,10 @@ PointerEventTopic gPointerEventTopic;
 
 // Miscellaneous globals
 int gargc;
-char **gargv;
+char** gargv;
 
 
-User32Window * gAppWindow = nullptr;
+User32Window* gAppWindow = nullptr;
 std::shared_ptr<Surface>  gAppSurface = nullptr;
 
 bool gIsLayered = false;
@@ -63,7 +73,7 @@ int canvasWidth = 0;
 int canvasHeight = 0;
 
 int displayWidth = 0;
-int displayHeight= 0;
+int displayHeight = 0;
 unsigned int systemDpi = 96;    // 96 == px measurement
 unsigned int systemPpi = 192;   // starting pixel density
 
@@ -169,7 +179,7 @@ void noCursor()
 
 
 /*
-    Turn Windows keyboard messages into keyevents that can 
+    Turn Windows keyboard messages into keyevents that can
     more easily be handled at the application level
 */
 LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -177,30 +187,30 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     LRESULT res = 0;
     KeyboardEvent e;
     e.keyCode = (int)wParam;
-    e.repeatCount =LOWORD(lParam);  // 0 - 15
+    e.repeatCount = LOWORD(lParam);  // 0 - 15
     e.scanCode = ((lParam & 0xff0000) >> 16);        // 16 - 23
     e.isExtended = (lParam & 0x1000000) != 0;    // 24
     e.wasDown = (lParam & 0x40000000) != 0;    // 30
 
 //printf("HandleKeyboardMessage: %04x\n", msg);
 
-    switch(msg) {
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-            e.activity = KEYPRESSED;
+    switch (msg) {
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+        e.activity = KEYPRESSED;
 
-            break;
-        case WM_KEYUP:
-        case WM_SYSKEYUP:
-            e.activity = KEYRELEASED;
+        break;
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        e.activity = KEYRELEASED;
 
-            break;
-        case WM_CHAR:
-        case WM_SYSCHAR:
-            e.activity = KEYTYPED;
-            break;
+        break;
+    case WM_CHAR:
+    case WM_SYSCHAR:
+        e.activity = KEYTYPED;
+        break;
     }
-    
+
     // publish keyboard event
     gKeyboardEventTopic.notify(e);
 
@@ -213,7 +223,7 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     be dispatched by the application.
 */
 LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{   
+{
     LRESULT res = 0;
     MouseEvent e;
 
@@ -221,7 +231,7 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.y = GET_Y_LPARAM(lParam);
 
     e.control = (wParam & MK_CONTROL) != 0;
-    e.shift = (wParam& MK_SHIFT) != 0;
+    e.shift = (wParam & MK_SHIFT) != 0;
     e.lbutton = (wParam & MK_LBUTTON) != 0;
     e.rbutton = (wParam & MK_RBUTTON) != 0;
     e.mbutton = (wParam & MK_MBUTTON) != 0;
@@ -229,35 +239,35 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.xbutton2 = (wParam & MK_XBUTTON2) != 0;
     bool isPressed = e.lbutton || e.rbutton || e.mbutton;
 
-    switch(msg) {
-        case WM_LBUTTONDBLCLK:
-	    case WM_MBUTTONDBLCLK:
-	    case WM_RBUTTONDBLCLK:
-            break;
+    switch (msg) {
+    case WM_LBUTTONDBLCLK:
+    case WM_MBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
+        break;
 
-        case WM_MOUSEMOVE:
-            e.activity = MOUSEMOVED;
-            break;
+    case WM_MOUSEMOVE:
+        e.activity = MOUSEMOVED;
+        break;
 
-        case WM_LBUTTONDOWN:
-        case WM_RBUTTONDOWN:
-        case WM_MBUTTONDOWN:
-        case WM_XBUTTONDOWN:
-            e.activity = MOUSEPRESSED;
-            break;
-        case WM_LBUTTONUP:
-        case WM_RBUTTONUP:
-        case WM_MBUTTONUP:
-        case WM_XBUTTONUP:
-            e.activity = MOUSERELEASED;
-            break;
-        case WM_MOUSEWHEEL:
-            e.activity = MOUSEWHEEL;
-            e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
-            break;
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_XBUTTONDOWN:
+        e.activity = MOUSEPRESSED;
+        break;
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_XBUTTONUP:
+        e.activity = MOUSERELEASED;
+        break;
+    case WM_MOUSEWHEEL:
+        e.activity = MOUSEWHEEL;
+        e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        break;
 
-        default:
-            
+    default:
+
         break;
     }
 
@@ -318,7 +328,7 @@ LRESULT HandleJoystickMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case MM_JOY1ZMOVE:
         gJoystick1.getPosition(e);
         e.activity = JOYZMOVED;
-    break;
+        break;
     case MM_JOY2ZMOVE:
         gJoystick2.getPosition(e);
         e.activity = JOYZMOVED;
@@ -433,7 +443,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (pInputs[i].dwFlags & TOUCHEVENTF_PALM) {
             e.isPalm = true;
         }
-        
+
         if (pInputs[i].dwFlags & TOUCHEVENTF_PEN) {
             e.isPen = true;
         }
@@ -468,8 +478,8 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     LRESULT res = 0;
     PAINTSTRUCT ps;
 
-	HDC hdc = BeginPaint(hWnd, &ps);
-        
+    HDC hdc = BeginPaint(hWnd, &ps);
+
     int xDest = 0;
     int yDest = 0;
     int DestWidth = canvasWidth;
@@ -480,20 +490,20 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int SrcHeight = canvasHeight;
 
     BITMAPINFO info = gAppSurface->getBitmapInfo();
-    
+
     // Make sure we sync all current drawing
     gAppSurface->flush();
 
     int pResult = StretchDIBits(hdc,
-        xDest,yDest,
-        DestWidth,DestHeight,
-        xSrc,ySrc,
+        xDest, yDest,
+        DestWidth, DestHeight,
+        xSrc, ySrc,
         SrcWidth, SrcHeight,
-        gAppSurface->getData(),&info,
+        gAppSurface->getData(), &info,
         DIB_RGB_COLORS,
         SRCCOPY);
-        
-	EndPaint(hWnd, &ps);
+
+    EndPaint(hWnd, &ps);
 
     return res;
 }
@@ -502,7 +512,7 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
     HDROP dropHandle = (HDROP)wParam;
-    
+
 
     // if we have a drop handler, then marshall all the file names
     // and call the event handler. 
@@ -640,7 +650,7 @@ bool isTouch()
 // Turning drop file support on and off
 bool dropFiles()
 {
-    ::DragAcceptFiles(gAppWindow->getHandle(),TRUE);
+    ::DragAcceptFiles(gAppWindow->getHandle(), TRUE);
     return true;
 }
 
@@ -653,11 +663,11 @@ bool noDropFiles()
 //
 // Window management
 //
-static LONG gLastWindowStyle=0;
+static LONG gLastWindowStyle = 0;
 
 void layered()
 {
-    gAppWindow->setExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow->setExtendedStyle(WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP);
     gLastWindowStyle = gAppWindow->setWindowStyle(WS_POPUP);
 
     gIsLayered = true;
@@ -665,7 +675,7 @@ void layered()
 
 void noLayered()
 {
-    gAppWindow->clearExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow->clearExtendedStyle(WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP);
     gAppWindow->setWindowStyle(gLastWindowStyle);
 
     gIsLayered = false;
@@ -709,6 +719,9 @@ void showAppWindow()
     Generic Windows message handler
     This is used as the function to associate with a window class
     when it is registered.
+
+    The primary function here is to turn the message into a data structure
+    that can be published through the msgTopic
 */
 LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -723,7 +736,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         bool inBackground = GET_RAWINPUT_CODE_WPARAM(wParam) == 1;
         HRAWINPUT inputHandle = (HRAWINPUT)lParam;
         UINT uiCommand = RID_INPUT;
-        UINT cbSize=0;
+        UINT cbSize = 0;
 
         // First, find out how much space will be needed
         UINT size = ::GetRawInputData((HRAWINPUT)lParam, uiCommand, nullptr, &cbSize, sizeof(RAWINPUTHEADER));
@@ -868,7 +881,7 @@ void run()
         // should probably throw a wait here
         // WaitForSingleObject
         BOOL bResult = ::PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
-        
+
         if (bResult > 0) {
             // If we see a quit message, it's time to stop the program
             if (msg.message == WM_QUIT) {
@@ -885,7 +898,7 @@ void run()
             }
         }
     }
-    
+
 
 }
 
@@ -909,7 +922,7 @@ bool prolog()
 {
     // Initialize Windows networking
     // BUGBUG - decide whether or not we care about WSAStartup failing
-    uint16_t version = MAKEWORD(2,2);
+    uint16_t version = MAKEWORD(2, 2);
     WSADATA lpWSAData;
     int res = ::WSAStartup(version, &lpWSAData);
 
@@ -919,9 +932,9 @@ bool prolog()
     // set awareness based on monitor, and get change messages when it changes
     auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
     //auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
-    
+
     DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(dpiContext);
-    
+
     // based on logical inches
     systemDpi = ::GetDpiForSystem();
 
@@ -940,8 +953,8 @@ bool prolog()
 
     // How big is the screen physically
     // DeviceCaps gives it in millimeters, so we convert to inches
-    auto screenWidth = ::GetDeviceCaps(dhdc, HORZSIZE)/25.4;
-    auto screenHeight = ::GetDeviceCaps(dhdc, VERTSIZE)/25.4;
+    auto screenWidth = ::GetDeviceCaps(dhdc, HORZSIZE) / 25.4;
+    auto screenHeight = ::GetDeviceCaps(dhdc, VERTSIZE) / 25.4;
 
     // pixel count horizontally and vertically
     auto pixelWidth = ::GetDeviceCaps(dhdc, LOGPIXELSX);
@@ -986,8 +999,8 @@ void epilog()
     as a CONSOLE subsystem.
 
     the second one 'WinMain' will be called when the code is compiled
-    as a WINDOWS subsystem.  
-    
+    as a WINDOWS subsystem.
+
     By having both, we kill two birds with one stone.
 */
 int ndtRun()
@@ -1005,11 +1018,11 @@ int ndtRun()
     return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     gargc = argc;
     gargv = argv;
-    
+
     return ndtRun();
 }
 

@@ -255,6 +255,12 @@
     <ClInclude Include="user32surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="winminap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winapcan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
@@ -270,6 +276,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="math3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="winminap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
