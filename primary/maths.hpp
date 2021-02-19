@@ -171,8 +171,20 @@ namespace maths {
         return a < b ? a : b;
     }
 
+    template <>
+    inline double Min(double a, double b)
+    {
+        return a < b ? a : b;
+    }
+
     template <typename T>
     inline T Max(T a, T b) {
+        return a > b ? a : b;
+    }
+
+    template <>
+    inline double Max(double a, double b)
+    {
         return a > b ? a : b;
     }
 

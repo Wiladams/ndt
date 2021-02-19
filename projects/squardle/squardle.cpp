@@ -8,7 +8,7 @@ Pixel appTabColor(255, 253, 205);
 
 static const int maxLevels = 9;
 static const int maxShadowLength = 6;
-static const int nFlowers = 5;
+static const int nFlowers = 7;
 double startRadius = 186;
 double startSize = 100;
 
@@ -19,7 +19,7 @@ Pixel randomColor(int alpha)
 
 void setup()
 {
-	createCanvas(800, 800);
+	createCanvas(1280, 800);
 }
 
 

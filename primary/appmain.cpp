@@ -4,11 +4,14 @@
     the Windows environment, and our desired, fairly platform independent
     application environment.
 
-    All you need to setup a Windows application is this file.  It will 
-    operate either in console, or Windows mode.
+    All you need to setup a Windows application is this file, and the accompanying headers.
+    It will operate either in console, or Windows mode.
 
     This file deals with user input (mouse, keyboard, pointer, joystick, touch)
     initiating a pub/sub system for applications to subscribe to.
+
+    The design is meant to be the smallest tightest bare essentials of Windows code
+    necessary to write fairly decent applications.
 */
 
 #include "apphost.h"
@@ -698,6 +701,13 @@ bool setCanvasSize(long aWidth, long aHeight)
     return true;
 }
 
+// Put the application canvas into a window
+void createAppWindow(long aWidth, long aHeight, const char* title)
+{
+    setCanvasSize(aWidth, aHeight);
+    gAppWindow->setCanvasSize(aWidth, aHeight);
+    showAppWindow();
+}
 
 // A basic Windows event loop
 void showAppWindow()
@@ -870,15 +880,19 @@ void run()
         BOOL bResult = ::PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
         
         if (bResult > 0) {
+            // If we are here, there is some message to be handled
             // If we see a quit message, it's time to stop the program
             if (msg.message == WM_QUIT) {
                 break;
             }
 
+            // Do regular Windows message dispatch
             res = ::TranslateMessage(&msg);
             res = ::DispatchMessageA(&msg);
         }
         else {
+            // Give the user application some control to do what
+            // it wants
             // call onLoop() if it exists
             if (gOnLoopHandler != nullptr) {
                 gOnLoopHandler();
@@ -892,10 +906,9 @@ void run()
 
 /*
     The 'main()' function is in here to ensure that compiling
-    this header will result in an executable file.
+    this will result in an executable file.
 
-    The code for the user just needs to implement the 'setup()'
-    and other functions.
+    The code for the user just needs to implement at least the 'onLoad()' function
 */
 // Declare some standard Window Kinds we'll be using
 User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);

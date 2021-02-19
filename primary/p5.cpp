@@ -613,14 +613,8 @@ namespace p5 {
         width = aWidth;
         height = aHeight;
 
-        //canvasWidth = aWidth;
-        //canvasHeight = aHeight;
-
-        setCanvasSize(aWidth, aHeight);
-
-        gAppWindow->setCanvasSize(aWidth, aHeight);
-
-        showAppWindow();
+        createAppWindow(aWidth, aHeight);
+        //showAppWindow();
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
     }

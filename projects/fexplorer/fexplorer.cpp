@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 void setup()
 {
-	for (auto& p : fs::directory_iterator("\\Fonts")) {
+	for (auto& p : fs::directory_iterator("c:\\Windows\\Fonts")) {
 		std::cout << p.path().filename() << "  " << std::endl;
 		std::cout << p.path().parent_path() << std::endl;
 	}

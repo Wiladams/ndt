@@ -261,6 +261,9 @@
     <ClInclude Include="winapcan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="interpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
