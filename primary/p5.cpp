@@ -613,7 +613,7 @@ namespace p5 {
         width = aWidth;
         height = aHeight;
 
-        createAppWindow(aWidth, aHeight);
+        createAppWindow(aWidth, aHeight, "p5 Window");
         //showAppWindow();
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);

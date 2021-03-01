@@ -3,7 +3,8 @@
     Record a Surface
 
         Then, to generate video
-        ffmpeg - framerate 24 - i Project % 03d.bmp Project.mp4
+
+        ffmpeg -framerate 15 -i <name>%06d.bmp <outputname>.mp4
 */
 
 #include "Surface.h"
@@ -11,7 +12,7 @@
 
 class Recorder
 {
-    Surface& fSurface;
+    std::shared_ptr<Surface> fSurface;
 
     std::string fBasename;
     int fFrameRate;
@@ -23,7 +24,7 @@ class Recorder
     Recorder() = delete;    // Don't want default constructor
 
 public:
-    Recorder(Surface& surf, const char* basename = "frame", int fps = 30, int maxFrames=0)
+    Recorder(std::shared_ptr<Surface> surf, const char* basename = "frame", int fps = 30, int maxFrames=0)
         : fSurface(surf)
         , fBasename(basename)
         , fFrameRate(fps)
@@ -45,10 +46,10 @@ public:
         }
         
         char frameName[256];
-        sprintf_s(frameName, 255, "%s%06d.bmp", fBasename.c_str, fCurrentFrame);
+        sprintf_s(frameName, 255, "%s%06d.bmp", fBasename.c_str(), fCurrentFrame);
         BLImageCodec codec;
         codec.findByName("BMP");
-        fSurface.getImage().writeToFile(frameName, codec);
+        fSurface->getImage().writeToFile(frameName, codec);
 
         fCurrentFrame = fCurrentFrame + 1;
     }
@@ -60,15 +61,10 @@ public:
             return false;
 
         fIsRecording = true;
-
-        //fTimer = periodic(1000 / fFrameRate, functor(saveFrame, this))
     }
 
     void pause()
-    {
-        //if (fTimer)
-        //    fTimer.cancel();
-           
+    {      
         fIsRecording = false;
     }
 
