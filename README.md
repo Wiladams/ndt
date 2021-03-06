@@ -147,6 +147,11 @@ Examples
 * Project: [tgaviewer](projects/tgaviewer)
 * Notes: Display bitmap from .tga file
 
+### touchy
+<img src="docs/images/touchy.png" alt="touchy" width=240/></br>
+* Project: [touchy](projects/touchy)
+* Notes: demonstrate using multi-point touch interface
+
 ### wavemaker
 <img src="docs/images/wavemaker.png" alt="wavemaker" width=240/></br>
 * Project: [wavemaker](projects/wavemaker)

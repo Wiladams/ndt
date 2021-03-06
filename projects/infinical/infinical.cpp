@@ -36,7 +36,7 @@ public:
 Decade dcade(2020);
 std::shared_ptr<Recorder> recorder;
 
-double gScaleFactor = 0.1;
+double gScaleFactor = 0.05;
 double gScale = 1.0;
 
 void mouseMoved(const MouseEvent& e)

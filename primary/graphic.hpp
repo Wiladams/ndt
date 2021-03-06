@@ -149,7 +149,7 @@ public:
 	virtual void draw(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
-		ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
 
 		// BUGBUG - maybe perform arbitrary transform?
@@ -161,7 +161,7 @@ public:
 		drawSelf(ctx);
 		drawForeground(ctx);
 
-		ctx->noClip();
+		//ctx->noClip();
 		ctx->pop();
 		
 	}

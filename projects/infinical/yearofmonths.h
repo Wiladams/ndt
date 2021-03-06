@@ -64,6 +64,8 @@ public:
 		sprintf_s(yearText, "%d", fBaseYear);
 		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
 		ctx->textSize(18);
+		ctx->fill(0);
+		ctx->noStroke();
 		ctx->text(yearText, f.w / 2,18);
 
 		//ctx->flush();
