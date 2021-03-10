@@ -132,6 +132,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "picoro", "picoro\picoro.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infinical", "infinical\infinical.vcxproj", "{514FFA35-3A5F-463B-9AF6-BDBB237E2BBF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gesture", "gesture\gesture.vcxproj", "{17F01202-5282-4630-9323-761D702FF682}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -604,6 +606,14 @@ Global
 		{514FFA35-3A5F-463B-9AF6-BDBB237E2BBF}.Release|x64.Build.0 = Release|x64
 		{514FFA35-3A5F-463B-9AF6-BDBB237E2BBF}.Release|x86.ActiveCfg = Release|Win32
 		{514FFA35-3A5F-463B-9AF6-BDBB237E2BBF}.Release|x86.Build.0 = Release|Win32
+		{17F01202-5282-4630-9323-761D702FF682}.Debug|x64.ActiveCfg = Debug|x64
+		{17F01202-5282-4630-9323-761D702FF682}.Debug|x64.Build.0 = Debug|x64
+		{17F01202-5282-4630-9323-761D702FF682}.Debug|x86.ActiveCfg = Debug|Win32
+		{17F01202-5282-4630-9323-761D702FF682}.Debug|x86.Build.0 = Debug|Win32
+		{17F01202-5282-4630-9323-761D702FF682}.Release|x64.ActiveCfg = Release|x64
+		{17F01202-5282-4630-9323-761D702FF682}.Release|x64.Build.0 = Release|x64
+		{17F01202-5282-4630-9323-761D702FF682}.Release|x86.ActiveCfg = Release|Win32
+		{17F01202-5282-4630-9323-761D702FF682}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

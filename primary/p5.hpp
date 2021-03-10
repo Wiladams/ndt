@@ -34,6 +34,7 @@ extern "C" {
     typedef void (*JoystickEventHandler)(const JoystickEvent& e);
     typedef void (*TouchEventHandler)(const TouchEvent& e);
     typedef void (*PointerEventHandler)(const PointerEvent& e);
+    typedef void (*GestureEventHandler)(const GestureEvent& e);
     typedef void (*FileDropEventHandler)(const FileDropEvent& e);
 #ifdef __cplusplus
 }
@@ -76,6 +77,15 @@ extern "C" {
     APP_EXPORT void touchMoved(const TouchEvent& e);
     APP_EXPORT void touchHover(const TouchEvent& e);
 
+    // Gesture Events
+    APP_EXPORT void panStarted(const GestureEvent& e);
+    APP_EXPORT void panMoved(const GestureEvent& e);
+    APP_EXPORT void panEnded(const GestureEvent& e);
+
+    APP_EXPORT void zoomStarted(const GestureEvent& e);
+    APP_EXPORT void zoomMoved(const GestureEvent& e);
+    APP_EXPORT void zoomEnded(const GestureEvent& e);
+
 // Pointer Events
 
 // File Drop events
@@ -113,6 +123,17 @@ extern "C" {
     APP_EXPORT extern int pmouseX;
     APP_EXPORT extern int pmouseY;
 
+    // Gesture Globals
+        // Gesture Globals
+    APP_EXPORT extern long panX;
+    APP_EXPORT extern long panY;
+    APP_EXPORT extern long ppanX;
+    APP_EXPORT extern long ppanY;
+    APP_EXPORT extern long panVecX;
+    APP_EXPORT extern long panVecY;
+
+    APP_EXPORT extern long previousZoomDistance;
+    APP_EXPORT extern long zoomDistance;
 
 #ifdef __cplusplus
 }

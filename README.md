@@ -52,6 +52,11 @@ Examples
 * Project: [fontsum](projects/fontsum)
 * Notes: font, text size
 
+### infinical
+<img src="docs/images/infinical.png" alt="infinical" width=240/></br>
+* Project: [infinical](projects/infinical)
+* Notes: gesture, calendar, panning
+
 ### lerpcolor
 <img src="docs/images/lerpcolor.png" alt="lerpcolor" width=240/></br>
 * Project: [lerpcolor](projects/lerpcolor)

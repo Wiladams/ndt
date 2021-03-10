@@ -1,15 +1,11 @@
 #include "p5.hpp"
 
-
-
 #include "CalendarMonth.hpp"
 #include "yearofmonths.h"
 #include "Recorder.hpp"
 
 using namespace p5; 
 using namespace Calendar;
-
-
 
 
 class Decade : public Graphic
@@ -29,11 +25,30 @@ public:
 			addChild(std::make_shared<YearOfMonths>(year));
 		}
 
-		setFrame({ 0,0,3200,3200 });
+		auto sz = YearOfMonths::getPreferredSize();
+		setFrame({ 0,0,(double)(sz.w*10),(double)(sz.h) });
 	}
 };
 
-Decade dcade(2020);
+class Century : public Graphic
+{
+	int fBaseYear;
+
+public:
+	Century(int baseYear) :
+		fBaseYear(baseYear)
+	{
+		setLayout(std::make_shared < VerticalLayout>());
+
+		// Add decades to the graphic
+		for (int year = baseYear; year < (baseYear + 100); year += 10) {
+			addChild(std::make_shared<Decade>(year));
+		}
+	}
+};
+
+
+Century cent(2000);
 std::shared_ptr<Recorder> recorder;
 
 double gScaleFactor = 0.05;
@@ -52,7 +67,8 @@ void mouseDragged(const MouseEvent& e)
 	//printf("mouseDragged: %d %d\n", deltaX, deltaY);
 
 	double scrollSize = 10;
-	dcade.translateBy(deltaX, deltaY);
+
+	cent.translateBy(deltaX, deltaY);
 }
 
 void keyPressed(const KeyboardEvent& e) 
@@ -80,7 +96,8 @@ void draw()
 
 	gAppSurface->push();
 	gAppSurface->scale(gScale);
-	dcade.draw(gAppSurface);
+
+	cent.draw(gAppSurface);
 
 	recorder->saveFrame();
 	
@@ -90,9 +107,22 @@ void draw()
 
 void setup()
 {
-	createCanvas(800, 600);
+	createCanvas(1280, 1024);
 
-	
 	recorder = std::make_shared<Recorder>(gAppSurface, "infinical-");
 	//recorder->record();
 }
+
+
+
+void panMoved(const GestureEvent& e)
+{
+	cent.translateBy(panVecX, panVecY);
+}
+
+
+void zoomMoved(const GestureEvent& e)
+{
+	printf("zoomMoved: %d\n", e.distance);
+}
+

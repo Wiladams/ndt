@@ -221,3 +221,72 @@ public:
 		}
 	}
 };
+
+
+class VerticalLayout : public ILayoutGraphics
+{
+	double xOffset = 0;
+	double yOffset = 0;
+
+	int maxX = 0;
+	int maxY = 0;
+
+	// Imposed extent limits
+	int fWidth;
+	int fHeight;
+
+	// Gap between elements
+	double fHorizontalGap = 8;
+	double fVerticalGap = 8;
+
+
+public:
+	VerticalLayout()
+	{
+		fWidth = 0;
+		fHeight = 0;
+	}
+
+	VerticalLayout(int w, int h)
+	{
+		fWidth = w;
+		fHeight = h;
+	}
+
+	virtual void reset()
+	{
+		xOffset = 0;
+		yOffset = 0;
+
+		maxX = 0;
+		maxY = 0;
+	}
+
+	virtual void addGraphic(std::shared_ptr<IGraphic> win)
+	{
+		auto winFrame = win->getFrame();
+		auto winWidth = winFrame.w;
+		auto winHeight = winFrame.h;
+
+		auto winX = maxX;
+		auto winY = maxY+ fVerticalGap;
+
+		// Move the graphic to the specified location
+		win->moveTo(winX, winY);
+
+		maxY = winY + winHeight;
+
+	}
+
+	// Perform layout starting from scratch
+	void layout(std::deque<std::shared_ptr<IGraphic> > gs)
+	{
+		reset();
+
+		for (std::shared_ptr<IGraphic> g : gs)
+		{
+			addGraphic(g);
+		}
+	}
+};
+

@@ -134,6 +134,9 @@ APP_EXPORT bool touch();
 APP_EXPORT bool noTouch();
 APP_EXPORT bool isTouch();
 
+// gesture routines
+// nothing needed to turn on and off yet
+
 // Turn on/off file drop handling
 APP_EXPORT bool dropFiles();
 APP_EXPORT bool noDropFiles();
@@ -163,7 +166,7 @@ using JoystickEventTopic = Topic<JoystickEvent&>;
 using FileDropEventTopic = Topic<FileDropEvent&>;
 using TouchEventTopic = Topic<TouchEvent&>;
 using PointerEventTopic = Topic<PointerEvent&>;
-
+using GestureEventTopic = Topic<GestureEvent&>;
 
 APP_EXPORT void subscribe(SignalEventTopic::Subscriber s);
 APP_EXPORT void subscribe(MouseEventTopic::Subscriber s);
@@ -171,4 +174,5 @@ APP_EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 APP_EXPORT void subscribe(JoystickEventTopic::Subscriber s);
 APP_EXPORT void subscribe(FileDropEventTopic::Subscriber s);
 APP_EXPORT void subscribe(TouchEventTopic::Subscriber s);
+APP_EXPORT void subscribe(GestureEventTopic::Subscriber s);
 APP_EXPORT void subscribe(PointerEventTopic::Subscriber s);
