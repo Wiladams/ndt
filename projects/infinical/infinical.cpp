@@ -54,30 +54,45 @@ std::shared_ptr<Recorder> recorder;
 double gScaleFactor = 0.05;
 double gScale = 1.0;
 
-void mouseMoved(const MouseEvent& e)
+
+
+
+
+
+
+
+
+void setup()
 {
-	//printf("%d,%d  %d\n", e.x, e.y, e.shift);
+	createCanvas(1280, 1024);
+
+	recorder = std::make_shared<Recorder>(gAppSurface, "infinical-");
+	//recorder->record();
 }
 
-void mouseDragged(const MouseEvent& e)
+void draw()
 {
-	int deltaX = e.x - pmouseX;
-	int deltaY = e.y - pmouseY;
+	background(255, 255, 240);
 
-	//printf("mouseDragged: %d %d\n", deltaX, deltaY);
+	gAppSurface->push();
+	gAppSurface->scale(gScale);
 
-	double scrollSize = 10;
+	cent.draw(gAppSurface);
 
-	cent.translateBy(deltaX, deltaY);
+	recorder->saveFrame();
+
+	gAppSurface->pop();
+
 }
 
-void keyPressed(const KeyboardEvent& e) 
+
+
+void keyPressed(const KeyboardEvent& e)
 {
 	switch (e.keyCode) {
-
-
 		// left 
 		// right
+
 		// up - zoom in
 	case VK_UP:
 		gScale += gScaleFactor;
@@ -90,37 +105,44 @@ void keyPressed(const KeyboardEvent& e)
 	}
 }
 
-void draw()
+void keyReleased(const KeyboardEvent& e)
 {
-	background(255, 255,240);
+	switch (e.keyCode) {
+	case VK_SPACE:
+		// toggle recording
+		recorder->toggleRecording();
 
-	gAppSurface->push();
-	gAppSurface->scale(gScale);
-
-	cent.draw(gAppSurface);
-
-	recorder->saveFrame();
-	
-	gAppSurface->pop();
-
+		break;
+	}
 }
 
-void setup()
+void mouseMoved(const MouseEvent& e)
 {
-	createCanvas(1280, 1024);
-
-	recorder = std::make_shared<Recorder>(gAppSurface, "infinical-");
-	//recorder->record();
+	//printf("%d,%d  %d\n", e.x, e.y, e.shift);
 }
 
+// Do panning using a mouse drag
+void mouseDragged(const MouseEvent& e)
+{
+	int deltaX = e.x - pmouseX;
+	int deltaY = e.y - pmouseY;
 
+	//printf("mouseDragged: %d %d\n", deltaX, deltaY);
 
+	double scrollSize = 10;
+
+	cent.translateBy(deltaX, deltaY);
+}
+
+// Handling panning
+// do translation
 void panMoved(const GestureEvent& e)
 {
 	cent.translateBy(panVecX, panVecY);
 }
 
-
+// Handle zooming gesture
+// turn it into scaling
 void zoomMoved(const GestureEvent& e)
 {
 	printf("zoomMoved: %d\n", e.distance);

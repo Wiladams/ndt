@@ -33,6 +33,13 @@ public:
     {
     }
 
+    bool isRecording() { return fIsRecording; }
+    void toggleRecording() {
+        if (fIsRecording)
+            pause();
+        else
+            record();
+    }
 
     void saveFrame()
     {

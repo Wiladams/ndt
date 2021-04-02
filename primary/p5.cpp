@@ -98,6 +98,9 @@ namespace p5 {
     double deltaTime = 0;
     double gAppLastTime = 0;
 
+    //double getWidth() { return fDimensionScale * width; }
+    //double getHeight() { return fDimensionScale * height; }
+
     // Window management
     void addWindow(std::shared_ptr<GWindow> win)
     {

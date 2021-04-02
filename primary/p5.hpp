@@ -45,6 +45,8 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
+    APP_EXPORT double getWidth();
+    APP_EXPORT double getHeight();
 
     APP_EXPORT void draw();
     APP_EXPORT void setup();
