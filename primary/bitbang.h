@@ -82,7 +82,7 @@ static inline uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t sta
     uint64_t value = 0;
 
     if (bigendian) {
-        for (int i=bitcount; i>= 0; i--) {
+        for (int i=(int)bitcount; i>= 0; i--) {
             size_t byteoffset=0;
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);

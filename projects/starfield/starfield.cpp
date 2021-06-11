@@ -66,8 +66,8 @@ void draw()
 		// get speed from joystick throttle
 		speed = map(je.z, 0, 1, 0, MaxSpeed);
 
-		centerX = map(je.x, -1, 1, width - 1, 0);
-		centerY = map(je.y, -1, 1, 0, height - bottomMargin);
+		centerX = (int)map(je.x, -1, 1, width - 1, 0);
+		centerY = (int)map(je.y, -1, 1, 0, height - bottomMargin);
 	}
 	else {
 		// use keyboard/mouse navigation

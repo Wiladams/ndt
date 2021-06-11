@@ -206,7 +206,7 @@ public:
 		// Move the graphic to the specified location
 		win->moveTo(winX, winY);
 
-		maxX = winX + winWidth;
+		maxX = (int)(winX + winWidth);
 
 	}
 
@@ -274,7 +274,7 @@ public:
 		// Move the graphic to the specified location
 		win->moveTo(winX, winY);
 
-		maxY = winY + winHeight;
+		maxY = (int)(winY + winHeight);
 
 	}
 
