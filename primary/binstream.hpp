@@ -369,6 +369,13 @@ size_t readLine(char* buff, const size_t bufflen)
 
     float readFloat()
     {
+        if (!fbigend)
+        {
+            float value;
+            readBytes((uint8_t *)&value, 4);
+            return value;
+        }
+
         U32float f1;
         f1.u32 = readUInt32();
         return f1.f;

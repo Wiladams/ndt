@@ -55,7 +55,7 @@
 #include "Surface.h"
 #include "joystick.h"
 #include "uievent.h"
-
+#include "Network.hpp"
 
 #include <stdio.h>
 #include <string>

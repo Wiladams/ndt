@@ -7,6 +7,7 @@
         "regex": "cpp",
         "vector": "cpp",
         "locale": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "memory": "cpp"
     }
 }

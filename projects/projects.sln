@@ -124,6 +124,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calib", "calib\calib.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loopy", "loopy\loopy.vcxproj", "{F1652531-1773-4A1D-BFD4-3F365E6BD689}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyvg", "tinyvg\tinyvg.vcxproj", "{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -564,6 +566,14 @@ Global
 		{F1652531-1773-4A1D-BFD4-3F365E6BD689}.Release|x64.Build.0 = Release|x64
 		{F1652531-1773-4A1D-BFD4-3F365E6BD689}.Release|x86.ActiveCfg = Release|Win32
 		{F1652531-1773-4A1D-BFD4-3F365E6BD689}.Release|x86.Build.0 = Release|Win32
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Debug|x64.ActiveCfg = Debug|x64
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Debug|x64.Build.0 = Debug|x64
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Debug|x86.ActiveCfg = Debug|Win32
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Debug|x86.Build.0 = Debug|Win32
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Release|x64.ActiveCfg = Release|x64
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Release|x64.Build.0 = Release|x64
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Release|x86.ActiveCfg = Release|Win32
+		{EDFA4313-F545-4690-A55A-BF83DBEF7BF5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

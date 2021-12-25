@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment(lib, "blend2d.lib")
 
 #include "blend2d.h"
 #include "grmath.h"

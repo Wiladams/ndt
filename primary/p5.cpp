@@ -253,6 +253,10 @@ namespace p5 {
     }
 
 
+    void fill(const BLStyle& s) noexcept
+    {
+        gAppSurface->fill(s);
+    }
 
     void fill(const BLGradient& g) noexcept
     {
@@ -313,6 +317,11 @@ namespace p5 {
 
 
     // Setting Stroke
+    void stroke(const BLStyle& s) noexcept
+    {
+        gAppSurface->stroke(s);
+    }
+
     void stroke(const Pixel& pix) noexcept
     {
         gAppSurface->stroke(pix);

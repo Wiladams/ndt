@@ -150,4 +150,18 @@ static inline int GetAlignedByteCount(const int width, const int bitsperpixel, c
 {
     return (((width * (bitsperpixel / 8)) + (alignment - 1)) & ~(alignment - 1));
 }
+
+// Convert a fixed point number into a floating point number
+// the fixed number can be up to 64-bits in size
+// the 'scale' says where the decimal point is, starting from 
+// the least significant bit
+// so; 0x13 (0b0001.0011) ,4  == 1.1875
+static inline double fixedToFloat(const uint64_t vint, const int scale)
+{
+    double whole = (double)ndt::BITSVALUE(vint, scale, 63);
+    double frac = (double)ndt::BITSVALUE(vint, 0, ((size_t)scale - 1));
+
+    return (whole + (frac / ((uint64_t)1 << scale)));
+}
+
 }; // namespace ndt

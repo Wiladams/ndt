@@ -60,7 +60,7 @@ void keyReleased(const KeyboardEvent&e)
 void joyMoved(const JoystickEvent& e)
 {
 	joyX = map(e.x, -1, 1, 0, width - 1, true);
-	joyY = map(e.y, 0, 1, height  -1, 0, true);
+	joyY = map(e.y, -1, 1, height  -1, 0, true);
 	gScope.focusOn(joyX, joyY);
 }
 
@@ -216,9 +216,10 @@ void setup()
 
 	// Read the screen
 	snappy = new ScreenSnapshot(0, 0, width, height,0);
-	snappy->moveNext();
-	snappy->getCurrent().rectMode(RECTMODE::CENTER);
-	snappy->getCurrent().noStroke();
-	snappy->getCurrent().fill(color(0, 0, 0, 0));
-	snappy->getCurrent().blendMode(BL_COMP_OP_SRC_COPY);
+	snappy->next();
+	auto srf = snappy->getCurrent();
+	srf.rectMode(RECTMODE::CENTER);
+	srf.noStroke();
+	srf.fill(color(0, 0, 0, 0));
+	srf.blendMode(BL_COMP_OP_SRC_COPY);
 }
