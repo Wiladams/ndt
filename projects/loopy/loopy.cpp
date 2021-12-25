@@ -1,10 +1,21 @@
+/*
+	This demonstrates a minimal application, using only apphost.h
+	In this particular demo, we're just clearing the app window
+	and drawing a line, which is rotated each time through the loop.
+
+	onLoad() - this is called by the application runtime after
+	dynamic functions are loaded, and before the main loop runs
+	
+	onLoop() - this is called every time through the primary
+	application loop
+
+*/
 #include "apphost.h"
 
 static uint64_t counter = 0;
 
 void fullScreen() noexcept
 {
-
     setCanvasSize(displayWidth, displayHeight);
     setWindowPosition(0, 0);
     layered();
@@ -48,12 +59,12 @@ void onLoop()
 	gAppSurface->rotate(2.0 * PI_EXP / 360.0 / 1.0);
 
 	// fat yellow line
-	gAppSurface->strokeWeight(8.0);
+	gAppSurface->strokeWeight(4.0);
 	gAppSurface->stroke(Pixel(0xffffff00));
 	gAppSurface->line(0, 0, canvasWidth / 2, 0);
 	
 	// Then thin red line
-	gAppSurface->strokeWeight(4.0);
+	gAppSurface->strokeWeight(2.0);
 	gAppSurface->stroke(Pixel(0xffff0000));
 	gAppSurface->line(0, 0, canvasWidth / 2, 0);
 	

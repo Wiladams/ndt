@@ -6,8 +6,8 @@
 
 using namespace p5;
 
-static const int captureWidth = 800;
-static const int captureHeight = 600;
+static const int captureWidth = 1280;
+static const int captureHeight = 1024;
 FrameStats _stats;
 
 std::shared_ptr<ScreenSnapshot> ss = nullptr;

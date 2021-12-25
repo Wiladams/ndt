@@ -55,7 +55,7 @@
 #include "Surface.h"
 #include "joystick.h"
 #include "uievent.h"
-#include "Network.hpp"
+
 
 #include <stdio.h>
 #include <string>
@@ -86,9 +86,6 @@ APP_EXPORT extern User32Window * gAppWindow;
 APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
 
-//EXPORT extern bool gRunning;
-
-
 // Globals we expect the user to consume
 APP_EXPORT extern int displayWidth;
 APP_EXPORT extern int displayHeight;
@@ -115,6 +112,7 @@ APP_EXPORT void onLoop();	// called each time through application main loop
 // The control the lifetime of the environment, creation of primary window
 // and whether various parts of the IO system are present
 
+APP_EXPORT void createAppWindow(long aWidth, long aHeight, const char* title);
 APP_EXPORT void showAppWindow();
 APP_EXPORT void halt();
 
@@ -135,6 +133,9 @@ APP_EXPORT void noJoystick();
 APP_EXPORT bool touch();
 APP_EXPORT bool noTouch();
 APP_EXPORT bool isTouch();
+
+// gesture routines
+// nothing needed to turn on and off yet
 
 // Turn on/off file drop handling
 APP_EXPORT bool dropFiles();
@@ -157,17 +158,15 @@ APP_EXPORT bool setCanvasSize(long aWidth, long aHeight);
 #endif
 
 // Make Topic publishers available
-using SignalEventTopic = Topic<intptr_t>;
-
-
 // Doing C++ pub/sub
+using SignalEventTopic = Topic<intptr_t>; 
 using MouseEventTopic = Topic<MouseEvent&>;
 using KeyboardEventTopic = Topic<KeyboardEvent&>;
 using JoystickEventTopic = Topic<JoystickEvent&>;
 using FileDropEventTopic = Topic<FileDropEvent&>;
 using TouchEventTopic = Topic<TouchEvent&>;
 using PointerEventTopic = Topic<PointerEvent&>;
-
+using GestureEventTopic = Topic<GestureEvent&>;
 
 APP_EXPORT void subscribe(SignalEventTopic::Subscriber s);
 APP_EXPORT void subscribe(MouseEventTopic::Subscriber s);
@@ -175,4 +174,5 @@ APP_EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 APP_EXPORT void subscribe(JoystickEventTopic::Subscriber s);
 APP_EXPORT void subscribe(FileDropEventTopic::Subscriber s);
 APP_EXPORT void subscribe(TouchEventTopic::Subscriber s);
+APP_EXPORT void subscribe(GestureEventTopic::Subscriber s);
 APP_EXPORT void subscribe(PointerEventTopic::Subscriber s);

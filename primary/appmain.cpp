@@ -4,11 +4,14 @@
     the Windows environment, and our desired, fairly platform independent
     application environment.
 
-    All you need to setup a Windows application is this file.  It will 
-    operate either in console, or Windows mode.
+    All you need to setup a Windows application is this file, and the accompanying headers.
+    It will operate either in console, or Windows mode.
 
     This file deals with user input (mouse, keyboard, pointer, joystick, touch)
     initiating a pub/sub system for applications to subscribe to.
+
+    The design is meant to be the smallest tightest bare essentials of Windows code
+    necessary to write fairly decent applications.
 */
 
 #include "apphost.h"
@@ -27,6 +30,8 @@
 // WinMSGObserver - Function signature for Win32 message handler
 typedef LRESULT (*WinMSGObserver)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+#define LODWORD(ull) ((DWORD)((ULONGLONG)(ull) & 0x00000000ffffffff))
+#define HIDWORD(ull) ((DWORD)((((ULONGLONG)(ull))>>32) & 0x00000000ffffffff))
 
 // Application routines
 // appmain looks for this routine in the compiled application
@@ -46,6 +51,7 @@ JoystickEventTopic gJoystickEventTopic;
 FileDropEventTopic gFileDropEventTopic;
 TouchEventTopic gTouchEventTopic;
 PointerEventTopic gPointerEventTopic;
+GestureEventTopic gGestureEventTopic;
 
 // Miscellaneous globals
 int gargc;
@@ -536,6 +542,110 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return res;
 }
 
+// Handling gestures
+// Gesture messages WM_GESTURE, will only arrive if we're NOT
+// registered for touch messages.  In an app, it might be useful
+// to call noTouch() to ensure this is the case.
+//
+// https://github.com/microsoft/Windows-classic-samples/blob/master/Samples/Win7Samples/Touch/MTGestures/cpp/GestureEngine.h
+//
+LRESULT HandleGestureMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    //std::cout << "HandleGestureMessage" << std::endl;
+    GESTUREINFO gi;
+    ZeroMemory(&gi, sizeof(GESTUREINFO));
+    gi.cbSize = sizeof(GESTUREINFO);
+
+    // get the gesture information
+    BOOL bResult = GetGestureInfo((HGESTUREINFO)lParam, &gi);
+
+
+    // If getting gesture info fails, return immediately
+    // no further processing.
+    // This will look the same as us handling the gesture, and
+    // it might be better to throw some form of error
+    if (!bResult) {
+        //DWORD dwErr = ::GetLastError();
+        return FALSE;
+    }
+
+    // if the gesture ID is BEGIN, or END, we can allow the default
+    // behavior handle it
+    switch (gi.dwID) {
+    case GID_BEGIN:
+    case GID_END:
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+    }
+
+    // If we are here, we can process well known gestures
+    LRESULT res = 0;
+    BOOL bHandled = FALSE;
+
+    // Turn the physical screen location into local
+    // window location
+    POINT ptPoint;
+    ptPoint.x = gi.ptsLocation.x;
+    ptPoint.y = gi.ptsLocation.y;
+    ::ScreenToClient(hWnd, &ptPoint);
+    
+    GestureEvent ge;
+    ge.activity = gi.dwID;
+    ge.x = ptPoint.x;
+    ge.y = ptPoint.y;
+    ge.distance = LODWORD(gi.ullArguments);
+
+    // Turn flags into easy bool values
+    ge.isBegin = ((gi.dwFlags & GF_BEGIN) == GF_BEGIN);
+    ge.isEnd = ((gi.dwFlags & GF_END) == GF_END);
+    ge.isInertia = ((gi.dwFlags & GF_INERTIA) == GF_INERTIA);
+
+    //printf("ID: %d\tdwFlags: %d\n", gi.dwID, gi.dwFlags);
+
+    // now interpret the gesture
+    switch (gi.dwID) 
+    {
+        case GID_ZOOM:
+            // zoom in and out, from a pinch or spread action
+            // ullarguments indicates distance between the two points   
+            bHandled = TRUE;
+            break;
+        case GID_PAN:
+            // Code for panning goes here
+            // If isInertia, then 
+            // HIDWORD(ull) is an inertia vector (two 16-bit values).
+            bHandled = TRUE;
+            break;
+
+        case GID_ROTATE:
+            // Code for rotation goes here
+            //printf("ROTATE\n");
+            bHandled = TRUE;
+            break;
+        case GID_TWOFINGERTAP:
+            // Code for two-finger tap goes here
+            // printf("TWO FINGER TAP\n");
+            bHandled = TRUE;
+            break;
+        case GID_PRESSANDTAP:
+            // Code for roll over goes here
+            //printf("PRESS AND TAP\n");
+            // HIDWORD(ull), is the distance between the two points
+            bHandled = TRUE;
+            break;
+        default:
+            // A gesture was not recognized
+            printf("GESTURE NOT RECOGNIZED\n");
+            break;
+        }
+
+
+
+    
+    ::CloseGestureInfoHandle((HGESTUREINFO)lParam);
+    gGestureEventTopic.notify(ge);
+
+    return res;
+}
 
 /*
     Subscription routines
@@ -579,7 +689,10 @@ void subscribe(PointerEventTopic::Subscriber s)
     gPointerEventTopic.subscribe(s);
 }
 
-
+void subscribe(GestureEventTopic::Subscriber s)
+{
+    gGestureEventTopic.subscribe(s);
+}
 
 
 
@@ -698,6 +811,13 @@ bool setCanvasSize(long aWidth, long aHeight)
     return true;
 }
 
+// Put the application canvas into a window
+void createAppWindow(long aWidth, long aHeight, const char* title)
+{
+    setCanvasSize(aWidth, aHeight);
+    gAppWindow->setCanvasSize(aWidth, aHeight);
+    showAppWindow();
+}
 
 // A basic Windows event loop
 void showAppWindow()
@@ -771,14 +891,16 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HandleJoystickMessage(hWnd, msg, wParam, lParam);
     }
     else if (msg == WM_TOUCH) {
-        //std::cout << "WM_TOUCH" << std::endl;
+        std::cout << "WM_TOUCH" << std::endl;
 
         // Handle touch specific messages
         HandleTouchMessage(hWnd, msg, wParam, lParam);
     }
-    //else if (msg == WM_GESTURE) {
+    else if (msg == WM_GESTURE) {
     // we will only receive WM_GESTURE if not receiving WM_TOUCH
-    //}
+
+        HandleGestureMessage(hWnd, msg, wParam, lParam);
+    }
     //else if ((msg >= WM_NCPOINTERUPDATE) && (msg <= WM_POINTERROUTEDRELEASED)) {
     //    HandlePointerMessage(hWnd, msg, wParam, lParam);
     //}
@@ -870,15 +992,19 @@ void run()
         BOOL bResult = ::PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE);
         
         if (bResult > 0) {
+            // If we are here, there is some message to be handled
             // If we see a quit message, it's time to stop the program
             if (msg.message == WM_QUIT) {
                 break;
             }
 
+            // Do regular Windows message dispatch
             res = ::TranslateMessage(&msg);
             res = ::DispatchMessageA(&msg);
         }
         else {
+            // Give the user application some control to do what
+            // it wants
             // call onLoop() if it exists
             if (gOnLoopHandler != nullptr) {
                 gOnLoopHandler();
@@ -892,10 +1018,9 @@ void run()
 
 /*
     The 'main()' function is in here to ensure that compiling
-    this header will result in an executable file.
+    this will result in an executable file.
 
-    The code for the user just needs to implement the 'setup()'
-    and other functions.
+    The code for the user just needs to implement at least the 'onLoad()' function
 */
 // Declare some standard Window Kinds we'll be using
 User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);

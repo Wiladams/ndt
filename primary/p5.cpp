@@ -37,6 +37,17 @@ static TouchEventHandler gTouchEndedHandler = nullptr;
 static TouchEventHandler gTouchMovedHandler = nullptr;
 static TouchEventHandler gTouchHoverHandler = nullptr;
 
+// Gesture Event handling
+static GestureEventHandler gPanStartedHandler = nullptr;
+static GestureEventHandler gPanMovedHandler = nullptr;
+static GestureEventHandler gPanEndedHandler = nullptr;
+
+static GestureEventHandler gZoomStartedHandler = nullptr;
+static GestureEventHandler gZoomMovedHandler = nullptr;
+static GestureEventHandler gZoomEndedHandler = nullptr;
+
+
+// Pointer Event Handling - Pen
 static PointerEventHandler gPointerHandler = nullptr;
 
 
@@ -68,12 +79,27 @@ namespace p5 {
     int pmouseX = 0;
     int pmouseY = 0;
 
+    // Gesture Globals
+    long panX = 0;
+    long panY = 0;
+    long ppanX = 0;
+    long ppanY = 0;
+    long panVecX = 0;
+    long panVecY = 0;
+
+    long zoomDistance = 0;
+    long previousZoomDistance = 0;
+    double zoomFactor = 1.0;
+
     Pixel* pixels = nullptr;    // a pointer to the raw pixels of app canvas
 
 
     static StopWatch SWatch;    // Stopwatch used for time 
     double deltaTime = 0;
     double gAppLastTime = 0;
+
+    //double getWidth() { return fDimensionScale * width; }
+    //double getHeight() { return fDimensionScale * height; }
 
     // Window management
     void addWindow(std::shared_ptr<GWindow> win)
@@ -253,10 +279,6 @@ namespace p5 {
     }
 
 
-    void fill(const BLStyle& s) noexcept
-    {
-        gAppSurface->fill(s);
-    }
 
     void fill(const BLGradient& g) noexcept
     {
@@ -317,11 +339,6 @@ namespace p5 {
 
 
     // Setting Stroke
-    void stroke(const BLStyle& s) noexcept
-    {
-        gAppSurface->stroke(s);
-    }
-
     void stroke(const Pixel& pix) noexcept
     {
         gAppSurface->stroke(pix);
@@ -622,14 +639,8 @@ namespace p5 {
         width = aWidth;
         height = aHeight;
 
-        //canvasWidth = aWidth;
-        //canvasHeight = aHeight;
-
-        setCanvasSize(aWidth, aHeight);
-
-        gAppWindow->setCanvasSize(aWidth, aHeight);
-
-        showAppWindow();
+        createAppWindow(aWidth, aHeight, "p5 Window");
+        //showAppWindow();
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
     }
@@ -884,6 +895,64 @@ void handleTouchEvent(const TouchEvent& e)
 
 }
 
+void handleGestureEvent(const GestureEvent& e)
+{
+    //printf("handleGestureEvent: %d (%d,%d) isBegin: %d, isEnd: %d, isInertia: %d \n", e.activity, e.x, e.y, e.isBegin, e.isEnd, e.isInertia);
+    p5::panVecX = e.x - p5::ppanX;
+    p5::panVecY = e.y - p5::ppanY;
+    
+    switch (e.activity) {
+        case GESTURE_PAN: {
+            if (e.isBegin) {
+                if (gPanStartedHandler)
+                    gPanStartedHandler(e);
+            }
+            else if (e.isEnd) {
+                // compare distances, save delta
+                if (gPanEndedHandler)
+                    gPanEndedHandler(e);
+
+                p5::panVecX = 0;
+                p5::panVecY = 0;
+            }
+            else {
+                // Intermediate movement
+                if (gPanMovedHandler)
+                    gPanMovedHandler(e);
+            }
+        }
+        break;
+
+        case GESTURE_ZOOM: {
+            if (e.isBegin) {
+                if (gZoomStartedHandler)
+                    gZoomStartedHandler(e);
+            }
+            else if (e.isEnd) {
+                // compare distances, save delta
+                if (gZoomEndedHandler)
+                    gZoomEndedHandler(e);
+
+                p5::panVecX = 0;
+                p5::panVecY = 0;
+            }
+            else {
+                // Intermediate movement
+                if (gZoomMovedHandler)
+                    gZoomMovedHandler(e);
+            }
+        }
+        break;
+    }
+
+    // Reset previous and current pan values
+    p5::ppanX = p5::panX;
+    p5::ppanY = p5::panY;
+
+    p5::panX = e.x;
+    p5::panY = e.y;
+}
+
 void handlePointerEvent(const PointerEvent& e)
 {
     std::cout << "p5::handlePointerEvent" << std::endl;
@@ -915,6 +984,11 @@ static void p5joystickSubscriber(const JoystickEventTopic& p, const JoystickEven
 static void p5touchSubscriber(const TouchEventTopic& p, const TouchEvent& e)
 {
     handleTouchEvent(e);
+}
+
+static void p5gestureSubscriber(const GestureEventTopic& p, const GestureEvent& e)
+{
+    handleGestureEvent(e);
 }
 
 static void p5pointerSubscriber(const PointerEventTopic& p, const PointerEvent& e)
@@ -951,6 +1025,7 @@ void onLoad()
     subscribe(p5filedroppedSubscriber);
     subscribe(p5pointerSubscriber);
     subscribe(p5touchSubscriber);
+    subscribe(p5gestureSubscriber);
 
     // load the setup() function if user specified
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
@@ -987,6 +1062,15 @@ void onLoad()
     gTouchEndedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchEnded");
     gTouchMovedHandler = (TouchEventHandler)GetProcAddress(hInst, "touchMoved");
     gTouchHoverHandler = (TouchEventHandler)GetProcAddress(hInst, "touchHovered");
+
+    // Gesture Events
+    gPanStartedHandler = (GestureEventHandler)GetProcAddress(hInst, "panStarted");
+    gPanMovedHandler = (GestureEventHandler)GetProcAddress(hInst, "panMoved");
+    gPanEndedHandler = (GestureEventHandler)GetProcAddress(hInst, "panEnded");
+
+    gZoomStartedHandler = (GestureEventHandler)GetProcAddress(hInst, "zoomStarted");
+    gZoomMovedHandler = (GestureEventHandler)GetProcAddress(hInst, "zoomMoved");
+    gZoomEndedHandler = (GestureEventHandler)GetProcAddress(hInst, "zoomEnded");
 
     gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
 

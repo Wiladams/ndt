@@ -5,7 +5,12 @@
 #include "maths.hpp"
 #include "coloring.h"
 
+
+
+
 namespace ndt {
+
+
 	// Given an array of gradient stops, return the highest index that is
 // lower than the specified offset
 	static inline size_t searchClosestLast(const BLGradientStop* array, size_t size, const double& value) noexcept
@@ -36,6 +41,11 @@ namespace ndt {
 }
 
 // A sampler of visible light
+// Humanly visible light ranges from a frequency of 
+// 380 to 780
+// This sampler takes an input parameter from 0 to 1 and
+// returns an RGB value that ranges from the low
+// to the high
 class VisibleLightSampler : public ISampler1D<BLRgba32>
 {
 public:

@@ -31,7 +31,7 @@ void drawTouch(std::pair<int,TouchEvent> pe)
 	auto idx = pe.first;
 	auto e = pe.second;
 
-	printf("drawTouch -  activity: %d pen: %x (%d,%d - %d,%d)\n", e.activity, e.isPen, e.x, e.y, e.w, e.h);
+	//printf("drawTouch -  activity: %d pen: %x (%d,%d - %d,%d)\n", e.activity, e.isPen, e.x, e.y, e.w, e.h);
 
 	noStroke();
 	fill(tcolor[idx]);

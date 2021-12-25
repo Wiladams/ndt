@@ -52,6 +52,11 @@ Examples
 * Project: [fontsum](projects/fontsum)
 * Notes: font, text size
 
+### infinical
+<img src="docs/images/infinical.png" alt="infinical" width=240/></br>
+* Project: [infinical](projects/infinical)
+* Notes: gesture, calendar, panning
+
 ### lerpcolor
 <img src="docs/images/lerpcolor.png" alt="lerpcolor" width=240/></br>
 * Project: [lerpcolor](projects/lerpcolor)
@@ -146,6 +151,11 @@ Examples
 <img src="docs/images/targaviewer.png" alt="targaviewer" width=240/></br>
 * Project: [tgaviewer](projects/tgaviewer)
 * Notes: Display bitmap from .tga file
+
+### touchy
+<img src="docs/images/touchy.png" alt="touchy" width=240/></br>
+* Project: [touchy](projects/touchy)
+* Notes: demonstrate using multi-point touch interface
 
 ### wavemaker
 <img src="docs/images/wavemaker.png" alt="wavemaker" width=240/></br>

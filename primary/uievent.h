@@ -89,6 +89,36 @@ struct TouchEvent {
     size_t h;
 };
 
+enum {
+    GESTURE_BEGIN = 1,
+    GESTURE_END = 2,
+    GESTURE_ZOOM = 3,
+    GESTURE_PAN = 4,
+    GESTURE_ROTATE = 5,
+    GESTURE_TWOFINGERTAP = 6,
+    GESTURE_PRESSANDTAP = 7
+};
+
+struct GestureEvent {
+    int activity;   // What kind of gesture
+    long x;         // Primary location of gesture
+    long y;
+
+    bool isBegin;   // Attributes of vector
+    bool isEnd;
+    bool isInertia;
+
+    // pan with inertia
+    long inertiaX;
+    long inertiaY;
+
+    //
+    long deltaX;    // movement in each direction
+    long deltaY;
+
+    long distance;  // distance between points
+};
+
 // Pointer interactions
 struct PointerEvent {
     int id;

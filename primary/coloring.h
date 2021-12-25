@@ -3,10 +3,27 @@
 
 #include "blend2d.h"
 
+/*
+    References:
+
+    https://www.fourmilab.ch/documents/specrend/
+*/
+
 namespace ndt {
     // RGBA_Doubles
-    // 380 <= wl <= 780 nanometers
+    // human visual range is between
+    // 380 nm and 780 nm
     //
+    // Perhaps this can be done as linear interpolation
+    // based on finding the nearest bracket values, using
+    // gradient stops
+    //
+    // 380, 440, r = -1.0f * ((float)wl - 440.0f) / (440.0f - 380.0f); g= 0, b = 1.0;
+    // 440, 490, r = 0.0, g = ((float)wl - 440.0f) / (490.0f - 440.0f), b = 1.0
+    // 490, 510, r = 0.0, g = 1.0, b = -1.0f * ((float)wl - 510.0f) / (510.0f - 490.0f)
+    // 510, 580, r = (float)((wl - 510.0) / (580.0 - 510.0)), g = 1.0, b = 0.0
+    // 580, 645, r = 1.0,  g = (float)(-1.0 * (wl - 645.0) / (645.0 - 580.0)), b = 0.0
+    // 645, 780, r = 1.0, g = 0.0, b = 0.0
     BLRgba  ColorRGBAFromWavelength(double wl, double gamma = 1.0)
     {
         BLRgba t = { 0,0,0,1 };

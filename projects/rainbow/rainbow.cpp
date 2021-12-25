@@ -8,7 +8,9 @@ using namespace p5;
 
 BLImage potOfGold;
 
-
+/*
+	
+*/
 class GradientBezier : public virtual IDrawable
 {
 	GradientSampler1D fSampler;
@@ -62,13 +64,7 @@ void setup()
 	if (err)
 		printf("could not load pot of gold (%d)\n", err);
 
-
-	// Create a canvas to cover the whole screen
-	createCanvas(displayWidth, displayHeight);
-	
-	// Make the background invisible
-	layered();
-	setWindowPosition(0, 0);
+	fullscreen();
 }
 
 

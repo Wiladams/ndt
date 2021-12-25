@@ -261,7 +261,7 @@
     <ClInclude Include="winapcan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="renderfid.h">
+    <ClInclude Include="interpolator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

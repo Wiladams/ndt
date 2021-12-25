@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "gview.h"
+
 #include <memory>
 
 using namespace p5;
@@ -313,4 +313,11 @@ void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
     page->translateBy(0, (e.delta / 120)*scrollSize);
+}
+
+// Handling panning
+// do translation
+void panMoved(const GestureEvent& e)
+{
+    page->translateBy(panVecX, panVecY);
 }

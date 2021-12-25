@@ -34,6 +34,7 @@ extern "C" {
     typedef void (*JoystickEventHandler)(const JoystickEvent& e);
     typedef void (*TouchEventHandler)(const TouchEvent& e);
     typedef void (*PointerEventHandler)(const PointerEvent& e);
+    typedef void (*GestureEventHandler)(const GestureEvent& e);
     typedef void (*FileDropEventHandler)(const FileDropEvent& e);
 #ifdef __cplusplus
 }
@@ -44,6 +45,8 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
+    APP_EXPORT double getWidth();
+    APP_EXPORT double getHeight();
 
     APP_EXPORT void draw();
     APP_EXPORT void setup();
@@ -75,6 +78,15 @@ extern "C" {
     APP_EXPORT void touchEnded(const TouchEvent& e);
     APP_EXPORT void touchMoved(const TouchEvent& e);
     APP_EXPORT void touchHover(const TouchEvent& e);
+
+    // Gesture Events
+    APP_EXPORT void panStarted(const GestureEvent& e);
+    APP_EXPORT void panMoved(const GestureEvent& e);
+    APP_EXPORT void panEnded(const GestureEvent& e);
+
+    APP_EXPORT void zoomStarted(const GestureEvent& e);
+    APP_EXPORT void zoomMoved(const GestureEvent& e);
+    APP_EXPORT void zoomEnded(const GestureEvent& e);
 
 // Pointer Events
 
@@ -113,6 +125,17 @@ extern "C" {
     APP_EXPORT extern int pmouseX;
     APP_EXPORT extern int pmouseY;
 
+    // Gesture Globals
+        // Gesture Globals
+    APP_EXPORT extern long panX;
+    APP_EXPORT extern long panY;
+    APP_EXPORT extern long ppanX;
+    APP_EXPORT extern long ppanY;
+    APP_EXPORT extern long panVecX;
+    APP_EXPORT extern long panVecY;
+
+    APP_EXPORT extern long previousZoomDistance;
+    APP_EXPORT extern long zoomDistance;
 
 #ifdef __cplusplus
 }
@@ -246,7 +269,7 @@ struct P5Vector {
 
     Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept;
 
-    void fill(const BLStyle& s) noexcept;
+
     void fill(const BLGradient& g) noexcept;
     void fill(const Pixel& pix) noexcept;
     void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
@@ -257,7 +280,6 @@ struct P5Vector {
     void noFill() noexcept;
 
 
-    void stroke(const BLStyle& s) noexcept;
     void stroke(const Pixel& pix) noexcept;
     void stroke(Pixel pix, int alpha) noexcept;
     void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
