@@ -279,6 +279,10 @@ namespace p5 {
     }
 
 
+    void fill(const BLStyle& s) noexcept
+    {
+        gAppSurface->fill(s);
+    }
 
     void fill(const BLGradient& g) noexcept
     {
@@ -345,6 +349,10 @@ namespace p5 {
     }
 
     // Change the alpha of an existing color
+    void stroke(const BLStyle& s) noexcept
+    {
+        gAppSurface->stroke(s);
+    }
     void stroke(Pixel pix, int alpha) noexcept
     {
         Pixel c = pix;

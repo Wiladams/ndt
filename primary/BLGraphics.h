@@ -258,14 +258,10 @@ public:
     virtual void fill(const BLStyle& s) { fUseFill = true; fCtx.setFillStyle(s); }
     virtual void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
     virtual void fill(const Pixel& c) { fUseFill = true; fCtx.setFillStyle(c); }
-    virtual void noFill() { fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); fUseFill = false; }
+    virtual void noFill() { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0));  }
 
-    virtual void stroke(const BLStyle& s) {
-        fCtx.setStrokeStyle(s);
-    }
-    virtual void stroke(const Pixel& c) {
-        fCtx.setStrokeStyle(c); 
-    }
+    virtual void stroke(const BLStyle& s) {fCtx.setStrokeStyle(s);}
+    virtual void stroke(const Pixel& c) {fCtx.setStrokeStyle(c); }
     virtual void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
 
 
@@ -461,11 +457,11 @@ public:
 
     virtual void path(const BLPath& path)
     {
-        fCtx.strokePath(path);
-
         if (fUseFill) {
             fCtx.fillPath(path);
         }
+
+        fCtx.strokePath(path);
 
         incrCmd();
     }

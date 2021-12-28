@@ -1,6 +1,6 @@
 #include "p5.hpp"
 #include "filestream.h"
-#include "tinyvgparser.h"
+#include "tvgparse.h"
 
 using namespace p5;
 using namespace tinyvg;
