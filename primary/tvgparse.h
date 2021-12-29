@@ -7,8 +7,8 @@
 // Note: File format is little-endian
 //
 // Description: The general idea with the code here is to read the 
-// tinyvg file format, and output a different data structure
-// that is ready for rendering.
+// tinyvg file format, and output a data structure stream
+// that is ready for other purposes.
 //
 // The only dependency other than standard libraries, is the binstream
 // object.  That is to ease memory reading.  There are three routines 
@@ -31,6 +31,9 @@
 
 namespace tinyvg
 {
+	// These couple of routines help facilitate bit banging, getting
+	// bit values out of integer values.  Using these means we don't
+	// have to create sketchy bitfield structures for everything
 	static inline uint64_t BITMASK64(const size_t low, const size_t high)
 	{
 		return ((((uint64_t)1 << (high - low)) << 1) - 1) << low;
@@ -40,8 +43,8 @@ namespace tinyvg
 		return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
 	}
 
-	// Useful enumerations
-	// These numbers correspond to the tinyvg specification
+	// This enumeration corresponds to the top level
+	// commands from the tinyvg specification
 	// do NOT change them unless that spec changes
 	enum Commands {
 		EndOfDocument = 0,		// end of the file
@@ -80,6 +83,8 @@ namespace tinyvg
 		rectangle = 258,
 	};
 
+	// These match the TinyVG spec
+	// DONT change them
 	enum ColorEncoding {
 		RGBA8888 = 0,
 		RGB565 = 1,
@@ -142,7 +147,6 @@ namespace tinyvg
 		float x;
 		float y;
 	};
-
 
 	struct tvg_style_t
 	{
@@ -220,6 +224,9 @@ namespace tinyvg
 		}
 	};
 
+	// A representation of a top level Tiny VR Command
+	// This contains the command, style, lineWidth, and contour commands
+	// This is the thing the parser fills in during the next() function call
 	struct tvg_command_t
 	{
 		int command=0;
@@ -249,7 +256,7 @@ namespace tinyvg
 	};
 
 
-	// Primary structure is this parser
+	// Primary structure of the parser itself
 	struct tvgparser
 	{
 		tvg_header_t header;

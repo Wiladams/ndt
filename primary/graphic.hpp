@@ -45,7 +45,10 @@ public:
 
 
 	BLRect getBounds() const { return fBounds; }
-	
+	void setBounds(const BLRect& b) { fBounds = b; }
+	double width() const { return fBounds.w; }
+	double height() const { return fBounds.h; }
+
 	void setFrame(const BLRect& frame) { fFrame = frame; }
 	virtual BLRect getFrame() const { return fFrame; }
 

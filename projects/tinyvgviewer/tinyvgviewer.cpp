@@ -1,324 +1,52 @@
-#include "tvgparse.h"
-
+// 
+//  tinyvgviewer
+//  Read and display Tiny Vector Graphic files
+//
 #include "p5.hpp"
-#include "filestream.h"
-
+#include "tinyvggraphic.h"
 
 using namespace p5;
 using namespace tinyvg;
 
-// Get a stream on the intended image
-FileStream fs_tiger("tiger.tvg");
-FileStream fs_shield("shield.tvg");
-FileStream fs_comic("comic.tvg");
-FileStream fs_chart("chart.tvg");
-FileStream fs_icon("app-icon.tvg");
-FileStream fs_flowchart("flowchart.tvg");
-FileStream fs_everything("everything.tvg");
-FileStream fs_logo("logo.tvg");
-
-BinStream* mainStream = nullptr;
-tvgparser* mainParser = nullptr;
-
-// A combination of VG commands
-// and path objects to match
-struct VGCommandPath
+// At the application level
+// quit the app if "ESC" is pressed
+void keyReleased(const KeyboardEvent &e)
 {
-	int fCommand;
-	BLStyle fFillStyle;
-	BLStyle fLineStyle;
-	float fLineWidth;
-	BLPath fPath;
-
-private:
-	// convert a tinyvg_style_t to a BLStyle
-	bool initStyle(BLStyle& s, tvg_style_t& tvgs)
-	{
-
-		switch (tvgs.kind) {
-		case DrawingStyle::FlatColored:
-		{
-			s = BLStyle(BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
-		}
-		break;
-
-		case DrawingStyle::LinearGradient:
-		case DrawingStyle::RadialGradient:
-		{
-			if (tvgs.kind == DrawingStyle::LinearGradient) {
-				BLGradient linear(BLLinearGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_1.x, tvgs.point_1.y));
-				linear.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
-				linear.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				s = BLStyle(linear);
-			}
-			else if (tvgs.kind == DrawingStyle::RadialGradient) {
-				double dx = tvgs.point_1.x - tvgs.point_0.x;
-				double dy = tvgs.point_1.y - tvgs.point_0.y;
-				double r0 = ::sqrt((dx * dx) + (dy * dy));	// distance
-
-				BLGradient radial(BLRadialGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_0.x, tvgs.point_0.y, r0));
-				radial.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
-				radial.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				s = BLStyle(radial);
-			}
-		}
-		break;
-
-		}
-		return true;
-	}
-
-	// Construct a path from contour commands
-	bool addContour(BLPath& segment, tvg_contour_command_t& cmd)
-	{
-		switch (cmd.kind)
-		{
-		case ContourCommands::moveTo:
-			segment.moveTo(cmd.moveTo.point_0.x, cmd.moveTo.point_0.y);
-			break;
-
-		case ContourCommands::line:
-		{
-			segment.addLine(BLLine(
-				cmd.line.point_0.x, cmd.line.point_0.y,
-				cmd.line.point_1.x, cmd.line.point_1.y));
-		}
-		break;
-
-		case ContourCommands::rectangle:
-		{
-			segment.addRect(BLRect(cmd.rect.x,cmd.rect.y,cmd.rect.width,cmd.rect.height));
-		}
-		break;
-
-		case ContourCommands::lineTo:
-		{
-			segment.lineTo(cmd.lineTo.point_1.x, cmd.lineTo.point_1.y);
-		}
-		break;
-		case ContourCommands::hlineTo:
-		{
-			BLPoint vtxOut;
-			segment.getLastVertex(&vtxOut);
-			segment.lineTo(cmd.hlineTo.x, vtxOut.y);
-		}
-		break;
-		case ContourCommands::vlineTo:
-		{
-			BLPoint vtxOut;
-			segment.getLastVertex(&vtxOut);
-			segment.lineTo(vtxOut.x, cmd.vlineTo.y);
-		}
-		break;
-
-		case ContourCommands::cubicBezierTo:
-		{
-			segment.cubicTo(cmd.cubicBezierTo.control_0.x, cmd.cubicBezierTo.control_0.y,
-				cmd.cubicBezierTo.control_1.x, cmd.cubicBezierTo.control_1.y,
-				cmd.cubicBezierTo.point_1.x, cmd.cubicBezierTo.point_1.y);
-		}
-		break;
-
-		case ContourCommands::quadraticBezierTo:
-		{
-			segment.quadTo(cmd.quadraticBezierTo.control_0.x, cmd.quadraticBezierTo.control_0.y,
-				cmd.quadraticBezierTo.point_1.x, cmd.quadraticBezierTo.point_1.y);
-		}
-		break;
-
-		case ContourCommands::arcCircleTo:
-		{
-			segment.ellipticArcTo(BLPoint(cmd.arcCircleTo.radius, cmd.arcCircleTo.radius), 0, cmd.arcCircleTo.largeArc, cmd.arcCircleTo.sweep, BLPoint(cmd.arcCircleTo.target.x, cmd.arcCircleTo.target.y));
-		}
-		break;
-
-		case ContourCommands::arcEllipseTo:
-		{
-			segment.ellipticArcTo(BLPoint(cmd.arcEllipseTo.radiusxy.x, cmd.arcEllipseTo.radiusxy.y), cmd.arcEllipseTo.rotation, cmd.arcEllipseTo.largeArc, cmd.arcEllipseTo.sweep, BLPoint(cmd.arcEllipseTo.target.x, cmd.arcEllipseTo.target.y));
-		}
-		break;
-
-		case ContourCommands::closePath:
-			segment.close();
-			return false;
-			break;
-		}
-
-		return true;
-	}
-
-public:
-	VGCommandPath(tvg_command_t cmd)
-	{
-		fCommand = cmd.command;
-		fLineWidth = cmd.lineWidth;
-		initStyle(fLineStyle, cmd.lineStyle);
-		initStyle(fFillStyle, cmd.fillStyle);
-
-		// construct a path from the sequence of contours
-		for (int i = 0; i < cmd.contours.size(); i++)
-		{
-			// for each contour
-			addContour(fPath, cmd.contours[i]);
-		}
-	}
-
-	void drawSelf(std::shared_ptr<IGraphics> ctx)
-	{
-		switch (fCommand) {
-		case Commands::DrawLinePath:
-		case Commands::DrawLines:
-		case Commands::DrawLineLoop:
-		case Commands::DrawLineStrip:
-		{
-			ctx->noFill();
-			ctx->stroke(fLineStyle);
-			/*
-			// iterate through the contour commands
-			// constructing a path, then draw the path
-			BLPath mainP;
-			BLPath tmpP;
-
-			for (int i = 0; i < cmd.contours.size(); i++) {
-				auto contour = cmd.contours[i];
-
-				if (contour.hasLineWidth) {
-					strokeWeight(contour.lineWidth);
-					addContour(tmpP, contour);
-					path(tmpP);
-					tmpP.reset();
-				} else {
-					strokeWeight(cmd.lineWidth);
-					addContour(tmpP, contour);
-
-					if (contour.kind == ContourCommands::closePath)
-					{
-						path(tmpP);
-						tmpP.reset();
-					}
-					else {
-						path(tmpP);
-					}
-				}
-			}
-			*/
-			strokeWeight(fLineWidth);
-			path(fPath);
-
-		}
-		break;
-
-		case Commands::FillPath:
-		case Commands::FillPolygon:
-		case Commands::FillRectangles:
-		{
-			noStroke();
-			fill(fFillStyle);
-			path(fPath);
-		}
-		break;
-
-		case Commands::OutlineFillPath:
-		case Commands::OutlineFillRectangles:
-		case Commands::OutlineFillPolygon:
-		{
-			//strokeWeight(cmd.lineWidth < 0.25 ? 0.25 : cmd.lineWidth);
-
-			fill(fFillStyle);
-			stroke(fLineStyle);
-			strokeWeight(fLineWidth);
-
-			path(fPath);
-		}
-		break;
-
-
-		default:
-		{
-			printf("UNKNOWN COMMAND: %d\n", fCommand);
-		}
-		}
-	}
-};
-
-class TinyVGGraphic : public Graphic
-{
-	BinStream& fStream;
-	std::vector<VGCommandPath> fFigures;
-
-public:
-	TinyVGGraphic(BinStream& bs)
-		:fStream(bs)
-	{
-		tvgparser parser(bs);
-
-		// Assuming the parse was ok
-		// BUGBUG - should check isValid()
-		setFrame(BLRect(0, 0, parser.header.width, parser.header.height));
-
-		// Construct our graphic commands
-		while (true)
-		{
-			tvg_command_t cmd;
-			if (!parser.next(cmd))
-				break;
-
-			VGCommandPath fig(cmd);
-			fFigures.push_back(fig);
-		}
-	}
-
-	virtual void drawSelf(std::shared_ptr<IGraphics> ctx)
-	{
-		for (int i = 0; i < fFigures.size(); i++)
-		{
-			fFigures[i].drawSelf(ctx);
-		}
-	}
-
-};
-
-
-
-std::shared_ptr<TinyVGGraphic> tvGraphic = nullptr;
-
-void draw()
-{
-	push();
-	auto x = random_double_range(-10, width - 10);
-	auto y = random_double_range(-10, height-10);
-	auto s = random_double_range(0.25, 2.0);
-	translate(x, y);
-	scale(s);
-	tvGraphic->draw(gAppSurface);
-	pop();
+	if (e.keyCode == VK_ESCAPE)
+		halt();
 }
+
+// At the application level
+// draw the background of the entire app
+void draw() 
+{
+	// Clear to background, whatever it is
+	if (!isLayered())
+		background(245, 246, 247);	// (245 , 246, 247);
+	else
+		clear();
+}
+
 
 void setup()
 {
-	//mainStream = &fs_comic;
-	mainStream = &fs_tiger;
-	//mainStream = &fs_shield;
-	//mainStream = &fs_chart;
-	//mainStream = &fs_everything;
-	//mainStream = &fs_logo;
+	fullscreen();
 
+	// create some graphics from tiny vg files
+	auto g1 = TinyVGGraphic::createFromFilename("comic.tvg");
+	auto g2 = TinyVGGraphic::createFromFilename("tiger.tvg");
+	auto g3 = TinyVGGraphic::createFromFilename("shield.tvg");
+	auto g4 = TinyVGGraphic::createFromFilename("chart.tvg");
+	auto g5 = TinyVGGraphic::createFromFilename("everything.tvg");
+	auto g6 = TinyVGGraphic::createFromFilename("logo");
+	auto g7 = TinyVGGraphic::createFromFilename("app-icon.tvg");
 
-	
-	tvGraphic = std::make_shared<TinyVGGraphic>(*mainStream);
-	auto b = tvGraphic->getFrame();
-
-	long w = maths::Max(800.0, (double)b.w);
-	long h = maths::Max(600.0, (double)b.h);
-
-	createCanvas(w, h, "TinyVG Viewer");
-	frameRate(30);
-	//scale(1.75);
-
-	background(0xffdddddd);
-	//p5::blendMode(BL_COMP_OP_SRC_COPY);
-
-	//tvGraphic->draw(gAppSurface);
-
-	//noLoop();
+	// create some windows to hold the graphics
+	window(0, 0, g1->width(), g1->height())->addChild(g1);
+	window(0, 0, g2->width(), g2->height())->addChild(g2);
+	window(0, 0, g3->width(), g3->height())->addChild(g3);
+	window(0, 0, g4->width(), g4->height())->addChild(g4);
+	window(0, 0, g5->width(), g5->height())->addChild(g5);
+	window(0, 0, g6->width(), g6->height())->addChild(g6);
+	window(0, 0, g7->width(), g7->height())->addChild(g7);
 }

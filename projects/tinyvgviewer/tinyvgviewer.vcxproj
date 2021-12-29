@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\tinyvggraphic.h" />
     <ClInclude Include="..\..\primary\tvgparse.h" />
   </ItemGroup>
   <ItemGroup>

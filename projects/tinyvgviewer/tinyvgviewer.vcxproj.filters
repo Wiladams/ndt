@@ -21,6 +21,9 @@
     <ClInclude Include="..\..\primary\tvgparse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\tinyvggraphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\p5.cpp">
