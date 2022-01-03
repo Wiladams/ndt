@@ -722,7 +722,9 @@ void handleComposition()
     // Allow the user's drawing to happen first
     // This could be captured in drawBackground/drawForeground/draw
     if (gDrawHandler != nullptr) {
+        p5::push();
         gDrawHandler();
+        p5::pop();
     }
 
     // If we have a window manager, tell it to draw

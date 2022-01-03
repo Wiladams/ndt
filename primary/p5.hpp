@@ -145,20 +145,20 @@ extern "C" {
 
 
 
-struct P5Vector {
+struct PVector {
     double x;
     double y;
 
-    P5Vector() :x(0), y(0) {}
-    P5Vector(double x, double y) : x(x), y(y) {}
+    PVector() :x(0), y(0) {}
+    PVector(double x, double y) : x(x), y(y) {}
 
 
     // Some simple arithmetic
-    P5Vector& add(const P5Vector& other) {
+    PVector& add(const PVector& other) {
         return add(other.x, other.y);
     }
 
-    P5Vector& add(const double x, const double y)
+    PVector& add(const double x, const double y)
     {
         this->x = this->x + x;
         this->y = this->y + y;
@@ -167,12 +167,12 @@ struct P5Vector {
     }
 
 
-    P5Vector operator *(const double sxy)
+    PVector operator *(const double sxy)
     {
         return { x * sxy, y * sxy };
     }
 
-    P5Vector& mul(const double x, const double y)
+    PVector& mult(const double x, const double y)
     {
         this->x = this->x * x;
         this->y = this->y * y;
@@ -180,12 +180,18 @@ struct P5Vector {
         return *this;
     }
     
-    P5Vector& mul(const P5Vector& other) {
-        return mul(other.x, other.y);
+    PVector& mult(const PVector& other) {
+        return mult(other.x, other.y);
     }
 
-    P5Vector& mul(const double sxy) {
-        return mul(sxy, sxy);
+    PVector& mult(const double sxy) {
+        return mult(sxy, sxy);
+    }
+
+    static PVector mult(const PVector& v, double m)
+    {
+        PVector res = v;
+        return res.mult(m);
     }
 };
 
