@@ -25,7 +25,7 @@ void setup()
 {
 	createCanvas(640, 480);
 
-	maskCanvas = std::make_shared<GCanvas>(width, height, BL_FORMAT_A8);
+	maskCanvas = std::make_shared<GCanvas>(canvasWidth, canvasHeight, BL_FORMAT_A8);
 	maskCanvas->clearAll();
 	maskCanvas->setFillStyle(BLRgba32(255, 255, 255));
 	maskCanvas->fillRect(40, 40, 200, 200);
@@ -57,10 +57,10 @@ void draw()
 	int yskip = 1;
 
 	loadPixels();
-	for (int y = 0; y < height; y += yskip) {
-		double v = (float)(height - 1 - y) / ((float)height - 1);
-		for (int x = 0; x < width; x += xskip) {
-			double u = (float)x / ((float)width - 1);
+	for (int y = 0; y < canvasHeight; y += yskip) {
+		double v = (float)(canvasHeight - 1 - y) / ((float)canvasHeight - 1);
+		for (int x = 0; x < canvasWidth; x += xskip) {
+			double u = (float)x / ((float)canvasWidth - 1);
 			auto c = effect->value(u, v, {});
 
 			set(x, y, BLRgba32((uint32_t)(c.r * 255), (uint32_t)(c.g * 255), (uint32_t)(c.b * 255)));

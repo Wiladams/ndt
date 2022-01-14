@@ -52,6 +52,7 @@ extern "C" {
     APP_EXPORT void setup();
     APP_EXPORT void update(const double dt);
 
+
 // IO Event Handlers
 
 // keyboard event processing
@@ -105,8 +106,11 @@ extern "C" {
 #endif
     // Size of the application area, set through
     // createCanvas()
-    APP_EXPORT extern int width;
-    APP_EXPORT extern int height;
+    //APP_EXPORT extern int width;
+    //APP_EXPORT extern int height;
+    
+    //APP_EXPORT extern int canvasWidth;
+    //APP_EXPORT extern int canvasHeight;
 
     APP_EXPORT extern int frameCount;
     APP_EXPORT extern int droppedFrames;
@@ -233,6 +237,8 @@ struct PVector {
         const Pixel midMagenta{ 0xffC00C0 };
     };
 
+    // Environment attributes
+    void setUnitsPerInch(double units);
 
     // Windowing functions
     void addWindow(std::shared_ptr<GWindow> win);

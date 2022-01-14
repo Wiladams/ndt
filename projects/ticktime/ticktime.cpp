@@ -7,7 +7,6 @@
 
 using namespace p5;
 
-
 class TickDisplay : public Graphic
 {
 	SecondTime fClock;
@@ -70,8 +69,6 @@ TickTopic ttopic(10);
 std::shared_ptr<TickDisplay> _tdisplay=nullptr;
 
 
-
-
 void tickSubscriber(const Topic<double>& p, double e)
 {
 	//std::cout << "tick: " << e << std::endl;
@@ -80,8 +77,6 @@ void tickSubscriber(const Topic<double>& p, double e)
 	
 	_tdisplay->draw(gAppSurface);
 	gAppSurface->flush();
-
-
 
 	screenRefresh();
 }
@@ -99,6 +94,8 @@ void setup()
 	fullscreen();
 
 	_tdisplay = std::make_shared<TickDisplay>();
+	//window(0,0,_tdisplay->width(), _tdisplay->height())->addChild(_tdisplay);
+
 
 	ttopic.setFrequency(10);
 	ttopic.subscribe(tickSubscriber);

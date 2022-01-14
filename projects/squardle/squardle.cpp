@@ -113,7 +113,7 @@ void draw()
 	for (int i = 1; i <= nFlowers; i++) {
 		push();
 		//translate(width / 2.0, height / 2.0);
-		translate(random(0, width), random(0, height));
+		translate(random(0, canvasWidth), random(0, canvasHeight));
 		scale(random(0.0125, 0.5));
 		drawDiamonds(startRadius, startSize, 9, true);
 		pop();

@@ -38,7 +38,7 @@ class BLGraphics : public IGraphics
     SHAPEMODE fShapeMode = SHAPEMODE::NONE;
     std::vector<BLPoint> fShapeVertices;
 
-    Pixel fFillColor = BLRgba32(0, 0, 0, 255);
+    Pixel fFillColor = BLRgba32(255, 255, 255, 255);
     Pixel fStrokeColor = BLRgba32(0, 0, 0, 255);
     Pixel fTextFillColor = BLRgba32(0, 0, 0, 255);
 
@@ -201,19 +201,18 @@ public:
         initialize();
     }
 
-    virtual ~BLGraphics() {
-          // do nothing
-    }
+    virtual ~BLGraphics() = default;
 
-    BLContext& getBlend2dContext()
+
+    INLINE BLContext& getBlend2dContext()
     {
         return fCtx;
     }
 
     // how many threads is the context using
-    int threadCount() { return fCtx.queryThreadCount(); }
+    INLINE int threadCount() { return fCtx.queryThreadCount(); }
 
-    void setCommandThreshold(int maxCommands)
+    INLINE void setCommandThreshold(int maxCommands)
     {
         fCommandThreshold = maxCommands;
     }
@@ -222,7 +221,7 @@ public:
     // as well as how many user space units per inch
     // doing this will allow us to specify all graphics
     // in some user specified units
-    inline void setPpiUnits(double ppi, double units)
+    INLINE void setPpiUnits(double ppi, double units)
     {
         fDimensionScale = ppi / units;
         fCtx.scale(fDimensionScale);
@@ -232,43 +231,42 @@ public:
 
 
     // Various Modes
-    virtual void angleMode(int mode) { fAngleMode = mode; }
-    virtual void ellipseMode(const ELLIPSEMODE mode) {fEllipseMode = mode;}
-    virtual void rectMode(const RECTMODE mode) { fRectMode = mode; }
-    virtual void blendMode(int op) { fCtx.setCompOp(op); }
+    INLINE void angleMode(int mode) { fAngleMode = mode; }
+    INLINE void ellipseMode(const ELLIPSEMODE mode) {fEllipseMode = mode;}
+    INLINE void rectMode(const RECTMODE mode) { fRectMode = mode; }
+    INLINE void blendMode(int op) { fCtx.setCompOp(op); }
 
     // stroking attributes
-    virtual void strokeCaps(int caps) { fCtx.setStrokeCaps(caps); }
-    virtual void strokeJoin(int style) { fCtx.setStrokeJoin(style); }
-    virtual void strokeWeight(double weight) { fCtx.setStrokeWidth(weight); }
+    INLINE void strokeCaps(int caps) { fCtx.setStrokeCaps(caps); }
+    INLINE void strokeJoin(int style) { fCtx.setStrokeJoin(style); }
+    INLINE void strokeWeight(double weight) { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
-    virtual void push() { fCtx.save(); }
-    virtual void pop() { fCtx.restore(); }
+    INLINE void push() { fCtx.save(); }
+    INLINE void pop() { fCtx.restore(); }
 
     // Coordinate transformation
-    virtual void translate(double dx, double dy) { fCtx.translate(dx, dy); }
-    virtual void scale(double sx, double sy) { fCtx.scale(sx, sy); }
-    virtual void scale(double sxy) { scale(sxy, sxy); }
-    virtual void rotate(double angle, double cx, double cy) { fCtx.rotate(angle, cx, cy); }
-    virtual void rotate(double angle) { rotate(angle, 0, 0); }
+    INLINE void translate(double dx, double dy) { fCtx.translate(dx, dy); }
+    INLINE void scale(double sx, double sy) { fCtx.scale(sx, sy); }
+    INLINE void rotate(double angle, double cx, double cy) { fCtx.rotate(angle, cx, cy); }
+    INLINE  void rotate(double angle) { rotate(angle, 0, 0); }
 
 
     // Pixel management
-    virtual void fill(const BLStyle& s) { fUseFill = true; fCtx.setFillStyle(s); }
-    virtual void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
-    virtual void fill(const Pixel& c) { fUseFill = true; fCtx.setFillStyle(c); }
-    virtual void noFill() { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0));  }
+    INLINE  void noFill() { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
+    INLINE  void fill(const BLStyle& s) { fUseFill = true; fCtx.setFillStyle(s); }
+    INLINE  void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
+    INLINE  void fill(const Pixel& c) { fUseFill = true; fCtx.setFillStyle(c); }
 
-    virtual void stroke(const BLStyle& s) {fCtx.setStrokeStyle(s);}
-    virtual void stroke(const Pixel& c) {fCtx.setStrokeStyle(c); }
-    virtual void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
+    INLINE  void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
+    INLINE  void stroke(const BLStyle& s) {fCtx.setStrokeStyle(s);}
+    INLINE  void stroke(const Pixel& c) {fCtx.setStrokeStyle(c); }
 
 
     // Synchronization
     // Wait for any outstanding drawing commands to be applied
     //
-    virtual void flush()
+     void flush()
     {
         BLResult bResult = fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         if (bResult != BL_SUCCESS)
@@ -279,7 +277,7 @@ public:
         resetCommandCount();
     }
 
-    virtual void loadPixels()
+     void loadPixels()
     {
         // First, flush all queued commands
         flush();
@@ -297,14 +295,14 @@ public:
             return;
     }
 
-    virtual void updatePixels()
+     void updatePixels()
     {
         flush();
         fImageData.reset();
     }
 
     // Background management
-    virtual void clear() 
+     void clear() 
     {
         //printf("BLGraphics.clear\n");
         fCtx.save();
@@ -313,13 +311,13 @@ public:
         flush();
     }
 
-    virtual void clearRect(double x, double y, double w, double h)
+     virtual void clearRect(double x, double y, double w, double h)
     {
         fCtx.clearRect(x, y, w, h);
         incrCmd();
     }
 
-    virtual void background(const Pixel& c)
+     void background(const Pixel& c)
     {
         fCtx.save();
         fCtx.setFillStyle(c);
@@ -328,12 +326,12 @@ public:
     }
 
     // Clipping
-    virtual void clip(double x, double y, double w, double h) {fCtx.clipToRect(x, y, w, h);}
-    virtual void noClip() { fCtx.restoreClipping(); }
+    INLINE  void clip(double x, double y, double w, double h) {fCtx.clipToRect(x, y, w, h);}
+    INLINE  void noClip() { fCtx.restoreClipping(); }
 
     // Geometry
     // hard set a specfic pixel value
-    virtual void set(double x, double y, const Pixel& c)
+    INLINE  void set(double x, double y, const Pixel& c)
     {
         if (nullptr == fImageData.pixelData)
             return;
@@ -343,31 +341,28 @@ public:
     
 
 
-    virtual void point(double x, double y) 
+    INLINE  void point(double x, double y)
     { 
         line(x, y, x+1, y);
     }
 
-    virtual void line(double x1, double y1, double x2, double y2) 
+    INLINE  void line(double x1, double y1, double x2, double y2)
     {
         BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
 
         incrCmd();
     }
 
-    virtual void rect(const BLRect& rr)
+    INLINE  void rect(const BLRect& rr)
     {
-        //printf("BLGraphics.rect( %f %f %f %f);\n", rr.x, rr.y, rr.w, rr.h);
         BLResult bResult = fCtx.strokeRect(rr);
         bResult = fCtx.fillRect(rr);
 
         incrCmd();
     }
 
-    virtual void rect(double x, double y, double width, double height, double xradius, double yradius)
+    INLINE void rect(double x, double y, double width, double height, double xradius, double yradius)
     {
-        //printf("BLGraphics.rrect( %f %f %f %f %f %f);\n", x, y, width, height, xradius, yradius);
-
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
 
@@ -375,26 +370,13 @@ public:
     }
 
     
-    virtual void rect(double a, double b, double c, double d)
+    INLINE  void rect(double a, double b, double c, double d)
     {
             BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
             rect(params);
     }
-    /*
-    virtual void rect(double x, double y, double width, double height)
-    {
-        if (fUseFill) {
-            fCtx.fillRect(x, y, width, height);
-        }
 
-
-            fCtx.strokeRect(x, y, width, height);
-
-
-        incrCmd();
-    }
-    */
-    virtual void ellipse(double a, double b, double c, double d) {
+     void ellipse(double a, double b, double c, double d) {
         BLEllipse params = BLGraphics::calcEllipseParams(fEllipseMode, a, b, c, d);
 
         if (fUseFill) {
@@ -406,9 +388,9 @@ public:
         incrCmd();
     }
 
-    virtual void circle(double cx, double cy, double diameter) { ellipse(cx, cy, diameter, diameter); }
+    INLINE  void circle(double cx, double cy, double diameter) { ellipse(cx, cy, diameter, diameter); }
 
-    virtual void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
+    virtual  void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
     {
         BLTriangle tri = { x1,y1, x2,y2,x3,y3 };
 
@@ -431,13 +413,13 @@ public:
         incrCmd();
     }
     
-    virtual void polyline(const BLPoint* pts, size_t n)
+    INLINE  void polyline(const BLPoint* pts, size_t n)
     {
         fCtx.strokePolyline(pts, n);
         incrCmd();
     }
     
-    virtual void polygon(const BLPoint* pts, size_t n)
+    INLINE  void polygon(const BLPoint* pts, size_t n)
     {
         fCtx.strokePolygon(pts, n);
 
@@ -448,14 +430,14 @@ public:
         incrCmd();
     }
     
-    virtual void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+    INLINE  void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
     {
         BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
         polygon(pts, 4);
         incrCmd();
     }
 
-    virtual void path(const BLPath& path)
+     void path(const BLPath& path)
     {
         if (fUseFill) {
             fCtx.fillPath(path);
@@ -467,13 +449,13 @@ public:
     }
 
     // Bitmaps
-    virtual void image(const BLImage& img, int x, int y)
+    INLINE  void image(const BLImage& img, int x, int y)
     {
         fCtx.blitImage(BLPointI(x, y), img);
         incrCmd();
     }
     
-    virtual void scaleImage(const BLImage& src,
+     void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight)
     {
@@ -485,19 +467,19 @@ public:
 
 
 
-    virtual void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
+    INLINE  void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
     {
         fTextHAlignment = horizontal;
         fTextVAlignment = vertical;
     }
 
-    virtual void textFont(const char* fontfile)
+    INLINE  void textFont(const char* fontfile)
     {
         fFontFace.createFromFile(fontfile);
         textSize(fFontSize);
     }
     
-    virtual void textSize(double size)
+    INLINE  void textSize(double size)
     {
         fFontSize = (float)size;
         fFont.reset();
@@ -505,7 +487,7 @@ public:
     }
 
     // Get the width (in font units) of the text
-    virtual BLPoint textWidth(const char* txt)
+     BLPoint textWidth(const char* txt)
     {
         BLFontMetrics fm = fFont.metrics();
         BLTextMetrics tm;
@@ -540,7 +522,7 @@ public:
 
 
     // Vertex shaping
-    void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN)
+    INLINE void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN)
     {
         // To begin a shape, clear out existing shape
         // and set the shape mode to that specified
@@ -548,7 +530,7 @@ public:
         fShapeVertices.clear();
     }
 
-    void vertex(double x, double y)
+    INLINE void vertex(double x, double y)
     {
         // Make sure beginShape() has been called
         if (fShapeMode == SHAPEMODE::NONE)

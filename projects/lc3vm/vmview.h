@@ -5,7 +5,7 @@
 #include "filestream.h"
 #include "layout.h"
 
-class StringLabel : public IGraphic
+class StringLabel : public Graphic
 {
 	BLRect fFrame;
 	std::string fContent;

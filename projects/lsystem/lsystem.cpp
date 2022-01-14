@@ -124,7 +124,7 @@ void setup()
 
 
 	x = 0;
-	y = height - 1;
+	y = canvasHeight - 1;
     //y = 0;
 	// Compute the L-System
 	for (int i = 0; i < numLoops; i++) {

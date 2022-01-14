@@ -804,7 +804,7 @@ bool setCanvasSize(long aWidth, long aHeight)
     }
 
 
-    gAppSurface = std::make_shared<Surface>(aWidth, aHeight);
+    gAppSurface = std::make_shared<Surface>(aWidth, aHeight,0);
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 
@@ -1065,16 +1065,16 @@ bool prolog()
 
     // How big is the screen physically
     // DeviceCaps gives it in millimeters, so we convert to inches
-    auto screenWidth = ::GetDeviceCaps(dhdc, HORZSIZE)/25.4;
-    auto screenHeight = ::GetDeviceCaps(dhdc, VERTSIZE)/25.4;
+    auto screenWidthInches = ::GetDeviceCaps(dhdc, HORZSIZE)/25.4;
+    auto screenHeightInches = ::GetDeviceCaps(dhdc, VERTSIZE)/25.4;
 
     // pixel count horizontally and vertically
     auto pixelWidth = ::GetDeviceCaps(dhdc, LOGPIXELSX);
     auto pixelHeight = ::GetDeviceCaps(dhdc, LOGPIXELSY);
 
     // Calculate real pixel density
-    double screenHPpi = (double)dpidisplayWidth / screenWidth;
-    double screenVPpi = (double)dpidisplayHeight / screenHeight;
+    double screenHPpi = (double)dpidisplayWidth / screenWidthInches;
+    double screenVPpi = (double)dpidisplayHeight / screenHeightInches;
     systemPpi = (unsigned int)screenVPpi;
 
 
@@ -1101,6 +1101,7 @@ void epilog()
         gOnUnloadHandler();
     }
 
+    // shut down networking stack
     ::WSACleanup();
 }
 

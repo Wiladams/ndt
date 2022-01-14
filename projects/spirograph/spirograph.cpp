@@ -31,7 +31,7 @@ void draw()
     
       // MAIN ACTION
       push(); // start a transformation matrix
-      translate(width / 2.0, height / 2.0); // move to middle of screen
+      translate(canvasWidth / 2.0, canvasHeight / 2.0); // move to middle of screen
     
       for (int i = 0; i < NUMSINES; i++) {
         double erad = 0; // radius for small "point" within circle... this is the 'pen' when tracing
@@ -79,7 +79,7 @@ void setup()
         createCanvas(710, 400);
         frameRate(60);
 
-        rad = height / 4; // compute radius for central circle
+        rad = canvasHeight / 4.0; // compute radius for central circle
         background(204); // clear the screen
 
         for (int i = 0; i < NUMSINES; i++) {

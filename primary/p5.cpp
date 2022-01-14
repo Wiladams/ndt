@@ -61,8 +61,11 @@ bool gIsFullscreen = false;
 
 namespace p5 {
 
-    int width = 0;              // width of the canvas
-    int height = 0;             // height of the canvas
+    //int width = 0;              // width of the canvas
+    //int height = 0;             // height of the canvas
+    
+    int canvasWidth = 0;              // width of the canvas
+    int canvasHeight = 0;             // height of the canvas
 
     int frameCount = 0;         // how many frames drawn so far
     int droppedFrames = 0;
@@ -100,6 +103,10 @@ namespace p5 {
 
     //double getWidth() { return fDimensionScale * width; }
     //double getHeight() { return fDimensionScale * height; }
+    void setUnitsPerInch(double units)
+    {
+        gAppSurface->setPpiUnits(systemPpi, units);
+    }
 
     // Window management
     void addWindow(std::shared_ptr<GWindow> win)
@@ -644,8 +651,8 @@ namespace p5 {
 
     void createCanvas(long aWidth, long aHeight, const char *title) noexcept
     {
-        width = aWidth;
-        height = aHeight;
+        //canvasWidth = aWidth;
+        //canvasHeight = aHeight;
 
         createAppWindow(aWidth, aHeight, "p5 Window");
         //showAppWindow();

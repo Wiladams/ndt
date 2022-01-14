@@ -5,10 +5,10 @@
 struct Particle
 {
 	double fMass;
-	p5::P5Vector fLocation;
-	p5::P5Vector fVelocity;
+	p5::PVector fLocation;
+	p5::PVector fVelocity;
 
-	Particle(p5::P5Vector location, p5::P5Vector velocity, double mass)
+	Particle(p5::PVector location, p5::PVector velocity, double mass)
 		:fLocation(location),
 		fVelocity(velocity),
 		fMass(mass)

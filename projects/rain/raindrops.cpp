@@ -9,7 +9,7 @@ struct RainDrop : Particle
 {
     bool fIsObstructed;
 
-    RainDrop(p5::P5Vector location, p5::P5Vector velocity, double mass)
+    RainDrop(p5::PVector location, p5::PVector velocity, double mass)
         :Particle(location, velocity, mass),
         fIsObstructed(false)
     {
@@ -28,7 +28,7 @@ struct RainDrop : Particle
 
 std::queue<RainDrop> rainDrops;
 static int maxDrops = 200;
-static p5::P5Vector windForce(0, 0);
+static p5::PVector windForce(0, 0);
 
 BLBoxI Obstruction;
 
@@ -41,8 +41,8 @@ void addDrop(int numDrops = 1)
 {
     for (int i = 1; i <= numDrops; i++)
     {
-        p5::P5Vector loc(random(0, width - 1), 0);
-        p5::P5Vector vel(windForce.x+random(-2, 2), windForce.y+random(20, 35));
+        p5::PVector loc(random(0, canvasWidth - 1), 0);
+        p5::PVector vel(windForce.x+random(-2, 2), windForce.y+random(20, 35));
 
         rainDrops.push(RainDrop(loc, vel, 1.0));
     }

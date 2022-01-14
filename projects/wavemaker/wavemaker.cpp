@@ -18,22 +18,20 @@ void draw()
 
     // make a x and y grid of ellipses
     fill(40, 200, 40);
-    for (int x = 0; x <= width - 1; x += 30) {
-        for (int y = 0; y <= height; y += 30) {
+    for (int x = 0; x <= canvasWidth - 1; x += 30) {
+        for (int y = 0; y <= canvasHeight; y += 30) {
             //starting point of each circle depends on mouse position
-            double xAngle = map(mouseX, 0, width-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
-            double yAngle = map(mouseY, 0, height-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
+            double xAngle = map(mouseX, 0, canvasWidth-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
+            double yAngle = map(mouseY, 0, canvasHeight-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
             
             //printf("xAngle: %f  yAngle: %f\n", xAngle, yAngle);
 
             //and also varies based on the particle's location
-            double angle = (xAngle * ((double)x / (double)width)) + (yAngle * ((double)y / (double)height));
+            double angle = (xAngle * ((double)x / (double)canvasWidth)) + (yAngle * ((double)y / (double)canvasHeight));
 
             //each particle moves in a circle
             double myX = ((double)x + 20.0 * cos((2.0 * maths::Pi * t) + angle));
             double myY = ((double)y + 20.0 * sin((2.0 * maths::Pi * t) + angle));
-
-            //printf("myX: %f  myY: %f\n", myX, myY);
 
             circle(myX, myY, gRadius); //draw particle
         }

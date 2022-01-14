@@ -9,7 +9,7 @@
 
         The constraint can express two dimensions and not just one.
 
-        --A slider can be created with as little information as a starting
+        A slider can be created with as little information as a starting
         and ending point.
 
         slider:create({ startPoint = {x = 10,y = 4}; endPoint = {x = 10,y = 20}; })

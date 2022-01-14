@@ -97,12 +97,12 @@ Pixel  randomColor()
 }
 
 std::vector<Spring2D> springs;
-Spring2D headSpring(width / 2, height / 2, mass, gravity, randomColor());
+Spring2D headSpring(canvasWidth / 2, canvasHeight / 2, mass, gravity, randomColor());
 
 
 void addSpring()
 {
-    Spring2D aspring(width / 2, height / 2, mass, gravity, randomColor());
+    Spring2D aspring(canvasWidth / 2, canvasHeight / 2, mass, gravity, randomColor());
 
 
     springs.push_back(aspring);

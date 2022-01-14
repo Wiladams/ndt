@@ -9,7 +9,7 @@ using namespace p5;
 
 std::shared_ptr<GWindow> appWindow=nullptr;
 
-class AppView : public IDrawable
+class AppView : public Graphic
 {
 public:
 	void draw(std::shared_ptr<IGraphics> ctx)
@@ -45,7 +45,7 @@ void setup()
 	// Create the window that will display our app's stuff
 	appWindow = window(0, 0, 640, 480);
 	appWindow->setTitle("lc3vm");
-	appWindow->setPage(std::make_shared<AppView>());
+	appWindow->addChild(std::make_shared<AppView>());
 
 	// load a program from command line
 	// run the program on a vm
@@ -69,7 +69,7 @@ void fileDrop(const FileDropEvent& e)
 	{
 		auto win = window(0, 0, 320,480);
 		win->setTitle(e.filenames[i]);
-		win->setPage(Lc3VMView::fromFilename(e.filenames[i]));
+		win->addChild(Lc3VMView::fromFilename(e.filenames[i]));
 	}
 }
 

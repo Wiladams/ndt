@@ -12,7 +12,7 @@
 
 using namespace p5;
 
-int ITERATIONS = 10000;
+int ITERATIONS = 1000;
 FrameStats _stats;
 
 void draw()
@@ -36,35 +36,35 @@ void draw()
         //rect(10, 10, 200, 200);
 
         quad(
-            random(-40, 220), random(height),
-            random(-40, 220), random(height),
-            random(-40, 220), random(height),
-            random(-40, 220), random(height)
+            random(-40, 220), random(canvasHeight),
+            random(-40, 220), random(canvasHeight),
+            random(-40, 220), random(canvasHeight),
+            random(-40, 220), random(canvasHeight)
         );
 
 
         fill(c1);
         quad(
-            random(140, 380), random(height),
-            random(140, 380), random(height),
-            random(140, 380), random(height),
-            random(140, 380), random(height)
+            random(140, 380), random(canvasHeight),
+            random(140, 380), random(canvasHeight),
+            random(140, 380), random(canvasHeight),
+            random(140, 380), random(canvasHeight)
         );
 
         fill(c2);
         quad(
-            random(320, 580), random(height),
-            random(320, 580), random(height),
-            random(320, 580), random(height),
-            random(320, 580), random(height)
+            random(320, 580), random(canvasHeight),
+            random(320, 580), random(canvasHeight),
+            random(320, 580), random(canvasHeight),
+            random(320, 580), random(canvasHeight)
         );
 
         fill(to);
         quad(
-            random(500, 760), random(height),
-            random(500, 760), random(height),
-            random(500, 760), random(height),
-            random(500, 760), random(height)
+            random(500, 760), random(canvasHeight),
+            random(500, 760), random(canvasHeight),
+            random(500, 760), random(canvasHeight),
+            random(500, 760), random(canvasHeight)
         );
 
         // the command queue can get too big and 

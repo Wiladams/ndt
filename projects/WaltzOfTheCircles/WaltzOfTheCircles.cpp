@@ -15,9 +15,9 @@ constexpr double PI = 3.14159;
 int circleCnt, vertexCnt;
 
 void updateCntByMouse() {
-    double xoffset = abs(mouseX - width / 2), yoffset = abs(mouseY - height / 2);
-    circleCnt = int(map(xoffset, 0, width / 2, MAX_CIRCLE_CNT, MIN_CIRCLE_CNT));
-    vertexCnt = int(map(yoffset, 0, height / 2, MAX_VERTEX_CNT, MIN_VERTEX_CNT));
+    double xoffset = abs(mouseX - canvasWidth / 2.0), yoffset = abs(mouseY - canvasHeight / 2.0);
+    circleCnt = int(map(xoffset, 0, canvasWidth / 2.0, MAX_CIRCLE_CNT, MIN_CIRCLE_CNT));
+    vertexCnt = int(map(yoffset, 0, canvasHeight / 2.0, MAX_VERTEX_CNT, MIN_VERTEX_CNT));
 }
 
 PVector getCenterByTheta(double theta, double time, double scale) {
@@ -45,8 +45,8 @@ Pixel getColorByTheta(double theta, double time) {
 
 void setup()
 {
-    createCanvas(700, 700);
-    //fullscreen();
+    //createCanvas(700, 700);
+    fullscreen();
 
     frameRate(10);
 }
@@ -54,9 +54,10 @@ void setup()
 void draw() {
     background(0);
 
-    translate(width / 2, height / 2);
+    translate(canvasWidth / 2, canvasHeight / 2);
 
     updateCntByMouse();
+    noFill();
 
     for (int ci = 0; ci < circleCnt; ci++) {
         float time = float(frameCount) / 20;
@@ -69,12 +70,12 @@ void draw() {
         Pixel c = getColorByTheta(thetaC, time);
 
         stroke(c);
-        noFill();
+
         beginShape();
         for (int vi = 0; vi < vertexCnt; vi++) {
-            float thetaV = map(vi, 0, vertexCnt, 0, TAU);
-            float x = circleCenter.x + cos(thetaV) * circleSize;
-            float y = circleCenter.y + sin(thetaV) * circleSize;
+            double thetaV = map(vi, 0, vertexCnt, 0, TAU);
+            double x = circleCenter.x + cos(thetaV) * circleSize;
+            double y = circleCenter.y + sin(thetaV) * circleSize;
             vertex(x, y);
         }
         endShape(SHAPEEND::CLOSE);

@@ -77,8 +77,8 @@ void draw()
 	clear();
 
 	// draw pot of gold at end of rainbow
-	int potX = width - potOfGold.width() - 200;
-	int potY = height - potOfGold.height() - 300;
+	int potX = canvasWidth - potOfGold.width() - 200;
+	int potY = canvasHeight - potOfGold.height() - 300;
 
 	// Draw the pot of gold first
 	p5::image(potOfGold, potX, potY);
@@ -107,7 +107,7 @@ void draw()
 		int finalX = (int)map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
 		int finalY = (int)(potY+36);
 
-		GradientBezier bez(grad, x, height, width * 0.3, yoffset, width * 0.6, yoffset, finalX, finalY,1200);
+		GradientBezier bez(grad, x, canvasHeight, canvasWidth * 0.3, yoffset, canvasWidth * 0.6, yoffset, finalX, finalY,1200);
 		bez.draw(gAppSurface);
 
 

@@ -30,7 +30,7 @@ void draw()
 
 	noStroke();
 	fill(255, 0, 0);
-	rect(0, 0, width, 48);
+	rect(0, 0, canvasWidth, 48);
 	flush();
 }
 

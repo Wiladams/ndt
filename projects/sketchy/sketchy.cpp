@@ -77,13 +77,13 @@ void setup()
 {
 	createCanvas(800, 600);
 
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)width, 96), BLRoundRect(68, 0, 48, 16, 1), "View", appTabColor, appTabColor));
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)width, 96), BLRoundRect(16, 0, 48, 16, 1), "Home", appTabColor, appTabColor));
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(68, 0, 48, 16, 1), "View", appTabColor, appTabColor));
+	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(16, 0, 48, 16, 1), "Home", appTabColor, appTabColor));
 
 	appArea.x = 0;
 	appArea.y = 96;
-	appArea.w = width;
-	appArea.h = height - appArea.y;
+	appArea.w = canvasWidth;
+	appArea.h = canvasHeight - appArea.y;
 
 	canvasArea.x = 0;
 	canvasArea.y = 0;

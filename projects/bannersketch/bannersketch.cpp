@@ -126,15 +126,15 @@ void draw() {
 		// Wrap edges of canvas so circles leave the top
 		// and re-enter the bottom, etc...
 		if (e[j][0] < -diam) {
-			e[j][0] = width + diam;
+			e[j][0] = canvasWidth + diam;
 		}
-		if (e[j][0] > width + diam) {
+		if (e[j][0] > canvasWidth + diam) {
 			e[j][0] = -diam;
 		}
 		if (e[j][1] < 0 - diam) {
-			e[j][1] = height + diam;
+			e[j][1] = canvasHeight + diam;
 		}
-		if (e[j][1] > height + diam) {
+		if (e[j][1] > canvasHeight + diam) {
 			e[j][1] = -diam;
 		}
 
@@ -187,8 +187,8 @@ void setup() {
 
 	// Initiate array with random values for circles
 	for (int j = 0; j < count; j++) {
-		e[j][0] = random((double)width); // X 
-		e[j][1] = random((double)height); // Y
+		e[j][0] = random((double)canvasWidth); // X 
+		e[j][1] = random((double)canvasHeight); // Y
 		e[j][2] = random(minSize, maxSize); // Radius        
 		e[j][3] = random(-.12, .12); // X Speed
 		e[j][4] = random(-.12, .12); // Y Speed

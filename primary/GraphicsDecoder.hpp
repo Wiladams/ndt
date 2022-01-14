@@ -156,14 +156,14 @@ public:
             }
             break;
 
-            case GCMD_STROKE: {
+            case GCMD_STROKE_COLOR: {
                 BLRgba32 c = readColor();
                 //printf("GraphicsDecoder.GCMD_STROKE: 0x%08x\n", c.value);
 
                 fGraphics->stroke(c.r, c.g, c.b, c.a);
             }
             break;
-            case GCMD_NOSTROKE: {
+            case GCMD_STROKE_NONE: {
                 fGraphics->noStroke();
             }
             break;

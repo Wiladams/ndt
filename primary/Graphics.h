@@ -23,13 +23,17 @@ GCMD_TRANSLATE,
 GCMD_SCALE,
 GCMD_ROTATE,
 
+GCMD_FILL_NONE, 
+GCMD_FILL_STYLE,
 GCMD_FILL_COLOR,
 GCMD_FILL_GRADIENT,
 GCMD_FILL_PATTERN,
-GCMD_FILL_NONE,
 
-GCMD_STROKE,
-GCMD_NOSTROKE,
+
+GCMD_STROKE_NONE, 
+GCMD_STROKE_COLOR,
+GCMD_STROKE_STYLE,
+
 
 GCMD_FLUSH,
 GCMD_LOADPIXELS,
@@ -147,7 +151,7 @@ typedef BLRgba32 Pixel;
 class IGraphics
 {
 public:
-    virtual ~IGraphics() {}
+    virtual ~IGraphics() = default;
 
     virtual void angleMode(int newMode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
@@ -165,7 +169,7 @@ public:
     virtual void scale(double sx, double sy)=0;
     virtual void scale(double sxy) { scale(sxy, sxy); }
     virtual void rotate(double angle, double cx, double cy) = 0;
-    virtual void rotate(double angle) { rotate(angle, 0, 0); }
+    void rotate(double angle) { rotate(angle, 0, 0); }
 
     virtual int blue(const Pixel& c) { return c.b; }
     virtual int green(const Pixel& c) {return c.g;}
@@ -179,9 +183,6 @@ public:
     virtual Pixel color(int gray) {return color(gray, gray, gray, 255);}
 
     virtual Pixel lerpColor(const Pixel& from, const Pixel& to, double f) {
-        //auto p = maths::Lerp(f, from, to);
-        //return p;
-
         uint8_t r = (uint8_t)maths::Lerp(f, (double)from.r, (double)to.r);
         uint8_t g = (uint8_t)maths::Lerp(f, (double)from.g, (double)to.g);
         uint8_t b = (uint8_t)maths::Lerp(f, (double)from.b, (double)to.b);
@@ -190,6 +191,7 @@ public:
         return Pixel((int)r, (int)g, (int)b, (int)a);
     }
 
+    virtual void noFill() = 0;
     virtual void fill(const BLStyle& s) = 0;
     virtual void fill(const BLGradient & g) { fill(BLStyle(g)); }
     virtual void fill(const Pixel& c) {fill(BLStyle(c));}
@@ -197,15 +199,15 @@ public:
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
     inline virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
-    virtual void noFill() = 0;
 
+    virtual void noStroke() = 0;
     virtual void stroke(const BLStyle& s) = 0;
     virtual void stroke(const Pixel & c) {stroke(BLStyle(c));};
     virtual void stroke(int r, int g, int b, int a) { stroke(color(r, g, b, a)); }
     virtual void stroke(int r, int g, int b) { stroke(color(r, g, b, 255)); }
     virtual void stroke(int gray, int alpha) { stroke(color(gray, gray, gray, alpha)); }
     virtual void stroke(int gray) { stroke(color(gray, gray, gray, 255)); }
-    virtual void noStroke() = 0;
+
 
     // Background management
     virtual void clear() = 0;

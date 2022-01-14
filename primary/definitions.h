@@ -23,3 +23,9 @@
 #if defined(_MSC_VER)
 #define NDT_IS_MSVC
 #endif
+
+#ifdef _MSC_VER
+#define INLINE __forceinline
+#else
+#define INLINE inline
+#endif

@@ -182,7 +182,7 @@ public:
         return true;
     }
 
-    int numberOfAddresses() {return fAddresses.size();}
+    size_t numberOfAddresses() {return fAddresses.size();}
 
     IPAddress * getAddress(const int idx = 0)
     {

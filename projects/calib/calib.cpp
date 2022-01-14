@@ -9,6 +9,18 @@ using namespace p5;
 // Draw some lines that should be specific
 // physical lengths on the screen
 //
+void drawHundreds()
+{
+	//
+	// print lines of different lengths
+	// increasing width as we go
+	strokeWeight(4);
+	stroke(127);
+	line(0, 50, 50, 50);	// half inch
+	line(0, 75, 100, 75);	// one inch
+	line(0, 100, 150, 100);	// one and a half
+}
+
 void draw()
 {
 	//background(255, 255, 0);
@@ -17,27 +29,23 @@ void draw()
 	fill(Pixel(255,255,255));
 	textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
 	textSize(24);
-	text("User Units 96/inch", getWidth()/2,24);
+	text("User Units 100/inch", canvasWidth/2,24);
 
+	drawHundreds();
 
-	//
-	// print lines of different lengths
-	// increasing width as we go
 	strokeWeight(4);
 	stroke(127);
-	line(48, 48, 96, 48);
-	line(48, 72, 144, 72);
-	line(48, 96, 192, 96);
+	//line(0, .5, 0.5, 0.5);	// half inch
+	//line(0, .75, 1, 0.75);	// one inch
+	//line(0, 1, 1.5, 1);	// one and a half
 	//
 	noLoop();
 }
 
 void setup()
 {
-	//fullscreen();
 	createCanvas(1280, displayHeight/2);
 
 	// Set user space units to be 96/inch
-	//gAppSurface->setPpiUnits(systemPpi, 96);
-	gAppSurface->setPpiUnits(systemPpi, 260*0.45);
+	setUnitsPerInch(100);
 }

@@ -83,25 +83,30 @@ public:
     {
     }
 
-
-
     // Various Modes
-    virtual void angleMode(int mode) {writeEnum(GCMD_ANGLEMODE, mode);}
-    virtual void ellipseMode(const ELLIPSEMODE mode) {writeEnum(GCMD_ELLIPSEMODE, (uint32_t)mode);}
-    virtual void rectMode(const RECTMODE mode) {writeEnum(GCMD_RECTMODE, (uint32_t)mode);}
-    virtual void blendMode(int op) {writeEnum(GCMD_BLENDMODE, (uint32_t)op);}
+     void angleMode(int mode) {writeEnum(GCMD_ANGLEMODE, mode);}
+     void ellipseMode(const ELLIPSEMODE mode) {writeEnum(GCMD_ELLIPSEMODE, (uint32_t)mode);}
+     void rectMode(const RECTMODE mode) {writeEnum(GCMD_RECTMODE, (uint32_t)mode);}
+     void blendMode(int op) {writeEnum(GCMD_BLENDMODE, (uint32_t)op);}
 
     // stroking attributes
-    virtual void strokeCaps(int caps) {writeEnum(GCMD_STROKECAPS, caps);}
-    virtual void strokeJoin(int style) { writeEnum(GCMD_STROKEJOIN, style); }
-    virtual void strokeWeight(double weight) { 
+     void strokeCaps(int caps) {writeEnum(GCMD_STROKECAPS, caps);}
+     void strokeJoin(int style) { writeEnum(GCMD_STROKEJOIN, style); }
+     void strokeWeight(double weight) { 
         writeCommand(GCMD_STROKEWEIGHT);
         writeFloat((float)weight);
     }
 
+
+
     // Attribute State Stack
-    virtual void push() { writeCommand(GCMD_PUSH); }
-    virtual void pop() { writeCommand(GCMD_POP); }
+     void push() { writeCommand(GCMD_PUSH); }
+     void pop() { writeCommand(GCMD_POP); }
+
+
+
+    //virtual void scale(double sxy) { scale(sxy, sxy); }
+    void rotate(double angle) { rotate(angle, 0, 0); }
 
     // Coordinate transformation
     virtual void translate(double dx, double dy) 
@@ -126,6 +131,10 @@ public:
 
 
     // Pixel management
+    void fill(const BLStyle& s)
+    {
+        writeCommand(GCMD_FILL_STYLE);
+    }
     virtual void fill(const BLGradient& g) 
     { 
         writeCommand(GCMD_FILL_GRADIENT);
@@ -141,11 +150,17 @@ public:
 
     virtual void stroke(const Pixel& c) 
     {
-        writeCommand(GCMD_STROKE); 
+        writeCommand(GCMD_STROKE_COLOR); 
         writeColor(c);
     }
 
-    virtual void noStroke() { writeCommand(GCMD_NOSTROKE); }
+    virtual void stroke(const BLStyle& s)
+    {
+        writeCommand(GCMD_STROKE_STYLE);
+        //writeColor(c);
+    }
+    
+    virtual void noStroke() { writeCommand(GCMD_STROKE_NONE); }
 
 
     // Synchronization

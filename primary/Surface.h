@@ -86,23 +86,20 @@ public:
         // and destroy it
     }
 
-    inline long getWidth() { return fWidth; }
-    inline long getHeight() { return fHeight; }
-    inline Pixel * getData() { return (Pixel *)fData; }
+    INLINE long getWidth() { return fWidth; }
+    INLINE long getHeight() { return fHeight; }
+    INLINE Pixel * getData() { return (Pixel *)fData; }
 
     // Calculate whether a point is whithin our bounds
-    inline bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
+    INLINE bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
 
-    inline BITMAPINFO getBitmapInfo() {return fBMInfo;}
+    INLINE BITMAPINFO getBitmapInfo() {return fBMInfo;}
 
-    inline HDC getDC() {return fBitmapDC;}
+    INLINE HDC getDC() {return fBitmapDC;}
 
-    inline BLImage& getImage()
-    {
-        return fImage;
-    }
+    INLINE BLImage& getImage() {return fImage;}
 
-    inline void set(int x, int y, uint32_t c)
+    INLINE void set(int x, int y, uint32_t c)
     {
         // reject pixel if out of boundary
         if ((x < 0) || (x >= fWidth) ||
@@ -116,7 +113,7 @@ public:
 
     }
 
-    inline void set(int x, int y, const Pixel& c)
+    INLINE void set(int x, int y, const Pixel& c)
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);
         y = (int)maths::Clamp(y, 0, fHeight - 1);
@@ -125,7 +122,7 @@ public:
         ((Pixel *)fData)[offset] = c;
     }
 
-    inline Pixel get(int x, int y) const
+    INLINE Pixel get(int x, int y) const
     {
         x = (int)maths::Clamp(x, 0, fWidth - 1);
         y = (int)maths::Clamp(y, 0, fHeight - 1);

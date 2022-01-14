@@ -84,7 +84,7 @@ public:
     // take a snapshot
     bool next()
     {
-        BitBlt(fSurface.getDC(), 0, 0, fSurface.getWidth(), fSurface.getHeight(),
+        auto bResult = BitBlt(fSurface.getDC(), 0, 0, fSurface.getWidth(), fSurface.getHeight(),
             fScreenDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
 
         return true;

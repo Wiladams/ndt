@@ -4,7 +4,7 @@
 
 using namespace p5;
 
-static std::string lineText = " The quick brown fox jumps over the lazy dog. 1234587890";
+static std::string lineText = "The quick brown fox jumps over the lazy dog. 1234587890";
 
 struct LineEntry {
     size_t size;
@@ -86,7 +86,7 @@ public:
 
             // draw lines showing our baseline
             ctx->stroke(255, 0, 0);
-            ctx->line(0, 0, width, 0);
+            ctx->line(0, 0, canvasWidth, 0);
             ctx->line(0, 0, 0, -((double)line.lineHeight)*0.85);
 
             //draw the size indicator
@@ -126,7 +126,7 @@ void draw()
 
 void setup()
 {
-    createCanvas(3000, 1280);
+    createCanvas(displayWidth-20, 1280);
 
     // Set user space units to be 96/inch
     gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
