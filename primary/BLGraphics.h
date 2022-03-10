@@ -221,6 +221,10 @@ public:
     // as well as how many user space units per inch
     // doing this will allow us to specify all graphics
     // in some user specified units
+    //
+    // BUGBUG - this kinda works.  It will scale everything, which 
+    // is not quite what we want.  What we really want is to just
+    // add to our own transformation window for coordinate conversion
     INLINE void setPpiUnits(double ppi, double units)
     {
         fDimensionScale = ppi / units;
@@ -231,36 +235,36 @@ public:
 
 
     // Various Modes
-    INLINE void angleMode(int mode) { fAngleMode = mode; }
-    INLINE void ellipseMode(const ELLIPSEMODE mode) {fEllipseMode = mode;}
-    INLINE void rectMode(const RECTMODE mode) { fRectMode = mode; }
-    INLINE void blendMode(int op) { fCtx.setCompOp(op); }
+    INLINE void angleMode(int mode) override { fAngleMode = mode; }
+    INLINE void ellipseMode(const ELLIPSEMODE mode) override {fEllipseMode = mode;}
+    INLINE void rectMode(const RECTMODE mode) override { fRectMode = mode; }
+    INLINE void blendMode(int op) override { fCtx.setCompOp(op); }
 
     // stroking attributes
-    INLINE void strokeCaps(int caps) { fCtx.setStrokeCaps(caps); }
-    INLINE void strokeJoin(int style) { fCtx.setStrokeJoin(style); }
-    INLINE void strokeWeight(double weight) { fCtx.setStrokeWidth(weight); }
+    INLINE void strokeCaps(int caps) override { fCtx.setStrokeCaps(caps); }
+    INLINE void strokeJoin(int style) override { fCtx.setStrokeJoin(style); }
+    INLINE void strokeWeight(double weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
-    INLINE void push() { fCtx.save(); }
-    INLINE void pop() { fCtx.restore(); }
+    INLINE void push() override { fCtx.save(); }
+    INLINE void pop() override { fCtx.restore(); }
 
     // Coordinate transformation
-    INLINE void translate(double dx, double dy) { fCtx.translate(dx, dy); }
-    INLINE void scale(double sx, double sy) { fCtx.scale(sx, sy); }
-    INLINE void rotate(double angle, double cx, double cy) { fCtx.rotate(angle, cx, cy); }
-    INLINE  void rotate(double angle) { rotate(angle, 0, 0); }
+    INLINE void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
+    INLINE void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
+    INLINE void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }
+    //INLINE  void rotate(double angle) override { rotate(angle, 0, 0); }
 
 
     // Pixel management
-    INLINE  void noFill() { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void fill(const BLStyle& s) { fUseFill = true; fCtx.setFillStyle(s); }
-    INLINE  void fill(const BLGradient& g) { fUseFill = true; fCtx.setFillStyle(g); }
-    INLINE  void fill(const Pixel& c) { fUseFill = true; fCtx.setFillStyle(c); }
+    INLINE  void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
+    INLINE  void fill(const BLStyle& s) override { fUseFill = true; fCtx.setFillStyle(s); }
+    INLINE  void fill(const BLGradient& g) override { fUseFill = true; fCtx.setFillStyle(g); }
+    INLINE  void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
 
-    INLINE  void noStroke() { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void stroke(const BLStyle& s) {fCtx.setStrokeStyle(s);}
-    INLINE  void stroke(const Pixel& c) {fCtx.setStrokeStyle(c); }
+    INLINE  void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
+    INLINE  void stroke(const BLStyle& s) override {fCtx.setStrokeStyle(s);}
+    INLINE  void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
 
 
     // Synchronization
@@ -302,7 +306,7 @@ public:
     }
 
     // Background management
-     void clear() 
+     void clear() override
     {
         //printf("BLGraphics.clear\n");
         fCtx.save();
@@ -311,13 +315,13 @@ public:
         flush();
     }
 
-     virtual void clearRect(double x, double y, double w, double h)
+     virtual void clearRect(double x, double y, double w, double h) override
     {
         fCtx.clearRect(x, y, w, h);
         incrCmd();
     }
 
-     void background(const Pixel& c)
+     void background(const Pixel& c) override
     {
         fCtx.save();
         fCtx.setFillStyle(c);
@@ -326,12 +330,12 @@ public:
     }
 
     // Clipping
-    INLINE  void clip(double x, double y, double w, double h) {fCtx.clipToRect(x, y, w, h);}
-    INLINE  void noClip() { fCtx.restoreClipping(); }
+    INLINE  void clip(double x, double y, double w, double h) override {fCtx.clipToRect(x, y, w, h);}
+    INLINE  void noClip() override { fCtx.restoreClipping(); }
 
     // Geometry
     // hard set a specfic pixel value
-    INLINE  void set(double x, double y, const Pixel& c)
+    INLINE  void set(double x, double y, const Pixel& c) override
     {
         if (nullptr == fImageData.pixelData)
             return;
@@ -341,18 +345,18 @@ public:
     
 
 
-    INLINE  void point(double x, double y)
+    INLINE  void point(double x, double y) override
     { 
         line(x, y, x+1, y);
     }
 
-    INLINE  void line(double x1, double y1, double x2, double y2)
+    INLINE  void line(double x1, double y1, double x2, double y2) override
     {
         BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
 
         incrCmd();
     }
-
+    
     INLINE  void rect(const BLRect& rr)
     {
         BLResult bResult = fCtx.strokeRect(rr);
@@ -360,7 +364,7 @@ public:
 
         incrCmd();
     }
-
+    
     INLINE void rect(double x, double y, double width, double height, double xradius, double yradius)
     {
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
@@ -370,13 +374,14 @@ public:
     }
 
     
-    INLINE  void rect(double a, double b, double c, double d)
+    INLINE  void rect(double a, double b, double c, double d) override
     {
             BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
-            rect(params);
+            rect(params.x, params.y, params.w, params.h, 1, 1);
     }
 
-     void ellipse(double a, double b, double c, double d) {
+     void ellipse(double a, double b, double c, double d) override 
+     {
         BLEllipse params = BLGraphics::calcEllipseParams(fEllipseMode, a, b, c, d);
 
         if (fUseFill) {
@@ -388,9 +393,9 @@ public:
         incrCmd();
     }
 
-    INLINE  void circle(double cx, double cy, double diameter) { ellipse(cx, cy, diameter, diameter); }
+    INLINE  void circle(double cx, double cy, double diameter) override { ellipse(cx, cy, diameter, diameter); }
 
-    virtual  void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
+    virtual  void triangle(double x1, double y1, double x2, double y2, double x3, double y3) override
     {
         BLTriangle tri = { x1,y1, x2,y2,x3,y3 };
 
@@ -403,7 +408,7 @@ public:
         incrCmd();
     }
 
-    virtual void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+    virtual void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
     {
         BLPath path;
         path.moveTo(x1, y1);
@@ -413,13 +418,13 @@ public:
         incrCmd();
     }
     
-    INLINE  void polyline(const BLPoint* pts, size_t n)
+    INLINE  void polyline(const BLPoint* pts, size_t n) override
     {
         fCtx.strokePolyline(pts, n);
         incrCmd();
     }
     
-    INLINE  void polygon(const BLPoint* pts, size_t n)
+    INLINE  void polygon(const BLPoint* pts, size_t n) override
     {
         fCtx.strokePolygon(pts, n);
 
@@ -430,14 +435,14 @@ public:
         incrCmd();
     }
     
-    INLINE  void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+    INLINE  void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
     {
         BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
         polygon(pts, 4);
         incrCmd();
     }
 
-     void path(const BLPath& path)
+     void path(const BLPath& path) override
     {
         if (fUseFill) {
             fCtx.fillPath(path);
@@ -449,7 +454,7 @@ public:
     }
 
     // Bitmaps
-    INLINE  void image(const BLImage& img, int x, int y)
+    INLINE  void image(const BLImage& img, int x, int y) override
     {
         fCtx.blitImage(BLPointI(x, y), img);
         incrCmd();
@@ -457,7 +462,7 @@ public:
     
      void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
-        double dstX, double dstY, double dstWidth, double dstHeight)
+        double dstX, double dstY, double dstWidth, double dstHeight) override
     {
         BLRect dst{ dstX,dstY,dstWidth,dstHeight };
         BLRectI srcArea{ (int)srcX,(int)srcY,(int)srcWidth,(int)srcHeight };
@@ -467,19 +472,19 @@ public:
 
 
 
-    INLINE  void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical)
+    INLINE  void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) override
     {
         fTextHAlignment = horizontal;
         fTextVAlignment = vertical;
     }
 
-    INLINE  void textFont(const char* fontfile)
+    INLINE  void textFont(const char* fontfile) override
     {
         fFontFace.createFromFile(fontfile);
         textSize(fFontSize);
     }
     
-    INLINE  void textSize(double size)
+    INLINE  void textSize(double size) override
     {
         fFontSize = (float)size;
         fFont.reset();
@@ -487,7 +492,9 @@ public:
     }
 
     // Get the width (in font units) of the text
-     BLPoint textWidth(const char* txt)
+    // BUGBUG - This is NOT in the base interface.  
+    // maybe it should be?
+     BLPoint textWidth(const char* txt) // override
     {
         BLFontMetrics fm = fFont.metrics();
         BLTextMetrics tm;
@@ -504,7 +511,7 @@ public:
         return BLPoint(cx, cy);
     }
 
-    void text(const char* txt, double x, double y)
+    void text(const char* txt, double x, double y) override
     {
         BLPoint xy = calcTextPosition(txt, x, y);
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
@@ -522,7 +529,7 @@ public:
 
 
     // Vertex shaping
-    INLINE void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN)
+    INLINE void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) override
     {
         // To begin a shape, clear out existing shape
         // and set the shape mode to that specified
@@ -530,7 +537,7 @@ public:
         fShapeVertices.clear();
     }
 
-    INLINE void vertex(double x, double y)
+    INLINE void vertex(double x, double y) override
     {
         // Make sure beginShape() has been called
         if (fShapeMode == SHAPEMODE::NONE)
@@ -540,7 +547,7 @@ public:
     }
 
     // endKind - SHAPEEND
-    void endShape(SHAPEEND endKind)
+    void endShape(SHAPEEND endKind) override
     {
         // Sanity check to ensure we're in a shape
         if (fShapeMode == SHAPEMODE::NONE)

@@ -169,7 +169,7 @@ public:
     virtual void scale(double sx, double sy)=0;
     virtual void scale(double sxy) { scale(sxy, sxy); }
     virtual void rotate(double angle, double cx, double cy) = 0;
-    void rotate(double angle) { rotate(angle, 0, 0); }
+    virtual void rotate(double angle) { rotate(angle, 0, 0); }
 
     virtual int blue(const Pixel& c) { return c.b; }
     virtual int green(const Pixel& c) {return c.g;}

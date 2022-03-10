@@ -220,7 +220,7 @@ namespace p5 {
 
     void rotate(double angle) noexcept
     {
-        gAppSurface->rotate(angle);
+        gAppSurface->rotate(angle,0,0);
     }
 
 
