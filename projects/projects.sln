@@ -130,8 +130,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyvgviewer", "tinyvgviewe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaltzOfTheCircles", "WaltzOfTheCircles\WaltzOfTheCircles.vcxproj", "{C760075E-DACA-4FFF-86E9-098AC2398B0A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "videodj", "videodj\videodj.vcxproj", "{101604E7-4904-45CC-879B-EC809CF926BA}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trackwin", "trackwin\trackwin.vcxproj", "{78C66B74-57A6-449E-BDB2-CE150470A6DA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infinical", "infinical\infinical.vcxproj", "{514FFA35-3A5F-463B-9AF6-BDBB237E2BBF}"
@@ -602,14 +600,6 @@ Global
 		{C760075E-DACA-4FFF-86E9-098AC2398B0A}.Release|x64.Build.0 = Release|x64
 		{C760075E-DACA-4FFF-86E9-098AC2398B0A}.Release|x86.ActiveCfg = Release|Win32
 		{C760075E-DACA-4FFF-86E9-098AC2398B0A}.Release|x86.Build.0 = Release|Win32
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Debug|x64.ActiveCfg = Debug|x64
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Debug|x64.Build.0 = Debug|x64
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Debug|x86.ActiveCfg = Debug|Win32
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Debug|x86.Build.0 = Debug|Win32
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Release|x64.ActiveCfg = Release|x64
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Release|x64.Build.0 = Release|x64
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Release|x86.ActiveCfg = Release|Win32
-		{101604E7-4904-45CC-879B-EC809CF926BA}.Release|x86.Build.0 = Release|Win32
 		{78C66B74-57A6-449E-BDB2-CE150470A6DA}.Debug|x64.ActiveCfg = Debug|x64
 		{78C66B74-57A6-449E-BDB2-CE150470A6DA}.Debug|x64.Build.0 = Debug|x64
 		{78C66B74-57A6-449E-BDB2-CE150470A6DA}.Debug|x86.ActiveCfg = Debug|Win32
