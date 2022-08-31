@@ -1,5 +1,3 @@
-#pragma once
-
 #include "p5.hpp"
 
 using namespace p5;

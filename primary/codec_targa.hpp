@@ -163,17 +163,17 @@ namespace targa {
 
         if ((imtype == TrueColor) || (imtype == TrueColorCompressed)) {
             if (pixelDepth == 24) {
-                pix.r = databuff[2];
-                pix.g = databuff[1];
-                pix.b = databuff[0];
-                pix.a = 255;
+                pix.setR(databuff[2]);
+                pix.setG(databuff[1]);
+                pix.setB(databuff[0]);
+                pix.setA(255);
                 return true;
             }
             else if (pixelDepth == 32) {
-                pix.r = databuff[2];
-                pix.g = databuff[1];
-                pix.b = databuff[0];
-                pix.a = databuff[3];
+                pix.setR(databuff[2]);
+                pix.setG(databuff[1]);
+                pix.setB(databuff[0]);
+                pix.setA(databuff[3]);
 
                 // some images use alpha as transparency
                 // some images do not
@@ -187,22 +187,22 @@ namespace targa {
             }
             else if (pixelDepth == 16) {
                 uint16_t src16 = ((databuff[1] << 8) | databuff[0]);
-                pix.b = (ndt::BITSVALUE(src16, 0, 4) << 3);
-                pix.g = (ndt::BITSVALUE(src16, 5, 9) << 3);
-                pix.r = (ndt::BITSVALUE(src16, 10, 14) << 3);
-                pix.a = 255;
+                pix.setB((ndt::BITSVALUE(src16, 0, 4) << 3));
+                pix.setG((ndt::BITSVALUE(src16, 5, 9) << 3));
+                pix.setR((ndt::BITSVALUE(src16, 10, 14) << 3));
+                pix.setA(255);
                 if (ndt::BITSVALUE(src16, 15, 15) >= 1) {
-                    pix.a = 0;  // 255
+                    pix.setA(0);  // 255
                 }
             }
 
             return true;
         }
         else if ((imtype == Monochrome) || (imtype == MonochromeCompressed)) {
-            pix.r = databuff[0];
-            pix.g = databuff[0];
-            pix.b = databuff[0];
-            pix.a = 255;
+            pix.setR(databuff[0]);
+            pix.setG(databuff[0]);
+            pix.setB(databuff[0]);
+            pix.setA(255);
 
             return true;
         }

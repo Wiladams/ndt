@@ -29,7 +29,7 @@
 
 class ScreenSnapshot : public Texture
 {
-    HDC fScreenDC;
+    HDC fSourceDC;
     Surface fSurface;
 
     int fOriginX;
@@ -46,7 +46,7 @@ public:
         fHeight(aheight)
     {
         // create a device context for the display
-        fScreenDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
+        fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
     }
 
     void reset() {
@@ -59,7 +59,7 @@ public:
     virtual rtcolor value(const double u, const double v, const vec3& p) const
     {
         auto pval = pixelValue(u,v,p);
-        return { (double)pval.r / 255, (double)pval.g / 255, (double)pval.b / 255 };
+        return { (double)pval.r() / 255, (double)pval.g() / 255, (double)pval.b() / 255};
     }
 
     virtual BLRgba32 pixelValue(double u, double v, const vec3& p) const
@@ -85,7 +85,7 @@ public:
     bool next()
     {
         auto bResult = BitBlt(fSurface.getDC(), 0, 0, fSurface.getWidth(), fSurface.getHeight(),
-            fScreenDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
+            fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
 
         return true;
     }

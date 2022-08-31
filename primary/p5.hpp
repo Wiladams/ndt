@@ -1,18 +1,21 @@
 #pragma once
 
 /*
-    This file represents the interface for the P5 application
-    environment.
+    This file represents the interface for a P5 inspired
+    application interface.
 
-    All the special functions, structures, and constants
-    should all be located in this file.
+
+
+    All the special functions, data structures, and constants
+    should be located in this, and the matching p5.cpp file.
 
     P5 uses the apphost routines to connect to the local window
     system to display graphics on the screen, and receive mouse
-    and keyboard events.
+    keyboard, joystick and touch events.
 
     References
     Colorspace conversions
+    https://p5js.org/
     http://www.chilliant.com/rgb2hsv.html
 
 */
@@ -40,20 +43,18 @@ extern "C" {
 }
 #endif
 
-// Things a p5 based application can implement
 
+// Things a p5 based application can implement
 #ifdef __cplusplus
 extern "C" {
 #endif
-    APP_EXPORT double getWidth();
-    APP_EXPORT double getHeight();
 
     APP_EXPORT void draw();
     APP_EXPORT void setup();
     APP_EXPORT void update(const double dt);
 
 
-// IO Event Handlers
+    // IO Event Handlers
 
 // keyboard event processing
     APP_EXPORT void keyPressed(const KeyboardEvent& e);
@@ -89,9 +90,9 @@ extern "C" {
     APP_EXPORT void zoomMoved(const GestureEvent& e);
     APP_EXPORT void zoomEnded(const GestureEvent& e);
 
-// Pointer Events
+    // Pointer Events
 
-// File Drop events
+    // File Drop events
     APP_EXPORT void fileDrop(const FileDropEvent& e);
 
 #ifdef __cplusplus
@@ -104,22 +105,15 @@ namespace p5 {
 #ifdef __cplusplus
 extern "C" {
 #endif
-    // Size of the application area, set through
-    // createCanvas()
-    //APP_EXPORT extern int width;
-    //APP_EXPORT extern int height;
-    
-    //APP_EXPORT extern int canvasWidth;
-    //APP_EXPORT extern int canvasHeight;
-
+    // Constants available in the p5 namespace
     APP_EXPORT extern int frameCount;
     APP_EXPORT extern int droppedFrames;
 
-    APP_EXPORT extern Pixel* pixels;
+    APP_EXPORT extern Pixel* pixels;    // a pointer to the canvas pixels
 
     // Keyboard Globals
-    APP_EXPORT extern int keyCode;
-    APP_EXPORT extern int keyChar;
+    APP_EXPORT extern int keyCode;      // virtual keycode
+    APP_EXPORT extern int keyChar;      // actual character typed
 
     // Mouse Globals
     APP_EXPORT extern bool mouseIsPressed;
@@ -130,11 +124,12 @@ extern "C" {
     APP_EXPORT extern int pmouseY;
 
     // Gesture Globals
-        // Gesture Globals
     APP_EXPORT extern long panX;
     APP_EXPORT extern long panY;
+
     APP_EXPORT extern long ppanX;
     APP_EXPORT extern long ppanY;
+    
     APP_EXPORT extern long panVecX;
     APP_EXPORT extern long panVecY;
 
@@ -259,6 +254,12 @@ struct PVector {
 
     void redraw() noexcept;
 
+    // Runtime management
+    void loop() noexcept;
+    void noLoop() noexcept;
+    void frameRate(int newRate) noexcept;
+    int getFrameRate() noexcept;
+
     // coordinate transform
     void push() noexcept;
     void pop() noexcept;
@@ -268,21 +269,24 @@ struct PVector {
     void rotate(double angle, double cx, double cy) noexcept;
     void rotate(double angle) noexcept;
 
+    // Getting color components
     int red(const Pixel& c) noexcept;
     int green(const Pixel& c) noexcept;
     int blue(const Pixel& c) noexcept;
     int alpha(const Pixel& c) noexcept;
 
 
+    // Creating a color object
     Pixel color(int a, int b, int c, int d) noexcept;
     Pixel color(int r, int g, int b) noexcept;
     Pixel color(int gray, int alpha) noexcept;
     Pixel color(int gray) noexcept;
 
+    // Create a color through liner interpolation
     Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept;
 
-
-    void fill(const BLStyle& s) noexcept;
+    // Set the fill color for drawing
+    void fill(const BLVar& s) noexcept;
     void fill(const BLGradient& g) noexcept;
     void fill(const Pixel& pix) noexcept;
     void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
@@ -290,61 +294,98 @@ struct PVector {
     void fill(uint8_t r, uint8_t g, uint8_t b) noexcept;
     void fill(uint8_t gray, uint8_t alpha) noexcept;
     void fill(uint8_t gray) noexcept;
-    void noFill() noexcept;
 
-    void stroke(const BLStyle& s) noexcept;
+    // Set the stroke color for drawing
+    void stroke(const BLVar& s) noexcept;
+    void stroke(const BLGradient& g) noexcept;
     void stroke(const Pixel& pix) noexcept;
     void stroke(Pixel pix, int alpha) noexcept;
     void stroke(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept;
     void stroke(uint8_t r, uint8_t g, uint8_t b) noexcept;
     void stroke(uint8_t gray, uint8_t alpha = 255) noexcept;
+
+    // Turn off fill and stroke
+    void noFill() noexcept;
     void noStroke() noexcept;
 
-    void loop() noexcept;
-    void noLoop() noexcept;
-    void frameRate(int newRate) noexcept;
-    int getFrameRate() noexcept;
 
+    // Clear the entire canvas to transparent
     void clear() noexcept;
     void clearRect(double x, double y, double w, double h) noexcept;
 
+    // Set a background for the canvas
     void background(const Pixel& pix) noexcept;
     void background(int a, int b, int c, int d) noexcept;
     void background(int a, int b, int c) noexcept;
     void background(int gray, int alpha) noexcept;
     void background(int gray) noexcept;
-
+    
+    // Set a clipping rectangle
     void clip(double x, double y, double w, double h) noexcept;
+    
+    // Turn off the clipping rectangle
     void noClip() noexcept;
 
-
+    // Set a single pixel
+    // does not observe point size
+    // does boundary checking
     void set(int x1, int y1, const Pixel& c) noexcept;
+    // get the value of a single pixel
     Pixel get(int x, int y) noexcept;
 
+    // Draw a point.  This will value the point size
     void point(double x, double y) noexcept;
+
+    // Draw an arbitrary line
+    // constrain to boundary and clip area
     void line(double x1, double y1, double x2, double y2) noexcept;
-    void rect(double x, double y, double width, double height, double xradius, double yradius) noexcept;
+
+    // Draw a rectangle with sharp corners
+    // honors rectangle mode
     void rect(double x, double y, double width, double height) noexcept;
+
+    // draw rectangle with rounded corners
+    // honors rectangle mode
+    void rect(double x, double y, double width, double height, double xradius, double yradius) noexcept;
+
+    // Draw an ellipse
+    // honors the ellipse mode
     void ellipse(double a, double b, double c, double d) noexcept;
+
+    // Draw a circle with a diameter
     void circle(double cx, double cy, double diameter) noexcept;
+
+    // Draw a triangle
+    // do clipping
     void triangle(double x1, double y1, double x2, double y2, double x3, double y3) noexcept;
     void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept;
 
-
+    // Draw a bezier line
     void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept;
+    
+    // Draw multiple lines
     void polyline(const BLPoint* pts, size_t n) noexcept;
+
+    // Fill and stroke a polygon
     void polygon(const BLPoint* pts, size_t n) noexcept;
+
+    // Fill and stroke an arbitrary path
     void path(const BLPath& p) noexcept;
 
+    // Blit an image
     void image(const BLImage& img, int x, int y) noexcept;
-    BLImage loadImage(const char* filename) noexcept;
 
+
+    // Draw a sub-image while scaling
     void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight) noexcept;
 
+    // Careate an image from a filename
+    BLImage loadImage(const char* filename) noexcept;
+    BLImage* createImage(int width, int height) noexcept;
 
-
+    // drawing text
     void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) noexcept;
     void textFont(const char* fontname) noexcept;
     void textSize(double size) noexcept;
@@ -356,8 +397,8 @@ struct PVector {
     void endShape(SHAPEEND endKind = SHAPEEND::STROKE) noexcept;
 
 
-    BLImage* createImage(int width, int height) noexcept;
-    void createCanvas(long aWidth, long aHeight, const char *title="Application") noexcept;
+
+    void createCanvas(long aWidth, long aHeight, const char *title="p5 Application") noexcept;
     void fullscreen() noexcept;
     bool isFullscreen() noexcept;
     //Surface * createSurface(long aWidth, long aHeight) noexcept;
@@ -365,28 +406,34 @@ struct PVector {
     void loadPixels() noexcept;
     void updatePixels() noexcept;
 
-
+    // create random numbers
     double random() noexcept;
     double random(double low, double high) noexcept;
     double random(double high) noexcept;
 
+    // get fractions of seconds
     double millis() noexcept;
     double seconds() noexcept;
 
     // Math routines
+    //
     inline double constrain(double x, double low, double high) noexcept { return maths::Clamp(x, low, high); }
 
+    // convert degrees to radians
     inline double radians(double deg) noexcept {return maths::Radians(deg);}
+
+    // convert radians to degrees
     inline double degrees(double rad) noexcept {return maths::Degrees(rad);}
     inline double lerp(double start, double stop, double amt) noexcept { return maths::Lerp(amt, start, stop); }
+
+    // Return the square of a number
     inline double sq(double x) { return x * x; }
+
+    // Return the square root of a number
     inline double sqrt(double x) { return std::sqrt(x); }
 
     // Calculate distance between two points
-    inline double dist(double x1, double y1, double x2, double y2)
-    {
-        return std::sqrt(sq(x2 - x1) + sq(y2 - y1));
-    }
+    inline double dist(double x1, double y1, double x2, double y2){return std::sqrt(sq(x2 - x1) + sq(y2 - y1));}
 
     inline double mag(double a, double b) { return sqrt(a*a+ b*b); }
     inline double mag(double a, double b, double c) { return std::sqrt(a * a + b * b + c * c); }

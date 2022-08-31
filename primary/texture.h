@@ -172,7 +172,7 @@ public:
 
         // We need to turn pixel values [0..255] into
         // rtcolor components [0..1]
-        return rtcolor(color_scale * pixel.r, color_scale * pixel.g, color_scale * pixel.b);
+        return rtcolor(color_scale * pixel.r(), color_scale * pixel.g(), color_scale * pixel.b());
     }
 
 

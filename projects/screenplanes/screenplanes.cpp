@@ -32,7 +32,7 @@ class ColorPlaneWindow : public Graphic
     // convert an rgb pixel to a chroma value
     inline uint8_t toGray(const Pixel& pix)
     {
-        return (0.2125 * pix.r) + (0.7154 * pix.g) + (0.0721 * pix.b);
+        return (0.2125 * pix.r()) + (0.7154 * pix.g()) + (0.0721 * pix.b());
     }
 
     // This is an individual pixel operation, which could 
@@ -48,9 +48,9 @@ class ColorPlaneWindow : public Graphic
             {
                 Pixel srcColor = src.get(x, y);
 
-                redSurface.set(x, y, { srcColor.r,0,0,255 });
-                greenSurface.set(x, y, { 0,srcColor.g,0,255 });
-                blueSurface.set(x, y, { 0,0,srcColor.b,255 });
+                redSurface.set(x, y, { srcColor.r(),0,0,255});
+                greenSurface.set(x, y, { 0,srcColor.g(),0,255});
+                blueSurface.set(x, y, { 0,0,srcColor.b(),255});
                 
                 auto g = toGray(srcColor);
                 graySurface.set(x, y, { g,g,g,255 });
@@ -93,6 +93,7 @@ void draw()
     // Get capture current screen
     ss->next();
 
+
     _stats.draw(gAppSurface);
 }
 
@@ -101,16 +102,21 @@ void setup()
 {
     double windowScale = 1;
 
-    fullscreen();
-    //frameRate(30);
+    createCanvas(displayWidth / 2, displayHeight, "screenplanes");
+
+    //fullscreen();
+    frameRate(20);
+
+    ss = std::make_shared<ScreenSnapshot>(0, 0, captureWidth, captureHeight);
 
     // create a window to hold the split plane graphic
     auto win = window(0, 0, captureWidth* windowScale, captureHeight* windowScale);
-    ss = std::make_shared<ScreenSnapshot>(0, 0, captureWidth, captureHeight);
+    win->setTitle("Split Panes");
+    
     auto splitwin = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
     win->addChild(splitwin);
-    win->setTitle("Split Panes");
-    win->moveBy(displayWidth / 2, 0);
+
+    //win->moveBy(displayWidth / 2, 0);
 }
 
 void keyReleased(const KeyboardEvent& e)

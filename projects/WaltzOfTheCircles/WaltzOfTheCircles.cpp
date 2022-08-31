@@ -5,7 +5,7 @@ using namespace p5;
 /*
   based on: https://observablehq.com/@rreusser/instanced-webgl-circles
 */
-constexpr int MAX_CIRCLE_CNT = 2500;
+constexpr int MAX_CIRCLE_CNT = 5000;
 constexpr int MIN_CIRCLE_CNT = 100;
 constexpr int MAX_VERTEX_CNT = 30;
 constexpr int MIN_VERTEX_CNT = 3;
@@ -49,6 +49,13 @@ void setup()
     fullscreen();
 
     frameRate(10);
+}
+
+void keyReleased(const KeyboardEvent& event)
+{
+    if (keyCode == VK_ESCAPE) {
+        halt();
+    }
 }
 
 void draw() {

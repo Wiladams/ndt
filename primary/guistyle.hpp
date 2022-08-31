@@ -45,20 +45,20 @@ inline uint8_t tobyte(double v) {return int(floor(v + 0.5));}
 
 Pixel brighter(const Pixel&value)
 {
-    uint8_t red = tobyte(p5::constrain(value.r *(1/0.80), 0, 255));
-    uint8_t green = tobyte(p5::constrain(value.g * (1.0/0.85), 0, 255));
-    uint8_t blue = tobyte(p5::constrain(value.b * (1.0/0.80), 0,255));
+    uint8_t red = tobyte(p5::constrain(value.r() * (1 / 0.80), 0, 255));
+    uint8_t green = tobyte(p5::constrain(value.g() * (1.0 / 0.85), 0, 255));
+    uint8_t blue = tobyte(p5::constrain(value.b() * (1.0 / 0.80), 0, 255));
 
-    return Pixel(red, green, blue, value.a);
+    return Pixel(red, green, blue, value.a());
 }
 
 Pixel darker(const Pixel&value)
 {
-    uint8_t red = tobyte(value.r *0.60);
-    uint8_t green = tobyte(value.g * 0.60);
-    uint8_t blue = tobyte(value.b * 0.60);
+    uint8_t red = tobyte(value.r() * 0.60);
+    uint8_t green = tobyte(value.g() * 0.60);
+    uint8_t blue = tobyte(value.b() * 0.60);
 
-    return Pixel(red, green, blue, value.a);
+    return Pixel(red, green, blue, value.a());
 }
 
 
@@ -73,7 +73,7 @@ void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect& r, size_t maxO
     for (int i = 1; i <= maxOffset; i++)
     {
         auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
-        shadow.a = (uint32_t)alpha;
+        shadow.setA((uint32_t)alpha);
         ctx->fill(shadow);
         ctx->rect(r.x + i, r.y + i, r.w, r.h);
     }

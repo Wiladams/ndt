@@ -1,4 +1,5 @@
 #pragma once
+
 #include "p5.hpp"
 #include "secondtime.h"
 
@@ -17,7 +18,7 @@ public:
 	void drawBackground(std::shared_ptr<IGraphics> ctx)
 	{
 		ctx->push();
-		ctx->fill(160);
+		ctx->fill(160,220);
 		ctx->noStroke();
 
 		ctx->rect(0, 0, fFrame.w, fFrame.h);

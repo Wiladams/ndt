@@ -101,8 +101,7 @@ namespace p5 {
     double deltaTime = 0;
     double gAppLastTime = 0;
 
-    //double getWidth() { return fDimensionScale * width; }
-    //double getHeight() { return fDimensionScale * height; }
+
     void setUnitsPerInch(double units)
     {
         gAppSurface->setPpiUnits(systemPpi, units);
@@ -229,32 +228,32 @@ namespace p5 {
     // Pixel parts
     int blue(const Pixel& c) noexcept
     {
-        return c.b;
+        return c.b();
     }
 
     int green(const Pixel& c) noexcept
     {
-        return c.g;
+        return c.g();
     }
 
     int red(const Pixel& c) noexcept
     {
-        return c.r;
+        return c.r();
     }
 
     int alpha(const Pixel& c) noexcept
     {
-        return c.a;
+        return c.a();
     }
 
     // general color construction from components
     Pixel color(int a, int b, int c, int d) noexcept
     {
-        Pixel pix;
-        pix.r = a;
-        pix.g = b;
-        pix.b = c;
-        pix.a = d;
+        Pixel pix(a,b,c,d);
+        //pix.r = a;
+        //pix.g = b;
+        //pix.b = c;
+        //pix.a = d;
 
         return pix;
     }
@@ -277,21 +276,21 @@ namespace p5 {
 
     Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept
     {
-        uint8_t r = (uint8_t)maths::Lerp(f, from.r, to.r);
-        uint8_t g = (uint8_t)maths::Lerp(f, from.g, to.g);
-        uint8_t b = (uint8_t)maths::Lerp(f, from.b, to.b);
-        uint8_t a = (uint8_t)maths::Lerp(f, from.a, to.a);
+        uint8_t r = (uint8_t)maths::Lerp(f, from.r(), to.r());
+        uint8_t g = (uint8_t)maths::Lerp(f, from.g(), to.g());
+        uint8_t b = (uint8_t)maths::Lerp(f, from.b(), to.b());
+        uint8_t a = (uint8_t)maths::Lerp(f, from.a(), to.a());
 
         return color((int)r, (int)g, (int)b, (int)a);
     }
 
 
-    void fill(const BLStyle& s) noexcept
+    void fill(const BLVar& s) noexcept
     {
         gAppSurface->fill(s);
     }
 
-    void fill(const BLGradient& g) noexcept
+    void fill(const BLGradientCore& g) noexcept
     {
         gAppSurface->fill(g);
     }
@@ -303,38 +302,30 @@ namespace p5 {
 
     void fill(uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) noexcept
     {
-        Pixel c;
-        c.r = r;
-        c.g = g;
-        c.b = b;
-        c.a = alpha;
+        Pixel c(r,g,b,alpha);
+        //c.r = r;
+        //c.g = g;
+        //c.b = b;
+        //c.a = alpha;
         fill(c);
     }
 
     void fill(Pixel pix, uint8_t alpha) noexcept
     {
         Pixel c = pix;
-        c.a = alpha;
+        c.setA(alpha);
         fill(c);
     }
 
     void fill(uint8_t r, uint8_t g, uint8_t b) noexcept
     {
-        Pixel c;
-        c.r = r;
-        c.g = g;
-        c.b = b;
-        c.a = 255;
+        Pixel c(r,g,b,255);
         fill(c);
     }
 
     void fill(uint8_t gray, uint8_t alpha) noexcept
     {
-        Pixel c;
-        c.r = gray;
-        c.g = gray;
-        c.b = gray;
-        c.a = alpha;
+        Pixel c(gray, gray, gray, alpha);
         fill(c);
     }
 
@@ -355,15 +346,21 @@ namespace p5 {
         gAppSurface->stroke(pix);
     }
 
+    void stroke(const BLGradient& g) noexcept
+    {
+        gAppSurface->stroke(g);
+    }
+
     // Change the alpha of an existing color
-    void stroke(const BLStyle& s) noexcept
+    void stroke(const BLVar& s) noexcept
     {
         gAppSurface->stroke(s);
     }
+
     void stroke(Pixel pix, int alpha) noexcept
     {
         Pixel c = pix;
-        c.a = alpha;
+        c.setA(alpha);
         stroke(c);
     }
 
@@ -392,6 +389,8 @@ namespace p5 {
     {
         gAppSurface->noStroke();
     }
+
+
 
     void frameRate(int newRate) noexcept
     {
@@ -651,11 +650,7 @@ namespace p5 {
 
     void createCanvas(long aWidth, long aHeight, const char *title) noexcept
     {
-        //canvasWidth = aWidth;
-        //canvasHeight = aHeight;
-
-        createAppWindow(aWidth, aHeight, "p5 Window");
-        //showAppWindow();
+        createAppWindow(aWidth, aHeight, title);
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
     }
@@ -664,7 +659,7 @@ namespace p5 {
     {
 
         createCanvas(displayWidth, displayHeight);
-        setWindowPosition(0, 0);
+        setCanvasPosition(0, 0);
         layered();
         gIsFullscreen = true;
     }

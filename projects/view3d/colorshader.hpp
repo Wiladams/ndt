@@ -10,10 +10,11 @@
 // diffusion map.
 // The normal and uv maps still apply, except there's
 // just a single color to modulate.
-struct ColorShader : public IShader {
-	BLRgba32 fColor;
+struct ColorShader : public IShader 
+{
+	Pixel fColor;
 
-	ColorShader(const BLRgba32 &c)
+	ColorShader(const Pixel &c)
 		:IShader(),
 		fColor(c)
 	{}

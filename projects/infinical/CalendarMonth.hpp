@@ -65,7 +65,7 @@ public:
 			sprintf_s(buff, 8, "%2d", day);
 		
 			if ((sysTime.wDay == day) && (sysTime.wMonth == fMonth))
-				ctx->fill(255);
+				ctx->fill(255,0,0);
 			else
 				ctx->fill(0);
 

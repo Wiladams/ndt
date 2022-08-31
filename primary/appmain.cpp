@@ -67,6 +67,8 @@ bool gIsLayered = false;
 // Display Globals
 int canvasWidth = 0;
 int canvasHeight = 0;
+Pixel* canvasPixels = nullptr;
+size_t canvasStride = 0;
 
 int displayWidth = 0;
 int displayHeight= 0;
@@ -770,7 +772,7 @@ static LONG gLastWindowStyle=0;
 
 void layered()
 {
-    gAppWindow->setExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow->addExtendedStyle(WS_EX_LAYERED | WS_EX_NOREDIRECTIONBITMAP);
     gLastWindowStyle = gAppWindow->setWindowStyle(WS_POPUP);
 
     gIsLayered = true;
@@ -778,7 +780,7 @@ void layered()
 
 void noLayered()
 {
-    gAppWindow->clearExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
+    gAppWindow->removeExtendedStyle(WS_EX_LAYERED|WS_EX_NOREDIRECTIONBITMAP);
     gAppWindow->setWindowStyle(gLastWindowStyle);
 
     gIsLayered = false;
@@ -789,7 +791,15 @@ bool isLayered()
     return gIsLayered;
 }
 
-void setWindowPosition(int x, int y)
+// Set an opacity value between 0.0 and 1.0
+// 1.0 == fully opaque (not transparency)
+// less than that makes the whole window more transparent
+void windowOpacity(float o)
+{
+    gAppWindow->setOpacity(o);
+}
+
+void setCanvasPosition(int x, int y)
 {
     gAppWindow->moveTo(x, y);
 }
@@ -808,6 +818,9 @@ bool setCanvasSize(long aWidth, long aHeight)
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 
+    canvasPixels = gAppSurface->getData();
+    canvasStride = gAppSurface->getWidth() * 4;
+
     return true;
 }
 
@@ -816,6 +829,8 @@ void createAppWindow(long aWidth, long aHeight, const char* title)
 {
     setCanvasSize(aWidth, aHeight);
     gAppWindow->setCanvasSize(aWidth, aHeight);
+    gAppWindow->setTitle(title);
+
     showAppWindow();
 }
 
@@ -1042,8 +1057,8 @@ bool prolog()
     // physical dots per inch and screen resolution, so the
     // first thing to do is to let Windows know we are Dpi aware
     // set awareness based on monitor, and get change messages when it changes
-    auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
-    //auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
+    //auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
+    auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
     
     DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(dpiContext);
     

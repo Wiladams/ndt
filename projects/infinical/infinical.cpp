@@ -1,3 +1,21 @@
+/*
+	infinical
+
+	An infinite scrolling calendar.  It actually only displays 1000 years
+
+	UI:
+	Zoom In
+	  Up Arrow
+	  Mouse Wheel forward
+	Zoom Out
+	  Down Arrow
+	  Mouse Wheel back
+	Move
+	  Mouse click/drag
+	  pointer touch/drag
+*/
+
+
 #include "p5.hpp"
 
 #include "CalendarMonth.hpp"
@@ -8,6 +26,11 @@ using namespace p5;
 using namespace Calendar;
 
 
+
+//	class Decade
+//
+//	Display 10 years at a time
+//
 class Decade : public Graphic
 {
 	int fBaseYear;
@@ -30,6 +53,11 @@ public:
 	}
 };
 
+//
+// class Century
+//
+// Display 100 years at a time
+//
 class Century : public Graphic
 {
 	int fBaseYear;
@@ -56,15 +84,9 @@ double gScale = 1.0;
 
 
 
-
-
-
-
-
-
 void setup()
 {
-	createCanvas(1280, 1024);
+	createCanvas(1280, 1024, "infinical");
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "infinical-");
 	//recorder->record();
@@ -74,15 +96,15 @@ void draw()
 {
 	background(255, 255, 240);
 
-	gAppSurface->push();
-	gAppSurface->scale(gScale);
+	push();
+
+	scale(gScale);
 
 	cent.draw(gAppSurface);
 
 	recorder->saveFrame();
 
-	gAppSurface->pop();
-
+	pop();
 }
 
 
@@ -116,10 +138,18 @@ void keyReleased(const KeyboardEvent& e)
 	}
 }
 
-void mouseMoved(const MouseEvent& e)
+//
+// mouseWheel
+// We'll use this to zoom in and out
+//
+void mouseWheel(const MouseEvent& e)
 {
-	//printf("%d,%d  %d\n", e.x, e.y, e.shift);
+	if (e.delta > 0)
+		gScale += gScaleFactor;
+	else
+		gScale -= gScaleFactor;
 }
+
 
 // Do panning using a mouse drag
 void mouseDragged(const MouseEvent& e)

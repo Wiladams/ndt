@@ -158,15 +158,15 @@ void keyReleased(const KeyboardEvent& e)
 
 void mouseDragged(const MouseEvent& e)
 {
-    int mx = constrain(mouseX, 0, width - 1);
-    int my = constrain(mouseY, 0, height - 1);
+    int mx = constrain(mouseX, 0, canvasWidth - 1);
+    int my = constrain(mouseY, 0, canvasHeight - 1);
     r1->droplet(mx, my);
 }
 
 void mousePressed(const MouseEvent& e)
 {
-    int mx = constrain(mouseX, 0, width - 1);
-    int my = constrain(mouseY, 0, height - 1);
+    int mx = constrain(mouseX, 0, canvasWidth - 1);
+    int my = constrain(mouseY, 0, canvasHeight - 1);
     r1->droplet(mx, my);
 }
 
@@ -195,15 +195,15 @@ void draw()
     loadPixels();
     // Draw pixel by pixel, asking the wave map what the source
     // pixel should be for a given position
-    for (int y = 1; y < height - 1; y++) {
-        for (int x = 1; x < width - 1; x++) {
+    for (int y = 1; y < canvasHeight - 1; y++) {
+        for (int x = 1; x < canvasWidth - 1; x++) {
             int dx;
             int dy;
             
             // get displacement for x,y
             r1->getDisplacement(x, y, dx, dy);
             Pixel c = surf.get(dx, dy);
-            pixels[y * width + x] = c;
+            pixels[y * canvasWidth + x] = c;
             //set(x, y, c);
         }
     }
@@ -213,8 +213,8 @@ void setup()
 {
     createCanvas(800, 800);
 
-    r1 = new rippler(width, height, 0.95);
-    snapper = new ScreenSnapshot(0, 0, width, height);
+    r1 = new rippler(canvasWidth, canvasHeight, 0.95);
+    snapper = new ScreenSnapshot(0, 0, canvasWidth, canvasHeight);
 
     frameRate(30);
 }

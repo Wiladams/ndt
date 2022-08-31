@@ -95,7 +95,7 @@ void draw()
 
 		auto c0 = colorSampler(offset);
 		auto c1 = c0;
-		c0.a = 10;
+		c0.setA(10);
 
 		// calculate stops along the curve
 		BLGradient grad(BLLinearGradientValues(0, 0, 0, 0));

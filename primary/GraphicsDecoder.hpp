@@ -140,7 +140,7 @@ public:
 
             case GCMD_FILL_COLOR: {
                 BLRgba32 c = readColor();
-                fGraphics->fill(c.r, c.g, c.r, c.a);
+                fGraphics->fill(c);
             }
             break;
             case GCMD_FILL_GRADIENT: {
@@ -159,8 +159,7 @@ public:
             case GCMD_STROKE_COLOR: {
                 BLRgba32 c = readColor();
                 //printf("GraphicsDecoder.GCMD_STROKE: 0x%08x\n", c.value);
-
-                fGraphics->stroke(c.r, c.g, c.b, c.a);
+                fGraphics->stroke(c);
             }
             break;
             case GCMD_STROKE_NONE: {

@@ -493,7 +493,7 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     // Make sure we sync all current drawing
     gAppSurface->flush();
-
+    
     int pResult = StretchDIBits(hdc,
         xDest, yDest,
         DestWidth, DestHeight,

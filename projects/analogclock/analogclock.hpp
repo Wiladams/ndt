@@ -1,6 +1,7 @@
 #pragma once
 
 #include "p5.hpp"
+#include "calendar.hpp"
 
 #include <string>
 #include <iomanip>
@@ -8,44 +9,7 @@
 #include <sstream>
 #include <cstdio>
 
-using namespace p5;
-
-
-static const std::string WeekDaysLong[] = {
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-};
-
-static const std::string WeekDaysShort[] = {
-    "SUN",
-    "MON",
-    "TUE",
-    "WED",
-    "THU",
-    "FRI",
-    "SAT",
-};
-
-static const std::string MonthsShort[] = {
-    "",
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC"
-};
+//using namespace p5;
 
 
 class AnalogClock {
@@ -86,12 +50,12 @@ public:
         fCenterY = cy;
         fRadius = radius;
         fCenterRadius = fRadius*.618;
-        fBackgroundColor = color(0xe2, 0x84, 0x30, 0x7f);
+        fBackgroundColor = p5::color(0xe2, 0x84, 0x30, 0x7f);
 
         // For doing hand animation
-        fOvershootAmount = radians(1.25);
+        fOvershootAmount = p5::radians(1.25);
         fOvershootRemaining = 0;
-        fRecoveryIncrement = radians(1.0);
+        fRecoveryIncrement = p5::radians(1.0);
         fLastSec = 0;
 
         fDrivenExternally = false;
@@ -107,19 +71,19 @@ public:
         // Every time we calculate the flight time, the 
         // fCenterRadius should reduce until it gets down
         // to the smallest internal radius (3)
-        fCenterRadius = constrain(fCenterRadius-0.3, 3, fCenterRadius);
+        fCenterRadius = p5::constrain(fCenterRadius-0.3, 3, fCenterRadius);
 
         // delay before flight takeoff, 10 to 60 seconds
-        fFlightTime = seconds() + random(10, 60);
+        fFlightTime = p5::seconds() + p5::random(10, 60);
 
         // flight duration from 10 to 60 seconds
-        fFlightDuration = random(10, 60);
+        fFlightDuration = p5::random(10, 60);
 
 
-        fFlightDirection = BLPoint(random(-2, 2), random(-2, 2));
+        fFlightDirection = BLPoint(p5::random(-2, 2), p5::random(-2, 2));
         // The speed is inversely proportional to the size
         // smaller clocks move faster
-        fFlightSpeed = map(fRadius, SmallestRadius, LargestRadius, 10, 1);
+        fFlightSpeed = p5::map(fRadius, SmallestRadius, LargestRadius, 10, 1);
 
     }
 
@@ -149,7 +113,7 @@ public:
         if ((fCenterY < 0) || (fCenterY > displayHeight))
             fFlightDirection.y *= -1;
 
-        if (seconds() > fFlightTime + fFlightDuration) {
+        if (p5::seconds() > fFlightTime + fFlightDuration) {
             calculateFlightTime();
         }
     }
@@ -158,7 +122,7 @@ public:
     {
         ctx.push();
 
-        double segmentRads = radians(360 / 60);
+        double segmentRads = p5::radians(360 / 60);
 
         ctx.strokeWeight(2);
         ctx.stroke(30);
@@ -190,8 +154,8 @@ public:
         ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
         ctx.fill(30);
 
-        double segmentRads = radians(360 / 12);
-        double angle = segmentRads - radians(90);
+        double segmentRads = p5::radians(360 / 12);
+        double angle = segmentRads - p5::radians(90);
         double r = fRadius - 34;
 
         for (int i = 1; i <= 12; i++) {
@@ -207,7 +171,7 @@ public:
     void drawHourTickmarks(IGraphics& ctx)
     {
         ctx.push();
-        double segmentRads = radians(360 / 12);
+        double segmentRads = p5::radians(360 / 12);
 
         ctx.strokeWeight(4);
         ctx.stroke(30);
@@ -226,8 +190,8 @@ public:
         ctx.push();
 
         // Do the rotation thing
-        double minuteContribution = radians((double)fTime.wMinute / (60.0 * 30.0));
-        double hourRads = radians(map(fTime.wHour % 12, 0, 11, 0, 330)) + minuteContribution;
+        double minuteContribution = p5::radians((double)fTime.wMinute / (60.0 * 30.0));
+        double hourRads = p5::radians(p5::map(fTime.wHour % 12, 0, 11, 0, 330)) + minuteContribution;
         ctx.rotate(hourRads);
 
         // Draw the indicator line
@@ -243,7 +207,7 @@ public:
         ctx.push();
 
         // Do the rotation thing
-        double minuteRads = radians(map(fTime.wMinute, 0, 59, 0, 354));
+        double minuteRads = p5::radians(p5::map(fTime.wMinute, 0, 59, 0, 354));
         ctx.rotate(minuteRads);
 
         // Draw the indicator line
@@ -260,7 +224,7 @@ public:
 
         // Do the rotation thing
         // translate(self.centerX, self.centerY)
-        double secRads = radians(map(fTime.wSecond, 0, 59, 0, 354));
+        double secRads = p5::radians(p5::map(fTime.wSecond, 0, 59, 0, 354));
         if (fTime.wSecond != fLastSec) {
             fOvershootRemaining = fOvershootAmount;
             fLastSec = fTime.wSecond;
@@ -268,7 +232,7 @@ public:
 
         secRads = secRads + fOvershootRemaining;
 
-        fOvershootRemaining = constrain(fOvershootRemaining - fRecoveryIncrement, 0, fOvershootAmount);
+        fOvershootRemaining = p5::constrain(fOvershootRemaining - fRecoveryIncrement, 0, fOvershootAmount);
 
         ctx.rotate(secRads);
 
@@ -286,8 +250,8 @@ public:
         int bufflen = 1024;
 
         sprintf_s(buff, bufflen, "%s %s %d", 
-            WeekDaysShort[fTime.wDayOfWeek].c_str(), 
-            MonthsShort[fTime.wMonth].c_str(), 
+            Calendar::WeekDaysShort[fTime.wDayOfWeek].c_str(), 
+            Calendar::MonthsShort[fTime.wMonth].c_str(), 
             fTime.wDay);
         
         ctx.stroke(0x20);
@@ -299,21 +263,21 @@ public:
     {
         // fill background
         BLGradient gradient(BLRadialGradientValues(fCenterX, fCenterY, fCenterX, fCenterY, fRadius));
-        gradient.addStop(0, color(220, 127));       // center
-        gradient.addStop(0.20, color(fBackgroundColor.r, fBackgroundColor.g, fBackgroundColor.b, 127));     // center
+        gradient.addStop(0, p5::color(220, 127));       // center
+        gradient.addStop(0.20, p5::color(fBackgroundColor.r(), fBackgroundColor.g(), fBackgroundColor.b(), 127));     // center
         gradient.addStop(0.80, fBackgroundColor);
-        gradient.addStop(1.0, color(65, 127));     // edge
+        gradient.addStop(1.0, p5::color(65, 127));     // edge
         ctx.fill(gradient);
         //ctx.fill(fBackgroundColor);
 
-        noStroke();
+        p5::noStroke();
 
         ctx.ellipseMode(ELLIPSEMODE::RADIUS);
         ctx.circle(fCenterX, fCenterY, fRadius);
 
         // draw inside radius
         // This indicates where mouse activation occurs
-        noStroke();
+        p5::noStroke();
         ctx.fill(240,65);
         ctx.circle(fCenterX, fCenterY, fCenterRadius);
     }
@@ -336,7 +300,7 @@ public:
         // and do all angle oriented drawing within the
         // context of this save / restore
         ctx.translate(fCenterX, fCenterY);
-        ctx.rotate(radians(-90));
+        ctx.rotate(p5::radians(-90));
 
         drawHourTickmarks(ctx);
         drawSecondTickmarks(ctx);
@@ -349,22 +313,22 @@ public:
         drawDate(ctx);
 
         // If the mouse down while inside us, we'll stop
-        if (mouseIsPressed)
+        if (p5::mouseIsPressed)
         {
-            double ldistance = dist(mouseX, mouseY, fCenterX, fCenterY);
+            double ldistance = p5::dist(p5::mouseX, p5::mouseY, fCenterX, fCenterY);
 
             if ((ldistance >= 1) && (ldistance < fCenterRadius))
             {
                 // Move closer to the cursor location position
-                double x = lerp(mouseX, fCenterX, 0.3);
-                double y = lerp(mouseY, fCenterY, 0.3);
+                double x = p5::lerp(p5::mouseX, fCenterX, 0.3);
+                double y = p5::lerp(p5::mouseY, fCenterY, 0.3);
                 moveTo(x, y);
 
                 calculateFlightTime();
             }
         } else {
             // otherwise, see if it's time to fly away
-            if ((fFlightTime > 0) && (seconds() > fFlightTime)) {
+            if ((fFlightTime > 0) && (p5::seconds() > fFlightTime)) {
                 autoMove();
             }
         }

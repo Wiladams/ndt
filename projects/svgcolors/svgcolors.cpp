@@ -233,7 +233,7 @@ public:
 
     void drawEntry(std::shared_ptr<IGraphics> ctx, ColorEntry acolor, int column, int row)
     {
-        double lum = (0.2125 * acolor.value.r) + (0.7154 * acolor.value.g) + (0.0721 * acolor.value.b);
+        double lum = (0.2125 * acolor.value.r()) + (0.7154 * acolor.value.g()) + (0.0721 * acolor.value.b());
 
         ctx->noStroke();
         ctx->fill(acolor.value);

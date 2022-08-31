@@ -12,20 +12,20 @@ using namespace tinyvg;
 struct VGCommandPath
 {
 	int fCommand;
-	BLStyle fFillStyle;
-	BLStyle fLineStyle;
+	BLVar fFillStyle;
+	BLVar fLineStyle;
 	float fLineWidth;
 	BLPath fPath;
 
 private:
 	// convert a tinyvg_style_t to a BLStyle
-	bool initStyle(BLStyle& s, tvg_style_t& tvgs)
+	bool initStyle(BLVar& s, tvg_style_t& tvgs)
 	{
 
 		switch (tvgs.kind) {
 		case DrawingStyle::FlatColored:
 		{
-			s = BLStyle(BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
+			s = BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a);
 		}
 		break;
 
@@ -36,7 +36,7 @@ private:
 				BLGradient linear(BLLinearGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_1.x, tvgs.point_1.y));
 				linear.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				linear.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				s = BLStyle(linear);
+				s = linear;
 			}
 			else if (tvgs.kind == DrawingStyle::RadialGradient) {
 				double dx = tvgs.point_1.x - tvgs.point_0.x;
@@ -46,7 +46,7 @@ private:
 				BLGradient radial(BLRadialGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_0.x, tvgs.point_0.y, r0));
 				radial.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				radial.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				s = BLStyle(radial);
+				s = radial;
 			}
 		}
 		break;

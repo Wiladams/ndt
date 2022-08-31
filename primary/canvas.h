@@ -13,7 +13,7 @@ public:
     // data pointer and format
     GCanvas(int w, int h, void *dataPtr, intptr_t stride, uint32_t pixelFormat = BL_FORMAT_PRGB32)
     {
-        BLResult bResult = blImageInitAsFromData(&fImage, w, h, pixelFormat, dataPtr, stride, nullptr, nullptr);
+        BLResult bResult = blImageInitAsFromData(&fImage, w, h, (BLFormat)pixelFormat, dataPtr, stride, nullptr, nullptr);
         fImage.getData(&fImageData);
         
         BLContextCreateInfo createInfo{};
@@ -24,7 +24,7 @@ public:
 
     // This one will initialize the image with its own data pointer
 	GCanvas(const int w, const int h, uint32_t pixelFormat = BL_FORMAT_PRGB32)
-		: fImage(w, h, pixelFormat)
+		: fImage(w, h, (BLFormat)pixelFormat)
 	{
         fImage.getData(&fImageData);
 		begin(fImage);	// Single threaded

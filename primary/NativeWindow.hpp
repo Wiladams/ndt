@@ -111,6 +111,12 @@ public:
 
     }
 
+    bool setTitle(const char* title)
+    {
+        BOOL res = ::SetWindowTextA(getHandle(), title);
+        return res != 0;
+    }
+
     // Controlling a Window's style
     LONG addWindowStyle(int style)
     {
@@ -127,19 +133,46 @@ public:
         return SetWindowLongA(fHandle, GWL_STYLE, (~(LONG)style) & GetWindowLongA(fHandle, GWL_STYLE));
     }
 
-
-    // Set a specific extended window style
-    LONG setExtendedStyle(int xstyle)
+    // Add a specific extended window style to
+    // the ones that are already there
+    LONG addExtendedStyle(LONG xstyle)
     {
         return SetWindowLongA(fHandle, GWL_EXSTYLE, GetWindowLongA(fHandle, GWL_EXSTYLE) | xstyle);
     }
 
+    // Set a specific extended window style
+    LONG setExtendedStyle(int xstyle)
+    {
+        return SetWindowLongA(fHandle, GWL_EXSTYLE, xstyle);
+    }
+
     // clear a specific extended window style
-    LONG clearExtendedStyle(int xstyle)
+    LONG removeExtendedStyle(int xstyle)
     {
         return SetWindowLongA(fHandle, GWL_EXSTYLE, (~(LONG)xstyle)&GetWindowLongA(fHandle, GWL_EXSTYLE));
     }
 
+    int setOpacity(float opacity)
+    {
+        LONG style = ::GetWindowLong(fHandle, GWL_EXSTYLE);
+
+        if (opacity == 1.0f)
+        {
+            // if full opacity is desired
+            // just mark as unlayered
+            if (style & WS_EX_LAYERED)
+                removeExtendedStyle(WS_EX_LAYERED);
+        }
+        else {
+            const BYTE alpha = (BYTE)((int)(opacity * 255.0f));
+            // mark window as layered if necessary
+            addExtendedStyle(WS_EX_LAYERED);
+
+            ::SetLayeredWindowAttributes(fHandle, 0, alpha, LWA_ALPHA);
+        }
+
+        return 0;
+    }
 };
 
 

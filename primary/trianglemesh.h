@@ -253,9 +253,9 @@ struct TriangleMesh
 		auto c = fNormalSampler(uvf[0], uvf[1]);
 
 		vec3f res;
-		res[2] = (float)c.b / 255.f * 2.f - 1.f;
-		res[1] = (float)c.g / 255.f * 2.f - 1.f;
-		res[0] = (float)c.r / 255.f * 2.f - 1.f;
+		res[2] = (float)c.b() / 255.f * 2.f - 1.f;
+		res[1] = (float)c.g() / 255.f * 2.f - 1.f;
+		res[0] = (float)c.r() / 255.f * 2.f - 1.f;
 
 		return res;
 	}
@@ -266,7 +266,7 @@ struct TriangleMesh
 			return 0.0;
 
 		auto c = fSpecularSampler(uvf[0], uvf[1]);
-		return c.b / 1.0f;
+		return c.b() / 1.0f;
 	}
 
 };

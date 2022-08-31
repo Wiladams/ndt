@@ -96,8 +96,8 @@ private:
         case RECTMODE::CORNERS:
             x = a;
             y = b;
-            w = c-a;
-            h = d-b;
+            w = c - a;
+            h = d - b;
             break;
         case RECTMODE::CENTER:
             x = a - (c / 2);
@@ -182,7 +182,7 @@ private:
 
 
 public:
-    BLGraphics() 
+    BLGraphics()
         :fUseFill(true),
         fEllipseMode(ELLIPSEMODE::RADIUS),
         fRectMode(RECTMODE::CORNER),
@@ -193,10 +193,10 @@ public:
 
     BLGraphics(BLContext& ctx)
         : fCtx(ctx)
-        ,fUseFill(true)
-        ,fEllipseMode(ELLIPSEMODE::CENTER)
-        ,fRectMode(RECTMODE::CORNER)
-        ,fAngleMode(RADIANS)
+        , fUseFill(true)
+        , fEllipseMode(ELLIPSEMODE::CENTER)
+        , fRectMode(RECTMODE::CORNER)
+        , fAngleMode(RADIANS)
     {
         initialize();
     }
@@ -210,7 +210,7 @@ public:
     }
 
     // how many threads is the context using
-    INLINE int threadCount() { return fCtx.queryThreadCount(); }
+    INLINE int threadCount() { return fCtx.threadCount(); }
 
     INLINE void setCommandThreshold(int maxCommands)
     {
@@ -235,14 +235,14 @@ public:
 
 
     // Various Modes
-    INLINE void angleMode(int mode) override { fAngleMode = mode; }
-    INLINE void ellipseMode(const ELLIPSEMODE mode) override {fEllipseMode = mode;}
+    INLINE void angleMode(int mode) { fAngleMode = mode; }
+    INLINE void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
     INLINE void rectMode(const RECTMODE mode) override { fRectMode = mode; }
-    INLINE void blendMode(int op) override { fCtx.setCompOp(op); }
+    INLINE void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
 
     // stroking attributes
-    INLINE void strokeCaps(int caps) override { fCtx.setStrokeCaps(caps); }
-    INLINE void strokeJoin(int style) override { fCtx.setStrokeJoin(style); }
+    INLINE void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
+    INLINE void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }
     INLINE void strokeWeight(double weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
@@ -258,12 +258,13 @@ public:
 
     // Pixel management
     INLINE  void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void fill(const BLStyle& s) override { fUseFill = true; fCtx.setFillStyle(s); }
-    INLINE  void fill(const BLGradient& g) override { fUseFill = true; fCtx.setFillStyle(g); }
+    INLINE  void fill(const BLVarCore& s) override { fUseFill = true; fCtx.setFillStyle(s); }
+    INLINE  void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
     INLINE  void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
 
     INLINE  void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void stroke(const BLStyle& s) override {fCtx.setStrokeStyle(s);}
+    INLINE  void stroke(const BLVarCore& s) override { fCtx.setStrokeStyle(s); }
+    INLINE  void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
     INLINE  void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
 
 
@@ -456,6 +457,8 @@ public:
     // Bitmaps
     INLINE  void image(const BLImage& img, int x, int y) override
     {
+        //printf("BLGraphics::image(img, %d, %d, %dx%d)\n", x, y, img.width(), img.height());
+        
         fCtx.blitImage(BLPointI(x, y), img);
         incrCmd();
     }

@@ -31,10 +31,10 @@ namespace ndt {
 
 	static BLRgba32 lerpColor(const BLRgba32& from, const BLRgba32& to, double f) noexcept
 	{
-		uint32_t r = (uint32_t)maths::Lerp(f, from.r, to.r);
-		uint32_t g = (uint32_t)maths::Lerp(f, from.g, to.g);
-		uint32_t b = (uint32_t)maths::Lerp(f, from.b, to.b);
-		uint32_t a = (uint32_t)maths::Lerp(f, from.a, to.a);
+		uint32_t r = (uint32_t)maths::Lerp(f, from.r(), to.r());
+		uint32_t g = (uint32_t)maths::Lerp(f, from.g(), to.g());
+		uint32_t b = (uint32_t)maths::Lerp(f, from.b(), to.b());
+		uint32_t a = (uint32_t)maths::Lerp(f, from.a(), to.a());
 
 		return BLRgba32(r, g, b, a);
 	}

@@ -85,6 +85,9 @@ APP_EXPORT extern char **gargv;
 APP_EXPORT extern User32Window * gAppWindow;
 APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
+// Raw Mouse input
+APP_EXPORT extern int rawMouseX;
+APP_EXPORT extern int rawMouseY;
 
 // Globals we expect the user to consume
 APP_EXPORT extern int displayWidth;
@@ -94,42 +97,40 @@ APP_EXPORT extern unsigned int systemPpi;
 
 APP_EXPORT extern int canvasWidth;
 APP_EXPORT extern int canvasHeight;
+APP_EXPORT extern Pixel *canvasPixels;
+APP_EXPORT extern size_t canvasStride;
 
 
 
-// The various 'onxxx' routines are meant to be implemented by
-// application environment code.  If they are implemented
-// the ndt runtime will load them in and call them at appropriate times
-// if they are not implemented, they simply won't be called.
-APP_EXPORT void onLoad();	// upon loading application
-APP_EXPORT void onUnload();
-
-APP_EXPORT void onLoop();	// called each time through application main loop
 
 
 // The following routines are part of the ndt runtime, and are called
 // by the implementing application.
+// 
 // The control the lifetime of the environment, creation of primary window
 // and whether various parts of the IO system are present
 
 APP_EXPORT void createAppWindow(long aWidth, long aHeight, const char* title);
+APP_EXPORT void windowOpacity(float o);	// set overall opacity of window
 APP_EXPORT void showAppWindow();
 APP_EXPORT void halt();
 
-//EXPORT void forceRedraw(void* param, int64_t tickCount);
 APP_EXPORT void screenRefresh();
 
 APP_EXPORT void layered();
 APP_EXPORT void noLayered();
 APP_EXPORT bool isLayered();
 
+// turn raw input on and off
 APP_EXPORT void rawInput();
 APP_EXPORT void noRawInput();
 
+// turn joystick processing on and off
 APP_EXPORT void joystick();
 APP_EXPORT void noJoystick();
 
-// Touch routines apps can implement
+// Routines to manage ability to use
+// touch input
 APP_EXPORT bool touch();
 APP_EXPORT bool noTouch();
 APP_EXPORT bool isTouch();
@@ -141,18 +142,36 @@ APP_EXPORT bool isTouch();
 APP_EXPORT bool dropFiles();
 APP_EXPORT bool noDropFiles();
 
+// turn visual cursor on and off (default on)
 APP_EXPORT void cursor();
 APP_EXPORT void noCursor();
 
+// show and hide application window (default show)
 APP_EXPORT void show();
 APP_EXPORT void hide();
 
 
 
-APP_EXPORT void setWindowPosition(int x, int y);
+APP_EXPORT void setCanvasPosition(int x, int y);
 APP_EXPORT bool setCanvasSize(long aWidth, long aHeight);
 
 
+#ifdef __cplusplus
+}
+#endif
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	// The various 'onxxx' routines are meant to be implemented by
+// application environment code.  If they are implemented
+// the ndt runtime will load them in and call them at appropriate times
+// if they are not implemented, they simply won't be called.
+	APP_EXPORT void onLoad();	// upon loading application
+	APP_EXPORT void onUnload();
+
+	APP_EXPORT void onLoop();	// called each time through application main loop
 #ifdef __cplusplus
 }
 #endif

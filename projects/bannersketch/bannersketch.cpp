@@ -176,7 +176,7 @@ void setup() {
 	frameRate(30);
 
 	// Size of canvas (width,height)
-	createCanvas(displayWidth, 78);
+	createCanvas(displayWidth, 160);
 	setWindowPosition(0, 0);
 	layered();
 
