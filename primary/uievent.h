@@ -14,6 +14,7 @@ enum {
     MOUSEPRESSED,
     MOUSERELEASED,
     MOUSEWHEEL,
+    MOUSEHWHEEL,
 
     // These are based on application semantics
     MOUSECLICKED,

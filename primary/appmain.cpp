@@ -253,14 +253,21 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_XBUTTONDOWN:
             e.activity = MOUSEPRESSED;
             break;
+        
         case WM_LBUTTONUP:
         case WM_RBUTTONUP:
         case WM_MBUTTONUP:
         case WM_XBUTTONUP:
             e.activity = MOUSERELEASED;
             break;
+        
         case WM_MOUSEWHEEL:
             e.activity = MOUSEWHEEL;
+            e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            break;
+        
+        case WM_MOUSEHWHEEL:
+            e.activity = MOUSEHWHEEL;
             e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
             break;
 

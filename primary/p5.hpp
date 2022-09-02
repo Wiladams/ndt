@@ -68,6 +68,7 @@ extern "C" {
     APP_EXPORT void mousePressed(const MouseEvent& e);
     APP_EXPORT void mouseReleased(const MouseEvent& e);
     APP_EXPORT void mouseWheel(const MouseEvent& e);
+    APP_EXPORT void mouseHWheel(const MouseEvent& e);
 
 // Handle Joystick events
     APP_EXPORT void joyPressed(const JoystickEvent& e);
@@ -109,7 +110,7 @@ extern "C" {
     APP_EXPORT extern int frameCount;
     APP_EXPORT extern int droppedFrames;
 
-    APP_EXPORT extern Pixel* pixels;    // a pointer to the canvas pixels
+    APP_EXPORT extern uint8_t* pixels;    // a pointer to the canvas pixels
 
     // Keyboard Globals
     APP_EXPORT extern int keyCode;      // virtual keycode

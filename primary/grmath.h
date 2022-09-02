@@ -518,29 +518,29 @@ template <size_t DimRows, size_t DimCols, class T> std::ostream& operator<<(std:
 }
 
 // Some concrete types
-using vec2 = vec<2, float>; 
-using ivec2 = vec<2, int>;
-using vec2i = vec<2, int>;
-using vec2f = vec<2, float>;
-using dvec2  = vec<2, double>;
+//using vec2 = vec<2, float>; 
+//using ivec2 = vec<2, int>;
+//using vec2i = vec<2, int>;
+//using vec2f = vec<2, float>;
+//using dvec2  = vec<2, double>;
 
 
-using vec3i = vec<3, int>;
-using vec3f = vec<3, float>;
-using vec3  = vec<3, double>;
+//using vec3i = vec<3, int>;
+//using vec3f = vec<3, float>;
+//using vec3  = vec<3, double>;
 
-using vec4i = vec<4, int>;
-using vec4f = vec<4, float>;
-using vec4  = vec<4, double>;
+//using vec4i = vec<4, int>;
+//using vec4f = vec<4, float>;
+//using vec4  = vec<4, double>;
 
-using mat3f = mat<3, 3, float>;
-using mat3  = mat<3, 3, double>;
+//using mat3f = mat<3, 3, float>;
+//using mat3  = mat<3, 3, double>;
 
-using mat4f = mat<4, 4, float>;
-using mat4  = mat<4, 4, double>;
+//using mat4f = mat<4, 4, float>;
+//using mat4  = mat<4, 4, double>;
 
-using point3 = vec3;
-using rtcolor = vec3;
+//using point3 = vec3;
+//using rtcolor = vec3;
 
 
 // Utility Functions
@@ -560,7 +560,7 @@ inline int random_int(int low, int high)
     // Returns a random integer in [min,max].
     return static_cast<int>(random_double_range(low, high + 1));
 }
-
+/*
 inline vec3 random_vec3() {
     return vec3(random_double(), random_double(), random_double());
 }
@@ -588,5 +588,5 @@ vec<3, T> refract(const vec<3, T>& uv, const vec<3, T>& n, double etai_over_etat
     vec<3, T> r_out_perp = -sqrt(1.0 - r_out_parallel.lengthSquared()) * n;
     return r_out_parallel + r_out_perp;
 }
-
+*/
 #endif

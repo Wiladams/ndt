@@ -2,7 +2,8 @@
 #pragma comment(lib, "blend2d.lib")
 
 #include "blend2d.h"
-#include "grmath.h"
+//#include "grmath.h"
+#include "maths.hpp"
 
 // Enumerations for all the commands
 // 

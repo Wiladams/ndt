@@ -94,7 +94,8 @@ void setup()
 
 void draw()
 {
-	background(255, 255, 240);
+	//background(255, 255, 240);
+	background(255);
 
 	push();
 
@@ -148,6 +149,16 @@ void mouseWheel(const MouseEvent& e)
 		gScale += gScaleFactor;
 	else
 		gScale -= gScaleFactor;
+}
+
+void mouseHWheel(const MouseEvent& e)
+{
+	double scrollSize = 10;
+
+	if (e.delta > 0)
+		cent.translateBy(scrollSize, 0);
+	else
+		cent.translateBy(-scrollSize, 0);
 }
 
 

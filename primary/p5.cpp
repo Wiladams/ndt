@@ -15,6 +15,7 @@ static MouseEventHandler gMouseClickedHandler = nullptr;
 static MouseEventHandler gMousePressedHandler = nullptr;
 static MouseEventHandler gMouseReleasedHandler = nullptr;
 static MouseEventHandler gMouseWheelHandler = nullptr;
+static MouseEventHandler gMouseHWheelHandler = nullptr;
 static MouseEventHandler gMouseDraggedHandler = nullptr;
 
 // Keyboard event handling
@@ -94,7 +95,7 @@ namespace p5 {
     long previousZoomDistance = 0;
     double zoomFactor = 1.0;
 
-    Pixel* pixels = nullptr;    // a pointer to the raw pixels of app canvas
+    uint8_t* pixels = nullptr;    // a pointer to the raw pixels of app canvas
 
 
     static StopWatch SWatch;    // Stopwatch used for time 
@@ -682,12 +683,13 @@ namespace p5 {
     void loadPixels() noexcept
     {
         gAppSurface->loadPixels();
-        pixels = gAppSurface->getData();
+        pixels = (uint8_t *)gAppSurface->getData();
     }
 
     void updatePixels() noexcept
     {
         gAppSurface->updatePixels();
+        pixels = nullptr;
     }
 
 
@@ -823,10 +825,18 @@ void handleMouseEvent(const MouseEvent& e)
             gMouseClickedHandler(e);
         }
         break;
+
     case MOUSEWHEEL:
         p5::mouseDelta = e.delta;
         if (gMouseWheelHandler != nullptr) {
             gMouseWheelHandler(e);
+        }
+        break;
+
+    case MOUSEHWHEEL:
+        p5::mouseDelta = e.delta;
+        if (gMouseHWheelHandler != nullptr) {
+            gMouseHWheelHandler(e);
         }
         break;
     }
@@ -1053,6 +1063,7 @@ void onLoad()
     gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
     gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
     gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
+    gMouseHWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseHWheel");
     gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
 
     // Look for implementation of keyboard events
