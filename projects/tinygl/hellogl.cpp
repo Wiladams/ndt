@@ -9,18 +9,13 @@
 #include <stdarg.h>
 
 
-//Doesn't drag in anything.
+
 #include "include/GL/gl.h"
-
-//Doesn't drag in anything.
 #include "include/zbuffer.h"
-
-#define CHAD_API_IMPL
-#define CHAD_MATH_IMPL
 #include "include-demo/3dMath.h"
 
 
-//using namespace p5;
+using namespace p5;
 
 
 FrameStats _stats;
@@ -38,6 +33,7 @@ void drawGL() {
 	glLoadIdentity();
 	glPushMatrix();
 	glRotatef(frameCount, 0, 0, 1);
+
 	glBegin(GL_TRIANGLES);
 	glColor3f(0.2, 0.2, 1.0); // BLUE!
 	// glColor3f(1.0, 0.2, 0.2); //RED!
@@ -59,7 +55,7 @@ void drawGL2() {
 	// Select and setup the projection matrix
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	mat4 m = perspective(65.0f, (GLfloat)winSizeX / (GLfloat)winSizeY, 1.0f, 100.0f);
+	mat4 m = perspective(65.0f, (GLfloat)canvasWidth / (GLfloat)canvasHeight, 1.0f, 100.0f);
 	glLoadMatrixf(m.d);
 	// GLfloat  h = (GLfloat) winSizeY / (GLfloat) winSizeX;
 	// glFrustum( -1.0, 1.0, -h, h, 5.0, 60.0 );
@@ -72,6 +68,7 @@ void drawGL2() {
 	// Draw a rotating colorful triangle
 	glTranslatef(0.0f, 14.0f, 0.0f);
 	glRotatef(0.3f * (GLfloat)x + (GLfloat)seconds() * 100.0f, 0.0f, 0.0f, 1.0f);
+	
 	glBegin(GL_TRIANGLES);
 	glColor4f(1.0f, 0.01f, 0.01f, 0.0f);
 	glVertex3f(-5.0f, 0.0f, -4.0f);
@@ -86,7 +83,9 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	drawGL();
+
+	//drawGL();
+	drawGL2();
 
 	glDrawText((unsigned char*)"Hello World!\nFrom TinyGL", 0, 0, 0x00FFFFFF);
 }
@@ -110,9 +109,10 @@ void initScene()
 
 void setup()
 {
-	createCanvas(640, 480, "tinygl - gears");
+	createCanvas(800, 600, "tinygl - hellogl");
+	layered();
 	frameRate(30);
-	recorder = std::make_shared<Recorder>(gAppSurface, "hellogl-");
+	recorder = std::make_shared<Recorder>(gAppSurface, "hellogl");
 
 	winSizeX = canvasWidth;
 	winSizeY = canvasHeight;
@@ -124,7 +124,7 @@ void setup()
 	glInit(frameBuffer);
 
 	// initialize GL:
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, winSizeX, winSizeY);
 	glEnable(GL_DEPTH_TEST);
 	// GLfloat  h = (GLfloat) winSizeY / (GLfloat) winSizeX;

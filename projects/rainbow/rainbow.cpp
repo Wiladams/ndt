@@ -31,7 +31,7 @@ public:
 	{
 	}
 
-	virtual void draw(std::shared_ptr<IGraphics> ctx)
+	virtual void draw(IGraphics & ctx) override
 	{
 		// Get starting point
 		BLPoint lp = ndt::bezier_point(0, p1, p2, p3, p4);
@@ -45,7 +45,7 @@ public:
 			// draw line segment from last point to current point
 			// figure out color for segment
 			stroke(fSampler(u));
-			ctx->line(lp.x, lp.y, p.x, p.y);
+			ctx.line(lp.x, lp.y, p.x, p.y);
 
 			// Assign current to last
 			lp = p;
@@ -108,7 +108,7 @@ void draw()
 		int finalY = (int)(potY+36);
 
 		GradientBezier bez(grad, x, canvasHeight, canvasWidth * 0.3, yoffset, canvasWidth * 0.6, yoffset, finalX, finalY,1200);
-		bez.draw(gAppSurface);
+		bez.draw(*gAppSurface);
 
 
 		yoffset += 1;

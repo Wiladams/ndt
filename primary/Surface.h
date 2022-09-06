@@ -99,7 +99,7 @@ public:
     INLINE HDC getDC() {return fBitmapDC;}
 
     INLINE BLImage& getImage() {return fImage;}
-
+    /*
     INLINE void set(int x, int y, uint32_t c)
     {
         // reject pixel if out of boundary
@@ -122,6 +122,7 @@ public:
         int offset = (int)(y * fWidth) + (int)x;
         ((Pixel *)fData)[offset] = c;
     }
+*/
 
     INLINE Pixel get(int x, int y) const
     {

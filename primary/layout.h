@@ -40,8 +40,8 @@ public:
 		std::shared_ptr<IGraphic> secondary,
 		BinaryAlignment align, 
 		double gap)
-		: fAlign(align),
-		fGap(gap)
+		: fGap(gap)
+		,fAlign(align)
 	{
 		std::deque<std::shared_ptr<IGraphic> > gs{
 			primary,

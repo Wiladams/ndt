@@ -65,15 +65,16 @@ public:
 
 	}
 
-	void drawBackground(std::shared_ptr<IGraphics> ctx)
+	void drawBackground(IGraphics & ctx) override
 	{
 		// draw a black background rectangle to start
-		ctx->fill(0);
-		ctx->noStroke();
-		ctx->rect(0, 0, fFrame.w, fFrame.h);
+		ctx.fill(0);
+		ctx.noStroke();
+		ctx.rect(0, 0, fFrame.w, fFrame.h);
 	}
 
-	void drawDate(std::shared_ptr<IGraphics> ctx, int row, int col, int date, const Pixel &c)
+	//void drawDate(std::shared_ptr<IGraphics> ctx, int row, int col, int date, const Pixel &c)
+	void drawDate(IGraphics &ctx, int row, int col, int date, const Pixel& c)
 	{
 		// draw the date
 		auto cellX = (col * cellWidth);
@@ -83,19 +84,20 @@ public:
 		auto toffsety = cellGap + ((cellHeight / 2) + (row * cellHeight));
 
 		// Put number in cell
-		ctx->fill(0xFF, 120);
-		ctx->rect(cellX, cellY, cellWidth - (cellGap * 2), cellHeight - (cellGap * 2));
-		ctx->fill(c);
-		ctx->text(std::to_string(date).c_str(), toffsetx, toffsety);
+		ctx.fill(0xFF, 120);
+		ctx.rect(cellX, cellY, cellWidth - (cellGap * 2), cellHeight - (cellGap * 2));
+		ctx.fill(c);
+		ctx.text(std::to_string(date).c_str(), toffsetx, toffsety);
 	}
 
 
-	void drawSelf(std::shared_ptr<IGraphics> ctx)
+	//void drawSelf(std::shared_ptr<IGraphics> ctx)
+	void drawSelf(IGraphics &ctx) override
 	{
 		// draw numeric squares
-		ctx->textSize(12);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-		ctx->noStroke();
+		ctx.textSize(12);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+		ctx.noStroke();
 
 		int monthDayNumber = fCalendar.dayCodeForMonth(fMonth);
 		int daysInMonth = fCalendar.getDaysInMonth(fMonth);

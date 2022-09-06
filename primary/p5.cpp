@@ -733,7 +733,7 @@ void handleComposition()
 
     // If we have a window manager, tell it to draw
     if (nullptr != gWindowManager) {
-        gWindowManager->draw(gAppSurface);
+        gWindowManager->draw(*gAppSurface);
     }
 
     gAppSurface->flush();

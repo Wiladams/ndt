@@ -122,13 +122,17 @@ private:
         switch (fTextHAlignment)
         {
         case ALIGNMENT::LEFT:
-            x = x;
+            // do nothing
+            // x = x;
             break;
         case ALIGNMENT::CENTER:
             x = x - (cx / 2);
             break;
         case ALIGNMENT::RIGHT:
             x = x - cx;
+            break;
+
+        default:
             break;
         }
 
@@ -141,10 +145,13 @@ private:
             y = y + (cy / 2);
             break;
         case ALIGNMENT::BASELINE:
-            y = y;
-            break;
         case ALIGNMENT::BOTTOM:
-            y = y;
+            // do nothing
+            // maybe adjust for descent
+            // y = y;
+            break;
+
+        default:
             break;
         }
 
@@ -235,7 +242,7 @@ public:
 
 
     // Various Modes
-    INLINE void angleMode(int mode) { fAngleMode = mode; }
+    INLINE void angleMode(int mode) override { fAngleMode = mode; }
     INLINE void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
     INLINE void rectMode(const RECTMODE mode) override { fRectMode = mode; }
     INLINE void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
@@ -271,18 +278,18 @@ public:
     // Synchronization
     // Wait for any outstanding drawing commands to be applied
     //
-     void flush()
+    void flush() override
     {
         BLResult bResult = fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         if (bResult != BL_SUCCESS)
         {
-            std::cout << "BLGraphics.flush(), ERROR: " << bResult << std::endl;
+            //std::cout << "BLGraphics.flush(), ERROR: " << bResult << std::endl;
         }
 
         resetCommandCount();
     }
 
-     void loadPixels()
+    void loadPixels()
     {
         // First, flush all queued commands
         flush();
@@ -366,7 +373,7 @@ public:
         incrCmd();
     }
     
-    INLINE void rect(double x, double y, double width, double height, double xradius, double yradius)
+    INLINE void rect(double x, double y, double width, double height, double xradius, double yradius) override
     {
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
@@ -642,8 +649,11 @@ public:
                 quad(p1.x, p1.y, p2.x, p2.y, p4.x, p4.y, p3.x, p3.y);
             }
         }
-        break;
+            break;
 
+        case SHAPEMODE::NONE:
+            // do nothing
+            break;
         }
 
         pop();

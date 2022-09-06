@@ -96,7 +96,7 @@
     <ClCompile Include="..\..\primary\tinygl\ztriangle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gears.cpp">
+    <ClCompile Include="hellogl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

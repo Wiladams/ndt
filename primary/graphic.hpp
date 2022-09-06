@@ -119,12 +119,12 @@ public:
 		fFrame.y = y;
 	}
 
-	virtual void drawBackground(std::shared_ptr<IGraphics> ctx)
+	virtual void drawBackground(IGraphics & ctx)
 	{
 		//ctx->flush();
 	}
 
-	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
+	virtual void drawChildren(IGraphics & ctx)
 	{
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
@@ -136,28 +136,28 @@ public:
 		}
 	}
 
-	virtual void drawSelf(std::shared_ptr<IGraphics> ctx)
+	virtual void drawSelf(IGraphics & ctx)
 	{
 		// this one sub-classes should implement
 		// if they like
 	}
 
-	virtual void drawForeground(std::shared_ptr<IGraphics> ctx)
+	virtual void drawForeground(IGraphics & ctx)
 	{
 		//ctx->flush();
 	}
 
 
 
-	virtual void draw(std::shared_ptr<IGraphics> ctx)
+	virtual void draw(IGraphics & ctx)
 	{
-		ctx->push();
+		ctx.push();
 		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
 
 		// BUGBUG - maybe perform arbitrary transform?
 		auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-		ctx->translate(pt.x, pt.y);
+		ctx.translate(pt.x, pt.y);
 
 		drawBackground(ctx);
 		drawChildren(ctx);
@@ -165,7 +165,7 @@ public:
 		drawForeground(ctx);
 
 		//ctx->noClip();
-		ctx->pop();
+		ctx.pop();
 		
 	}
 

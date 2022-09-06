@@ -66,10 +66,9 @@ public:
         ctx->textFont("consolas");
         
 
-        ctx->textSize(8);
-        ctx->text("Font Name", 2, 10);
-        ctx->text("Version:", 2, 24);
-        ctx->text("Attributes", 2, 36);
+        ctx->textSize(16);
+        ctx->text("Font Name:", 2, 10);
+        ctx->text("Attributes", 2, 24);
         
 
 
@@ -90,9 +89,10 @@ public:
             ctx->line(0, 0, 0, -((double)line.lineHeight)*0.85);
 
             //draw the size indicator
+            ctx->noStroke();
             ctx->textFont("segoe ui");
-            ctx->textSize(12);
-            //ctx->text(std::to_string(line.size).c_str(), 0, 0);
+            ctx->textSize(16);
+            ctx->text(std::to_string(line.size).c_str(), 0, 0);
 
             // Draw the line of text
             ctx->noStroke();
@@ -100,7 +100,7 @@ public:
             ctx->textFont(fontFamily.c_str());
             ctx->textSize(line.size);
             //ctx->text(lineText.c_str(), 40, 0);
-            ctx->text(lineText.c_str(), 0, 0);
+            ctx->text(lineText.c_str(), 24, 0);
         }
 
         ctx->pop();
@@ -117,7 +117,8 @@ void draw()
     //GFontSummary s("algerian");
     //GFontSummary s("d:\\Fonts\\Old Copperfield.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
-    GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
+    //GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
+    GFontSummary s("c:\\Windows\\Fonts\\bookos.ttf");
 
     s.draw(gAppSurface);
 

@@ -31,9 +31,9 @@ public:
 
 	// Maybe we want to do some special drawing
 	// around each window
-	virtual void drawChildren(std::shared_ptr<IGraphics> ctx)
+	virtual void drawChildren(IGraphics & ctx)
 	{
-		auto shadow = ctx->color(0x40);
+		auto shadow = ctx.color(0x40);
 
 		// Here we draw each window
 		// along the way, we can display whatever

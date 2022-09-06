@@ -275,10 +275,10 @@ void glInit(void* zbuffer1) {
 		c->zb->stipplepattern[i] = 0xFF;
 #endif
 	/* clear */
-	c->clear_color.v[0] = 0;
-	c->clear_color.v[1] = 0;
-	c->clear_color.v[2] = 0;
-	c->clear_color.v[3] = 0;
+	c->clear_color.v[0] = 0.0;
+	c->clear_color.v[1] = 0.0;
+	c->clear_color.v[2] = 0.0;
+	c->clear_color.v[3] = 0.0;
 	c->clear_depth = 0;
 
 	/* selection */

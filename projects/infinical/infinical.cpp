@@ -101,7 +101,7 @@ void draw()
 
 	scale(gScale);
 
-	cent.draw(gAppSurface);
+	cent.draw(*gAppSurface);
 
 	recorder->saveFrame();
 

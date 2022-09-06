@@ -177,7 +177,7 @@ void setup() {
 
 	// Size of canvas (width,height)
 	createCanvas(displayWidth, 160);
-	setWindowPosition(0, 0);
+	setCanvasPosition(0, 0);
 	layered();
 
 	// Stroke/line/border thickness

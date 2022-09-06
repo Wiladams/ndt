@@ -58,9 +58,9 @@ public:
     }
 
     TickTopic(const double freq)
-        :fInterval((uint64_t)(1000.0/freq))
-        , fThread(TickTopic::generateTicks, this)
+        : fThread(TickTopic::generateTicks, this)
         , fTickCount(0)
+        , fInterval((uint64_t)(1000.0 / freq))
     {
     }
 

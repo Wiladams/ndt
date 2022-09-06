@@ -39,29 +39,29 @@ public:
 		fBackgroundColor = c;
 	}
 
-	void drawBackground(std::shared_ptr<IGraphics> ctx)
+	void drawBackground(IGraphics & ctx)
 	{
 		//std::cout << "GWindow::drawBackground" << std::endl;
 
-		ctx->push();
+		ctx.push();
 
 		// Fill in background
-		ctx->noStroke();
-		ctx->fill(fBackgroundColor);
-		ctx->rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
+		ctx.noStroke();
+		ctx.fill(fBackgroundColor);
+		ctx.rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
 
 		// Draw a frame
 		auto frame = getFrame();
 
-		ctx->strokeWeight(2.0);
-		ctx->stroke(0);
-		ctx->noFill();
-		ctx->rect(0, 0, frame.w, frame.h);
+		ctx.strokeWeight(2.0);
+		ctx.stroke(0);
+		ctx.noFill();
+		ctx.rect(0, 0, frame.w, frame.h);
 
-		ctx->pop();
+		ctx.pop();
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx)
 	{
 		fSurface->push();
 		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
@@ -71,20 +71,20 @@ public:
 		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
 		//ctx->translate(pt.x, pt.y);
 
-		drawBackground(fSurface);
-		drawChildren(fSurface);
-		drawSelf(fSurface);
+		drawBackground(*fSurface);
+		drawChildren(*fSurface);
+		drawSelf(*fSurface);
 		drawForeground(fSurface);
 
 		//ctx->noClip();
-		ctx->pop();
+		ctx.pop();
 
 		compose(ctx);
 	}
 
-	void compose(std::shared_ptr<IGraphics> ctx)
+	void compose(IGraphics & ctx)
 	{
-		ctx->image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
+		ctx.image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
 		//ctx->image(fSurface->getImage(), 0, 0);
 	}
 

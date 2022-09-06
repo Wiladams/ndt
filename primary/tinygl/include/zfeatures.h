@@ -132,7 +132,7 @@ Optimization hint- cost of branching.
 #define ZB_POINT_T_FRAC_BITS (ZB_POINT_S_FRAC_BITS + TGL_FEATURE_TEXTURE_POW2)
 
 /*Test the compatibility of the target platform at glInit() time.*/
-#define TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST 1
+#define TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST 0
 
 #define TINYGL_VERSION 1.0
 

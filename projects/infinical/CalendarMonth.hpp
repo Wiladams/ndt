@@ -44,7 +44,7 @@ public:
 
 
 
-	void drawDayNumbers(std::shared_ptr<IGraphics> ctx)
+	void drawDayNumbers(IGraphics & ctx)
 	{
 		SYSTEMTIME sysTime;
 		GetLocalTime(&sysTime);
@@ -57,19 +57,19 @@ public:
 		int xoffset = 4 + (dayCode)*CalendarMonth::colWidth;
 		int yoffset = 48;
 
-		ctx->fill(0);
-		ctx->textSize(12);
-		ctx->textAlign(ALIGNMENT::BASELINE, ALIGNMENT::RIGHT);
+		ctx.fill(0);
+		ctx.textSize(12);
+		ctx.textAlign(ALIGNMENT::BASELINE, ALIGNMENT::RIGHT);
 
 		for (int day = 1; day <= days; day++) {
 			sprintf_s(buff, 8, "%2d", day);
 		
 			if ((sysTime.wDay == day) && (sysTime.wMonth == fMonth))
-				ctx->fill(255,0,0);
+				ctx.fill(255,0,0);
 			else
-				ctx->fill(0);
+				ctx.fill(0);
 
-			ctx->text(buff, xoffset, yoffset);
+			ctx.text(buff, xoffset, yoffset);
 
 			if ((day + dayCode) % 7 > 0) {
 				xoffset += CalendarMonth::colWidth;
@@ -82,49 +82,49 @@ public:
 		}
 	}
 
-	void drawDayHeadings(std::shared_ptr<IGraphics> ctx)
+	void drawDayHeadings(IGraphics & ctx)
 	{
 		int yoffset = 16;
 		int xoffset = 4;
 
-		ctx->noStroke();
-		ctx->fill(0x5e);
-		ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
+		ctx.noStroke();
+		ctx.fill(0x5e);
+		ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
 
 		for (int i = 0; i < 7; i++) {
-			ctx->text(Calendar::WeekDays2Letter[i].c_str(), xoffset, yoffset);
+			ctx.text(Calendar::WeekDays2Letter[i].c_str(), xoffset, yoffset);
 			xoffset += CalendarMonth::colWidth;
 		}
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx) override
 	{
 		//printf("MonthDay: (%d) %d\n", fMonth, fCalendar.dayCodeForMonth(fMonth));
-		ctx->push();
-		ctx->translate(fFrame.x, fFrame.y);
+		ctx.push();
+		ctx.translate(fFrame.x, fFrame.y);
 
 		// Draw Calendar rectangle
-		ctx->noStroke();
+		ctx.noStroke();
 
 
-		ctx->fill(fBackgroundColor);
-		ctx->rect(0, 0, fBounds.w, fBounds.h);
+		ctx.fill(fBackgroundColor);
+		ctx.rect(0, 0, fBounds.w, fBounds.h);
 
 		// Draw shadow rect for month title
 
-		ctx->fill(0xa0);
-		ctx->rect(0, 0, fBounds.w, 16);
+		ctx.fill(0xa0);
+		ctx.rect(0, 0, fBounds.w, 16);
 
 		// Draw the month long name, and year
-		ctx->fill(0);
-		ctx->textSize(12);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-		ctx->text(fTitle, fBounds.w / 2, 6);
+		ctx.fill(0);
+		ctx.textSize(12);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+		ctx.text(fTitle, fBounds.w / 2, 6);
 
 		drawDayHeadings(ctx);
 		drawDayNumbers(ctx);
 
-		ctx->pop();
+		ctx.pop();
 	}
 };
 

@@ -56,17 +56,17 @@ public:
 		setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
 	}
 
-	virtual void drawForeground(std::shared_ptr<IGraphics> ctx)
+	virtual void drawForeground(IGraphics & ctx) override
 	{
 		// draw the year
 		auto f = getFrame();
 		char yearText[64];
 		sprintf_s(yearText, "%d", fBaseYear);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-		ctx->textSize(18);
-		ctx->fill(0);
-		ctx->noStroke();
-		ctx->text(yearText, f.w / 2,18);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx.textSize(18);
+		ctx.fill(0);
+		ctx.noStroke();
+		ctx.text(yearText, f.w / 2,18);
 
 		//ctx->flush();
 	}

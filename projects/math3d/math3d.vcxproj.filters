@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="math3d.c">
+    <ClCompile Include="math3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\primary\appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
