@@ -90,8 +90,9 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);tinygl.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -105,11 +106,12 @@
       <AdditionalIncludeDirectories>..\..\primary;..\..\primary\tinygl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);tinygl.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,8 +122,9 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);tinygl.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,41 +138,17 @@
       <AdditionalIncludeDirectories>..\..\primary;..\..\primary\tinygl</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);tinygl.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
     <ClCompile Include="..\..\primary\p5.cpp" />
-    <ClCompile Include="..\..\primary\tinygl\accum.c" />
-    <ClCompile Include="..\..\primary\tinygl\api.c" />
-    <ClCompile Include="..\..\primary\tinygl\arrays.c" />
-    <ClCompile Include="..\..\primary\tinygl\clear.c" />
-    <ClCompile Include="..\..\primary\tinygl\clip.c" />
-    <ClCompile Include="..\..\primary\tinygl\get.c" />
-    <ClCompile Include="..\..\primary\tinygl\image_util.c" />
-    <ClCompile Include="..\..\primary\tinygl\init.c" />
-    <ClCompile Include="..\..\primary\tinygl\light.c" />
-    <ClCompile Include="..\..\primary\tinygl\list.c" />
-    <ClCompile Include="..\..\primary\tinygl\matrix.c" />
-    <ClCompile Include="..\..\primary\tinygl\memory.c" />
-    <ClCompile Include="..\..\primary\tinygl\misc.c" />
-    <ClCompile Include="..\..\primary\tinygl\msghandling.c" />
-    <ClCompile Include="..\..\primary\tinygl\select.c" />
-    <ClCompile Include="..\..\primary\tinygl\specbuf.c" />
-    <ClCompile Include="..\..\primary\tinygl\texture.c" />
-    <ClCompile Include="..\..\primary\tinygl\vertex.c" />
-    <ClCompile Include="..\..\primary\tinygl\zbuffer.c" />
-    <ClCompile Include="..\..\primary\tinygl\zline.c" />
-    <ClCompile Include="..\..\primary\tinygl\zmath.c" />
-    <ClCompile Include="..\..\primary\tinygl\zpostprocess.c" />
-    <ClCompile Include="..\..\primary\tinygl\zraster.c" />
-    <ClCompile Include="..\..\primary\tinygl\ztext.c" />
-    <ClCompile Include="..\..\primary\tinygl\ztriangle.c" />
     <ClCompile Include="hellogl.cpp" />
   </ItemGroup>
   <ItemGroup>

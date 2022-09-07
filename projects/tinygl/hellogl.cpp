@@ -10,8 +10,8 @@
 
 
 
-#include "include/GL/gl.h"
-#include "include/zbuffer.h"
+#include "tinygl/GL/gl.h"
+#include "tinygl/zbuffer.h"
 #include "3dMath.h"
 
 
@@ -110,7 +110,7 @@ void initScene()
 void setup()
 {
 	createCanvas(800, 600, "tinygl - hellogl");
-	layered();
+	//layered();
 	frameRate(30);
 	recorder = std::make_shared<Recorder>(gAppSurface, "hellogl");
 

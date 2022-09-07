@@ -6,7 +6,7 @@
  */
 
 #include "zfeatures.h"
-#include "include/GL/gl.h"
+#include "tinygl/GL/gl.h"
 
 #ifdef __cplusplus
 extern "C" {

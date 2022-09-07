@@ -41,7 +41,7 @@ Enable the rendering of large polygons (in terms of vertex count)
 Also enabled the rendering of line loops.
 the maximum number of vertices in a polygon is defined in zgl.h
 */
-#define TGL_FEATURE_GL_POLYGON      0
+#define TGL_FEATURE_GL_POLYGON      1
 
 #define TGL_FEATURE_BLEND 			1
 
