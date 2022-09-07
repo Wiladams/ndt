@@ -24,10 +24,26 @@
     https://www.codeproject.com/articles/5051/various-methods-for-capturing-the-screen
 */
 
-#include "Surface.h"
-#include "texture.h"
+/*
+*   To use it as Texture
+    virtual rtcolor value(const double u, const double v, const vec3& p) const
+    {
+        auto pval = pixelValue(u,v,p);
+        return { (double)pval.r() / 255, (double)pval.g() / 255, (double)pval.b() / 255};
+    }
 
-class ScreenSnapshot : public Texture
+    virtual BLRgba32 pixelValue(double u, double v, const vec3& p) const
+    {
+        int x = int(u * (fWidth - 1));
+        int y = int(v * (fHeight - 1));
+
+        return fSurface.get(x, y);
+    }
+*/
+
+#include "Surface.h"
+
+class ScreenSnapshot
 {
     HDC fSourceDC;
     Surface fSurface;
@@ -55,20 +71,6 @@ public:
 
     size_t width() { return fWidth; }
     size_t height() { return fHeight; }
-
-    virtual rtcolor value(const double u, const double v, const vec3& p) const
-    {
-        auto pval = pixelValue(u,v,p);
-        return { (double)pval.r() / 255, (double)pval.g() / 255, (double)pval.b() / 255};
-    }
-
-    virtual BLRgba32 pixelValue(double u, double v, const vec3& p) const
-    {
-        int x = int(u * (fWidth - 1));
-        int y = int(v * (fHeight - 1));
-
-        return fSurface.get(x, y);
-    }
 
     Surface & getCurrent()
     {

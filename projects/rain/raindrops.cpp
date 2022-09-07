@@ -136,7 +136,7 @@ void setup()
 {
 	createCanvas(displayWidth, displayHeight-40);
 	layered();
-	setWindowPosition(0, 0);
+	setCanvasPosition(0, 0);
 
     // Seed the sky with drops
     for (int i = 1; i <= maxDrops; i++)

@@ -20,7 +20,7 @@
 
 
 #include "Surface.h"
-#include "texture.h"
+
 #include "User32PixelMap.h"
 
 class DCSnapper : public User32PixelMap

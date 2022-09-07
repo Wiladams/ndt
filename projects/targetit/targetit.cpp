@@ -190,7 +190,7 @@ void setup()
 	//createCanvas(600, 600);
 	createCanvas(displayWidth, displayHeight);
 	layered();
-	setWindowPosition(0, 0);
+	setCanvasPosition(0, 0);
 
 	// Read the background image
 	backgroundImage.readFromFile("motherboard.jpg");

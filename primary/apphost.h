@@ -84,6 +84,7 @@ APP_EXPORT extern char **gargv;
 
 APP_EXPORT extern User32Window * gAppWindow;
 APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
+//APP_EXPORT extern std::shared_ptr<IGraphics> gAppSurface;
 
 // Raw Mouse input
 APP_EXPORT extern int rawMouseX;

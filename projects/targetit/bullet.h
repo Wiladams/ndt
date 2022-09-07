@@ -1,7 +1,7 @@
 #pragma once
 
 #include "p5.hpp"
-#include "grmath.h"
+
 #include "graphic.hpp"
 
 using namespace p5;
@@ -41,7 +41,7 @@ public:
 	}
 
 	
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx) override
 	{
 		if (fFinished)
 			return;
@@ -51,9 +51,9 @@ public:
 		double cx = map(u, 0, 1, fOrigin.x, fDestination.x);
 		double cy = map(u, 0, 1, fOrigin.y, fDestination.y);
 
-		ctx->stroke(0);
-		ctx->fill(255);
-		ctx->circle(cx, cy, 10);
+		ctx.stroke(0);
+		ctx.fill(255);
+		ctx.circle(cx, cy, 10);
 		
 		if (u >= 1.0)
 			fFinished = true;

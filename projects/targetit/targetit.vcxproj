@@ -146,7 +146,6 @@
     <ClCompile Include="targetit.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\geometry.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\screensnapshot.hpp" />
     <ClInclude Include="bullet.h" />

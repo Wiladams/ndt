@@ -60,6 +60,7 @@ char **gargv;
 
 User32Window * gAppWindow = nullptr;
 std::shared_ptr<Surface>  gAppSurface = nullptr;
+//std::shared_ptr<BLGraphics>  gAppSurface = nullptr;
 
 bool gIsLayered = false;
 

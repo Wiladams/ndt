@@ -160,7 +160,7 @@ void setup()
 {
 	createCanvas(600, 600);
 	//layered();
-	//setWindowPosition(48, displayHeight - height);
+	//setCanvasPosition(48, displayHeight - height);
 	D = new ThreeD(gAppSurface, width, height);
 	changePosition(viewAngle, viewRadius, viewHeight);
 

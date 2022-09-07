@@ -12,7 +12,7 @@
 
 #include "include/GL/gl.h"
 #include "include/zbuffer.h"
-#include "include-demo/3dMath.h"
+#include "3dMath.h"
 
 
 using namespace p5;

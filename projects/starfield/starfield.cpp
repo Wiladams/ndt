@@ -109,5 +109,5 @@ void setup()
 
 	centerX = width / 2;
 	layered();
-	setWindowPosition(0, 0);
+	setCanvasPosition(0, 0);
 }

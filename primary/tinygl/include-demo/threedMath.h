@@ -30,14 +30,14 @@
 #endif
 #include <math.h>
 #include <string.h>
-typedef float f_;
+typedef float real;
 typedef unsigned int uint;
 #define MAX(x,y) (x>y?x:y)
 #define MIN(x,y) (x<y?x:y)
-typedef struct {CHAD_ALIGN f_ d[3];} vec3;
+typedef struct {CHAD_ALIGN real d[3];} vec3;
 typedef struct {CHAD_ALIGN int d[3];} ivec3;
-typedef struct {CHAD_ALIGN f_ d[4];} vec4;
-typedef struct {CHAD_ALIGN f_ d[16];} mat4;
+typedef struct {CHAD_ALIGN real d[4];} vec4;
+typedef struct {CHAD_ALIGN real d[16];} mat4;
 
 /*Collision detection
 These Algorithms return the penetration vector into
@@ -72,7 +72,7 @@ static inline mat4 scalemat4( vec4 s)
 static inline int invmat4( mat4 m, mat4* invOut) /*returns 1 if successful*/
 {
 	mat4 inv{ 0 };
-    f_ det;
+    real det;
     int i;
 
     inv.d[0] = m.d[5]  * m.d[10] * m.d[15] - 
@@ -196,12 +196,12 @@ static inline int invmat4( mat4 m, mat4* invOut) /*returns 1 if successful*/
     return 1;
 }
 
-static inline mat4 perspective( f_ fov,  f_ aspect,  f_ nearest,  f_ farthest){
+static inline mat4 perspective( real fov,  real aspect,  real nearest,  real farthest){
 	mat4 ret{ 0 };
-	f_ D2R = 3.14159265358979323 / 180.0f;
-	f_ yScale = 1.0f/tanf(D2R * fov/2);
-	f_ xScale = yScale/aspect;
-	f_ nearmfar = nearest - farthest;
+	real D2R = 3.14159265358979323 / 180.0f;
+	real yScale = 1.0f/tanf(D2R * fov/2);
+	real xScale = yScale/aspect;
+	real nearmfar = nearest - farthest;
 	
 	ret.d[0*4+0] = xScale; 	ret.d[0*4+1]=0; 	ret.d[0*4+2]=0;					ret.d[0*4+3]=0;
 	ret.d[1*4+0]=0; 		ret.d[1*4+1]=yScale;ret.d[1*4+2]=0;					ret.d[1*4+3]=0;
@@ -219,15 +219,15 @@ static inline mat4 perspective( f_ fov,  f_ aspect,  f_ nearest,  f_ farthest){
 static inline vec3 viewport( uint xdim,  uint ydim,  vec3 input){
 	input.d[0] += 1;
 	input.d[1] += 1;
-	input.d[0] *= (f_)xdim / 2.0f;
-	input.d[1] *= (f_)ydim / 2.0f;
+	input.d[0] *= (real)xdim / 2.0f;
+	input.d[1] *= (real)ydim / 2.0f;
 	input.d[2] = (input.d[2])/2.0f;
 	return input;
 }
 static inline mat4 rotate( vec3 rotation){
-	f_ a = rotation.d[0];
-	f_ b = rotation.d[1];
-	f_ c = rotation.d[2];
+	real a = rotation.d[0];
+	real b = rotation.d[1];
+	real c = rotation.d[2];
 	mat4 rm{ 0 };
 	rm.d[0*4 + 0] = cosf(a)*cosf(b);
 	rm.d[1*4 + 0] = sinf(a)*cosf(b);
@@ -249,15 +249,15 @@ static inline mat4 rotate( vec3 rotation){
 }
 
 
-static inline f_ clampf( f_ a,  f_ min,  f_ max){
+static inline real clampf( real a,  real min,  real max){
 	if(a<min) return min;
 	if(a>max) return max;
 	return a;
 }
-static inline f_ lengthv3( vec3 a){
+static inline real lengthv3( vec3 a){
 	return sqrtf(a.d[0] * a.d[0] + a.d[1] * a.d[1] + a.d[2] * a.d[2]);
 }
-static inline f_ lengthv4( vec4 a){
+static inline real lengthv4( vec4 a){
 	return sqrtf(a.d[0] * a.d[0] + a.d[1] * a.d[1] + a.d[2] * a.d[2] + a.d[3] * a.d[3]);
 }
 static inline vec3 multvec3( vec3 a,  vec3 b){
@@ -290,10 +290,10 @@ static inline vec4 clampvec4( vec4 a,  vec4 min,  vec4 max){
 	ret.d[3] = clampf(a.d[3],min.d[3],max.d[3]);
 	return ret;
 }
-static inline f_ dotv3( vec3 a,  vec3 b){
+static inline real dotv3( vec3 a,  vec3 b){
 	return a.d[0] * b.d[0] + a.d[1] * b.d[1] + a.d[2] * b.d[2]; 
 }
-static inline f_ dotv4( vec4 a,  vec4 b){
+static inline real dotv4( vec4 a,  vec4 b){
 	return a.d[0] * b.d[0] + a.d[1] * b.d[1] + a.d[2] * b.d[2] + a.d[3] * b.d[3]; 
 }
 static inline vec4 getrow( mat4 a,  uint index){
@@ -372,9 +372,9 @@ static inline vec3 crossv3( vec3 a,  vec3 b){
 	retval.d[2] = a.d[0] * b.d[1] - a.d[1] * b.d[0];
 	return retval;
 }
-static inline vec3 scalev3( f_ s,  vec3 i){i.d[0] *= s; i.d[1] *= s; i.d[2] *= s; return i;}
+static inline vec3 scalev3( real s,  vec3 i){i.d[0] *= s; i.d[1] *= s; i.d[2] *= s; return i;}
 
-static inline vec4 scalev4( f_ s,  vec4 i){i.d[0] *= s; i.d[1] *= s; i.d[2] *= s;i.d[3] *= s; return i;}
+static inline vec4 scalev4( real s,  vec4 i){i.d[0] *= s; i.d[1] *= s; i.d[2] *= s;i.d[3] *= s; return i;}
 
 static inline vec3 normalizev3( vec3 a){
 	if (lengthv3(a) == 0)
@@ -405,7 +405,7 @@ static inline vec3 addv3( vec3 aa,  vec3 b){
 	vec3 a = aa;
 	a.d[0] += b.d[0]; a.d[1] += b.d[1]; a.d[2] += b.d[2]; return a;
 }
-static inline vec3 rotatev3( vec3 in,  vec3 axis,  f_ ang){
+static inline vec3 rotatev3( vec3 in,  vec3 axis,  real ang){
 	vec3 t1 = scalev3(cosf(ang),in);
 	vec3 t2 = scalev3(sinf(ang),crossv3(axis,in));
 	vec3 t3 = scalev3((1-cosf(ang))*dotv3(axis,in),axis);
@@ -444,7 +444,7 @@ static inline vec3 reflect( vec3 in,  vec3 norm){
 		)
 	);
 }
-static inline vec4 upv3( vec3 in,  f_ w){
+static inline vec4 upv3( vec3 in,  real w){
 	vec4 ret{ 0 };
 
 	ret.d[0] = in.d[0];
@@ -502,8 +502,8 @@ static inline vec4 spherevsphere( vec4 s1,  vec4 s2){
 				downv4(s2),
 				downv4(s1)
 			);
-	f_ lv3 = lengthv3(diff);
-	f_ l = (s1.d[3] + s2.d[3]-lv3);
+	real lv3 = lengthv3(diff);
+	real l = (s1.d[3] + s2.d[3]-lv3);
 	
 	if(l < 0 || lv3 == 0) {
 		ret.d[3] = 0;return ret;
@@ -585,13 +585,13 @@ static inline vec4 spherevaabb( vec4 sph,  aabb box){
 	vec4 ret;
 	vec3 p = closestpointAABB(box,downv4(sph));
 	vec3 v = subv3(p,downv4(sph));
-	f_ d2 = dotv3(v,v);
+	real d2 = dotv3(v,v);
 	
 	if(d2 <= sph.d[3] * sph.d[3]){
-		f_ len = lengthv3(v);
-		f_ diff = (sph.d[3] - len);
+		real len = lengthv3(v);
+		real diff = (sph.d[3] - len);
 		if(len > 0){
-			f_ factor = diff/len;
+			real factor = diff/len;
 			vec3 bruh = scalev3(factor, v);
 			ret = upv3(bruh, diff);
 			return ret;

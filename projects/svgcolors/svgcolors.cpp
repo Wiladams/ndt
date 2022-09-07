@@ -231,54 +231,54 @@ public:
 
 
 
-    void drawEntry(std::shared_ptr<IGraphics> ctx, ColorEntry acolor, int column, int row)
+    void drawEntry(IGraphics & ctx, ColorEntry acolor, int column, int row)
     {
         double lum = (0.2125 * acolor.value.r()) + (0.7154 * acolor.value.g()) + (0.0721 * acolor.value.b());
 
-        ctx->noStroke();
-        ctx->fill(acolor.value);
+        ctx.noStroke();
+        ctx.fill(acolor.value);
 
         auto frame = frameForCell(column, row);
-        ctx->rect(frame.x, frame.y, frame.w, frame.h);
+        ctx.rect(frame.x, frame.y, frame.w, frame.h);
 
         // draw the text value
         // set the filling based on the luminance
         if (lum > 120) {
-            ctx->fill(0);
+            ctx.fill(0);
         }
         else {
-            ctx->fill(255);
+            ctx.fill(255);
         }
 
         double cx = frame.x + (frame.w / 2);
         double cy = frame.y + frame.h - 12;
-        ctx->noStroke();
-        ctx->text(acolor.name, cx, cy);
+        ctx.noStroke();
+        ctx.text(acolor.name, cx, cy);
     }
 
 
-    void drawForeground(std::shared_ptr<IGraphics> ctx)
+    void drawForeground(IGraphics & ctx) override
     {
         if (hoverGraphic == SVGGraphic::empty)
             return;
 
         auto frame = frameForCell(hoverGraphic.column, hoverGraphic.row);
-        ctx->strokeWeight(3);
-        ctx->stroke(255, 255, 0);
-        ctx->noFill();
-        ctx->rect(frame.x, frame.y, frame.w, frame.h);
+        ctx.strokeWeight(3);
+        ctx.stroke(255, 255, 0);
+        ctx.noFill();
+        ctx.rect(frame.x, frame.y, frame.w, frame.h);
 
     }
 
     // Draw everything normal
-    void drawBackground(std::shared_ptr<IGraphics> ctx)
+    void drawBackground(IGraphics & ctx) override
     {
         auto column = 1;
         auto row = 1;
 
 
-        ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-        ctx->textSize(fontSize);
+        ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+        ctx.textSize(fontSize);
 
         for (int i = 0; i < nColors; i++)
         {

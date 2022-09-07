@@ -2,6 +2,7 @@
 #include "screensnapshot.hpp"
 #include "canvas.h"
 #include "framestats.h"
+
 #include <cstdio>
 
 using namespace p5;
@@ -72,15 +73,15 @@ public:
         cellHeight = (h / 2) - (margin/2);
     }
 
-    void drawBackground(std::shared_ptr<IGraphics> ctx)
+    void drawBackground(IGraphics & ctx) override
     {
         splitPlanes();
 
         // red green and blue fragments
-        ctx->scaleImage(redSurface.getImage(), 0, 0, redSurface.getWidth(), redSurface.getHeight(), margin, margin, cellWidth, cellHeight);
-        ctx->scaleImage(greenSurface.getImage(), 0, 0, greenSurface.getWidth(), greenSurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin, cellWidth, cellHeight);
-        ctx->scaleImage(blueSurface.getImage(), 0, 0, blueSurface.getWidth(), blueSurface.getHeight(), margin, margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
-        ctx->scaleImage(graySurface.getImage(), 0, 0, graySurface.getWidth(), graySurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
+        ctx.scaleImage(redSurface.getImage(), 0, 0, redSurface.getWidth(), redSurface.getHeight(), margin, margin, cellWidth, cellHeight);
+        ctx.scaleImage(greenSurface.getImage(), 0, 0, greenSurface.getWidth(), greenSurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin, cellWidth, cellHeight);
+        ctx.scaleImage(blueSurface.getImage(), 0, 0, blueSurface.getWidth(), blueSurface.getHeight(), margin, margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
+        ctx.scaleImage(graySurface.getImage(), 0, 0, graySurface.getWidth(), graySurface.getHeight(), margin + (((cellWidth + margin) * 1)), margin + ((cellHeight + margin) * 1), cellWidth, cellHeight);
     }
 };
 
@@ -94,7 +95,7 @@ void draw()
     ss->next();
 
 
-    _stats.draw(gAppSurface);
+    _stats.draw(*gAppSurface);
 }
 
 

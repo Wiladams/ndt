@@ -17,7 +17,7 @@ static uint64_t counter = 0;
 void fullScreen() noexcept
 {
     setCanvasSize(displayWidth, displayHeight);
-    setWindowPosition(0, 0);
+    setCanvasPosition(0, 0);
     layered();
 }
 

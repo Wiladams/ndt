@@ -63,9 +63,9 @@ public:
 
         // Draw font attribute titles
         ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
-        ctx->textFont("consolas");
+        //ctx->textFont("consolas");
         
-
+        ctx->textFont("segoe ui");
         ctx->textSize(16);
         ctx->text("Font Name:", 2, 10);
         ctx->text("Attributes", 2, 24);
@@ -73,7 +73,7 @@ public:
 
 
         ctx->textFont(fontFamily.c_str());
-        ctx->textSize(14);
+        ctx->textSize(16);
         ctx->text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 67);
         ctx->text("1234567890.:,; ' \" (!?) +-*/=", 2, 85);
         
@@ -92,11 +92,13 @@ public:
             ctx->noStroke();
             ctx->textFont("segoe ui");
             ctx->textSize(16);
+            ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
             ctx->text(std::to_string(line.size).c_str(), 0, 0);
 
             // Draw the line of text
             ctx->noStroke();
             ctx->fill(0);
+            ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
             ctx->textFont(fontFamily.c_str());
             ctx->textSize(line.size);
             //ctx->text(lineText.c_str(), 40, 0);

@@ -159,9 +159,6 @@
     <ClInclude Include="waveobjloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="perlin.h">
       <Filter>Header Files</Filter>
     </ClInclude>

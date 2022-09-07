@@ -60,27 +60,27 @@ public:
 	void setBackgroundColor(const Pixel& c) { fBackgroundColor = c; }
 	void setTabColor(const Pixel& c) { fTabColor = c; }
 
-	void drawBackground(std::shared_ptr<IGraphics> ctx)
+	void drawBackground(IGraphics &ctx) override
 	{
 		// Stroke the overall outline
 		// Stroke this first, and allow the filling to
 		// cover some of the stroke
-		ctx->blendMode(BL_COMP_OP_SRC_OVER);
-		ctx->stroke(0);
-		ctx->noFill();
-		ctx->path(fWholePath);
+		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		ctx.stroke(0);
+		ctx.noFill();
+		ctx.path(fWholePath);
 
 		// Fill the overall background
-		ctx->blendMode(BL_COMP_OP_SRC_OVER);
-		ctx->noStroke();
-		ctx->fill(fBackgroundColor);
-		ctx->path(fWholePath);
+		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		ctx.noStroke();
+		ctx.fill(fBackgroundColor);
+		ctx.path(fWholePath);
 
 		// Fill the tab area
-		ctx->blendMode(BL_COMP_OP_SRC_OVER);
-		ctx->noStroke();
-		ctx->fill(fTabColor);
-		ctx->path(fTabPath);
+		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		ctx.noStroke();
+		ctx.fill(fTabColor);
+		ctx.path(fTabPath);
 
 
 
@@ -94,11 +94,11 @@ public:
 		//ctx->rect(fTabContentArea.x, fTabContentArea.y, fTabContentArea.w, fTabContentArea.h);
 		
 		// Put the text on the label
-		ctx->noStroke();
-		ctx->fill(0);
-		ctx->textSize(fTabParam.h * .8);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-		ctx->text(fTabTitle.c_str(), titleX, titleY);
+		ctx.noStroke();
+		ctx.fill(0);
+		ctx.textSize(fTabParam.h * .8);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx.text(fTabTitle.c_str(), titleX, titleY);
 
 
 		// check size of content area

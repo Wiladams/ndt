@@ -73,7 +73,7 @@ void draw()
         gAppSurface->flush();
     }
 
-    _stats.draw(gAppSurface);
+    _stats.draw(*gAppSurface);
 }
 
 void keyReleased(const KeyboardEvent& event)

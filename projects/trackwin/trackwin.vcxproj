@@ -157,7 +157,6 @@
     <ClInclude Include="..\..\primary\bitbang.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\dcsnapper.h" />
-    <ClInclude Include="..\..\primary\texture.h" />
     <ClInclude Include="..\..\primary\User32PixelMap.h" />
     <ClInclude Include="..\..\primary\user32surface.h" />
   </ItemGroup>

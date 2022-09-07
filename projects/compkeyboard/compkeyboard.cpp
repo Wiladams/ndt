@@ -100,7 +100,7 @@ BLRoundRect insetRoundRect(const BLRoundRect& rrect, double cx, double cy)
 }
 
 
-void drawKeyStates(std::shared_ptr<IGraphics> ctx)
+void drawKeyStates(IGraphics & ctx)
 {   
     for (int i = 0; i < nKeys; i++)
     {
@@ -109,21 +109,21 @@ void drawKeyStates(std::shared_ptr<IGraphics> ctx)
 
         if (state) {
             BLRoundRect rrect(key.frame.x, key.frame.y, key.frame.w, key.frame.h, 3, 3);
-            ctx->fill(0x30, 0x6f);
-            ctx->rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+            ctx.fill(0x30, 0x6f);
+            ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
         }
     }
 }
 
-void drawNeutral(std::shared_ptr<IGraphics> ctx)
+void drawNeutral(IGraphics & ctx)
 {
-    ctx->fill(127);
-    ctx->stroke(10);
-    ctx->strokeWeight(1);
+    ctx.fill(127);
+    ctx.stroke(10);
+    ctx.strokeWeight(1);
 
-    ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+    ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
     //ctx->textFont("c:\\windows\\fonts\\segoeui.ttf");
-    ctx->textSize(8);
+    ctx.textSize(8);
 
     for (int i=0; i<nKeys; i++)
     {
@@ -139,34 +139,32 @@ void drawNeutral(std::shared_ptr<IGraphics> ctx)
         auto values = BLLinearGradientValues(cx, key.frame.y + key.frame.h, cx, cy);
         gradient.setValues(values);
 
-        ctx->noStroke();
-        ctx->fill(gradient);
+        ctx.noStroke();
+        ctx.fill(gradient);
 
 
-        ctx->rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+        ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
 
-        ctx->noFill();
-        ctx->stroke(0);
-        ctx->rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+        ctx.noFill();
+        ctx.stroke(0);
+        ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
 
         // do the inset rectangle
-        ctx->noStroke();
-        ctx->fill(255, 0x6f);
-        ctx->rect(crect.x, crect.y, crect.w, crect.h, crect.rx, crect.ry);
+        ctx.noStroke();
+        ctx.fill(255, 0x6f);
+        ctx.rect(crect.x, crect.y, crect.w, crect.h, crect.rx, crect.ry);
 
         // Now do the text
-        ctx->fill(0);
-        ctx->text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
+        ctx.fill(0);
+        ctx.text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
     }
 }
 
 
-
-
-
 void setup()
 {
-    gAppSurface->setPpiUnits(systemDpi, 96);
+    setUnitsPerInch(96);
+    //gAppSurface->setPpiUnits(systemDpi, 96);
 
     createCanvas(800, 600);
     layered();
@@ -185,8 +183,8 @@ void draw()
         clear();
     }
 
-    drawNeutral(gAppSurface);
-    drawKeyStates(gAppSurface);
+    drawNeutral(*gAppSurface);
+    drawKeyStates(*gAppSurface);
 }
 
 void keyReleased(const KeyboardEvent& e)

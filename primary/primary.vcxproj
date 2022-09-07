@@ -219,7 +219,6 @@
     <ClInclude Include="trianglemesh.h" />
     <ClInclude Include="uievent.h" />
     <ClInclude Include="user32surface.h" />
-    <ClInclude Include="vec3.h" />
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
     <ClInclude Include="waveobjloader.h" />

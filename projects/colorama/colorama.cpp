@@ -21,7 +21,7 @@ void setup()
 	createCanvas(displayWidth, 300);
 	//createCanvas(100, 10);
 
-	setWindowPosition(0, 0);
+	setCanvasPosition(0, 0);
 
 	canvas = std::make_shared<GCanvas>(canvasWidth, canvasHeight);
 

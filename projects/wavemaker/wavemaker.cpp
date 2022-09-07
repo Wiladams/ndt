@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include <cstdio>
+
 
 using namespace p5;
 
@@ -56,7 +56,7 @@ void setup()
     // Do the following if you want full screen
     //createCanvas(displayWidth, displayHeight);    
     //layered();
-    //setWindowPosition(0, 0);
+    //setCanvasPosition(0, 0);
 
     noStroke();
     fill(40, 200, 40);
