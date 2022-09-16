@@ -13,12 +13,12 @@ struct IVertexShader {
 	mat<3, 3, float> ndc_tri;     // triangle in normalized device coordinates
 
 
-	virtual vec4f vertex(int iface, int nthvert) = 0;
+	virtual vec4 vertex(int iface, int nthvert) = 0;
 	virtual ~IVertexShader() {}
 };
 
 struct IFragmentShader {
-	virtual bool fragment(vec3f bar, BLRgba32& color) = 0;
+	virtual bool fragment(vec3 bar, BLRgba32& color) = 0;
 	virtual ~IFragmentShader() {}
 
 	// 
@@ -34,8 +34,8 @@ struct IFragmentShader {
 // Representation of a compound shader
 struct IShader : public IVertexShader, public IFragmentShader 
 {
-	mat4f ModelProjection;
-	vec3f light_dir;		// Need a more complex model of light
+	mat4 ModelProjection;
+	vec3 light_dir;		// Need a more complex model of light
 
 	TriangleMesh* model;
 
@@ -47,7 +47,7 @@ struct IShader : public IVertexShader, public IFragmentShader
 
 	virtual ~IShader() {};
 	
-	bool init(TriangleMesh* aModel, const vec3f& light, const MVP3D& mvp)
+	bool init(TriangleMesh* aModel, const vec3& light, const MVP3D& mvp)
 	{
 		model = aModel;
 		light_dir = light;
@@ -62,7 +62,7 @@ struct IShader : public IVertexShader, public IFragmentShader
 		ModelProjection = mvp.fProjection * mvp.fModelView;
 	}
 
-	virtual vec4f vertex(int iface, int nthvert) = 0;
-	virtual bool fragment(vec3f bar, BLRgba32 &color) = 0;
+	virtual vec4 vertex(int iface, int nthvert) = 0;
+	virtual bool fragment(vec3 bar, BLRgba32 &color) = 0;
 };
 

@@ -13,8 +13,8 @@
 using namespace p5;
 
 double speed = 1;
-static const double MaxSpeed = 300;
-static const int MaxStars = 2400;
+static constexpr double MaxSpeed = 300;
+static constexpr int MaxStars = 2400;
 //static const int MaxStars = 10;
 static const int bottomMargin = 160; 
 
@@ -66,13 +66,13 @@ void draw()
 		// get speed from joystick throttle
 		speed = map(je.z, 0, 1, 0, MaxSpeed);
 
-		centerX = (int)map(je.x, -1, 1, width - 1, 0);
-		centerY = (int)map(je.y, -1, 1, 0, height - bottomMargin);
+		centerX = (int)map(je.x, -1, 1, canvasWidth - 1, 0);
+		centerY = (int)map(je.y, -1, 1, 0, canvasHeight - bottomMargin);
 	}
 	else {
 		// use keyboard/mouse navigation
-		int mx = (int)map(mouseX, 0, width - 1, width - 1, 0);
-		int my = (int)map(mouseY, height - bottomMargin, height, height - bottomMargin, 0);
+		int mx = (int)map(mouseX, 0, canvasWidth - 1, canvasWidth - 1, 0);
+		int my = (int)map(mouseY, canvasHeight - bottomMargin, canvasHeight, canvasHeight - bottomMargin, 0);
 
 		//std::cout << "mx: " << mx << " my: " << my << std::endl;
 
@@ -88,13 +88,13 @@ void draw()
 	for (int i = 0; i < stars.size(); i++)
 	{
 		stars[i].update(speed);
-		stars[i].draw(gAppSurface);
+		stars[i].draw(*gAppSurface);
 	}
 	pop();
 
 	noStroke();
 	fill(127);
-	rect(0, height - bottomMargin, width, bottomMargin);
+	rect(0, canvasHeight - bottomMargin, canvasWidth, bottomMargin);
 
 	flush();
 }
@@ -104,10 +104,10 @@ void setup()
 	createCanvas(displayWidth, displayHeight-40);
 
 	for (int i = 0; i < MaxStars; i++) {
-		stars[i].init(width, height);
+		stars[i].init(canvasWidth, canvasHeight);
 	}
 
-	centerX = width / 2;
+	centerX = canvasWidth / 2;
 	layered();
 	setCanvasPosition(0, 0);
 }

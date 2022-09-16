@@ -31,6 +31,8 @@
 // are not part of public API and they are not part of blend2d-dev packages.
 // ----------------------------------------------------------------------------
 
+#pragma comment(lib, "blend2d.lib")
+
 #ifndef BLEND2D_H_INCLUDED
 #define BLEND2D_H_INCLUDED
 

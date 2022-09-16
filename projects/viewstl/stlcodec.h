@@ -106,22 +106,22 @@ namespace stl {
 
 			tok = nextToken(ls);		// normal
 
-			vec3f n;
+			vec3 n{};
 			tok = nextToken(ls);		// f1
-			n[0] = tok.toFloat();
+			n.d[0] = tok.toFloat();
 			tok = nextToken(ls);		// f2
-			n[1] = tok.toFloat();
+			n.d[1] = tok.toFloat();
 			tok = nextToken(ls);		// f3
-			n[2] = tok.toFloat();
+			n.d[2] = tok.toFloat();
 
 			// Add the normal to the mesh
 			size_t nOffset = mesh->addNormal(n)-1;
 
-			vec3i fNorms;
-			fNorms[0] = nOffset;
-			fNorms[1] = nOffset;
-			fNorms[2] = nOffset;
-			vec3i fVerts;
+			ivec3 fNorms{};
+			fNorms.d[0] = nOffset;
+			fNorms.d[1] = nOffset;
+			fNorms.d[2] = nOffset;
+			ivec3 fVerts{};
 			
 			bs.readLine(buff, buffLen);		// outer loop
 			//printf("Outer Loop: %s\n", buff);
@@ -132,18 +132,18 @@ namespace stl {
 				BinStream ls(buff, strlen(buff));
 				Token tok = nextToken(ls);		// 'vertex'
 				
-				vec3f vert;
+				vec3 vert{};
 				tok = nextToken(ls);
-				vert.x = tok.toFloat();
+				vert.d[0] = tok.toFloat();
 				tok = nextToken(ls);
-				vert.y = tok.toFloat();
+				vert.d[1] = tok.toFloat();
 				tok = nextToken(ls);
-				vert.z = tok.toFloat();
+				vert.d[2] = tok.toFloat();
 
 				size_t vOffset = mesh->addVertex(vert);
-				fVerts[i] = vOffset;
+				fVerts.d[i] = vOffset;
 			}
-			mesh->addFace(fVerts, fNorms, {});	// no uv values
+			mesh->addFace(fVerts, fNorms, (ivec3){});	// no uv values
 			bs.readLine(buff, buffLen);		//     endloop
 			bs.readLine(buff, buffLen);		//     endfacet
 		}
@@ -168,33 +168,33 @@ namespace stl {
 		{
 			// for each triangle
 			// Face normal
-			vec3f fn;
-			fn.x = bs.readFloat();
-			fn.y = bs.readFloat();
-			fn.z = bs.readFloat();
+			vec3 fn{};
+			fn.d[0] = bs.readFloat();
+			fn.d[1] = bs.readFloat();
+			fn.d[2] = bs.readFloat();
 
 			// Add the normal to the mesh
 			size_t nOffset = mesh->addNormal(fn) - 1;
 			//printf("NORMAL(%d): %f, %f, %f\n", nOffset, fn.x, fn.y, fn.z);
 
-			vec3i fNorms;
-			fNorms[0] = nOffset;
-			fNorms[1] = nOffset;
-			fNorms[2] = nOffset;
+			ivec3 fNorms{};
+			fNorms.d[0] = nOffset;
+			fNorms.d[1] = nOffset;
+			fNorms.d[2] = nOffset;
 
-			vec3i fVerts;
+			ivec3 fVerts{};
 			// read vertices
 			for (size_t n = 0; n < 3; n++) {
-				vec3f v;
-				v.x = bs.readFloat();
-				v.y = bs.readFloat();
-				v.z = bs.readFloat();
+				vec3 v{};
+				v.d[0] = bs.readFloat();
+				v.d[1] = bs.readFloat();
+				v.d[2] = bs.readFloat();
 				//printf("  vertex(%zd): %f, %f, %f\n", n, v.x, v.y, v.z);
 				int vOffset = mesh->addVertex(v);
-				fVerts[n] = vOffset;
+				fVerts.d[n] = vOffset;
 			}
 			uint16_t attr = bs.readUInt16();
-			mesh->addFace(fVerts, fNorms, {});
+			mesh->addFace(fVerts, fNorms, (ivec3){});
 		}
 		
 		return mesh;

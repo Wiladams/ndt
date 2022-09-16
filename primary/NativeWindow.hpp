@@ -192,9 +192,9 @@ class User32WindowClass {
 
 public:
     User32WindowClass(const char* classOrAtom)
-        : fLastError(0)
+        : fIsRegistered(false)
+        ,fLastError(0) 
         , fClassAtom(0)
-        , fIsRegistered(false)
     {
         // In this case, we're essentially doing a lookup
         // The classOrAtom is either a pointer to a string

@@ -13,10 +13,10 @@ struct FlatShader : public virtual IShader {
 	{}
 
 	// Vertext Shader
-	virtual vec4f vertex(int iface, int nthvert)
+	virtual vec4 vertex(int iface, int nthvert)
 	{
 		varying_nrm.set_col(nthvert, proj<3>(ModelProjection.invert_transpose() * embed<4>(model->normal(iface, nthvert), 0.f)));
-		vec4f gl_Vertex = ModelProjection * embed<4>(model->vert(iface, nthvert));
+		vec4 gl_Vertex = ModelProjection * embed<4>(model->vert(iface, nthvert));
 		varying_tri.set_col(nthvert, gl_Vertex);
 		ndc_tri.set_col(nthvert, proj<3>(gl_Vertex / gl_Vertex[3]));
 
@@ -24,10 +24,11 @@ struct FlatShader : public virtual IShader {
 	}
 
 	// fragment shader
-	virtual bool fragment(vec3f bar, BLRgba32& ocolor)
+	virtual bool fragment(vec3 bar, BLRgba32& ocolor)
 	{
-		vec3f bn = (varying_nrm * bar).normalize();
-
+		//vec3 bn = (varying_nrm * bar).normalize();
+		vec3 bn = normalizev3(multvec3(varying_nrm, bar));
+		
 		// figure out the color for the location
 		float diff = p5::max(0.f, bn * light_dir);
 		ocolor = fColor;

@@ -29,9 +29,14 @@ typedef float f_;
 typedef unsigned int uint;
 #define MAX(x,y) (x>y?x:y)
 #define MIN(x,y) (x<y?x:y)
+
+typedef struct { CHAD_ALIGN f_ d[2]; } vec2;
 typedef struct {CHAD_ALIGN f_ d[3];} vec3;
+typedef struct { CHAD_ALIGN f_ d[4]; } vec4;
+
+typedef struct { CHAD_ALIGN int d[2]; } ivec2;
 typedef struct {CHAD_ALIGN int d[3];} ivec3;
-typedef struct {CHAD_ALIGN f_ d[4];} vec4;
+
 typedef struct {CHAD_ALIGN f_ d[16];} mat4;
 
 /*Collision detection
@@ -355,7 +360,7 @@ static inline vec4 mat4xvec4( mat4 t,  vec4 v){
 	return vr;
 }
 static inline vec3 crossv3( vec3 a,  vec3 b){
-	vec3 retval;
+	vec3 retval{};
 	retval.d[0] = a.d[1] * b.d[2] - a.d[2] * b.d[1];
 	retval.d[1] = a.d[2] * b.d[0] - a.d[0] * b.d[2];
 	retval.d[2] = a.d[0] * b.d[1] - a.d[1] * b.d[0];

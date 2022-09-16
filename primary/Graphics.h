@@ -1,8 +1,7 @@
 #pragma once
-#pragma comment(lib, "blend2d.lib")
+
 
 #include "blend2d.h"
-//#include "grmath.h"
 #include "maths.hpp"
 
 // Enumerations for all the commands
@@ -204,7 +203,7 @@ public:
     virtual void fill(int r, int g, int b, int a) {fill(color(r,g,b,a));}
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
-    inline virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
+    virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
 
 
     virtual void stroke(const BLVarCore& s) = 0;
@@ -273,5 +272,5 @@ public:
     virtual void textFont(const char* fontname) = 0;
     virtual void textSize(double size) = 0;
     virtual void text(const char* txt, double x, double y) = 0;
-
+    virtual BLPoint textMeasure(const char* txt) = 0;
 };

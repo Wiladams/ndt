@@ -1,4 +1,5 @@
-#pragma once
+#ifndef apphost_h
+#define apphost_h
 
 /*
 	The primary benefit of the apphost.h/appmain.cpp combination is to turn
@@ -46,16 +47,17 @@
 #define APP_EXPORT		__declspec(dllexport)
 //#define APP_EXPORT
 
-#define APP_INLINE  static inline
+
 #define APP_EXTERN  extern
 
 
 #include "pubsub.h"
 #include "NativeWindow.hpp"
-#include "Surface.h"
 #include "joystick.h"
 #include "uievent.h"
 #include "Network.hpp"
+#include "Surface.h"
+#include "fonthandler.hpp"
 
 #include <stdio.h>
 #include <string>
@@ -84,7 +86,7 @@ APP_EXPORT extern char **gargv;
 
 APP_EXPORT extern User32Window * gAppWindow;
 APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
-//APP_EXPORT extern std::shared_ptr<IGraphics> gAppSurface;
+
 
 // Raw Mouse input
 APP_EXPORT extern int rawMouseX;
@@ -157,6 +159,7 @@ APP_EXPORT void setCanvasPosition(int x, int y);
 APP_EXPORT bool setCanvasSize(long aWidth, long aHeight);
 
 
+
 #ifdef __cplusplus
 }
 #endif
@@ -196,3 +199,7 @@ APP_EXPORT void subscribe(FileDropEventTopic::Subscriber s);
 APP_EXPORT void subscribe(TouchEventTopic::Subscriber s);
 APP_EXPORT void subscribe(GestureEventTopic::Subscriber s);
 APP_EXPORT void subscribe(PointerEventTopic::Subscriber s);
+
+
+#endif	// apphost_h
+

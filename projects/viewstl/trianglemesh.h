@@ -5,8 +5,8 @@
 #include <limits>
 
 
-#include "grmath.h"
-#include "imagesampler.h"
+#include "tinygl/3dMath.h"
+//#include "imagesampler.h"
 
 // Each face consists of
 // a vector of vec3i
@@ -27,21 +27,22 @@ struct TriangleFace
 	//	vertex normal index
 	//	vertex UV index
 	//
-	vec3i fVertices;
-	vec3i fNormals;
-	vec3i fUV;
+	ivec3 fVertices;
+	ivec3 fNormals;
+	ivec3 fUV;
 
-	vec3f fFaceNormal;
+	vec3 fFaceNormal;
 
 
 
-	TriangleFace(const size_t a, const size_t b, const size_t c)
-		:fVertices(a,b,c)
+	TriangleFace(const int a, const int b, const int c)
 	{
-
+		fVertices.d[0] = a;
+		fVertices.d[1] = b;
+		fVertices.d[2] = c;
 	}
 
-	TriangleFace(const vec3i &vertices, const vec3i &normals, const vec3i &uv)
+	TriangleFace(const ivec3 &vertices, const ivec3 &normals, const ivec3 &uv)
 		:fVertices(vertices),
 		fNormals(normals),
 		fUV(uv)
@@ -56,17 +57,17 @@ struct TriangleFace
 
 struct TriangleMesh
 {
-	std::vector<vec3f> fVertices;
-	std::vector<vec3f> fNormals;
-	std::vector<vec2f> fUV;
+	std::vector<vec3> fVertices;
+	std::vector<vec3> fNormals;
+	std::vector<vec2> fUV;
 	std::vector<TriangleFace> fFaces;
 
 	ndt::ImageSampler fDiffuseSampler=nullptr;
 	ndt::ImageSampler fNormalSampler = nullptr;
 	ndt::ImageSampler fSpecularSampler = nullptr;
 
-	vec3f fVertSmallest;
-	vec3f fVertLargest;
+	vec3 fVertSmallest;
+	vec3 fVertLargest;
 
 	TriangleMesh()
 	{
@@ -90,24 +91,24 @@ struct TriangleMesh
 
 	void resetExtent()
 	{
-		fVertSmallest.x = std::numeric_limits<float>::max();
-		fVertSmallest.y = std::numeric_limits<float>::max();
-		fVertSmallest.z = std::numeric_limits<float>::max();
+		fVertSmallest.d[0] = std::numeric_limits<float>::max();
+		fVertSmallest.d[1] = std::numeric_limits<float>::max();
+		fVertSmallest.d[2] = std::numeric_limits<float>::max();
 
-		fVertLargest.x = std::numeric_limits<float>::min();
-		fVertLargest.y = std::numeric_limits<float>::min();
-		fVertLargest.z = std::numeric_limits<float>::min();
+		fVertLargest.d[0] = std::numeric_limits<float>::min();
+		fVertLargest.d[1] = std::numeric_limits<float>::min();
+		fVertLargest.d[2] = std::numeric_limits<float>::min();
 	}
 
-	void extendRange(const vec3f& vert)
+	void extendRange(const vec3& vert)
 	{
-		fVertSmallest.x = maths::Min(vert.x, fVertSmallest.x);
-		fVertSmallest.y = maths::Min(vert.y, fVertSmallest.y);
-		fVertSmallest.z = maths::Min(vert.z, fVertSmallest.z);
+		fVertSmallest.d[0] = maths::Min(vert.d[0], fVertSmallest.d[0]);
+		fVertSmallest.d[1] = maths::Min(vert.d[1], fVertSmallest.d[1]);
+		fVertSmallest.d[2] = maths::Min(vert.d[2], fVertSmallest.d[2]);
 
-		fVertLargest.x = maths::Max(vert.x, fVertLargest.x);
-		fVertLargest.y = maths::Max(vert.y, fVertLargest.y);
-		fVertLargest.z = maths::Max(vert.z, fVertLargest.z);
+		fVertLargest.d[0] = maths::Max(vert.d[0], fVertLargest.d[0]);
+		fVertLargest.d[1] = maths::Max(vert.d[1], fVertLargest.d[1]);
+		fVertLargest.d[2] = maths::Max(vert.d[2], fVertLargest.d[2]);
 	}
 
 	void calcExtent()
@@ -126,14 +127,15 @@ struct TriangleMesh
 		//printf("==== normalizeVertices ====\n");
 		calcExtent();
 
-		vec3f diff = fVertLargest - fVertSmallest;
-		float extent = diff.length();
+		vec3 diff = subv3(fVertLargest, fVertSmallest);
+		float extent = lengthv3(diff);
 
 		//printf("DIFF: %f, %f, %f\n", diff.x, diff.y, diff.z);
 		//printf("EXTENT: %f\n", extent);
 
-		for (size_t n = 0; n < nverts(); n++) {
-			fVertices[n] = fVertices[n] / extent;
+		for (size_t n = 0; n < nverts(); n++) 
+		{
+			fVertices[n] = scalev3(1.0/extent, fVertices[n]);
 		}
 	}
 
@@ -141,22 +143,22 @@ struct TriangleMesh
 	{
 		//printf("==== centerMesh ====\n");
 		calcExtent();
-		vec3f center;
-		center.x = maths::Lerp(0.5f, fVertSmallest.x, fVertLargest.x);
-		center.y = maths::Lerp(0.5f, fVertSmallest.y, fVertLargest.y);
-		center.z = maths::Lerp(0.5f, fVertSmallest.z, fVertLargest.z);
+		vec3 center{};
+		center.d[0] = maths::Lerp(0.5f, fVertSmallest.d[0], fVertLargest.d[0]);
+		center.d[1] = maths::Lerp(0.5f, fVertSmallest.d[1], fVertLargest.d[1]);
+		center.d[2] = maths::Lerp(0.5f, fVertSmallest.d[2], fVertLargest.d[2]);
 
 		//printf("CENTER: %f,%f,%f\n", center.x, center.y, center.z);
 
 
 		for (size_t n = 0; n < nverts(); n++) {
-			fVertices[n] = fVertices[n] - center;
+			fVertices[n] = subv3(fVertices[n], center);
 		}
 	}
 
 
 
-	size_t addVertex(const vec3f &vert)
+	size_t addVertex(const vec3 &vert)
 	{
 		extendRange(vert);
 		fVertices.push_back(vert);
@@ -165,19 +167,21 @@ struct TriangleMesh
 
 	size_t addVertex(const float x, const float y, const float z)
 	{
-		return addVertex(vec3f(x, y, z));
+		return addVertex(vec3{ .d[0] = x,.d[1] = y,.d[2] = z });
 	}
 
 	// Normals
-	size_t addNormal(const vec3f& n)
+	size_t addNormal(const vec3& n)
 	{
-		vec3f aNormal(n);
-		fNormals.push_back(aNormal.normalize());
+		vec3 aNormal(n);
+		//fNormals.push_back(aNormal.normalize());
+		fNormals.push_back(normalizev3(aNormal));
+
 		return fNormals.size()-1;
 	}
 
 	// Texture coordinate
-	size_t addUV(const vec2f& uv)
+	size_t addUV(const vec2& uv)
 	{
 		fUV.push_back(uv);
 		return fUV.size()-1;
@@ -193,7 +197,7 @@ struct TriangleMesh
 
 	// A face is indicated by 3 indices of vertices
 	// that are already in the mesh
-	size_t addFace(const vec3i &verts, const vec3i &norms, const vec3i &uv)
+	size_t addFace(const ivec3 &verts, const ivec3 &norms, const ivec3 &uv)
 	{
 		TriangleFace face(verts, norms, uv);
 		fFaces.push_back(face);
@@ -209,63 +213,63 @@ struct TriangleMesh
 	// Getting values out of the mesh
 
 	
-	vec3f vert(int i) 
+	vec3 vert(int i) 
 	{
 		return fVertices[i];
 	}
 
-	vec3f vert(int iface, int nthvert) 
+	vec3 vert(int iface, int nthvert) 
 	{
-		return fVertices[fFaces[iface].fVertices[nthvert]];
+		return fVertices[fFaces[iface].fVertices.d[nthvert]];
 	}
 
-	vec2f uv(int iface, int nthvert) 
+	vec2 uv(int iface, int nthvert) 
 	{
 		if (nuvs() == 0)
 			return {};
 
-		return fUV[fFaces[iface].fUV[nthvert]];
+		return fUV[fFaces[iface].fUV.d[nthvert]];
 	}
 
-	vec3f normal(int iface, int nthvert)
+	vec3 normal(int iface, int nthvert)
 	{
 		if (nnormals() == 0)
 			return {};
 
-		int idx = fFaces[iface].fNormals[nthvert];
+		int idx = fFaces[iface].fNormals.d[nthvert];
 		return fNormals[idx];
 	}
 
 
 	// Using Samplers
-	BLRgba32 diffuse(vec2f uvf) {
+	BLRgba32 diffuse(vec2 uvf) {
 		if (!fDiffuseSampler.isValid())
 			return BLRgba32();
 
-		auto c = fDiffuseSampler(uvf[0], uvf[1]);
+		auto c = fDiffuseSampler(uvf.d[0], uvf.d[1]);
 		return c;
 	}
 
-	vec3f normal(vec2f uvf) {
+	vec3 normal(vec2 uvf) {
 		if (!fNormalSampler.isValid())
-			return vec3f();
+			return vec3();
 
-		auto c = fNormalSampler(uvf[0], uvf[1]);
+		auto c = fNormalSampler(uvf.d[0], uvf.d[1]);
 
-		vec3f res;
-		res[2] = (float)c.b() / 255.f * 2.f - 1.f;
-		res[1] = (float)c.g() / 255.f * 2.f - 1.f;
-		res[0] = (float)c.r() / 255.f * 2.f - 1.f;
+		vec3 res{};
+		res.d[2] = (float)c.b() / 255.f * 2.f - 1.f;
+		res.d[1] = (float)c.g() / 255.f * 2.f - 1.f;
+		res.d[0] = (float)c.r() / 255.f * 2.f - 1.f;
 
 		return res;
 	}
 
 
-	float specular(vec2f uvf) {
+	float specular(vec2 uvf) {
 		if (!fSpecularSampler.isValid())
 			return 0.0;
 
-		auto c = fSpecularSampler(uvf[0], uvf[1]);
+		auto c = fSpecularSampler(uvf.d[0], uvf.d[1]);
 		return c.b() / 1.0f;
 	}
 

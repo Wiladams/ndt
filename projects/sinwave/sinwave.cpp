@@ -10,7 +10,8 @@ typedef float (*CFUNC)(float u);
 
 void draw()
 {
-    clear();
+	background(225);
+
 
 	// 0 - 2PI
 	double minx = 0;
@@ -52,4 +53,6 @@ void draw()
 
 		lastx = x;
 	}
+
+	flush();
 }

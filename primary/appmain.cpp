@@ -18,6 +18,7 @@
 
 #include "LayeredWindow.hpp"
 #include "joystick.h"
+#include "fonthandler.hpp"
 
 #include <shellapi.h>   // for drag-drop support
 
@@ -60,7 +61,8 @@ char **gargv;
 
 User32Window * gAppWindow = nullptr;
 std::shared_ptr<Surface>  gAppSurface = nullptr;
-//std::shared_ptr<BLGraphics>  gAppSurface = nullptr;
+std::shared_ptr<FontHandler> gFontHandler = nullptr;
+
 
 bool gIsLayered = false;
 
@@ -366,8 +368,8 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     if (bResult == 0) {
         delete[] pInputs;
-        auto err = ::GetLastError();
-        printf("getTouchInputInfo, ERROR: %d %d\n", bResult, err);
+        DWORD err = ::GetLastError();
+        //printf("getTouchInputInfo, ERROR: %d %D\n", bResult, err);
 
         return 0;
     }
@@ -505,7 +507,7 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         DestWidth,DestHeight,
         xSrc,ySrc,
         SrcWidth, SrcHeight,
-        gAppSurface->getData(),&info,
+        gAppSurface->getPixels(),&info,
         DIB_RGB_COLORS,
         SRCCOPY);
         
@@ -826,8 +828,8 @@ bool setCanvasSize(long aWidth, long aHeight)
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 
-    canvasPixels = gAppSurface->getData();
-    canvasStride = gAppSurface->getWidth() * 4;
+    canvasPixels = gAppSurface->getPixels();
+    canvasStride = gAppSurface->getStride();
 
     return true;
 }
@@ -994,6 +996,7 @@ void registerHandlers()
 
 void run()
 {
+
     // Make sure we have all the event handlers connected
     registerHandlers();
 
@@ -1061,6 +1064,9 @@ bool prolog()
     WSADATA lpWSAData;
     int res = ::WSAStartup(version, &lpWSAData);
 
+    // Typography initialization
+    gFontHandler = std::make_shared<FontHandler>();
+    
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the
     // first thing to do is to let Windows know we are Dpi aware
@@ -1099,6 +1105,7 @@ bool prolog()
     double screenHPpi = (double)dpidisplayWidth / screenWidthInches;
     double screenVPpi = (double)dpidisplayHeight / screenHeightInches;
     systemPpi = (unsigned int)screenVPpi;
+
 
 
     // set the canvas a default size to start

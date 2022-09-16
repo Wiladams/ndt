@@ -1,69 +1,42 @@
-#pragma once
+#ifndef Surface_h
+#define Surface_h
+
+//#pragma once
 
 /*
     The mating between a DIBSection and a BLImage Graphics and BLContext
+
+    This one object creates a UserPixelMap to be the 
+    backing storage for graphics.
+
+    It then mates this with a BLContext so that we can
+    do drawing with both GDI as well as blend2d.
+
+    The object inherits from GLBraphics, so you can do drawing
+    on the object directly.
 */
 
-#include <windows.h>
-
+#include "User32PixelMap.h"
 #include "BLGraphics.h"
+
 #include <cstdio>
-
-
 
 class Surface : public BLGraphics
 {
     // for interacting with win32
-    BITMAPINFO fBMInfo{0};
-    HBITMAP fDIBHandle = nullptr;
-    HDC     fBitmapDC = nullptr;
-    void * fData = nullptr;       // A pointer to the data
-    size_t fDataSize=0;       // How much data is allocated
-    long fWidth=0;
-    long fHeight=0;
+    User32PixelMap fPixelMap;
 
     // For interacting with blend2d
     BLImage fImage;
 
-
 public:
     Surface(long awidth, long aheight, uint32_t threadCount=0)
-        : fWidth(awidth),
-        fHeight(aheight)
     {
-        int bitsPerPixel = 32;
-        int alignment = 4;
-        //int bytesPerRow = ndt::GetAlignedByteCount(awidth, bitsPerPixel, alignment);
-        int bytesPerRow = alignment * awidth;
-
-        fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        fBMInfo.bmiHeader.biWidth = awidth;
-        fBMInfo.bmiHeader.biHeight = -(LONG)aheight;	// top-down DIB Section
-        fBMInfo.bmiHeader.biPlanes = 1;
-        fBMInfo.bmiHeader.biBitCount = bitsPerPixel;
-        fBMInfo.bmiHeader.biSizeImage = bytesPerRow * aheight;
-        fBMInfo.bmiHeader.biClrImportant = 0;
-        fBMInfo.bmiHeader.biClrUsed = 0;
-        fBMInfo.bmiHeader.biCompression = BI_RGB;
-        fDataSize = fBMInfo.bmiHeader.biSizeImage;
-
-        // We'll create a DIBSection so we have an actual backing
-        // storage for the context to draw into
-        // BUGBUG - check for nullptr and fail if found
-        fDIBHandle = CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS, &fData, nullptr, 0);
-
-
-        // Create a GDI Device Context
-        fBitmapDC = CreateCompatibleDC(nullptr);
-
-        // select the DIBSection into the memory context so we can 
-        // peform operations with it
-        ::SelectObject(fBitmapDC, fDIBHandle);
+        fPixelMap.init(awidth, aheight);
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
-        //BLResult bResult = blImageCreateFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fData, bytesPerRow, nullptr, nullptr);
-        BLResult bResult = blImageInitAsFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fData, (intptr_t)bytesPerRow, nullptr, nullptr);
+        BLResult bResult = blImageInitAsFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fPixelMap.data(), (intptr_t)fPixelMap.stride(), nullptr, nullptr);
 
         // BUGBUG - with multi-thread, flush/sync doesn't quite seem
         // to be in sync, causing tearing.
@@ -71,68 +44,50 @@ public:
         BLContextCreateInfo createInfo{};
         createInfo.commandQueueLimit = 255;
         createInfo.threadCount = threadCount;
-        bResult = getBlend2dContext().begin(fImage, createInfo);
 
-        // Start with a fill of white, and stroke of black
-        getBlend2dContext().setFillStyle(BLRgba32(0xffffffff));
-        getBlend2dContext().setStrokeStyle(BLRgba32(0xff000000));
+
+        bResult = fCtx.begin(fImage, createInfo);
+
     }
 
     virtual ~Surface()
     {
         fImage.reset();
-
-        // BUGBUG
-        // unload the dib section
-        // and destroy it
     }
 
-    INLINE long getWidth() { return fWidth; }
-    INLINE long getHeight() { return fHeight; }
-    INLINE Pixel * getData() { return (Pixel *)fData; }
+    long getWidth() { return fPixelMap.width(); }
+    long getHeight() { return fPixelMap.height(); }
+    long getStride() { return fPixelMap.stride(); }
+    Pixel * getPixels() { return (Pixel *)fPixelMap.data(); }
 
     // Calculate whether a point is whithin our bounds
-    INLINE bool contains(double x, double y) { return ((x >= 0) && (x < fWidth) && (y >= 0) && (y < fHeight)); }
-
-    INLINE BITMAPINFO getBitmapInfo() {return fBMInfo;}
-
-    INLINE HDC getDC() {return fBitmapDC;}
-
-    INLINE BLImage& getImage() {return fImage;}
-    /*
-    INLINE void set(int x, int y, uint32_t c)
-    {
-        // reject pixel if out of boundary
-        if ((x < 0) || (x >= fWidth) ||
-            (y < 0) || (y >= fHeight)){
-            return;
-        }
-
-
-        int offset = (int)(y * fWidth) + (int)x;
-        ((uint32_t*)fData)[offset] = c;
-
+    bool contains(double x, double y) 
+    { 
+        return (
+            (x >= 0) && (x < fPixelMap.width()) && 
+            (y >= 0) && (y < fPixelMap.height())
+                ); 
     }
 
-    INLINE void set(int x, int y, const Pixel& c)
-    {
-        x = (int)maths::Clamp(x, 0, fWidth - 1);
-        y = (int)maths::Clamp(y, 0, fHeight - 1);
+    BITMAPINFO getBitmapInfo() {return fPixelMap.bitmapInfo(); }
 
-        int offset = (int)(y * fWidth) + (int)x;
-        ((Pixel *)fData)[offset] = c;
-    }
-*/
+    HDC getDC() {return fPixelMap.bitmapDC(); }
 
-    INLINE Pixel get(int x, int y) const
+    BLImage& getImage() {return fImage;}
+
+    
+    Pixel get(int x, int y)
     {
-        x = (int)maths::Clamp(x, 0, fWidth - 1);
-        y = (int)maths::Clamp(y, 0, fHeight - 1);
+        x = (int)maths::Clamp(x, 0, fPixelMap.width() - 1);
+        y = (int)maths::Clamp(y, 0, fPixelMap.height() - 1);
 
         // Get data from BLContext
-        int offset = (y * fWidth) + x;
-        return ((Pixel *)fData)[offset];
+        int offset = (y * fPixelMap.width()) + x;
+        return ((Pixel *)fPixelMap.data())[offset];
     }
-
+    
 
  };
+
+
+#endif  // Surface_h

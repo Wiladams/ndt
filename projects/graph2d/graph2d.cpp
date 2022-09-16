@@ -11,7 +11,7 @@ int height = 0;
 
 void setup() 
 {
-    createCanvas(710, 400);
+    createCanvas(710, 400, "graph2d");
     //pixelDensity(1);
     frameRate(20);
 

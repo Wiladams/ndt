@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+static VOIDROUTINE gPreloadHandler = nullptr;
 static VOIDROUTINE gSetupHandler = nullptr;
 static PFNDOUBLE1 gUpdateHandler = nullptr;
 
@@ -62,8 +63,6 @@ bool gIsFullscreen = false;
 
 namespace p5 {
 
-    //int width = 0;              // width of the canvas
-    //int height = 0;             // height of the canvas
     
     int canvasWidth = 0;              // width of the canvas
     int canvasHeight = 0;             // height of the canvas
@@ -623,6 +622,16 @@ namespace p5 {
         gAppSurface->text(txt, x, y);
     }
 
+    BLPoint textMeasure(const char* txt) noexcept
+    {
+        return gAppSurface->textMeasure(txt);
+    }
+
+    double textWidth(const char* txt) noexcept
+    {
+        auto pt = textMeasure(txt);
+        return pt.x;
+    }
 
     void beginShape(SHAPEMODE shapeKind) noexcept
     {
@@ -683,7 +692,7 @@ namespace p5 {
     void loadPixels() noexcept
     {
         gAppSurface->loadPixels();
-        pixels = (uint8_t *)gAppSurface->getData();
+        pixels = (uint8_t *)gAppSurface->getPixels();
     }
 
     void updatePixels() noexcept
@@ -1028,8 +1037,12 @@ void onUnload()
     gTickTopic.stop();
 }
 
+
+
+
 void onLoad()
 {
+
     // setup the drawing context
     // ppi and user units
     gAppSurface->setPpiUnits(systemPpi, systemPpi);     // default to raw pixels
@@ -1050,6 +1063,7 @@ void onLoad()
     subscribe(p5gestureSubscriber);
 
     // load the setup() function if user specified
+    gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
     gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
     gUpdateHandler = (PFNDOUBLE1)GetProcAddress(hInst, "update");
 
@@ -1096,6 +1110,10 @@ void onLoad()
     gZoomEndedHandler = (GestureEventHandler)GetProcAddress(hInst, "zoomEnded");
 
     gPointerHandler = (PointerEventHandler)GetProcAddress(hInst, "pointerStarted");
+
+    // call a preload routine, if there's anything before setup
+    if (gPreloadHandler != nullptr)
+        gPreloadHandler();
 
     // Call a setup routine if the user specified one
     if (gSetupHandler != nullptr) {

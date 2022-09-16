@@ -1,4 +1,7 @@
-#pragma once
+#ifndef p5_hpp
+#define p5_hpp
+
+//#pragma once
 
 /*
     This file represents the interface for a P5 inspired
@@ -49,19 +52,20 @@ extern "C" {
 extern "C" {
 #endif
 
-    APP_EXPORT void draw();
+    APP_EXPORT void preload();
     APP_EXPORT void setup();
+    APP_EXPORT void draw();
     APP_EXPORT void update(const double dt);
 
 
     // IO Event Handlers
 
-// keyboard event processing
+    // keyboard event processing
     APP_EXPORT void keyPressed(const KeyboardEvent& e);
     APP_EXPORT void keyReleased(const KeyboardEvent& e);
     APP_EXPORT void keyTyped(const KeyboardEvent& e);
 
-// mouse event processing
+    // mouse event processing
     APP_EXPORT void mouseClicked(const MouseEvent& e);
     APP_EXPORT void mouseDragged(const MouseEvent& e);
     APP_EXPORT void mouseMoved(const MouseEvent& e);
@@ -136,6 +140,7 @@ extern "C" {
 
     APP_EXPORT extern long previousZoomDistance;
     APP_EXPORT extern long zoomDistance;
+
 
 #ifdef __cplusplus
 }
@@ -391,7 +396,8 @@ struct PVector {
     void textFont(const char* fontname) noexcept;
     void textSize(double size) noexcept;
     void text(const char* txt, double x, double y) noexcept;
-
+    double textWidth(const char* txt) noexcept;
+    BLPoint textMeasure(const char* txt) noexcept;
 
     void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) noexcept;
     void vertex(double x, double y) noexcept;
@@ -454,3 +460,5 @@ struct PVector {
     inline double floor(double x) { return std::floor(x); }
     inline long round(double x) { return std::lround(x); }
 }
+
+#endif  // p5_hpp

@@ -1,4 +1,7 @@
-#pragma once
+#ifndef BLGraphics_h
+#define BLGraphics_h
+
+//#pragma once
 
     //Binding P5 graphics API to a blend2d context
     // we don't know what the blend2d context is attached to
@@ -8,11 +11,15 @@
 
 
 #include "Graphics.h"
+#include "apphost.h"
+#include "fonthandler.hpp"
+
 #include <vector>
 
 
 class BLGraphics : public IGraphics
 {
+protected:
     int fCommandCount = 0;  // How many commands since last flush
     int fCommandThreshold = 256;
 
@@ -27,7 +34,7 @@ class BLGraphics : public IGraphics
     // Drawing Attributes
     double fDimensionScale = 1.0;
 
-    // Text Stuff
+    // Typography
     BLFontFace fFontFace;
     BLFont fFont;
     float fFontSize = 12;
@@ -115,7 +122,7 @@ private:
 // font information so we're not reading it every time.
     BLPoint calcTextPosition(const char* txt, double x, double y)
     {
-        BLPoint txtSize = textWidth(txt);
+        BLPoint txtSize = textMeasure(txt);
         double cx = txtSize.x;
         double cy = txtSize.y;
 
@@ -173,9 +180,12 @@ private:
     // Reset command count to zero since last flush
     void resetCommandCount() { fCommandCount = 0; }
 
+protected:
     // Create initial state
-    void initialize()
+    void initContext(const BLContext &ctxt)
     {
+        fCtx = ctxt;
+
         // white fill
         fill(Pixel(255, 255, 255, 255));
 
@@ -183,7 +193,7 @@ private:
         stroke(Pixel(0, 0, 0, 255));
 
         // Start with a default font so we can start drawing text
-        textFont("c:\\windows\\fonts\\segoeui.ttf");
+        textFont("Consolas");
 
     }
 
@@ -195,9 +205,10 @@ public:
         fRectMode(RECTMODE::CORNER),
         fAngleMode(RADIANS)
     {
-        initialize();
+        initContext(BLContext());
     }
 
+/*
     BLGraphics(BLContext& ctx)
         : fCtx(ctx)
         , fUseFill(true)
@@ -205,21 +216,22 @@ public:
         , fRectMode(RECTMODE::CORNER)
         , fAngleMode(RADIANS)
     {
-        initialize();
+        initContext(ctx);
     }
+*/
 
     virtual ~BLGraphics() = default;
 
 
-    INLINE BLContext& getBlend2dContext()
+    BLContext& getBlend2dContext()
     {
         return fCtx;
     }
 
     // how many threads is the context using
-    INLINE int threadCount() { return fCtx.threadCount(); }
+    int threadCount() { return fCtx.threadCount(); }
 
-    INLINE void setCommandThreshold(int maxCommands)
+    void setCommandThreshold(int maxCommands)
     {
         fCommandThreshold = maxCommands;
     }
@@ -232,7 +244,7 @@ public:
     // BUGBUG - this kinda works.  It will scale everything, which 
     // is not quite what we want.  What we really want is to just
     // add to our own transformation window for coordinate conversion
-    INLINE void setPpiUnits(double ppi, double units)
+    void setPpiUnits(double ppi, double units)
     {
         fDimensionScale = ppi / units;
         fCtx.scale(fDimensionScale);
@@ -242,37 +254,37 @@ public:
 
 
     // Various Modes
-    INLINE void angleMode(int mode) override { fAngleMode = mode; }
-    INLINE void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
-    INLINE void rectMode(const RECTMODE mode) override { fRectMode = mode; }
-    INLINE void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
+    void angleMode(int mode) override { fAngleMode = mode; }
+    void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
+    void rectMode(const RECTMODE mode) override { fRectMode = mode; }
+    void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
 
     // stroking attributes
-    INLINE void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
-    INLINE void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }
-    INLINE void strokeWeight(double weight) override { fCtx.setStrokeWidth(weight); }
+    void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
+    void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }
+    void strokeWeight(double weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
-    INLINE void push() override { fCtx.save(); }
-    INLINE void pop() override { fCtx.restore(); }
+    void push() override { fCtx.save(); }
+    void pop() override { fCtx.restore(); }
 
     // Coordinate transformation
-    INLINE void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
-    INLINE void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
-    INLINE void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }
-    //INLINE  void rotate(double angle) override { rotate(angle, 0, 0); }
+    void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
+    void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
+    void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }
+    //void rotate(double angle) override { rotate(angle, 0, 0); }
 
 
     // Pixel management
-    INLINE  void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void fill(const BLVarCore& s) override { fUseFill = true; fCtx.setFillStyle(s); }
-    INLINE  void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
-    INLINE  void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
+    void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
+    void fill(const BLVarCore& s) override { fUseFill = true; fCtx.setFillStyle(s); }
+    void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
+    void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
 
-    INLINE  void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
-    INLINE  void stroke(const BLVarCore& s) override { fCtx.setStrokeStyle(s); }
-    INLINE  void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
-    INLINE  void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
+    void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
+    void stroke(const BLVarCore& s) override { fCtx.setStrokeStyle(s); }
+    void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
+    void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
 
 
     // Synchronization
@@ -338,12 +350,12 @@ public:
     }
 
     // Clipping
-    INLINE  void clip(double x, double y, double w, double h) override {fCtx.clipToRect(x, y, w, h);}
-    INLINE  void noClip() override { fCtx.restoreClipping(); }
+    void clip(double x, double y, double w, double h) override {fCtx.clipToRect(x, y, w, h);}
+    void noClip() override { fCtx.restoreClipping(); }
 
     // Geometry
     // hard set a specfic pixel value
-    INLINE  void set(double x, double y, const Pixel& c) override
+    void set(double x, double y, const Pixel& c) override
     {
         if (nullptr == fImageData.pixelData)
             return;
@@ -353,27 +365,27 @@ public:
     
 
 
-    INLINE  void point(double x, double y) override
+    void point(double x, double y) override
     { 
         line(x, y, x+1, y);
     }
 
-    INLINE  void line(double x1, double y1, double x2, double y2) override
+    void line(double x1, double y1, double x2, double y2) override
     {
         BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
 
         incrCmd();
     }
     
-    INLINE  void rect(const BLRect& rr)
+    void rect(const BLRect& rr)
     {
-        BLResult bResult = fCtx.strokeRect(rr);
-        bResult = fCtx.fillRect(rr);
+        fCtx.strokeRect(rr);
+        fCtx.fillRect(rr);
 
         incrCmd();
     }
     
-    INLINE void rect(double x, double y, double width, double height, double xradius, double yradius) override
+    void rect(double x, double y, double width, double height, double xradius, double yradius) override
     {
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
@@ -382,7 +394,7 @@ public:
     }
 
     
-    INLINE  void rect(double a, double b, double c, double d) override
+    void rect(double a, double b, double c, double d) override
     {
             BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
             rect(params.x, params.y, params.w, params.h, 1, 1);
@@ -401,7 +413,7 @@ public:
         incrCmd();
     }
 
-    INLINE  void circle(double cx, double cy, double diameter) override { ellipse(cx, cy, diameter, diameter); }
+    void circle(double cx, double cy, double diameter) override { ellipse(cx, cy, diameter, diameter); }
 
     virtual  void triangle(double x1, double y1, double x2, double y2, double x3, double y3) override
     {
@@ -416,7 +428,7 @@ public:
         incrCmd();
     }
 
-    virtual void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
+    void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
     {
         BLPath path;
         path.moveTo(x1, y1);
@@ -426,13 +438,13 @@ public:
         incrCmd();
     }
     
-    INLINE  void polyline(const BLPoint* pts, size_t n) override
+    void polyline(const BLPoint* pts, size_t n) override
     {
         fCtx.strokePolyline(pts, n);
         incrCmd();
     }
     
-    INLINE  void polygon(const BLPoint* pts, size_t n) override
+    void polygon(const BLPoint* pts, size_t n) override
     {
         fCtx.strokePolygon(pts, n);
 
@@ -443,14 +455,14 @@ public:
         incrCmd();
     }
     
-    INLINE  void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
+    void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) override
     {
         BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
         polygon(pts, 4);
         incrCmd();
     }
 
-     void path(const BLPath& path) override
+    void path(const BLPath& path) override
     {
         if (fUseFill) {
             fCtx.fillPath(path);
@@ -462,7 +474,7 @@ public:
     }
 
     // Bitmaps
-    INLINE  void image(const BLImage& img, int x, int y) override
+    void image(const BLImage& img, int x, int y) override
     {
         //printf("BLGraphics::image(img, %d, %d, %dx%d)\n", x, y, img.width(), img.height());
         
@@ -482,19 +494,27 @@ public:
 
 
 
-    INLINE  void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) override
+    void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) override
     {
         fTextHAlignment = horizontal;
         fTextVAlignment = vertical;
     }
 
-    INLINE  void textFont(const char* fontfile) override
+    void textFont(const char* fontname) override
     {
-        fFontFace.createFromFile(fontfile);
-        textSize(fFontSize);
+        // query the font manager
+        // set the found face as the current face
+        
+        BLFontFace face;
+        face = gFontHandler->queryFontFace(fontname);
+        
+        if (face.isValid()) {
+            fFontFace = face;
+            textSize(fFontSize);
+        }
     }
     
-    INLINE  void textSize(double size) override
+    void textSize(double size) override
     {
         fFontSize = (float)size;
         fFont.reset();
@@ -504,9 +524,9 @@ public:
     // Get the width (in font units) of the text
     // BUGBUG - This is NOT in the base interface.  
     // maybe it should be?
-     BLPoint textWidth(const char* txt) // override
+     BLPoint textMeasure(const char* txt) override
     {
-        BLFontMetrics fm = fFont.metrics();
+        //BLFontMetrics fm = fFont.metrics();
         BLTextMetrics tm;
         BLGlyphBuffer gb;
         
@@ -539,7 +559,7 @@ public:
 
 
     // Vertex shaping
-    INLINE void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) override
+    void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) override
     {
         // To begin a shape, clear out existing shape
         // and set the shape mode to that specified
@@ -547,7 +567,7 @@ public:
         fShapeVertices.clear();
     }
 
-    INLINE void vertex(double x, double y) override
+    void vertex(double x, double y) override
     {
         // Make sure beginShape() has been called
         if (fShapeMode == SHAPEMODE::NONE)
@@ -659,3 +679,6 @@ public:
         pop();
     }
 };
+
+
+#endif  // BLGraphics_h

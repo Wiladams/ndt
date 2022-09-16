@@ -4,6 +4,8 @@
 #ifndef GL_H
 #define GL_H
 
+// put this here to automatically pull in the library
+#pragma comment(lib, "tinygl.lib")
 
 #define COMPILETIME_TINYGL_COMPAT_TEST 0
 

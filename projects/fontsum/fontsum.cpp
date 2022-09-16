@@ -42,70 +42,72 @@ public:
         fontFamily = family;
     }
 
-    void draw(std::shared_ptr<IGraphics> ctx)
+    void draw(IGraphics & ctx)
     {
         // print("GFontSummary.draw 1.0")
-        ctx->background(color(255));
+        ctx.background(color(255));
 
         // Save state on entry
-        ctx->push();
+        ctx.push();
 
         // Get line stroking done first
-        ctx->stroke(0);
-        ctx->strokeWeight(0.25);
-        ctx->line(0, 52, fFrame.w, 52);
-        ctx->line(0, 93.5, fFrame.w, 93.5);
+        ctx.stroke(0);
+        ctx.strokeWeight(0.25);
+        ctx.line(0, 52, fFrame.w, 52);
+        ctx.line(0, 93.5, fFrame.w, 93.5);
 
 
 
-        ctx->noStroke();
-        ctx->fill(0);
+        ctx.noStroke();
+        ctx.fill(0);
 
         // Draw font attribute titles
-        ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
-        //ctx->textFont("consolas");
-        
-        ctx->textFont("segoe ui");
-        ctx->textSize(16);
-        ctx->text("Font Name:", 2, 10);
-        ctx->text("Attributes", 2, 24);
-        
+        //ctx.textFont("consolas");
+        ctx.textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
+        ctx.textFont("segoe ui");
+        ctx.textSize(16);
+        ctx.text("Font Name:", 92, 10);
+        ctx.text("Attributes:", 92, 24);
+
+        ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
+        ctx.text(fontFamily.c_str(), 96, 10);
 
 
-        ctx->textFont(fontFamily.c_str());
-        ctx->textSize(16);
-        ctx->text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 67);
-        ctx->text("1234567890.:,; ' \" (!?) +-*/=", 2, 85);
+        ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
+        ctx.textFont(fontFamily.c_str());
+        ctx.textSize(16);
+        ctx.text("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 67);
+        ctx.text("1234567890.:,; ' \" (!?) +-*/=", 2, 85);
         
-        ctx->translate(4, 90);
+        ctx.translate(4, 90);
 
         for (size_t i = 0; i < lines.size(); i++) {
             auto line = lines[i];
-            ctx->translate(0, line.lineHeight);
+            ctx.translate(0, line.lineHeight);
 
             // draw lines showing our baseline
-            ctx->stroke(255, 0, 0);
-            ctx->line(0, 0, canvasWidth, 0);
-            ctx->line(0, 0, 0, -((double)line.lineHeight)*0.85);
+            //ctx.stroke(255, 0, 0);
+            //ctx.line(0, 0, canvasWidth, 0);
+            //ctx.line(0, 0, 0, -((double)line.lineHeight)*0.85);
 
             //draw the size indicator
-            ctx->noStroke();
-            ctx->textFont("segoe ui");
-            ctx->textSize(16);
-            ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
-            ctx->text(std::to_string(line.size).c_str(), 0, 0);
+            ctx.noStroke();
+            ctx.textFont("segoe ui");
+            ctx.textSize(16);
+            ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
+            ctx.text(std::to_string(line.size).c_str(), 0, 0);
 
             // Draw the line of text
-            ctx->noStroke();
-            ctx->fill(0);
-            ctx->textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
-            ctx->textFont(fontFamily.c_str());
-            ctx->textSize(line.size);
-            //ctx->text(lineText.c_str(), 40, 0);
-            ctx->text(lineText.c_str(), 24, 0);
+            ctx.noStroke();
+            ctx.fill(0);
+            ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
+            ctx.textFont(fontFamily.c_str());
+            ctx.textSize(line.size);
+            //ctx.text(lineText.c_str(), 40, 0);
+            ctx.text(lineText.c_str(), 24, 0);
         }
 
-        ctx->pop();
+        ctx.pop();
 
     }
 
@@ -122,17 +124,17 @@ void draw()
     //GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
     GFontSummary s("c:\\Windows\\Fonts\\bookos.ttf");
 
-    s.draw(gAppSurface);
+    s.draw(*gAppSurface);
 
     noLoop();
 }
 
 void setup()
 {
-    createCanvas(displayWidth-20, 1280);
+    createCanvas(1920, 1280, "fontsum");
 
     // Set user space units to be 96/inch
-    gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
+    //gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
 }
 
 

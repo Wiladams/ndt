@@ -41,11 +41,11 @@ inline int32_t ntohl(int32_t value) {return isLE() ? swapUInt32((uint32_t)value)
 struct BufferChunk {
     bool fIOwnData;
     size_t fSize;
-    void* fData;
+    uint8_t * fData;
 
 
     BufferChunk(void *data, const size_t size)
-        :fData(data),
+        :fData((uint8_t *)data),
         fSize(size),
         fIOwnData(false)
     {
@@ -53,7 +53,7 @@ struct BufferChunk {
 
     BufferChunk(const size_t size)
     {
-        fData = {new char[size]{}};
+        fData = {new uint8_t[size]{}};
         fSize = size;
         fIOwnData = true;
     }

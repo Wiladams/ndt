@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "grmath.h"
+#include "tinygl/3dMath.h"
 
 // Structure containing ModelView, Viewport, Projection
 // to be used in 3D calculations.
 struct MVP3D {
-	mat4f fModelView;
-	mat4f fProjection;
-	mat4f fViewport;
+	mat4 fModelView;
+	mat4 fProjection;
+	mat4 fViewport;
 };

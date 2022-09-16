@@ -2,7 +2,7 @@
 
 #include "p5.hpp"
 
-using namespace p5;
+//using namespace p5;
 
 struct Star {
 	double x;
@@ -31,46 +31,42 @@ struct Star {
 	{
 		fWidth = w;
 		fHeight = h;
-		x = random(-w, w);
-		y = random(-h, h);
-		z = random(w);
+		x = p5::random(-w, w);
+		y = p5::random(-h, h);
+		z = p5::random(w);
 		pz = z;
-		std::cout << "star::init " << x << " " << y << " " << z << std::endl;
 	}
 
 	void update(const double speed)
 	{
 		z = z - speed;
 		if (z < 1) {
-			z = width;
-			x = random(-width, width);
-			y = random(-height, height);
+			z = canvasWidth;
+			x = p5::random(-canvasWidth, canvasWidth);
+			y = p5::random(-canvasHeight, canvasHeight);
 			pz = z;
 		}
 	}
 
-	void draw(std::shared_ptr<Surface> ctx)
+	void draw(IGraphics & ctx)
 	{
 		//printf("draw\n");
 		//ctx->fill(color(255));
 		//ctx->noStroke();
 
-		auto sx = map(x / z, 0, 1, 0, width);
-		auto sy = map(y / z, 0, 1, 0, height);
+		auto sx = p5::map(x / z, 0, 1, 0, canvasWidth);
+		auto sy = p5::map(y / z, 0, 1, 0, canvasHeight);
 
-		auto r = map(z, 0, width, 8, 0);
-		//std::cout << "radius: " << r << std::endl;
+		auto r = p5::map(z, 0, canvasWidth, 8, 0);
 		//ctx->ellipse(sx, sy, r, r);
 
-		auto px = map(x / pz, 0, 1, 0, width);
-		auto py = map(y / pz, 0, 1, 0, height);
+		auto px = p5::map(x / pz, 0, 1, 0, canvasWidth);
+		auto py = p5::map(y / pz, 0, 1, 0, canvasHeight);
 
 		pz = z;
 
-
-		ctx->stroke(ctx->color(255));
-		ctx->fill(ctx->color(255));
-		ctx->line(px, py, sx, sy);
-		//printf("star line: %3.2f,%3.2f <=> %3.2f,%3.2f\n", px, py, sx, sy);
+		ctx.stroke(ctx.color(255));
+		ctx.fill(ctx.color(255));
+		ctx.line(px, py, sx, sy);
 	}
 };

@@ -142,6 +142,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinygl", "tinygl\tinygl.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "math3d", "math3d\math3d.vcxproj", "{432A58C7-19C5-426F-84FE-4ACB239DC02A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fontview", "fontview\fontview.vcxproj", "{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fonthandler", "fonthandler\fonthandler.vcxproj", "{2182FAE5-E224-44F7-A67F-80FA85D9A448}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -654,6 +658,22 @@ Global
 		{432A58C7-19C5-426F-84FE-4ACB239DC02A}.Release|x64.Build.0 = Release|x64
 		{432A58C7-19C5-426F-84FE-4ACB239DC02A}.Release|x86.ActiveCfg = Release|Win32
 		{432A58C7-19C5-426F-84FE-4ACB239DC02A}.Release|x86.Build.0 = Release|Win32
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Debug|x64.ActiveCfg = Debug|x64
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Debug|x64.Build.0 = Debug|x64
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Debug|x86.ActiveCfg = Debug|Win32
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Debug|x86.Build.0 = Debug|Win32
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Release|x64.ActiveCfg = Release|x64
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Release|x64.Build.0 = Release|x64
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Release|x86.ActiveCfg = Release|Win32
+		{E497AFE9-0F5E-4AFE-85C6-2D3816EB4727}.Release|x86.Build.0 = Release|Win32
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Debug|x64.ActiveCfg = Debug|x64
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Debug|x64.Build.0 = Debug|x64
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Debug|x86.ActiveCfg = Debug|Win32
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Debug|x86.Build.0 = Debug|Win32
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Release|x64.ActiveCfg = Release|x64
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Release|x64.Build.0 = Release|x64
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Release|x86.ActiveCfg = Release|Win32
+		{2182FAE5-E224-44F7-A67F-80FA85D9A448}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

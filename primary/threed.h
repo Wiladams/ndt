@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "p5.hpp"
+#include "tinygl/3dMath.h"
 #include "trianglemesh.h"
 
 #include "Surface.h"
