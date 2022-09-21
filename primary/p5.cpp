@@ -70,6 +70,10 @@ namespace p5 {
     int frameCount = 0;         // how many frames drawn so far
     int droppedFrames = 0;
 
+    int textLineSize = 16;
+    int textCursorX = 0;
+    int textCursorY = 0;
+
     // Keyboard globals
     int keyCode = 0;
     int keyChar = 0;
@@ -114,7 +118,7 @@ namespace p5 {
             gWindowManager->addChild(win);
     }
 
-    std::shared_ptr<GWindow> window(int x, int y, int w, int h)
+    std::shared_ptr<GWindow> window(const int x, const int y, const int w, const int h)
     {
         auto win = std::make_shared<GWindow>(x, y, w, h);
         addWindow(win);
@@ -607,6 +611,11 @@ namespace p5 {
         gAppSurface->textAlign(horizontal, vertical);
     }
 
+    void textFace(const BLFontFace& face) noexcept
+    {
+        gAppSurface->textFace(face);
+    }
+
     void textFont(const char* fontname) noexcept
     {
         gAppSurface->textFont(fontname);
@@ -620,6 +629,16 @@ namespace p5 {
     void text(const char* txt, double x, double y) noexcept
     {
         gAppSurface->text(txt, x, y);
+    }
+
+    void text(double x, double y, const char* format, ...) noexcept
+    {
+        va_list args = nullptr;
+        va_start(args, format);
+
+        gAppSurface->vartext(x, y, format, args);
+
+        va_end(args);
     }
 
     BLPoint textMeasure(const char* txt) noexcept

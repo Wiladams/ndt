@@ -43,7 +43,7 @@ public:
 		fTransform = BLMatrix2D::makeIdentity();
 	}
 
-
+	//BLRect& bounds() { return fBounds; }
 	BLRect getBounds() const { return fBounds; }
 	void setBounds(const BLRect& b) { fBounds = b; }
 	double width() const { return fBounds.w; }

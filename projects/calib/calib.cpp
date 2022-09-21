@@ -17,9 +17,17 @@ void drawHundreds()
 	// print lines of different lengths
 	// increasing width as we go
 	strokeWeight(2);
-	line(0, 50, 50, 50);	// half inch
-	line(0, 75, 100, 75);	// one inch
-	line(0, 100, 150, 100);	// one and a half
+	line(0, 70, 50, 70);	// half inch
+	line(0, 95, 100, 95);	// one inch
+	line(0, 120, 150, 120);	// one and a half
+
+	noStroke();
+	fill(255);
+	textSize(16);
+	textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
+	text("50 units", 175, 70);
+	text("100 units", 175, 95);
+	text("175 units", 175, 120);
 
 	// Use fractins of an inch
 	//strokeWeight(1.0/96);
@@ -27,29 +35,32 @@ void drawHundreds()
 	//line(0, .75, 1, 0.75);	// one inch
 	//line(0, 1, 1.5, 1);		// one and a half
 
+
 }
 
 void draw()
 {
 	//background(255, 255, 0);
+	noStroke();
+	fill(255);
+	textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
+	textSize(16);
 
-	stroke(Pixel(255,255,255));
-	fill(Pixel(255,255,255));
-	textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
-	textSize(24);
-	text("User Units 100/inch", canvasWidth/2,24);
+	char txtBuff[256];
+	sprintf_s(txtBuff, "Display Pixels Per Inch: %d", systemDpi);
+	text(txtBuff, 240, 4);
+	text("User Units/inch: 100 ", 240,20);
 
 	drawHundreds();
 
-	strokeWeight(4);
-	stroke(127);
+
 
 	noLoop();
 }
 
 void setup()
 {
-	createCanvas(1280, displayHeight/2, "calibration");
+	createCanvas(320, 240, "calibration");
 
 	// Set user space units to be 96/inch
 	setUnitsPerInch(100);

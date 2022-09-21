@@ -113,7 +113,7 @@ public:
         for (int i = 0; i <= fColumns-1; i++) {
             for (int j = 0; j<=fRows-1;j++) {
                 if (board[j][i] == 1) {
-                    fill(255);
+                    fill(0x7f);
                     //fill((uint8_t)randomLowHigh(50,230), (uint8_t)randomLowHigh(127,255));
                 } else { 
                     fill(0,0);
@@ -162,5 +162,5 @@ void setup()
 
     fullscreen();
 
-    frameRate(30);
+    //frameRate(30);
 }

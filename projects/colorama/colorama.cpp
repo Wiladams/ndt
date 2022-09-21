@@ -19,7 +19,6 @@ std::shared_ptr<GCanvas> canvas;
 void setup()
 {
 	createCanvas(displayWidth, 300);
-	//createCanvas(100, 10);
 
 	setCanvasPosition(0, 0);
 

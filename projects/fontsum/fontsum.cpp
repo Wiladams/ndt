@@ -64,7 +64,7 @@ public:
         // Draw font attribute titles
         //ctx.textFont("consolas");
         ctx.textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
-        ctx.textFont("segoe ui");
+        //ctx.textFont("Consolas");
         ctx.textSize(16);
         ctx.text("Font Name:", 92, 10);
         ctx.text("Attributes:", 92, 24);
@@ -92,7 +92,7 @@ public:
 
             //draw the size indicator
             ctx.noStroke();
-            ctx.textFont("segoe ui");
+            ctx.textFont("Consolas");
             ctx.textSize(16);
             ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
             ctx.text(std::to_string(line.size).c_str(), 0, 0);
@@ -122,15 +122,30 @@ void draw()
     //GFontSummary s("d:\\Fonts\\Old Copperfield.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
-    GFontSummary s("c:\\Windows\\Fonts\\bookos.ttf");
+    GFontSummary s("Bookman Old Style");
+    //GFontSummary s("Snap ITC");
+    //GFontSummary s("Stencil");
 
     s.draw(*gAppSurface);
 
     noLoop();
 }
 
+void loadSomeFonts()
+{
+    std::vector<const char*> fontNames{
+            "c:\\Windows\\Fonts\\bookos.ttf",
+            "c:\\Windows\\Fonts\\SNAP____.ttf",
+            "c:\\Windows\\Fonts\\STENCIL.ttf",
+    };
+
+    loadFontFiles(fontNames);
+}
+
 void setup()
 {
+    loadSomeFonts();
+
     createCanvas(1920, 1280, "fontsum");
 
     // Set user space units to be 96/inch

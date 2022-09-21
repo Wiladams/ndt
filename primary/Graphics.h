@@ -269,8 +269,22 @@ public:
     */
 
     virtual void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) = 0;
+    virtual void textFace(const BLFontFace& face) = 0;
     virtual void textFont(const char* fontname) = 0;
     virtual void textSize(double size) = 0;
     virtual void text(const char* txt, double x, double y) = 0;
     virtual BLPoint textMeasure(const char* txt) = 0;
+
+    virtual void vartext(double x, double y, const char* format, ...)
+    {
+        char txtBuff[512];
+        va_list args = nullptr;
+        va_start(args, format);
+
+        vsprintf_s(txtBuff, format, args);
+
+        text(txtBuff, x, y);
+        va_end(args);
+
+    }
 };

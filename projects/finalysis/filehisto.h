@@ -50,11 +50,11 @@ public:
 		createHistogram(bs);
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx)
 	{
 		// Display histogram
-		ctx->noStroke();
-		ctx->fill(0xc0);
+		ctx.noStroke();
+		ctx.fill(0xc0);
 		for (int i = 0; i < 256; i++) {
 			int x = (int)map(i, 0, 255, 1, 254);
 			int h = (int)map((double)histogram[i], 0, (double)biggest, 0, 255);
@@ -65,8 +65,8 @@ public:
 			auto c = ndt::ColorRGBAFromWavelength(wl, 1.5);
 			auto p = BLRgba32(uint32_t(c.r * 255), uint32_t(c.g * 255), uint32_t(c.b * 255), 255);
 			
-			ctx->fill(p);
-			ctx->rect(x, (double)255 - h, 2, h);
+			ctx.fill(p);
+			ctx.rect(x, (double)255 - h, 2, h);
 		}
 	}
 

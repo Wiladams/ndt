@@ -65,5 +65,26 @@
     <ClInclude Include="..\..\primary\fonthandler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="emspaceview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gconsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\pixelarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="screengrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="demoart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\gwindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

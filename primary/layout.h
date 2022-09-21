@@ -18,6 +18,13 @@ public:
 	}
 };
 
+class IdentityLayout : public ILayoutGraphics
+{
+	void layout(std::deque<std::shared_ptr<IGraphic> > gs) override
+	{
+		// by default, do nothing
+	}
+};
 
 class BinaryLayout : ILayoutGraphics
 {

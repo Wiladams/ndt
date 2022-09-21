@@ -29,8 +29,16 @@ void draw()
 		clear();
 
 	noStroke();
-	fill(255, 0, 0);
+	fill(0x7f);
 	rect(0, 0, canvasWidth, 48);
+
+	// Put some instructional text up there
+	fill(0);
+	textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+	textSize(36);
+	textFont("Consolas");
+	text("DROP FILES HERE", displayWidth/2.0, 24);
+
 	flush();
 }
 

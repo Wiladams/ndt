@@ -500,6 +500,14 @@ public:
         fTextVAlignment = vertical;
     }
 
+    void textFace(const BLFontFace& face) override
+    {
+        if (face.isValid()) {
+            fFontFace = face;
+            textSize(fFontSize);
+        }
+    }
+
     void textFont(const char* fontname) override
     {
         // query the font manager

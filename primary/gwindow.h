@@ -18,11 +18,11 @@ protected:
 
 public:
 
-	GWindow(int x, int y, int w, int h)
+	GWindow(double x, double y, double w, double h)
 		: Graphic(x, y, w, h),
 		fClientArea(0, 0, w, h),
 		fTitleBar(2, 2, w, 32),
-		fTitleBarColor(225, 220, 220, 127),
+		fTitleBarColor(0x7f, 0x7f, 0x7f, 200),
 		fBackgroundColor(245, 246, 247),
 		fLastMouse(0, 0),
 		fIsMoving(false)
@@ -30,9 +30,27 @@ public:
 		fSurface = std::make_shared<Surface>(w, h);
 	}
 
-	//std::shared_ptr<IGraphics> getPreferredRenderer() const { return fSurface; }
-
 	BLImage& getImage() { return fSurface->getImage(); }
+
+
+	void drawTitleBar(IGraphics & ctx)
+	{
+		// If there's no title, don't draw anything
+		if (fTitle.empty())
+			return;
+
+		// A little rectangle to back title
+		ctx.noStroke();
+		ctx.fill(fTitleBarColor);
+		ctx.rect(fTitleBar.x, fTitleBar.y, fTitleBar.w, fTitleBar.h);
+
+		// Draw title
+		ctx.fill(0);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx.textSize(12);
+		ctx.text(fTitle.c_str(), fTitleBar.x + fTitleBar.w / 2, 16);
+		ctx.flush();
+	}
 
 	void setBackgroundColor(const Pixel& c)
 	{
@@ -41,15 +59,26 @@ public:
 
 	void drawBackground(IGraphics & ctx)
 	{
-		//std::cout << "GWindow::drawBackground" << std::endl;
-
 		ctx.push();
 
-		// Fill in background
-		ctx.noStroke();
-		ctx.fill(fBackgroundColor);
-		ctx.rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
+		ctx.clear();
 
+		if (fBackgroundColor.value == 0) {
+
+		} else {
+			// Fill in background
+			ctx.noStroke();
+			ctx.fill(fBackgroundColor);
+			ctx.rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
+		}
+
+		ctx.pop();
+	}
+
+	void drawForeground(IGraphics& ctx)
+	{
+		drawTitleBar(ctx);
+		
 		// Draw a frame
 		auto frame = getFrame();
 
@@ -58,13 +87,12 @@ public:
 		ctx.noFill();
 		ctx.rect(0, 0, frame.w, frame.h);
 
-		ctx.pop();
 	}
 
 	void draw(IGraphics & ctx)
 	{
-		fSurface->push();
-		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+		//fSurface->push();
+		//ctx.clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
 
 		// BUGBUG - maybe perform arbitrary transform?
@@ -74,10 +102,10 @@ public:
 		drawBackground(*fSurface);
 		drawChildren(*fSurface);
 		drawSelf(*fSurface);
-		drawForeground(fSurface);
+		drawForeground(*fSurface);
 
 		//ctx->noClip();
-		ctx.pop();
+		//ctx.pop();
 
 		compose(ctx);
 	}
@@ -85,7 +113,6 @@ public:
 	void compose(IGraphics & ctx)
 	{
 		ctx.image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
-		//ctx->image(fSurface->getImage(), 0, 0);
 	}
 
 	void setTitle(const std::string& title)
@@ -100,29 +127,9 @@ public:
 			(y - fTitleBar.y <= fTitleBar.h));
 	}
 	
-	void drawTitleBar(std::shared_ptr<IGraphics> ctx)
-	{
-		// If there's no title, don't draw anything
-		if (fTitle.empty())
-			return;
 
-		// A little rectangle to back title
-		ctx->noStroke();
-		ctx->fill(fTitleBarColor);
-		ctx->rect(fTitleBar.x, fTitleBar.y, fTitleBar.w, fTitleBar.h);
 
-		// Draw title
-		ctx->fill(0);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-		ctx->textSize(12);
-		ctx->text(fTitle.c_str(), fTitleBar.x+fTitleBar.w/2, 16);
-		ctx->flush();
-	}
 
-	void drawForeground(std::shared_ptr<IGraphics> ctx)
-	{
-		drawTitleBar(ctx);
-	}
 
 	virtual void mouseEvent(const MouseEvent& e)
 	{

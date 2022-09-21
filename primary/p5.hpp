@@ -1,7 +1,7 @@
-#ifndef p5_hpp
-#define p5_hpp
+//fndef p5_hpp
+//efine p5_hpp
 
-//#pragma once
+#pragma once
 
 /*
     This file represents the interface for a P5 inspired
@@ -115,6 +115,11 @@ extern "C" {
     APP_EXPORT extern int droppedFrames;
 
     APP_EXPORT extern uint8_t* pixels;    // a pointer to the canvas pixels
+
+    // Text console
+    APP_EXPORT extern int textLineSize;
+    APP_EXPORT extern int textCursorX;
+    APP_EXPORT extern int textCursorY;
 
     // Keyboard Globals
     APP_EXPORT extern int keyCode;      // virtual keycode
@@ -393,9 +398,11 @@ struct PVector {
 
     // drawing text
     void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) noexcept;
+    void textFace(const BLFontFace& face) noexcept;
     void textFont(const char* fontname) noexcept;
     void textSize(double size) noexcept;
     void text(const char* txt, double x, double y) noexcept;
+    void text(double x, double y, const char* format, ...) noexcept;
     double textWidth(const char* txt) noexcept;
     BLPoint textMeasure(const char* txt) noexcept;
 
@@ -461,4 +468,4 @@ struct PVector {
     inline long round(double x) { return std::lround(x); }
 }
 
-#endif  // p5_hpp
+//endif  // p5_hpp

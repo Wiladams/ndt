@@ -850,6 +850,23 @@ void showAppWindow()
     gAppWindow->show();
 }
 
+
+// Typography
+void loadFontDirectory(const char* dir)
+{
+    gFontHandler->loadDirectoryOfFonts(dir);
+}
+
+void loadDefaultFonts()
+{
+    gFontHandler->loadDefaultFonts();
+}
+
+void loadFontFiles(std::vector<const char*> filenames)
+{
+    gFontHandler->loadFonts(filenames);
+}
+
 /*
     Generic Windows message handler
     This is used as the function to associate with a window class
@@ -1066,7 +1083,8 @@ bool prolog()
 
     // Typography initialization
     gFontHandler = std::make_shared<FontHandler>();
-    
+    loadDefaultFonts();
+
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the
     // first thing to do is to let Windows know we are Dpi aware

@@ -18,6 +18,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #define NDT_IS_WINDOWS
+#define EXPORT		__declspec(dllexport)
 #endif
 
 #if defined(_MSC_VER)

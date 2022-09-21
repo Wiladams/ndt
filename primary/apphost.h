@@ -180,6 +180,11 @@ extern "C" {
 }
 #endif
 
+// Typography
+APP_EXPORT void loadDefaultFonts();
+APP_EXPORT void loadFontDirectory(const char * dir);
+APP_EXPORT void loadFontFiles(std::vector<const char*> filenames);
+
 // Make Topic publishers available
 // Doing C++ pub/sub
 using SignalEventTopic = Topic<intptr_t>; 

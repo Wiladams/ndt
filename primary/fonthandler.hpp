@@ -3,20 +3,29 @@
 
 #include "definitions.h"
 #include "blend2d/fontmanager.h"
+
+#include <filesystem>
+#include <algorithm>
 #include <vector>
 #include <memory>
+#include <map>
+#include <string>
+
+namespace fs = std::filesystem;
 
 class FontHandler
 {
 public:
     // Typography
     BLFontManager fFontManager;
+    std::vector<std::string> fFamilyNames;
 
     FontHandler()
     {
         fFontManager.create();
-        loadDefaultFonts();
     }
+
+    const std::vector<std::string>& familyNames() const { return fFamilyNames; }
 
     // query the font manager
     BLFontFace queryFontFace(const char* fontname)
@@ -44,10 +53,10 @@ public:
         {
             //printf("loadFont() adding: %s\n", ff.familyName().data());
             fFontManager.addFace(ff);
-            
+            fFamilyNames.push_back(ff.familyName().data());
         }
         else {
-            printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
+            //printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
         }
 
         return ff;
@@ -64,6 +73,21 @@ public:
         }
     }
 
+    void loadDirectoryOfFonts(const char *dir)
+    {
+        const fs::path fontPath(dir);
+
+        BLFontFace ff;
+        
+        for (const auto& dir_entry : fs::directory_iterator(fontPath))
+        {
+            if (dir_entry.is_regular_file())
+            {
+                ff = loadFont(dir_entry.path().generic_string().c_str());
+            }
+        }
+    }
+
     // Do this only once to load in fonts
     void loadDefaultFonts()
     {
@@ -77,6 +101,7 @@ public:
             "c:\\Windows\\Fonts\\gothic.ttf",
             "c:\\Windows\\Fonts\\segoui.ttf",
             "c:\\Windows\\Fonts\\tahoma.ttf",
+            "c:\\Windows\\Fonts\\terminal.ttf",
             "c:\\Windows\\Fonts\\times.ttf",
             "c:\\Windows\\Fonts\\verdana.ttf",
             "c:\\Windows\\Fonts\\wingding.ttf"
@@ -91,6 +116,6 @@ public:
 
 };
 
-APP_EXPORT extern std::shared_ptr<FontHandler> gFontHandler;
+EXPORT extern std::shared_ptr<FontHandler> gFontHandler;
 
 #endif // fonthandler_h

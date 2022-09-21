@@ -122,7 +122,7 @@ void drawNeutral(IGraphics & ctx)
     ctx.strokeWeight(1);
 
     ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-    //ctx->textFont("c:\\windows\\fonts\\segoeui.ttf");
+    //ctx->textFont("Segoe UI");
     ctx.textSize(8);
 
     for (int i=0; i<nKeys; i++)
