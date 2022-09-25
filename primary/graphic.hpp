@@ -19,8 +19,9 @@ protected:
 
 
 	BLMatrix2D fTransform;  // Internal transformation matrix
-	BLRect fBounds{};
+
 	BLRect fFrame{};
+	BLRect fBounds{};
 
 public:
 	Graphic()
@@ -29,16 +30,16 @@ public:
 
 
 	Graphic(const double x, const double y, const double w, const double h)
-		:fFrame(x, y, w, h),
-		fBounds(0, 0, w, h)
+		:fFrame(x, y, w, h)
+		,fBounds(0, 0, w, h)
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
 
 	Graphic(const BLRect& frame) 
-		:fFrame(frame),
-		fBounds(0,0,frame.w, frame.h),
-		fActiveGraphic(nullptr)
+		:fFrame(frame)
+		,fBounds(0,0,frame.w, frame.h)
+		,fActiveGraphic(nullptr)
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
@@ -173,6 +174,8 @@ public:
 	// Handling mouse events
 	virtual void mouseEvent(const MouseEvent& e)
 	{
+		//printf("Graphic.mouseEvent: %d\n", e.activity);
+
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
 		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << " modified: " << pt.x << ", " << pt.y << std::endl;
@@ -190,7 +193,7 @@ public:
 
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
-			auto newEvent = e;
+			MouseEvent newEvent = e;
 			newEvent.x = (int)(e.x - g->getFrame().x);
 			newEvent.y = (int)(e.y - g->getFrame().y);
 
@@ -237,7 +240,7 @@ public:
 	virtual void mousePressed(const MouseEvent& e)
 	{
 		// do nothing
-		printf("Graphic::mousePressed\n");
+		//printf("Graphic::mousePressed\n");
 	}
 
 	virtual void mouseReleased(const MouseEvent& e)
@@ -247,6 +250,7 @@ public:
 
 	virtual void mouseWheel(const MouseEvent& e)
 	{
+		printf("Graphic.mouseWheel\n");
 		// do nothing
 	}
 

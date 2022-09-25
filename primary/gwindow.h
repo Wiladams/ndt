@@ -168,6 +168,9 @@ public:
 			}
 			break;
 
+		case MOUSEWHEEL:
+			//printf("GWindow.MouseEvent: WHEEL\n");
+			break;
 		}
 
 		// if we are here, the window itself did not 

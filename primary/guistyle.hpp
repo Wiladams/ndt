@@ -40,47 +40,6 @@
 
 
 
-inline uint8_t tobyte(double v) {return int(floor(v + 0.5));}
-
-
-Pixel brighter(const Pixel&value)
-{
-    uint8_t red = tobyte(p5::constrain(value.r() * (1 / 0.80), 0, 255));
-    uint8_t green = tobyte(p5::constrain(value.g() * (1.0 / 0.85), 0, 255));
-    uint8_t blue = tobyte(p5::constrain(value.b() * (1.0 / 0.80), 0, 255));
-
-    return Pixel(red, green, blue, value.a());
-}
-
-Pixel darker(const Pixel&value)
-{
-    uint8_t red = tobyte(value.r() * 0.60);
-    uint8_t green = tobyte(value.g() * 0.60);
-    uint8_t blue = tobyte(value.b() * 0.60);
-
-    return Pixel(red, green, blue, value.a());
-}
-
-
-
-void drawDropShadow(std::shared_ptr<IGraphics> ctx, const BLRect& r, size_t maxOffset, Pixel& c)
-{
-    auto shadow = c;
-
-    ctx->push();
-    ctx->noStroke();
-
-    for (int i = 1; i <= maxOffset; i++)
-    {
-        auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
-        shadow.setA((uint32_t)alpha);
-        ctx->fill(shadow);
-        ctx->rect(r.x + i, r.y + i, r.w, r.h);
-    }
-    ctx->pop();
-}
-
-
 class GUIStyle
 {
 public:
@@ -88,6 +47,46 @@ public:
         Sunken = 0x01,
         Raised = 0x02
     };
+
+    static inline constexpr uint8_t tobyte(double v) { return int(floor(v + 0.5)); }
+
+
+    static inline Pixel brighter(const Pixel& value)
+    {
+        uint8_t red = tobyte(p5::constrain(value.r() * (1 / 0.80), 0, 255));
+        uint8_t green = tobyte(p5::constrain(value.g() * (1.0 / 0.85), 0, 255));
+        uint8_t blue = tobyte(p5::constrain(value.b() * (1.0 / 0.80), 0, 255));
+
+        return Pixel(red, green, blue, value.a());
+    }
+
+    static inline Pixel darker(const Pixel& value)
+    {
+        uint8_t red = tobyte(value.r() * 0.60);
+        uint8_t green = tobyte(value.g() * 0.60);
+        uint8_t blue = tobyte(value.b() * 0.60);
+
+        return Pixel(red, green, blue, value.a());
+    }
+
+
+    static void drawDropShadow(IGraphics& ctx, const BLRect& r, size_t maxOffset, Pixel& c)
+    {
+        auto shadow = c;
+
+        ctx.push();
+        ctx.noStroke();
+
+        for (int i = 1; i <= maxOffset; i++)
+        {
+            auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
+            shadow.setA((uint32_t)alpha);
+            ctx.fill(shadow);
+            //ctx.rect(r.x + i, r.y + i, r.w, r.h);
+            ctx.rect(r.x + i, r.y + i, r.w, r.h, 4, 4);
+        }
+        ctx.pop();
+    }
 
 protected:
     size_t fBorderWidth;
@@ -159,57 +158,57 @@ public:
 
     int getPadding() {return 2; }
 
-    void drawFrame(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h, int style)
+    void drawFrame(IGraphics& ctx, int x, int y, int w, int h, int style)
     {
         if (style == GUIStyle::Sunken) {
-            ctx->stroke(fHighlightColor);
+            ctx.stroke(fHighlightColor);
             for (int n=0; n<getBorderWidth(); n++) {
-                ctx->line(x+n, y+h-n, x+w-n, y+h-n);    // bottom shadow
-                ctx->line(x + w - n, y + n, x + w - n, y + h);	    // right shadow
+                ctx.line(x+n, y+h-n, x+w-n, y+h-n);    // bottom shadow
+                ctx.line(x + w - n, y + n, x + w - n, y + h);	    // right shadow
             }
 
-            ctx->stroke(fShadowColor);
+            ctx.stroke(fShadowColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                ctx->line(x+n, y+n, x+w-n, y+n);     // top edge
-                ctx->line(x+n, y+n, x+n, y+h-n);     // left edge
+                ctx.line(x+n, y+n, x+w-n, y+n);     // top edge
+                ctx.line(x+n, y+n, x+n, y+h-n);     // left edge
             }
 
         } else if (style == GUIStyle::Raised) {	
 
-            ctx->stroke(fShadowColor);
+            ctx.stroke(fShadowColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                ctx->line(x+n, y+h-n, x+w-n, y+h-n);      // bottom shadow
-                ctx->line(x+w-n, y+n, x+w-n, y+h);	    // right shadow
+                ctx.line(x+n, y+h-n, x+w-n, y+h-n);      // bottom shadow
+                ctx.line(x+w-n, y+n, x+w-n, y+h);	    // right shadow
             }
 
             if (getBorderWidth() > 0) {
-                ctx->stroke(fBottomShadowBottomLiner);
-                ctx->line(x, y + h, x + w, y + h);				// bottom shadow
-                ctx->line(x + w, y, x + w, y + h);				// right shadow
+                ctx.stroke(fBottomShadowBottomLiner);
+                ctx.line(x, y + h, x + w, y + h);				// bottom shadow
+                ctx.line(x + w, y, x + w, y + h);				// right shadow
             }
 
-            ctx->stroke(fHighlightColor);
+            ctx.stroke(fHighlightColor);
             for (int n=0; n < getBorderWidth(); n++) {
-                ctx->line(x+n,y+n, x+w-n, y+n);	    // top edge
-                ctx->line(x+n, y+n, x+n, y+h-n);	    // left edge
+                ctx.line(x+n,y+n, x+w-n, y+n);	    // top edge
+                ctx.line(x+n, y+n, x+n, y+h-n);	    // left edge
             }
         }
     }
 
-    void drawSunkenRect(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h)
+    void drawSunkenRect(IGraphics & ctx, int x, int y, int w, int h)
     {
-        ctx->fill(fBaseColor);
-        ctx->noStroke();
-        ctx->rect(x,y,w,h);
+        ctx.fill(fBaseColor);
+        ctx.noStroke();
+        ctx.rect(x,y,w,h);
 
         drawFrame(ctx, x, y, w, h, GUIStyle::Sunken);
     }
 
-    void drawRaisedRect(std::shared_ptr<IGraphics> ctx, int x, int y, int w, int h)
+    void drawRaisedRect(IGraphics & ctx, int x, int y, int w, int h)
     {
-        ctx->noStroke();
-        ctx->fill(fBaseColor);
-        ctx->rect(x,y,w,h);
+        ctx.noStroke();
+        ctx.fill(fBaseColor);
+        ctx.rect(x,y,w,h);
         drawFrame(ctx, x, y, w, h, GUIStyle::Raised);
     }
 

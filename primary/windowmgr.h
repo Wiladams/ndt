@@ -40,11 +40,13 @@ public:
 		// Here we draw each window
 		// along the way, we can display whatever
 		// chrome we want, or do any rendering effects
-		// drawDropShadow(ctx, f, 12, shadow);
+
 		for (std::shared_ptr<IGraphic> g : fChildren)
 		{
 			auto f = g->getFrame();
 
+			//GUIStyle::drawDropShadow(ctx, f, 8, shadow);
+			
 			// Tell the window to draw itself into the context
 			g->draw(ctx);
 		}
@@ -53,13 +55,14 @@ public:
 	// Handling mouse events
 	virtual void mouseEvent(const MouseEvent& e)
 	{
+		//printf("WindowManager.mouseEvent: %d\n", e.activity);
 		// Figure out which child the mouse pointer 
 		// is currently over
 		auto g = graphicAt(e.x, e.y);
 
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
-			auto newEvent = e;
+			MouseEvent newEvent = e;
 			newEvent.x = (int)(e.x - g->getFrame().x);
 			newEvent.y = (int)(e.y - g->getFrame().y);
 

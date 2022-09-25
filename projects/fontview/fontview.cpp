@@ -2,7 +2,9 @@
 #include "p5.hpp"
 #include "emspaceview.h"
 #include "gconsole.h"
-
+#include "filestream.h"
+#include "vt100stream.h"
+#include "fontglyphgrid.h"
 
 #include <cstdarg>
 #include <filesystem>
@@ -18,6 +20,7 @@ using Console = GConsole;
 
 std::shared_ptr<Console> acons;
 std::shared_ptr<EMSpaceView> emView;
+std::shared_ptr<FontGlyphGrid> glyphGrid;
 
 BLFontFace face;
 
@@ -36,7 +39,7 @@ void displayFace(Console &cons, BLFontFace &fontFace)
 
 
 	cons.newLine();
-	cons.puts(" Font Full Name:  ");
+	cons.puts(" Font Full Name: ");
 
 	cons.printf("%s\n", fontFace.fullName().data());
 	cons.printf("         family: %s\n", fontFace.familyName().data());
@@ -99,11 +102,18 @@ void selectFace(BLFontFace& face)
 	displayFace(*acons, face);
 }
 
-void draw()
+void displayStream()
 {
-	clear();
-	background(225,0);
+	FileStream strm("n4-wendy.ans");
+	VT100Stream tstrm(strm);
+
+	while (tstrm.next())
+	{
+		printf("something\n");
+	}
 }
+
+
 
 void displayFamilies()
 {
@@ -113,10 +123,19 @@ void displayFamilies()
 	}
 }
 
+void draw()
+{
+	clear();
+	background(200, 200,200);
+
+	noLoop();
+}
+
 void setup()
 {
-	//createCanvas(1280, 1024, "fontview");
-	fullscreen();
+	frameRate(8);
+	createCanvas(1280, 1024, "fontview");
+	//fullscreen();
 	//loadFontDirectory("c:\\windows\\fonts");
 	//loadDefaultFonts();
 
@@ -131,15 +150,24 @@ void setup()
 	win1->addChild(acons);
 	win1->moveTo(8, 8);
 
-	auto win2 = window(0, 0, 600, 600);
 
 	emView = std::make_shared<EMSpaceView>(600,600);
 	emView->setFace(face);
+	emView->setGlyphId(100);
 
+	auto win2 = window(0, 0, 600, 600);
 	win2->addChild(emView);
 	win2->moveTo(462, 8);
 
-	displayFamilies();
+	glyphGrid = std::make_shared<FontGlyphGrid>(600, 0);
+	glyphGrid->setFontFace(face);
+
+	auto win3 = window(0, 0, 600, 200);
+	win3->addChild(glyphGrid);
+	win3->moveTo(462, 610);
+
+	//displayFamilies();
+	//displayStream();
 
 	selectFace(face);
 }
@@ -148,6 +176,10 @@ void keyReleased(const KeyboardEvent& event)
 {
 	switch (keyCode)
 	{
+		case VK_F1:
+			fullscreen();
+		break;
+
 		case VK_DOWN: {
 			acons->scrollUp();
 		}break;
@@ -158,3 +190,6 @@ void keyReleased(const KeyboardEvent& event)
 		}break;
 	}
 }
+
+
+

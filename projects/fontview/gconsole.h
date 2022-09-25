@@ -1,5 +1,9 @@
 #pragma once
 
+// Reference: 
+// VT terminal  http://bitsavers.org/pdf/dec/terminal/vt100/EK-VT100-UG-002_VT100_User_Guide_Jan79.pdf
+//
+
 #include "fonthandler.hpp"
 #include "graphic.hpp"
 #include "Graphics.h"
@@ -151,7 +155,8 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 	{
 		// draw background color of the terminal
 		// typically black
-		ctx.fill(0,1);
+		//ctx.fill(0,1);
+		ctx.fill(7, 54, 66,1);
 		ctx.rect(0, 0, (fWidth * charWidth), fHeight * charHeight);
 	}
 
@@ -161,7 +166,8 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 		ctx.textFace(fFontFace);
 		ctx.textSize(fontSize);
 		ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
-		ctx.fill(darkAmber);
+		//ctx.fill(darkAmber);
+		ctx.fill(133, 153, 0);
 		ctx.noStroke();
 
 		for (size_t col = 0; col < fWidth; col++)

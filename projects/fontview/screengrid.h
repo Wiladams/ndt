@@ -22,9 +22,7 @@
 // using this cell grid as a convenient base.
 //
 
-// Reference: 
-// VT terminal  http://bitsavers.org/pdf/dec/terminal/vt100/EK-VT100-UG-002_VT100_User_Guide_Jan79.pdf
-//
+
 
 #include <stdint.h>
 
