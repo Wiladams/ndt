@@ -48,7 +48,7 @@ public:
         Raised = 0x02
     };
 
-    static inline constexpr uint8_t tobyte(double v) { return int(floor(v + 0.5)); }
+    static inline uint8_t tobyte(double v) { return int(floor(v + 0.5)); }
 
 
     static inline Pixel brighter(const Pixel& value)

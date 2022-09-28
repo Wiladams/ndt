@@ -852,6 +852,12 @@ void showAppWindow()
 
 
 // Typography
+BLFontFace loadFont(const char* filename)
+{
+    BLFontFace ff = gFontHandler->loadFont(filename);
+    return ff;
+}
+
 void loadFontDirectory(const char* dir)
 {
     gFontHandler->loadDirectoryOfFonts(dir);
@@ -1083,7 +1089,7 @@ bool prolog()
 
     // Typography initialization
     gFontHandler = std::make_shared<FontHandler>();
-    loadDefaultFonts();
+    //loadDefaultFonts();
 
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the

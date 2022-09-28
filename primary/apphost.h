@@ -183,6 +183,7 @@ extern "C" {
 // Typography
 APP_EXPORT void loadDefaultFonts();
 APP_EXPORT void loadFontDirectory(const char * dir);
+APP_EXPORT BLFontFace loadFont(const char* filename);
 APP_EXPORT void loadFontFiles(std::vector<const char*> filenames);
 
 // Make Topic publishers available

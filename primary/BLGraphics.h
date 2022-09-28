@@ -151,6 +151,11 @@ private:
         case ALIGNMENT::CENTER:
             y = y + (cy / 2);
             break;
+
+        case ALIGNMENT::MIDLINE:
+            //should use the design metrics xheight
+            break;
+
         case ALIGNMENT::BASELINE:
         case ALIGNMENT::BOTTOM:
             // do nothing

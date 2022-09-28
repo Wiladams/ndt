@@ -1,5 +1,4 @@
-//fndef p5_hpp
-//efine p5_hpp
+
 
 #pragma once
 
@@ -55,6 +54,7 @@ extern "C" {
     APP_EXPORT void preload();
     APP_EXPORT void setup();
     APP_EXPORT void draw();
+    APP_EXPORT void onComposed();
     APP_EXPORT void update(const double dt);
 
 
@@ -468,4 +468,4 @@ struct PVector {
     inline long round(double x) { return std::lround(x); }
 }
 
-//endif  // p5_hpp
+

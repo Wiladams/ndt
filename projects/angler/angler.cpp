@@ -1,26 +1,68 @@
 #include "p5.hpp"
-#include "angleindicator.hpp"
+#include "countdowntickclock.hpp"
+#include "Recorder.hpp"
+
+#include <memory>
 
 using namespace p5;
-std::shared_ptr<AngleIndicator> indic;
-float ang = 0;
+
+float DURATION = 60*1;
+std::shared_ptr<CountdownTickClock> indic=nullptr;
+std::shared_ptr<Recorder> recorder = nullptr;
+
 
 void draw()
 {
-	background(225);
+	background(0);
 
-	indic->setAngle(maths::Radians(ang));
+	//noLoop();
+}
 
-	ang++;
+// Implement onComposed(), because this is after draw()
+// and after the windows have been composited.
+// at this point, the framebuffer is complete before
+// it will be displayed on the screen.
+void onComposed()
+{
+	if (recorder != nullptr)
+		recorder->saveFrame();
 }
 
 void setup()
 {
-	createCanvas(600, 600, "angler");
-	frameRate(1);
+	createCanvas(320, 320, "angler");
+	frameRate(10);
+
+	recorder = std::make_shared<Recorder>(gAppSurface, "angler-");
+
+	//loadDefaultFonts();
+	BLFontFace ff = loadFont("c:\\Windows\\Fonts\\consola.ttf");
+	gAppSurface->textFace(ff);
+
+	frameRate(10);
+
+	//recorder->record();
 
 	auto win1 = window(10,10,400,400);
+	win1->setTitle("angle indicator");
+	win1->setBackgroundColor(Pixel(0, 0, 0));
 
-	indic = std::make_shared<AngleIndicator>(ang);
+	indic = std::make_shared<CountdownTickClock>(DURATION);
 	win1->addChild(indic);
+
+	// Start the animation
+	indic->start();
+}
+
+
+void keyReleased(const KeyboardEvent& e)
+{
+	switch (e.keyCode) {
+	case 'R':	// toggle recording
+		recorder->toggleRecording();
+
+	case VK_SPACE:	// Restart the indicator
+		indic->start();
+		break;
+	}
 }

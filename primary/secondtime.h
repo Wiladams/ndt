@@ -4,16 +4,22 @@
 // split it out into hours,minutes, seconds, tenths
 //
 struct SecondTime {
+	static constexpr double gSecondsPerHour = 60 * 60;
+
 	double fBaseTime;
 	size_t fHours = 0;
 	size_t fMinutes = 0;
 	size_t fSeconds = 0;
 	size_t fTenths = 0;
 
+	SecondTime(double s)
+	{
+		setSeconds(s);
+	}
+
 	void setSeconds(double d)
 	{
 		fBaseTime = d;
-		double gSecondsPerHour = 60 * 60;
 
 		double hours = d / (gSecondsPerHour);
 		fHours = (size_t)(hours);

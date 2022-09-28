@@ -96,9 +96,10 @@ enum class ALIGNMENT : unsigned
     LEFT = 0x02,
     RIGHT = 0x04,
 
-    BASELINE = 0x20,
-    TOP = 0x10,
-    BOTTOM = 0x40,
+    TOP         = 0x10, 
+    BASELINE    = 0x20,
+    BOTTOM      = 0x40,
+    MIDLINE     = 0x80,
 
 } ;
 

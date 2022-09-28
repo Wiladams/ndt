@@ -47,16 +47,17 @@ public:
     BLFontFace loadFont(const char* filename)
     {
         BLFontFace ff;
-        BLResult err = ff.createFromFile(filename, BL_FILE_READ_MMAP_AVOID_SMALL);
-        
+        //BLResult err = ff.createFromFile(filename, BL_FILE_READ_MMAP_AVOID_SMALL);
+        BLResult err = ff.createFromFile(filename);
+
         if (!err)
         {
             //printf("loadFont() adding: %s\n", ff.familyName().data());
             fFontManager.addFace(ff);
-            fFamilyNames.push_back(ff.familyName().data());
+            fFamilyNames.push_back(std::string(ff.familyName().data()));
         }
         else {
-            //printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
+            printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
         }
 
         return ff;
@@ -77,12 +78,13 @@ public:
     {
         const fs::path fontPath(dir);
 
-        BLFontFace ff;
+
         
         for (const auto& dir_entry : fs::directory_iterator(fontPath))
         {
             if (dir_entry.is_regular_file())
             {
+                BLFontFace ff;
                 ff = loadFont(dir_entry.path().generic_string().c_str());
             }
         }

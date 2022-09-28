@@ -55,6 +55,7 @@ static PointerEventHandler gPointerHandler = nullptr;
 
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
+static VOIDROUTINE gComposedHandler = nullptr;
 
 int gFPS = 15;   // Frames per second
 TickTopic gTickTopic;
@@ -765,6 +766,11 @@ void handleComposition()
     }
 
     gAppSurface->flush();
+
+    if (gComposedHandler != nullptr)
+    {
+        gComposedHandler();
+    }
 }
 
 
@@ -1088,6 +1094,7 @@ void onLoad()
 
     // Look for implementation of drawing handler
     gDrawHandler = (VOIDROUTINE)GetProcAddress(hInst, "draw");
+    gComposedHandler = (VOIDROUTINE)GetProcAddress(hInst, "onComposed");
 
     // Look for implementation of mouse events
     //gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");

@@ -15,11 +15,11 @@ class Recorder
     std::shared_ptr<Surface> fSurface;
 
     std::string fBasename;
-    int fFrameRate;
+    int fFrameRate=30;
 
-    bool fIsRecording;
-    int fCurrentFrame;
-    int fMaxFrames;
+    bool fIsRecording=false;
+    int fCurrentFrame=0;
+    int fMaxFrames=0;
 
     Recorder() = delete;    // Don't want default constructor
 
