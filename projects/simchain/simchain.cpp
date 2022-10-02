@@ -5,10 +5,10 @@
 using namespace p5;
 
 double gRadius = 20.0;
-double gravity = 4.0;    // 9.0
+double gravity = 9.0;    // 9.0
 double mass = 1.75;       // 2.0
-double gDamping = 0.7;   // 0.7
-double gStiffness = 0.2; // 0.2
+double gDamping = 0.4;   // 0.7
+double gStiffness = 0.6; // 0.2
 
 /*
     A Spring2D is the essential data structure

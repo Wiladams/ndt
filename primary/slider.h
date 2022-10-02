@@ -18,29 +18,74 @@
 
 #include "graphic.hpp"
 #include "MotionConstraint.h"
-//local SliderThumb = require("SliderThumb")
+#include "pubsub.h"
+
+// A slider thumb is a simple thing that
+// knows how to draw a thumb for a slider
+// easily augmented with any draw method
+// to specialize the appearance.
+struct SliderThumb : public Graphic
+{
+    static const int thumbRadius = 8;
+    static const int thumbThickness = 24;
+
+    BLRoundRect shape;
+    double radius;
+    Pixel thumbColor{};
+
+    SliderThumb(const BLRect &f)
+        : Graphic(f.x, f.y, f.w, f.h)
+    {
+        //thumbColor = Pixel(0xff, 0, 0);
+        thumbColor = Pixel(0x7f, 0xC0, 0xC0);
+
+        radius = thumbRadius;
+
+        shape = BLRoundRect(0, 0, width(), height(), radius, radius);
+    }
+
+    // a lozinger rounded rect
+    void draw(IGraphics& ctx) override
+    {
+        ctx.strokeWeight(2);
+        ctx.stroke(Pixel(127, 127, 127, 120));
+        ctx.fill(thumbColor);
+        ctx.rect(getFrame().x, getFrame().y, getFrame().w, getFrame().h,
+            radius, radius);
+    }
+};
 
 
-#include "maths.hpp"
 
+constexpr int SLIDER_VERTICAL = 1;
+constexpr int SLIDER_HORIZONTAL = 2;
 
 //
 // Slider Class
 //
-class Slider : public Graphic
+class Slider : public Graphic, public Topic<BLPoint>
 {
-    static const int trackThickness = 4;
+    static const int trackThickness = 8;
+
+    MotionConstraint fConstraint;
+
+    BLPoint fStartPoint;
+    BLPoint fEndPoint;
+
     double fLowValue;
     double fHighValue;
-    Vec2f fPosition;
-    Vec2f fLastlocation;
+
+    BLPoint fPosition;
+    BLPoint fLastLocation;
+
 
     bool fDragging;
-    Graphic* fThumb;
-    MotionConstraint constraint;
+    Pixel fTrackColor;
+    std::shared_ptr<Graphic> fThumb;
+
 
 public:
-    Slider(double lowValue, double highValue, Vec2f pos, Graphic* thumb)
+    Slider(double lowValue, double highValue, const BLPoint &pos, std::shared_ptr<Graphic> thumb)
         :Graphic(),
         fLowValue(lowValue),
         fHighValue(highValue),
@@ -48,159 +93,169 @@ public:
         fDragging(false)
     {
         addChild(thumb);
-        setPosition(pos);
+        setPosition(pos.x, pos.y);
     }
 
-    static Slider * create(double lowValue = 0, double highValue = 255, Vec2f pos = { 0,0 }, Graphic* thumb = nullptr)
+    void drawBackground(IGraphics &ctx) override
     {
-        if not params.startPoint or not params.endPoint then
-            return nil, "must specify startPoint and endPoint"
-            end
-
-            local thickness = params.thickness or 24
-            local startPoint = params.startPoint
-            local endPoint = params.endPoint
-            local dx = params.endPoint.x - params.startPoint.x;
-        local dy = params.endPoint.y - params.startPoint.y;
-
-        local orientation = "vertical"
-            if abs(dx) > abs(dy) then
-                orientation = "horizontal"
-                end
+        // Debugging
+        //ctx.strokeWeight(1.0);
+        //ctx.noFill();
+        //ctx.stroke(255, 255, 0);
+        //ctx.rect(fBounds.x, fBounds.y, fBounds.w, fBounds.h);
 
 
-                -- create the thumb
-                local thumbParams = params.thumb or {}
-        thumbParams.length = thumbParams.length or 60;
-        thumbParams.thumbColor = thumbParams.thumbColor or 0x70;
-        if orientation == "vertical" then
-            thumbParams.frame = { x = 0; y = 0,width = thickness,height = thumbParams.length };
-        else
-            thumbParams.frame = { x = 0; y = 0,width = thumbParams.length,height = thickness };
-        end
-
-            local sliderThumb = SliderThumb:new(thumbParams)
-
-
-            //Now figure out the frame of the entire slider
-            local sliderFrame
-            local sliderContraint
-            local sliderStart
-            local sliderEnd
-
-            if orientation == "vertical" then
-                sliderFrame = { x = startPoint.x - thickness / 2, y = startPoint.y, width = thickness, height = abs(dy) }
-                sliderConstraint = MotionConstraint:new({
-                    minX = 0, maxX = 0,
-                    minY = 0, maxY = sliderFrame.height - sliderThumb.frame.height })
-                    sliderStart = { x = thickness / 2, y = 0 };
-        sliderEnd = { x = thickness / 2, y = sliderFrame.height }
-            else
-                sliderFrame = { x = startPoint.x, y = startPoint.y - thickness / 2, width = abs(dx), height = thickness }
-                sliderConstraint = MotionConstraint:new({
-                    minX = 0, maxX = sliderFrame.width - sliderThumb.frame.width,
-                    minY = 0, maxY = 0 })
-                    sliderStart = { x = 0,y = thickness / 2 };
-        sliderEnd = { x = sliderFrame.width, y = thickness / 2 };
-        end
-
-
-        local sliderParams = {
-                title = params.title,
-                trackColor = params.trackColor or color(0xff,0,0);
-                position = {x = 0,y = 0};
-                startPoint = sliderStart;
-                endPoint = sliderEnd;
-                frame = sliderFrame;
-                constraint = sliderConstraint;
-                thumb = sliderThumb;
-        }
-
-        Slider * slider = new Slider(sliderParams);
-
-        return slider;
-    }
-
-    void drawBackground(std::shared_ptr<IGraphics> ctx)
-    {
         //print("slider.drawBackground: ", self.frame.x, self.frame.y, self.frame.width, self.frame.height)
         //draw line between endpoints
-        ctx->strokeWeight(Slider::trackThickness);
-        ctx->stroke(120);
-        //ctx : rect(self.frame.x, self.frame.y, self.frame.width, self.frame.height)
-        ctx->line(self.startPoint.x, self.startPoint.y, self.endPoint.x, self.endPoint.y);
+        //ctx.strokeWeight(Slider::trackThickness);
+        ctx.strokeWeight(trackThickness);
+        ctx.stroke(120);
+        ctx.line(fBounds.x, fBounds.y+(fBounds.h/2.0), fBounds.x+fBounds.w, fBounds.y + (fBounds.h / 2.0));
 
         //draw a couple of circles at the ends
-        ctx->noStroke();
-        ctx->fill(10);
-        ctx->circle(self.startPoint.x, self.startPoint.y, (Slider::trackThickness / 2) + 2);
-        ctx->circle(self.endPoint.x, self.endPoint.y, (Slider::trackThickness / 2) + 2);
+        ctx.noStroke();
+        ctx.fill(10);
+        ctx.circle(fBounds.x, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
+        ctx.circle(fBounds.x+fBounds.w, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
     }
 
     //
     //    Returns a number in range[0..1]
     //
-    Vec2f getPosition()
+    BLPoint getPosition()
     {
         return fPosition;
         //return map(self.thumb.frame.x, self.constraint.minX, self.constraint.maxX, 0, 1)
     }
 
-    void setPosition(const Vec2f& pos)
+    void setPosition(const double x, const double y)
     {
-        fPosition.x = constrain(pos.x, 0, 1);
-        fPosition.y = constrain(pos.y, 0, 1);
+        fPosition.x = maths::Clamp(x, 0.0, 1.0);
+        fPosition.y = maths::Clamp(y, 0.0, 1.0);
 
-        auto locY = map(pos.y, 0, 1, constraint.minY, constraint.maxY);
-        auto locX = map(pos.x, 0, 1, constraint.minX, constraint.maxX);
+        auto locY = maths::Map(y, 0.0, 1.0, fConstraint.fminY, fConstraint.fmaxY);
+        auto locX = maths::Map(x, 0.0, 1.0, fConstraint.fminX, fConstraint.fmaxX);
 
-
-        fThumb->moveTo(locX, locY);
-
-        fLastLocation = { fThumb->fFrame.x, fThumb->fFrame.y };
+        if (fThumb != nullptr) {
+            fThumb->moveTo(locX, locY);
+            fLastLocation = { fThumb->getFrame().x, fThumb->getFrame().y };
+        }
     }
 
-    Vec2f getValue()
+    double getValue()
     {
-        return map(self:getPosition(), 0, 1, self.lowValue, self.highValue);
+        return maths::Map(getPosition().x, 0.0, 1.0, fLowValue, fHighValue);
     }
 
-    void changeThumbLocation(Vec2f &change)
+    void changeThumbLocation(const BLPoint &change)
     {
-        local movement = self.constraint:tryChange(self.thumb.frame, change)
-            --print("movement: ", movement.dx, movement.dy)
+        BLPoint movement = fConstraint.tryChange(fThumb->getFrame(), change);
 
-            self.thumb : moveBy(movement.dx, movement.dy)
+        fThumb->moveBy(movement.x, movement.y);
 
-            local position = self.constraint : calcPosition(self.thumb.frame)
-            self.position = position;
+        BLPoint position = fConstraint.calcPosition(fThumb->getFrame());
+        fPosition = position;
 
-        --tell anyone who's interested that something has changed
-            signalAll(self, self, "changeposition")
+        //publish change event
+        notify(fPosition);
     }
 
-    void mouseDown(const MouseEvent& e)
+    void mousePressed(const MouseEvent& e) override
     {
         fDragging = true;
-        fLastlocation = { e.x, e.y };
+        fLastLocation = { (double)e.x, (double)e.y };
     }
 
-    void mouseUp(const MouseEvent& e)
+    void mouseReleased(const MouseEvent& e)
     {
         fDragging = false;
     }
 
-    void mouseMove(const MouseEvent& e)
+    void mouseMoved(const MouseEvent& e)
     {
-        // printf("Slider.mouseMove: ", event.x, event.y, self.dragging)
-
         if (fDragging) {
-            local change = {
-                dy = event.y - self.lastLocation.y;
-                dx = event.x - self.lastLocation.x;
-            }
+            BLPoint change(e.x - fLastLocation.x, e.y - fLastLocation.y);
             changeThumbLocation(change);
         }
-        fLastlocation = { e.x, e.y };
+        fLastLocation = BLPoint{ (double)e.x, (double)e.y };
+    }
+
+
+    static std::shared_ptr<Slider> create(const BLPoint& startPoint, const BLPoint& endPoint, double lowValue = 0, double highValue = 255, BLPoint pos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
+    {
+        //local thickness = params.thickness or 24
+        double dx = maths::Abs(endPoint.x - startPoint.x);
+        double dy = maths::Abs(endPoint.y - startPoint.y);
+
+        int orientation = SLIDER_VERTICAL;
+        if (dx > dy)
+        {
+            orientation = SLIDER_HORIZONTAL;
+        }
+
+
+        // create the thumb
+        //local thumbParams = params.thumb or {}
+        //thumbParams.length = thumbParams.length or 60;
+        //thumbParams.thumbColor = thumbParams.thumbColor or 0x70;
+        BLRect thumbFrame{};
+
+        if (orientation == SLIDER_VERTICAL)
+        {
+            thumbFrame.x = 0;
+            thumbFrame.y = 0;
+            thumbFrame.w = trackThickness*2;
+            thumbFrame.h = trackThickness*4;
+        } else {
+            thumbFrame.x = 0;
+            thumbFrame.y = 0;
+            thumbFrame.w = trackThickness * 2;
+            thumbFrame.h = trackThickness * 4;
+        }
+        std::shared_ptr<SliderThumb> sliderThumb = std::make_shared<SliderThumb>(thumbFrame);
+
+        //Now figure out the frame of the entire slider
+        BLRect sliderFrame{};
+        MotionConstraint sliderConstraint;
+        BLPoint sliderStart{};
+        BLPoint sliderEnd{};
+
+        if (orientation == SLIDER_VERTICAL)
+        {
+            sliderFrame.w = trackThickness;
+            sliderFrame.h = abs(dy);
+
+            sliderFrame.x = startPoint.x - (trackThickness / 2.0);
+            sliderFrame.y = startPoint.y;
+
+
+
+            sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->getFrame().h);
+
+            sliderStart = BLPoint(trackThickness / 2.0, 0);
+            sliderEnd = BLPoint(trackThickness / 2.0, sliderFrame.h);
+        }
+        else {
+            sliderFrame.w = dx;
+            sliderFrame.h = thumbFrame.h;
+
+            sliderFrame.x = startPoint.x;
+            sliderFrame.y = startPoint.y - (thumbFrame.h/2.0);
+
+            sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->getFrame().w, 0);
+
+            sliderStart = BLPoint(0, trackThickness / 2.0);
+            sliderEnd = BLPoint(sliderFrame.w, trackThickness / 2.0);
+        }
+
+        auto slider = std::make_shared<Slider>(lowValue, highValue, BLPoint(0, 0), sliderThumb);
+        slider->setFrame(sliderFrame);
+        slider->fStartPoint = sliderStart;
+        slider->fEndPoint = sliderEnd;
+        slider->fTrackColor = Pixel(0xff, 0, 0);
+        slider->fConstraint = sliderConstraint;
+        slider->fPosition = BLPoint(0, 0);
+
+        return slider;
     }
 };

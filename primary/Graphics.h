@@ -233,6 +233,7 @@ public:
     virtual void set(double x, double y, const Pixel& c) = 0;
     virtual void point(double x, double y) = 0;
     virtual void line(double x1, double y1, double x2, double y2) = 0;
+    virtual void arc(double cx, double cy, double r, double start, double sweep) = 0;
     virtual void rect(double x, double y, double width, double height) { rect(x, y, width, height, 1, 1); }
     virtual void rect(double x, double y, double width, double height, double xradius, double yradius) = 0;
     virtual void ellipse(double a, double b, double c, double d) = 0;

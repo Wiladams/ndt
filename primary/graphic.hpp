@@ -50,7 +50,12 @@ public:
 	double width() const { return fBounds.w; }
 	double height() const { return fBounds.h; }
 
-	void setFrame(const BLRect& frame) { fFrame = frame; }
+	void setFrame(const BLRect& frame) 
+	{ 
+		fFrame = frame;
+		fBounds = BLRect(0, 0, frame.w, frame.h);
+	}
+	
 	virtual BLRect getFrame() const { return fFrame; }
 
 	void setLayout(std::shared_ptr<ILayoutGraphics> layout)

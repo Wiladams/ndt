@@ -1089,7 +1089,7 @@ bool prolog()
 
     // Typography initialization
     gFontHandler = std::make_shared<FontHandler>();
-    //loadDefaultFonts();
+    loadDefaultFonts();
 
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the

@@ -382,6 +382,12 @@ public:
         incrCmd();
     }
     
+    void arc(double cx, double cy, double r, double start, double sweep) override
+    {
+        BLResult bResult = fCtx.strokeArc(cx, cy, r, r, start, sweep);
+        incrCmd();
+    }
+
     void rect(const BLRect& rr)
     {
         fCtx.strokeRect(rr);

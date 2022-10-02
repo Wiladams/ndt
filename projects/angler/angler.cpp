@@ -6,7 +6,7 @@
 
 using namespace p5;
 
-float DURATION = 60*1;
+float DURATION = 10*1;
 std::shared_ptr<CountdownTickClock> indic=nullptr;
 std::shared_ptr<Recorder> recorder = nullptr;
 
@@ -16,6 +16,7 @@ void draw()
 	background(0);
 
 	//noLoop();
+	indic->draw(*gAppSurface);
 }
 
 // Implement onComposed(), because this is after draw()
@@ -35,20 +36,17 @@ void setup()
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "angler-");
 
-	//loadDefaultFonts();
-	BLFontFace ff = loadFont("c:\\Windows\\Fonts\\consola.ttf");
-	gAppSurface->textFace(ff);
+	loadDefaultFonts();
+	textFont("Consolas");
+	
+	//BLFontFace ff = loadFont("c:\\Windows\\Fonts\\consola.ttf");
+	//gAppSurface->textFace(ff);
 
 	frameRate(10);
 
 	//recorder->record();
 
-	auto win1 = window(10,10,400,400);
-	win1->setTitle("angle indicator");
-	win1->setBackgroundColor(Pixel(0, 0, 0));
-
 	indic = std::make_shared<CountdownTickClock>(DURATION);
-	win1->addChild(indic);
 
 	// Start the animation
 	indic->start();
@@ -60,6 +58,7 @@ void keyReleased(const KeyboardEvent& e)
 	switch (e.keyCode) {
 	case 'R':	// toggle recording
 		recorder->toggleRecording();
+		break;
 
 	case VK_SPACE:	// Restart the indicator
 		indic->start();
