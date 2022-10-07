@@ -3,7 +3,7 @@
 #include "graphic.hpp"
 #include "Graphics.h"
 
-struct GTarget : public virtual IDrawable
+struct GTarget : public IDrawable
 {
 	int fCenterX;
 	int fCenterY;
@@ -16,16 +16,16 @@ struct GTarget : public virtual IDrawable
 	{
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx) override
 	{
-		ctx->noStroke();
-		ctx->fill(255, 0, 0);
-		ctx->circle(fCenterX, fCenterY, fRadius);
+		ctx.noStroke();
+		ctx.fill(255, 0, 0);
+		ctx.circle(fCenterX, fCenterY, fRadius);
 
-		ctx->fill(255);
-		ctx->circle(fCenterX, fCenterY, fRadius * 0.618);
+		ctx.fill(255);
+		ctx.circle(fCenterX, fCenterY, fRadius * 0.618);
 
-		ctx->fill(255, 0, 0);
-		ctx->circle(fCenterX, fCenterY, fRadius * 0.618 / 2.);
+		ctx.fill(255, 0, 0);
+		ctx.circle(fCenterX, fCenterY, fRadius * 0.618 / 2.);
 	}
 };

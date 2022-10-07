@@ -3,9 +3,8 @@
 
 
 #include "binstream.hpp"
-#include "pstypes.h"
 #include "p5.hpp"
-
+#include "pstypes.h"
 
 #include <memory>
 #include <algorithm>
@@ -18,8 +17,9 @@ class PSVM;
 
 class PSScanner
 {
-	std::shared_ptr<BinStream> fStream;
 	PSVM& fVM;
+	std::shared_ptr<BinStream> fStream;
+
 
 public:
 	int fBuildProcDepth = 0;

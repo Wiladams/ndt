@@ -49,8 +49,8 @@ public:
         fSurface.clear();
         fSurface.noStroke();
         fSurface.fill(Pixel(220, 220, 220, 180));
-        fSurface.translate(2, (double)p5::height - 62 - 1);
-        fSurface.rect(0, 0, (double)p5::width - 6, 60, 2, 2);
+        fSurface.translate(2, (double)canvasHeight - 62 - 1);
+        fSurface.rect(0, 0, (double)canvasWidth - 6, 60, 2, 2);
 
         fSurface.translate(2, 2);
         fSurface.fill(Pixel(0, 0, 0));

@@ -5,15 +5,10 @@
 #include "maths.hpp"
 #include "coloring.h"
 
-
-
-
 namespace ndt {
-
-
 	// Given an array of gradient stops, return the highest index that is
-// lower than the specified offset
-	static inline size_t searchClosestLast(const BLGradientStop* array, size_t size, const double& value) noexcept
+	// lower than the specified offset
+	inline size_t searchClosestLast(const BLGradientStop* array, size_t size, const double& value) noexcept
 	{
 		if (!size)
 			return 0;
@@ -29,12 +24,12 @@ namespace ndt {
 		return size_t(base - array);
 	}
 
-	static BLRgba32 lerpColor(const BLRgba32& from, const BLRgba32& to, double f) noexcept
+	BLRgba32 lerpColor(const BLRgba32& from, const BLRgba32& to, float f) noexcept
 	{
-		uint32_t r = (uint32_t)maths::Lerp(f, from.r(), to.r());
-		uint32_t g = (uint32_t)maths::Lerp(f, from.g(), to.g());
-		uint32_t b = (uint32_t)maths::Lerp(f, from.b(), to.b());
-		uint32_t a = (uint32_t)maths::Lerp(f, from.a(), to.a());
+		uint32_t r = (uint32_t)maths::lerp(from.r(), to.r(),f);
+		uint32_t g = (uint32_t)maths::lerp(from.g(), to.g(),f);
+		uint32_t b = (uint32_t)maths::lerp(from.b(), to.b(),f);
+		uint32_t a = (uint32_t)maths::lerp(from.a(), to.a(),f);
 
 		return BLRgba32(r, g, b, a);
 	}
@@ -49,9 +44,9 @@ namespace ndt {
 class VisibleLightSampler : public ISampler1D<BLRgba32>
 {
 public:
-	BLRgba32 operator()(double u) const
+	BLRgba32 operator()(float u) override
 	{
-		auto wl = maths::Map(u, 0, 1, 380, 780);
+		auto wl = maths::map(u, 0.0, 1.0, 380.0, 780.0);
 		auto c = ndt::ColorRGBAFromWavelength(wl);
 		return BLRgba32((uint32_t)(c.r * 255), (uint32_t)(c.g * 255), (uint32_t)(c.b * 255));
 	}
@@ -68,10 +63,10 @@ public:
 		: fGradient(grad)
 	{}
 
-	BLRgba32 operator()(double u) const
+	BLRgba32 operator()(float u) override
 	{
 		// ensure we're in the range 0..1 inclusive
-		u = maths::Clamp(u, 0, 1.0);
+		u = maths::clamp(u, 0.0f, 1.0f);
 
 		const BLGradientStop* stops = fGradient.stops();
 		size_t lowIndex = ndt::searchClosestLast(stops, fGradient.size(), u);
@@ -80,7 +75,7 @@ public:
 		//printf("lowIndex: %zd  highIndex: %zd\n", lowIndex, highIndex);
 		BLRgba32 from = BLRgba32(stops[lowIndex].rgba);
 		BLRgba32 to = BLRgba32(stops[highIndex].rgba);
-		double f = maths::Map(u, stops[lowIndex].offset, stops[highIndex].offset, 0, 1);
+		double f = maths::map(u, (float)stops[lowIndex].offset, (float)stops[highIndex].offset, 0.0f, 1.0f);
 
 		return ndt::lerpColor(from, to, f);
 	}
@@ -97,7 +92,7 @@ public:
 		fGradient2(grad2)
 	{}
 
-	BLRgba32 operator()(double u, double v)
+	BLRgba32 operator()(float u, float v) override
 	{
 		return BLRgba32();
 	}

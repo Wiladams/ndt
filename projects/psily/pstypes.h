@@ -18,9 +18,9 @@ struct PSToken;
 
 // Enumerate the kinds of tokens that we will see
 // This is used everywhere from the scanner to interpreter and VM
-enum class PSTokenType : uint32_t
+enum struct PSTokenType : uint32_t
 {
-	nil,				// a null
+	NIL,				// a null
 	MARK,				// a noop
 
 	// lexical types
@@ -100,7 +100,7 @@ struct PSString : public std::string
 
 	PSString getInterval(const int idx, const size_t count)
 	{
-		int actual = (int)maths::Min((double)count, double((int)length() - idx));
+		int actual = (int)maths::min(float(count), float((int)length() - idx));
 		if (actual < 0) {
 			return PSString((size_t)0);
 		}
@@ -115,6 +115,8 @@ struct PSString : public std::string
 		{
 			arr[nidx] = this->operator[](idx + nidx);
 		}
+
+		return arr;
 	}
 
 };
@@ -213,9 +215,9 @@ struct PSMatrix {
 	*/
 	static inline PSMatrix createRotation(const double angle, const double cx = 0, const double cy = 0)
 	{
-		auto rads = maths::Radians(angle);
-		auto rcos = maths::Cos(rads);
-		auto rsin = maths::Sin(rads);
+		auto rads = maths::radians(angle);
+		auto rcos = maths::cos(rads);
+		auto rsin = maths::sin(rads);
 
 		PSMatrix m{ rcos, rsin, -rsin, rcos, cx, cy };
 		return m;
@@ -379,9 +381,10 @@ using PSTokenData = std::variant<
 	std::shared_ptr<FileStream> > ;
 
 struct PSToken {
+	PSTokenData fData; 
 	PSTokenType fType;
 	bool fIsExecutable = false;
-	PSTokenData fData;
+
 
 	// Constructing a token
 	PSToken(const PSTokenType t) :fData(true), fType(t) {}
@@ -460,6 +463,10 @@ struct PSToken {
 			case PSTokenType::FILESTREAM:
 				os << "FILESTREAM";
 			break;
+
+			default:
+				os << "UNKNOWN";
+				break;
 		}
 
 		return os;

@@ -1,7 +1,7 @@
 #pragma once
 #include "blend2d.h"
 #include "sampler.hpp"
-#include "maths.hpp"
+//#include "maths.hpp"
 
 namespace ndt 
 {
@@ -39,17 +39,17 @@ namespace ndt
 
 		bool isValid() const { return fImage != nullptr; }
 
-		BLRgba32 operator()(double u, double v)  const
+		BLRgba32 operator()(float u, float v)  override
 		{
 			if (nullptr == fImage)
 				return {};
 
-			int x = int(maths::Map(maths::Clamp(u,0.0,1.0), 0, 1, 0, fImage->width() - 1)+0.5);
+			int x = int(maths::map(maths::clamp(u,0.0,1.0), 0, 1, 0, fImage->width() - 1)+0.5);
 			int y;
 			if (fFlipVertical)
-				y = int(maths::Map(maths::Clamp(v,0.0,1.0), 0, 1, fImage->height() - 1, 0)+0.5);	// flip vertically
+				y = int(maths::map(maths::clamp(v,0.0,1.0), 0, 1, fImage->height() - 1, 0)+0.5);	// flip vertically
 			else
-				y = int(maths::Map(maths::Clamp(v,0.0,1.0), 0, 1, 0, fImage->height() - 1)+0.5);
+				y = int(maths::map(maths::clamp(v,0.0,1.0), 0, 1, 0, fImage->height() - 1)+0.5);
 			
 			int offset = y * fImage->width() + x;
 			

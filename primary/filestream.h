@@ -45,6 +45,11 @@ public:
 		}
 	}
 
+	virtual ~FileStream()
+	{
+		close();
+	}
+
 	void close()
 	{
 		if ((fFileMap != nullptr) && fFileMap->isValid())

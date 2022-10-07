@@ -6,22 +6,20 @@
 
 using namespace p5;
 
-class Bullet : public virtual IDrawable
+struct Bullet : public IDrawable
 {
-	vec2f fOrigin;
+	maths::vec2f fOrigin{};
+	maths::vec2f fDestination{};
 
-	float fDuration;
-	double fStartTime;
-	double fEndingTime;
-	bool fFinished;
-
-public:
-	vec2f fDestination;
+	double fDuration=0;
+	double fStartTime=0;
+	double fEndingTime=0;
+	bool fFinished=false;
 
 	//
 	// Default to a quarter second of animation
 	//
-	Bullet(const vec2f& origin, const vec2f& destination, float duration=0.25f)
+	Bullet(const maths::vec2f& origin, const maths::vec2f& destination, double duration=0.25f)
 		: fOrigin(origin),
 		fDestination(destination),
 		fDuration(duration),
@@ -47,15 +45,15 @@ public:
 			return;
 
 		// Figure out location based on current time in animation
-		double u = map(p5::seconds(), fStartTime, fEndingTime, 0, 1, true);
-		double cx = map(u, 0, 1, fOrigin.x, fDestination.x);
-		double cy = map(u, 0, 1, fOrigin.y, fDestination.y);
+		float u = map(p5::seconds(), fStartTime, fEndingTime, 0, 1.0, true);
+		float cx = map(u, 0, 1.0, fOrigin.x, fDestination.x);
+		float cy = map(u, 0, 1.0, fOrigin.y, fDestination.y);
 
 		ctx.stroke(0);
 		ctx.fill(255);
 		ctx.circle(cx, cy, 10);
 		
-		if (u >= 1.0)
+		if (u >= 1.0f)
 			fFinished = true;
 	}
 };

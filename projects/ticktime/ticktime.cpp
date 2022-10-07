@@ -69,13 +69,13 @@ TickTopic ttopic(10);
 std::shared_ptr<TickDisplay> _tdisplay=nullptr;
 
 
-void tickSubscriber(const Topic<double>& p, double e)
+void tickSubscriber(const Topic<double> & p, double e)
 {
-	//std::cout << "tick: " << e << std::endl;
+	printf("tick: %f\n", e);
 	if (nullptr != _tdisplay)
 		_tdisplay->setSeconds(e);
 	
-	_tdisplay->draw(gAppSurface);
+	_tdisplay->draw(*gAppSurface);
 	gAppSurface->flush();
 
 	screenRefresh();

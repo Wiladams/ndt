@@ -50,11 +50,11 @@ class ScreenSnapshot
 
     int fOriginX;
     int fOriginY;
-    int fWidth;
-    int fHeight;
+    size_t fWidth;
+    size_t fHeight;
 
 public:
-    ScreenSnapshot(int x, int y, int awidth, int aheight, uint32_t threadCount=0)
+    ScreenSnapshot(int x, int y, size_t awidth, size_t aheight, uint32_t threadCount=0)
         : fSurface(awidth, aheight, threadCount),
         fOriginX(x),
         fOriginY(y),

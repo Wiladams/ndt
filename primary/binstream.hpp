@@ -48,26 +48,26 @@ class IWriteBinary
 // 
 class BinStream : public IReadBinary, public IWriteBinary
 {
-    uint8_t *fdata;
-    size_t fsize;
-    size_t fcursor;
-    bool fbigend;
+    uint8_t* fdata{};
+    size_t fsize{};
+    size_t fcursor{};
+    bool fbigend{};
 
 protected:
     BinStream() 
-        : fdata(nullptr),
-        fbigend(false),
-        fcursor(0),
-        fsize(0)
+        : fdata(nullptr)
+        ,fsize(0)
+        ,fcursor(0)
+        , fbigend(false)
     {}
 
 public:
 
     BinStream(void *data, const size_t size, size_t position=0, bool littleendian = true)
-        : fbigend(!littleendian),
-        fcursor(position),
-        fdata((uint8_t *)data),
-        fsize(size)
+        : fdata((uint8_t *)data)
+        ,fsize(size)
+        ,fcursor(position)
+        , fbigend(!littleendian)
     {}
  
     bool isValid() {return fdata != nullptr;}
@@ -98,7 +98,8 @@ public:
     // returning a new memory stream
     // This is very useful for getting a subset of a data stream
     // with bounds checking.  You must be mindful of the lifetime
-    // of the data pointed to though.  There is no provision for 
+    // of the data pointed to though.  
+    // There is no provision for 
     // ensuring the data remains valid outside the context of the 
     // original stream.  but, since the data pointer was passed in 
     // from the beginning, that guarantee is already absent.

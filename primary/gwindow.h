@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphic.hpp"
-#include "surface.h"
+#include "Surface.h"
 
 class GWindow : public Graphic
 {

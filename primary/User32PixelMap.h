@@ -73,7 +73,7 @@ public:
         fBMInfo.bmiHeader.biClrUsed = 0;
         fBMInfo.bmiHeader.biCompression = BI_RGB;
         fBMInfo.bmiHeader.biBitCount = bitsPerPixel;
-        fBMInfo.bmiHeader.biSizeImage = bytesPerRow * aheight;
+        fBMInfo.bmiHeader.biSizeImage = DWORD(bytesPerRow * aheight);
 
         // We'll create a DIBSection so we have an actual backing
         // storage for the context to draw into

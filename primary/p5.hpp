@@ -29,6 +29,8 @@
 
 #include <memory>
 
+using REAL = float;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -156,11 +158,11 @@ extern "C" {
 
 
 struct PVector {
-    double x;
-    double y;
+    REAL x;
+    REAL y;
 
     PVector() :x(0), y(0) {}
-    PVector(double x, double y) : x(x), y(y) {}
+    PVector(REAL x, REAL y) : x(x), y(y) {}
 
 
     // Some simple arithmetic
@@ -168,7 +170,7 @@ struct PVector {
         return add(other.x, other.y);
     }
 
-    PVector& add(const double x, const double y)
+    PVector& add(const REAL x, const REAL y)
     {
         this->x = this->x + x;
         this->y = this->y + y;
@@ -177,12 +179,12 @@ struct PVector {
     }
 
 
-    PVector operator *(const double sxy)
+    PVector operator *(const REAL sxy)
     {
         return { x * sxy, y * sxy };
     }
 
-    PVector& mult(const double x, const double y)
+    PVector& mult(const REAL x, const REAL y)
     {
         this->x = this->x * x;
         this->y = this->y * y;
@@ -194,11 +196,11 @@ struct PVector {
         return mult(other.x, other.y);
     }
 
-    PVector& mult(const double sxy) {
+    PVector& mult(const REAL sxy) {
         return mult(sxy, sxy);
     }
 
-    static PVector mult(const PVector& v, double m)
+    static PVector mult(const PVector& v, REAL m)
     {
         PVector res = v;
         return res.mult(m);
@@ -244,7 +246,7 @@ struct PVector {
     };
 
     // Environment attributes
-    void setUnitsPerInch(double units);
+    void setUnitsPerInch(REAL units);
 
     // Windowing functions
     void addWindow(std::shared_ptr<GWindow> win);
@@ -257,7 +259,7 @@ struct PVector {
     void blendMode(int mode) noexcept;
     void strokeCaps(int caps) noexcept;
     void strokeJoin(int join) noexcept;
-    void strokeWeight(double weight) noexcept;
+    void strokeWeight(REAL weight) noexcept;
 
     // clearing command cache
     void flush() noexcept;
@@ -274,11 +276,11 @@ struct PVector {
     // coordinate transform
     void push() noexcept;
     void pop() noexcept;
-    void translate(double dx, double dy) noexcept;
-    void scale(double sx, double sy) noexcept;
-    void scale(double sxy) noexcept;
-    void rotate(double angle, double cx, double cy) noexcept;
-    void rotate(double angle) noexcept;
+    void translate(REAL dx, REAL dy) noexcept;
+    void scale(REAL sx, REAL sy) noexcept;
+    void scale(REAL sxy) noexcept;
+    void rotate(REAL angle, REAL cx, REAL cy) noexcept;
+    void rotate(REAL angle) noexcept;
 
     // Getting color components
     int red(const Pixel& c) noexcept;
@@ -294,7 +296,7 @@ struct PVector {
     Pixel color(int gray) noexcept;
 
     // Create a color through liner interpolation
-    Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept;
+    Pixel lerpColor(const Pixel& from, const Pixel& to, REAL f) noexcept;
 
     // Set the fill color for drawing
     void fill(const BLVar& s) noexcept;
@@ -322,7 +324,7 @@ struct PVector {
 
     // Clear the entire canvas to transparent
     void clear() noexcept;
-    void clearRect(double x, double y, double w, double h) noexcept;
+    void clearRect(REAL x, REAL y, REAL w, REAL h) noexcept;
 
     // Set a background for the canvas
     void background(const Pixel& pix) noexcept;
@@ -332,7 +334,7 @@ struct PVector {
     void background(int gray) noexcept;
     
     // Set a clipping rectangle
-    void clip(double x, double y, double w, double h) noexcept;
+    void clip(REAL x, REAL y, REAL w, REAL h) noexcept;
     
     // Turn off the clipping rectangle
     void noClip() noexcept;
@@ -345,34 +347,34 @@ struct PVector {
     Pixel get(int x, int y) noexcept;
 
     // Draw a point.  This will value the point size
-    void point(double x, double y) noexcept;
+    void point(REAL x, REAL y) noexcept;
 
     // Draw an arbitrary line
     // constrain to boundary and clip area
-    void line(double x1, double y1, double x2, double y2) noexcept;
+    void line(REAL x1, REAL y1, REAL x2, REAL y2) noexcept;
 
     // Draw a rectangle with sharp corners
     // honors rectangle mode
-    void rect(double x, double y, double width, double height) noexcept;
+    void rect(REAL x, REAL y, REAL width, REAL height) noexcept;
 
     // draw rectangle with rounded corners
     // honors rectangle mode
-    void rect(double x, double y, double width, double height, double xradius, double yradius) noexcept;
+    void rect(REAL x, REAL y, REAL width, REAL height, REAL xradius, REAL yradius) noexcept;
 
     // Draw an ellipse
     // honors the ellipse mode
-    void ellipse(double a, double b, double c, double d) noexcept;
+    void ellipse(REAL a, REAL b, REAL c, REAL d) noexcept;
 
     // Draw a circle with a diameter
-    void circle(double cx, double cy, double diameter) noexcept;
+    void circle(REAL cx, REAL cy, REAL diameter) noexcept;
 
     // Draw a triangle
     // do clipping
-    void triangle(double x1, double y1, double x2, double y2, double x3, double y3) noexcept;
-    void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept;
+    void triangle(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3) noexcept;
+    void quad(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) noexcept;
 
     // Draw a bezier line
-    void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept;
+    void bezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) noexcept;
     
     // Draw multiple lines
     void polyline(const BLPoint* pts, size_t n) noexcept;
@@ -389,8 +391,8 @@ struct PVector {
 
     // Draw a sub-image while scaling
     void scaleImage(const BLImage& src,
-        double srcX, double srcY, double srcWidth, double srcHeight,
-        double dstX, double dstY, double dstWidth, double dstHeight) noexcept;
+        REAL srcX, REAL srcY, REAL srcWidth, REAL srcHeight,
+        REAL dstX, REAL dstY, REAL dstWidth, REAL dstHeight) noexcept;
 
     // Careate an image from a filename
     BLImage loadImage(const char* filename) noexcept;
@@ -400,14 +402,14 @@ struct PVector {
     void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) noexcept;
     void textFace(const BLFontFace& face) noexcept;
     void textFont(const char* fontname) noexcept;
-    void textSize(double size) noexcept;
-    void text(const char* txt, double x, double y) noexcept;
-    void text(double x, double y, const char* format, ...) noexcept;
-    double textWidth(const char* txt) noexcept;
+    void textSize(REAL size) noexcept;
+    void text(const char* txt, REAL x, REAL y) noexcept;
+    void text(REAL x, REAL y, const char* format, ...) noexcept;
+    REAL textWidth(const char* txt) noexcept;
     BLPoint textMeasure(const char* txt) noexcept;
 
     void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) noexcept;
-    void vertex(double x, double y) noexcept;
+    void vertex(REAL x, REAL y) noexcept;
     void endShape(SHAPEEND endKind = SHAPEEND::STROKE) noexcept;
 
 
@@ -431,41 +433,43 @@ struct PVector {
 
     // Math routines
     //
-    inline double constrain(double x, double low, double high) noexcept { return maths::Clamp(x, low, high); }
+    inline REAL constrain(REAL x, REAL low, REAL high) noexcept { return maths::clamp(x, low, high); }
 
     // convert degrees to radians
-    inline double radians(double deg) noexcept {return maths::Radians(deg);}
+    inline REAL radians(REAL deg) noexcept {return maths::radians(deg);}
 
     // convert radians to degrees
-    inline double degrees(double rad) noexcept {return maths::Degrees(rad);}
-    inline double lerp(double start, double stop, double amt) noexcept { return maths::Lerp(amt, start, stop); }
+    inline REAL degrees(REAL rad) noexcept {return maths::degrees(rad);}
+    inline REAL lerp(REAL start, REAL stop, REAL amt) noexcept { return maths::lerp(start, stop, amt); }
 
     // Return the square of a number
-    inline double sq(double x) { return x * x; }
+    inline REAL sq(REAL x) { return x * x; }
 
     // Return the square root of a number
-    inline double sqrt(double x) { return std::sqrt(x); }
+    inline REAL sqrt(REAL x) { return std::sqrt(x); }
 
     // Calculate distance between two points
-    inline double dist(double x1, double y1, double x2, double y2){return std::sqrt(sq(x2 - x1) + sq(y2 - y1));}
+    inline REAL dist(REAL x1, REAL y1, REAL x2, REAL y2){return sqrt(sq(x2 - x1) + sq(y2 - y1));}
 
-    inline double mag(double a, double b) { return sqrt(a*a+ b*b); }
-    inline double mag(double a, double b, double c) { return std::sqrt(a * a + b * b + c * c); }
+    inline REAL mag(REAL a, REAL b) { return sqrt(a*a+ b*b); }
+    inline REAL mag(REAL a, REAL b, REAL c) { return sqrt(a * a + b * b + c * c); }
 
-    inline double map(double value, double start1, double stop1, double start2, double stop2, bool withBounds = false)
+    inline REAL map(REAL value, REAL start1, REAL stop1, REAL start2, REAL stop2, bool withBounds = false)
     {
-        if (withBounds)
-            value = maths::Clamp(value, start1, stop1);
+        REAL value_ = value;
 
-        return maths::Map(value, start1, stop1, start2, stop2);
+        if (withBounds)
+            value_ = maths::clamp(value, start1, stop1);
+
+        return maths::map(value_ , start1, stop1, start2, stop2);
     }
 
-    inline double max(double a, double b) { return maths::Max(a, b); }
-    inline double min(double a, double b) { return maths::Min(a, b); }
+    inline REAL max(REAL a, REAL b) { return maths::max(a, b); }
+    inline REAL min(REAL a, REAL b) { return maths::min(a, b); }
 
-    inline double ceil(double x) { return std::ceil(x); }
-    inline double floor(double x) { return std::floor(x); }
-    inline long round(double x) { return std::lround(x); }
+    inline REAL ceil(REAL x) { return std::ceil(x); }
+    inline REAL floor(REAL x) { return std::floor(x); }
+    inline long round(REAL x) { return std::lround(x); }
 }
 
 

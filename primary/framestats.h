@@ -11,9 +11,7 @@ class FrameStats : public Graphic
 public:
 	FrameStats()
 		:Graphic(0,0,200, 140)
-	{
-
-	}
+	{}
 
 	void drawBackground(IGraphics & ctx)override
 	{

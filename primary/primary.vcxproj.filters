@@ -141,9 +141,6 @@
     <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dproc_gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="slider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -165,15 +162,6 @@
     <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="arcball.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="grmath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gpath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -184,9 +172,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="drawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="filesys.h">
@@ -243,9 +228,6 @@
     <ClInclude Include="framestats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dxcapture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="appsurface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -264,6 +246,9 @@
     <ClInclude Include="renderfid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">
@@ -273,9 +258,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="primary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="grmath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="math3d.cpp">

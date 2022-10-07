@@ -3,7 +3,7 @@
 #include "graphic.hpp"
 #include "Graphics.h"
 
-class GScope : public virtual IDrawable
+class GScope : public IDrawable
 {
 	int fCenterX;
 	int fCenterY;

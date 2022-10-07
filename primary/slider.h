@@ -26,22 +26,21 @@
 // to specialize the appearance.
 struct SliderThumb : public Graphic
 {
-    static const int thumbRadius = 8;
+    static const int thumbRadius = 4;
     static const int thumbThickness = 24;
 
-    BLRoundRect shape;
-    double radius;
+    //BLRoundRect shape;
+    double fRadius;
     Pixel thumbColor{};
 
     SliderThumb(const BLRect &f)
         : Graphic(f.x, f.y, f.w, f.h)
     {
-        //thumbColor = Pixel(0xff, 0, 0);
-        thumbColor = Pixel(0x7f, 0xC0, 0xC0);
+        thumbColor = Pixel(0xc2, 0xc3, 0xc9);
 
-        radius = thumbRadius;
+        fRadius = thumbRadius;
 
-        shape = BLRoundRect(0, 0, width(), height(), radius, radius);
+        //shape = BLRoundRect(0, 0, width(), height(), fRadius, fRadius);
     }
 
     // a lozinger rounded rect
@@ -51,7 +50,7 @@ struct SliderThumb : public Graphic
         ctx.stroke(Pixel(127, 127, 127, 120));
         ctx.fill(thumbColor);
         ctx.rect(getFrame().x, getFrame().y, getFrame().w, getFrame().h,
-            radius, radius);
+            fRadius, fRadius);
     }
 };
 
@@ -63,7 +62,7 @@ constexpr int SLIDER_HORIZONTAL = 2;
 //
 // Slider Class
 //
-class Slider : public Graphic, public Topic<BLPoint>
+class Slider : public Graphic, public Topic<maths::vec2f>
 {
     static const int trackThickness = 8;
 
@@ -72,11 +71,11 @@ class Slider : public Graphic, public Topic<BLPoint>
     BLPoint fStartPoint;
     BLPoint fEndPoint;
 
-    double fLowValue;
-    double fHighValue;
+    float fLowValue;
+    float fHighValue;
 
-    BLPoint fPosition;
-    BLPoint fLastLocation;
+    maths::vec2f fPosition;
+    maths::vec2f fLastLocation;
 
 
     bool fDragging;
@@ -85,7 +84,7 @@ class Slider : public Graphic, public Topic<BLPoint>
 
 
 public:
-    Slider(double lowValue, double highValue, const BLPoint &pos, std::shared_ptr<Graphic> thumb)
+    Slider(float lowValue, float highValue, const BLPoint &pos, std::shared_ptr<Graphic> thumb)
         :Graphic(),
         fLowValue(lowValue),
         fHighValue(highValue),
@@ -109,7 +108,7 @@ public:
         //draw line between endpoints
         //ctx.strokeWeight(Slider::trackThickness);
         ctx.strokeWeight(trackThickness);
-        ctx.stroke(120);
+        ctx.stroke(0xf5);
         ctx.line(fBounds.x, fBounds.y+(fBounds.h/2.0), fBounds.x+fBounds.w, fBounds.y + (fBounds.h / 2.0));
 
         //draw a couple of circles at the ends
@@ -122,38 +121,36 @@ public:
     //
     //    Returns a number in range[0..1]
     //
-    BLPoint getPosition()
+    maths::vec2f getPosition()
     {
         return fPosition;
         //return map(self.thumb.frame.x, self.constraint.minX, self.constraint.maxX, 0, 1)
     }
 
-    void setPosition(const double x, const double y)
+    void setPosition(const float x, const float y)
     {
-        fPosition.x = maths::Clamp(x, 0.0, 1.0);
-        fPosition.y = maths::Clamp(y, 0.0, 1.0);
+        fPosition.x = maths::clamp(x, 0.0f, 1.0f);
+        fPosition.y = maths::clamp(y, 0.0f, 1.0f);
 
-        auto locY = maths::Map(y, 0.0, 1.0, fConstraint.fminY, fConstraint.fmaxY);
-        auto locX = maths::Map(x, 0.0, 1.0, fConstraint.fminX, fConstraint.fmaxX);
-
-        if (fThumb != nullptr) {
-            fThumb->moveTo(locX, locY);
-            fLastLocation = { fThumb->getFrame().x, fThumb->getFrame().y };
+        auto locY = maths::map(y, 0.0, 1.0, fConstraint.fminY, fConstraint.fmaxY);
+        auto locX = maths::map(x, 0.0, 1.0, fConstraint.fminX, fConstraint.fmaxX);
+                if (fThumb != nullptr) {            fThumb->moveTo(locX, locY);
+            fLastLocation = { float(fThumb->getFrame().x), float(fThumb->getFrame().y) };
         }
     }
 
     double getValue()
     {
-        return maths::Map(getPosition().x, 0.0, 1.0, fLowValue, fHighValue);
+        return maths::map(getPosition().x, 0.0, 1.0, fLowValue, fHighValue);
     }
 
-    void changeThumbLocation(const BLPoint &change)
+    void changeThumbLocation(const maths::vec2f &change)
     {
-        BLPoint movement = fConstraint.tryChange(fThumb->getFrame(), change);
+        maths::vec2f movement = fConstraint.tryChange(fThumb->getFrame(), change);
 
         fThumb->moveBy(movement.x, movement.y);
 
-        BLPoint position = fConstraint.calcPosition(fThumb->getFrame());
+        maths::vec2f position = fConstraint.calcPosition(fThumb->getFrame());
         fPosition = position;
 
         //publish change event
@@ -163,7 +160,7 @@ public:
     void mousePressed(const MouseEvent& e) override
     {
         fDragging = true;
-        fLastLocation = { (double)e.x, (double)e.y };
+        fLastLocation = {float(e.x), float(e.y) };
     }
 
     void mouseReleased(const MouseEvent& e)
@@ -174,18 +171,18 @@ public:
     void mouseMoved(const MouseEvent& e)
     {
         if (fDragging) {
-            BLPoint change(e.x - fLastLocation.x, e.y - fLastLocation.y);
+            maths::vec2f change(e.x - fLastLocation.x, e.y - fLastLocation.y);
             changeThumbLocation(change);
         }
-        fLastLocation = BLPoint{ (double)e.x, (double)e.y };
+        fLastLocation = { float(e.x), float(e.y) };
     }
 
 
     static std::shared_ptr<Slider> create(const BLPoint& startPoint, const BLPoint& endPoint, double lowValue = 0, double highValue = 255, BLPoint pos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
     {
         //local thickness = params.thickness or 24
-        double dx = maths::Abs(endPoint.x - startPoint.x);
-        double dy = maths::Abs(endPoint.y - startPoint.y);
+        double dx = maths::abs((float)(endPoint.x - startPoint.x));
+        double dy = maths::abs((float)(endPoint.y - startPoint.y));
 
         int orientation = SLIDER_VERTICAL;
         if (dx > dy)
@@ -254,7 +251,7 @@ public:
         slider->fEndPoint = sliderEnd;
         slider->fTrackColor = Pixel(0xff, 0, 0);
         slider->fConstraint = sliderConstraint;
-        slider->fPosition = BLPoint(0, 0);
+        slider->fPosition = { 0, 0 };
 
         return slider;
     }

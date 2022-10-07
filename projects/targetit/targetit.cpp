@@ -27,11 +27,10 @@ BLImage backgroundImage;
 BLImage foregroundSurface;
 ScreenSnapshot *snappy=nullptr;
 
-double Distance(const vec2& v1, const vec2& v2)
+float Distance(const maths::vec2f& v1, const maths::vec2f& v2)
 {
 	auto diff = v2 - v1;
-	return diff.length();
-	//return sqrt((diff.x * diff.x) + (diff.y * diff.y));
+	return maths::length(diff);
 }
 
 void resetBoard()
@@ -59,8 +58,8 @@ void keyReleased(const KeyboardEvent&e)
 
 void joyMoved(const JoystickEvent& e)
 {
-	joyX = map(e.x, -1, 1, 0, width - 1, true);
-	joyY = map(e.y, -1, 1, height  -1, 0, true);
+	joyX = map(e.x, -1, 1, 0, canvasWidth - 1, true);
+	joyY = map(e.y, -1, 1, canvasHeight  -1, 0, true);
 	gScope.focusOn(joyX, joyY);
 }
 
@@ -69,11 +68,11 @@ void triggerPressed()
 	if (gBulletsRemaining < 1)
 		return;
 
-	double len = Distance({ (float)joyX, (float)joyY }, { (float)width / 2, (float)height - 1 });
+	double len = Distance({ (float)joyX, (float)joyY }, { (float)canvasWidth / 2.0f, (float)canvasHeight - 1 });
 	// duration anywhere from a minimum of 1/8 second
 	// to 1/4 second depending on distance of target from origin
 	float duration = map(len, 0, MaxTrace, 0.125, 0.25);
-	Bullet b1({ (float)width / 2,(float)height - 1 }, { (float)joyX, (float)joyY }, duration);
+	Bullet b1({ (float)canvasWidth / 2.0f,(float)canvasHeight - 1 }, { (float)joyX, (float)joyY }, duration);
 	b1.play();
 	bullets.push(b1);
 
@@ -100,7 +99,7 @@ void joyPressed(const JoystickEvent& e)
 	}
 }
 
-void drawBullets(std::shared_ptr<IGraphics> ctx)
+void drawBullets(IGraphics &ctx)
 {
 	size_t nBullets = bullets.size();
 	//printf("draw, bullets: %d\n", nBullets);
@@ -124,29 +123,29 @@ void drawBullets(std::shared_ptr<IGraphics> ctx)
 	}
 }
 
-void drawTargets(std::shared_ptr<IGraphics> ctx) 
+void drawTargets(IGraphics & ctx) 
 {
 	for (size_t i = 0; i < targets.size(); i++)
 		targets[i].draw(ctx);
 }
 
-void drawScore(std::shared_ptr<IGraphics> ctx)
+void drawScore(IGraphics &ctx)
 {
 	// draw rounded rect in top left corner
-	ctx->stroke(0xC0);
-	ctx->fill(color(60, 60, 60, 220));
-	ctx->rect(8, 8, 300, 64, 6, 6);
+	ctx.stroke(0xC0);
+	ctx.fill(color(60, 60, 60, 220));
+	ctx.rect(8, 8, 300, 64, 6, 6);
 
-	ctx->noStroke();
-	ctx->fill(color(0, 220, 15));
-	ctx->textSize(36);
-	ctx->text("Bullets: ", 12, 58);
-	ctx->fill(color(220, 15, 15));
+	ctx.noStroke();
+	ctx.fill(color(0, 220, 15));
+	ctx.textSize(36);
+	ctx.text("Bullets: ", 12, 58);
+	ctx.fill(color(220, 15, 15));
 
 	char buff[32];
 	sprintf_s(buff, 32, "%4d", gBulletsRemaining);
 
-	ctx->text(buff, 220, 58);
+	ctx.text(buff, 220, 58);
 }
 
 void draw()
@@ -155,12 +154,12 @@ void draw()
 	{
 		scaleImage(backgroundImage,
 			0, 0, backgroundImage.width(), backgroundImage.height(),
-			0, 0, width, height);
+			0, 0, canvasWidth, canvasHeight);
 
 		// draw screen image
 		if (snappy != nullptr) {
 			//printf("CAPTURED");
-			auto img = snappy->getCurrent().getImage();
+			BLImage & img = snappy->getCurrent().getImage();
 			image(img, 0, 0);
 		}
 	} else {
@@ -170,17 +169,17 @@ void draw()
 	if (gRapidFire) {
 		JoystickEvent e;
 		joy1.getPosition(e);
-		if (e.buttons & JOY_BUTTON1 > 0) {
+		if ((e.buttons & JOY_BUTTON1) > 0) {
 			triggerPressed();
 		}
 	}
 
 	//drawTargets(gAppSurface);
-	drawBullets(gAppSurface);
+	drawBullets(*gAppSurface);
 	
-	gScope.draw(gAppSurface);
+	gScope.draw(*gAppSurface);
 
-	drawScore(gAppSurface);
+	drawScore(*gAppSurface);
 }
 
 
@@ -204,18 +203,18 @@ void setup()
 	frameRate(60);
 
 	joystick();
-	joyX = width / 2;
-	joyY = height-1;
+	joyX = canvasWidth / 2;
+	joyY = canvasHeight-1;
 
 
 	for (size_t i = 1; i <= MaxTargets; i++)
-		targets.push_back(GTarget(random(0, (double)width - 1), random(0, (double)height - 1), random(40, 90)));
+		targets.push_back(GTarget(random(0, (double)canvasWidth - 1), random(0, (double)canvasHeight - 1), random(40, 90)));
 
 	// setup bullets
 	gBulletsRemaining = MaxBullets;
 
 	// Read the screen
-	snappy = new ScreenSnapshot(0, 0, width, height,0);
+	snappy = new ScreenSnapshot(0, 0, canvasWidth, canvasHeight,0);
 	snappy->next();
 	auto srf = snappy->getCurrent();
 	srf.rectMode(RECTMODE::CENTER);

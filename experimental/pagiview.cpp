@@ -15,5 +15,5 @@ void draw()
 {
 	background(245,246,247);
 
-	mainView.draw(gAppSurface);
+	mainView.draw(*gAppSurface);
 }

@@ -6,11 +6,13 @@
 struct SecondTime {
 	static constexpr double gSecondsPerHour = 60 * 60;
 
-	double fBaseTime;
+	double fBaseTime=0;
 	size_t fHours = 0;
 	size_t fMinutes = 0;
 	size_t fSeconds = 0;
 	size_t fTenths = 0;
+
+	SecondTime() = default;
 
 	SecondTime(double s)
 	{

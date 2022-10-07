@@ -177,7 +177,7 @@ namespace p5 {
         gAppSurface->strokeJoin(join);
     }
 
-    void strokeWeight(double weight) noexcept
+    void strokeWeight(REAL weight) noexcept
     {
         gAppSurface->strokeWeight(weight);
     }
@@ -201,28 +201,28 @@ namespace p5 {
     }
 
     // Coordinate Transformation
-    void translate(double dx, double dy) noexcept
+    void translate(REAL dx, REAL dy) noexcept
     {
         gAppSurface->translate(dx, dy);
     }
 
-    void scale(double sx, double sy) noexcept
+    void scale(REAL sx, REAL sy) noexcept
     {
         gAppSurface->scale(sx, sy);
     }
 
-    void scale(double sxy) noexcept
+    void scale(REAL sxy) noexcept
     {
         gAppSurface->scale(sxy, sxy);
     }
 
 
-    void rotate(double angle, double cx, double cy) noexcept
+    void rotate(REAL angle, REAL cx, REAL cy) noexcept
     {
         gAppSurface->rotate(angle, cx, cy);
     }
 
-    void rotate(double angle) noexcept
+    void rotate(REAL angle) noexcept
     {
         gAppSurface->rotate(angle,0,0);
     }
@@ -279,12 +279,12 @@ namespace p5 {
     }
 
 
-    Pixel lerpColor(const Pixel& from, const Pixel& to, double f) noexcept
+    Pixel lerpColor(const Pixel& from, const Pixel& to, REAL f) noexcept
     {
-        uint8_t r = (uint8_t)maths::Lerp(f, from.r(), to.r());
-        uint8_t g = (uint8_t)maths::Lerp(f, from.g(), to.g());
-        uint8_t b = (uint8_t)maths::Lerp(f, from.b(), to.b());
-        uint8_t a = (uint8_t)maths::Lerp(f, from.a(), to.a());
+        uint8_t r = (uint8_t)maths::lerp(from.r(), to.r(),f);
+        uint8_t g = (uint8_t)maths::lerp(from.g(), to.g(),f);
+        uint8_t b = (uint8_t)maths::lerp(from.b(), to.b(),f);
+        uint8_t a = (uint8_t)maths::lerp(from.a(), to.a(),f);
 
         return color((int)r, (int)g, (int)b, (int)a);
     }
@@ -503,7 +503,7 @@ namespace p5 {
     }
 
     // draw a line using the stroke color
-    void line(double x1, double y1, double x2, double y2) noexcept
+    void line(REAL x1, REAL y1, REAL x2, REAL y2) noexcept
     {
         gAppSurface->line(x1, y1, x2, y2);
     }
@@ -511,32 +511,32 @@ namespace p5 {
     // Draw rectangle
     // if using fill, then fill first
     // if using stroke, then draw outline second
-    void rect(double x, double y, double width, double height, double xradius, double yradius) noexcept
+    void rect(REAL x, REAL y, REAL width, REAL height, REAL xradius, REAL yradius) noexcept
     {
         gAppSurface->rect(x, y, width, height, xradius, yradius);
     }
 
-    void rect(double x, double y, double width, double height) noexcept
+    void rect(REAL x, REAL y, REAL width, REAL height) noexcept
     {
         gAppSurface->rect(x, y, width, height);
     }
 
-    void ellipse(double a, double b, double c, double d) noexcept
+    void ellipse(REAL a, REAL b, REAL c, REAL d) noexcept
     {
         gAppSurface->ellipse(a, b, c, d);
     }
 
-    void circle(double cx, double cy, double diameter) noexcept
+    void circle(REAL cx, REAL cy, REAL diameter) noexcept
     {
-        ellipse(cx, cy, diameter / 2.0, diameter / 2.0);
+        ellipse(cx, cy, diameter / 2.0f, diameter / 2.0f);
     }
 
-    void triangle(double x1, double y1, double x2, double y2, double x3, double y3) noexcept
+    void triangle(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3) noexcept
     {
         gAppSurface->triangle(x1, y1, x2, y2, x3, y3);
     }
 
-    void quad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept
+    void quad(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) noexcept
     {
         gAppSurface->quad(x1, y1, x2, y2, x3, y3, x4, y4);
     }
@@ -545,7 +545,7 @@ namespace p5 {
     //
     // Curves
     //
-    void bezier(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) noexcept
+    void bezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) noexcept
     {
         gAppSurface->bezier(x1, y1, x2, y2, x3, y3, x4, y4);
     }
@@ -575,8 +575,8 @@ namespace p5 {
     }
 
     void scaleImage(const BLImage& src,
-        double srcX, double srcY, double srcWidth, double srcHeight,
-        double dstX, double dstY, double dstWidth, double dstHeight) noexcept
+        REAL srcX, REAL srcY, REAL srcWidth, REAL srcHeight,
+        REAL dstX, REAL dstY, REAL dstWidth, REAL dstHeight) noexcept
     {
         gAppSurface->scaleImage(src, srcX, srcY, srcWidth, srcHeight,
             dstX, dstY, dstWidth, dstHeight);
@@ -647,7 +647,7 @@ namespace p5 {
         return gAppSurface->textMeasure(txt);
     }
 
-    double textWidth(const char* txt) noexcept
+    REAL textWidth(const char* txt) noexcept
     {
         auto pt = textMeasure(txt);
         return pt.x;

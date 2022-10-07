@@ -76,7 +76,7 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 	{ "atan", [](PSVM& vm) {
 		auto den = vm.popOperand()->asDouble();
 		auto num = vm.popOperand()->asDouble();
-		auto value = maths::Degrees(std::atan(num / den));
+		auto value = maths::degrees(std::atan(num / den));
 		vm.pushOperand(make_shared<PSToken>(value));
 	} },
 	
@@ -395,10 +395,13 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 			case PSTokenType::NUMBER_INT :
 			case PSTokenType::MARK :
 			case PSTokenType::LITERAL_NAME :
-			case PSTokenType::nil :
+			case PSTokenType::NIL :
 			case PSTokenType::OPERATOR :
 			case PSTokenType::NUMBER :
 			case PSTokenType::LITERAL_STRING :
+				break;
+
+			default:
 				break;
 		}
 		
@@ -472,7 +475,7 @@ std::unordered_map < std::string, PS_Operator > PSBaseOperators
 
 	// null
 	{ "null", [](PSVM& vm) {
-		vm.pushOperand(make_shared<PSToken>(PSTokenType::nil));
+		vm.pushOperand(make_shared<PSToken>(PSTokenType::NIL));
 	} },
 
 	// version

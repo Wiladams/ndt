@@ -187,11 +187,11 @@ namespace targa {
             }
             else if (pixelDepth == 16) {
                 uint16_t src16 = ((databuff[1] << 8) | databuff[0]);
-                pix.setB((ndt::BITSVALUE(src16, 0, 4) << 3));
-                pix.setG((ndt::BITSVALUE(src16, 5, 9) << 3));
-                pix.setR((ndt::BITSVALUE(src16, 10, 14) << 3));
+                pix.setB((bitbang::BITSVALUE(src16, 0, 4) << 3));
+                pix.setG((bitbang::BITSVALUE(src16, 5, 9) << 3));
+                pix.setR((bitbang::BITSVALUE(src16, 10, 14) << 3));
                 pix.setA(255);
-                if (ndt::BITSVALUE(src16, 15, 15) >= 1) {
+                if (bitbang::BITSVALUE(src16, 15, 15) >= 1) {
                     pix.setA(0);  // 255
                 }
             }
@@ -451,7 +451,6 @@ namespace targa {
             bs(abs)
         {
             bytesPerPixel = meta.header.BytesPerPixel;
-            //printf("PixelsCompressed, Bpp: %d\n", bytesPerPixel);
 
             reset();
         }
@@ -462,7 +461,7 @@ namespace targa {
                 // read packet type to see if it's RLE or RAW
                 int packet = bs.readOctet();
                 isRLE = (packet & 0x80) > 0; // isset(repCount, 7);
-                pixelCount = (int)ndt::BITSVALUE(packet, 0, 6) + 1;
+                pixelCount = (int)bitbang::BITSVALUE(packet, 0, 6) + 1;
                 //printf("pixelCount: %d\n", pixelCount);
                 // Read at least one pixel value
                 size_t nRead = bs.readBytes(databuff, (size_t)bytesPerPixel);

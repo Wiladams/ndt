@@ -78,8 +78,8 @@ public:
     
     Pixel get(int x, int y)
     {
-        x = (int)maths::Clamp(x, 0, fPixelMap.width() - 1);
-        y = (int)maths::Clamp(y, 0, fPixelMap.height() - 1);
+        x = (int)maths::clamp(x, 0, fPixelMap.width() - 1);
+        y = (int)maths::clamp(y, 0, fPixelMap.height() - 1);
 
         // Get data from BLContext
         int offset = (y * fPixelMap.width()) + x;

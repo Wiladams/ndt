@@ -1,46 +1,43 @@
 #include "p5.hpp"
 
 #include "colorsampler.h"
-#include "graphic.hpp"
-#include "bezier.hpp"
+#include "geometry.h"
 
 using namespace p5;
 
 BLImage potOfGold;
 
-/*
-	
-*/
-class GradientBezier : public virtual IDrawable
+
+class GradientBezier : public IDrawable
 {
 	GradientSampler1D fSampler;
-	BLPoint p1;
-	BLPoint p2;
-	BLPoint p3;
-	BLPoint p4;
+	maths::vec2f p1;
+	maths::vec2f p2;
+	maths::vec2f p3;
+	maths::vec2f p4;
 	size_t fSegments;
 
 public:
-	GradientBezier(const BLGradient& grad, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, size_t segments=60)
-		:p1(x1, y1),
-		p2(x2, y2),
-		p3(x3, y3),
-		p4(x4, y4),
-		fSegments(segments),
-		fSampler(grad)
+	GradientBezier(const BLGradient& grad, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, size_t segments = 60)
+		:p1{ x1, y1 }
+		,p2{x2, y2}
+		, p3{ x3, y3 }
+		,p4{x4, y4}
+		,fSegments(segments)
+		,fSampler(grad)
 	{
 	}
 
 	virtual void draw(IGraphics & ctx) override
 	{
 		// Get starting point
-		BLPoint lp = ndt::bezier_point(0, p1, p2, p3, p4);
+		maths::vec2f lp = maths::bezier_cubic_eval(p1, p2, p3, p4, 0);
 
 		int i = 1;
 		while (i <= fSegments) {
-			double u = (double)i / fSegments;
+			REAL u = (REAL)i / fSegments;
 
-			BLPoint p = ndt::bezier_point(u, p1, p2, p3, p4);
+			maths::vec2f p = maths::bezier_cubic_eval(p1, p2, p3, p4, u);
 
 			// draw line segment from last point to current point
 			// figure out color for segment
@@ -64,6 +61,7 @@ void setup()
 	if (err)
 		printf("could not load pot of gold (%d)\n", err);
 
+	//createCanvas(displayWidth, displayHeight, "rainbow");
 	fullscreen();
 }
 
@@ -71,10 +69,11 @@ void setup()
 
 void draw()
 {
-	static const int baseSize = 300;
+	constexpr int baseSize = 200;
 
 	// Clear the background before drawing
 	clear();
+	//background(255);
 
 	// draw pot of gold at end of rainbow
 	int potX = canvasWidth - potOfGold.width() - 200;
@@ -84,18 +83,21 @@ void draw()
 	p5::image(potOfGold, potX, potY);
 	flush();
 
-
+	
 	// Draw the actual rainbow
 	int yoffset = 0;
 	VisibleLightSampler colorSampler;
 
 	strokeWeight(2);
+
+	// Alpha blending is not right
+	///*
 	for (int x = 0; x <= baseSize; x++) {
-		double offset = map(x, 0, baseSize, 0, 1);
+		double offset = map(x, 0, baseSize, 0, 1.0);
 
 		auto c0 = colorSampler(offset);
 		auto c1 = c0;
-		c0.setA(10);
+		c0.setA(110);
 
 		// calculate stops along the curve
 		BLGradient grad(BLLinearGradientValues(0, 0, 0, 0));
@@ -104,16 +106,15 @@ void draw()
 		grad.addStop(0.80, c1);
 		grad.addStop(1.0, c0);
 
-		int finalX = (int)map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
-		int finalY = (int)(potY+36);
+		double finalX = map(x, 0, baseSize, (double)potX+potOfGold.width()-10, (double)potX+30);
+		double finalY = (int)(potY+36);
 
 		GradientBezier bez(grad, x, canvasHeight, canvasWidth * 0.3, yoffset, canvasWidth * 0.6, yoffset, finalX, finalY,1200);
 		bez.draw(*gAppSurface);
 
-
 		yoffset += 1;
 	}
-
+	//*/
 	noLoop();
 }
 

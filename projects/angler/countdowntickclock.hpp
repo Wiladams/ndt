@@ -46,9 +46,9 @@ struct ProgressiveTickMark : public IDrawable
         fProgress = 0;
     }
 
-    void setProgress(double prog)
+    void setProgress(float prog)
     {
-        fProgress = maths::Clamp(prog, 0.0, 1.0);
+        fProgress = maths::clamp(prog, 0.0f, 1.0f);
     }
 
     void update(double currentTime)
@@ -59,7 +59,7 @@ struct ProgressiveTickMark : public IDrawable
         else if (currentTime > fEndAt)
             setProgress(1.0);
         else
-            setProgress(maths::Map(currentTime, fStartAt, fEndAt, 0.0, 1.0));
+            setProgress(maths::map(currentTime, fStartAt, fEndAt, 0.0, 1.0));
     }
 
     virtual void draw(IGraphics& ctx)
@@ -74,7 +74,7 @@ struct ProgressiveTickMark : public IDrawable
             // We're actively in progress
             // so extend the progress bar based
             // on that progress
-            double outer = maths::Map(fProgress, 0, 1, fInnerRadius, fOuterRadius);
+            double outer = maths::map(fProgress, 0, 1, fInnerRadius, fOuterRadius);
 
             // First draw the thing full length in idle color
             ctx.stroke(fIdleColor);
@@ -116,11 +116,11 @@ struct CountdownTickClock : public Graphic
     {
         fDuration = dur;
 
-        fStartRotation = maths::Radians(-90.0);
+        fStartRotation = maths::radians(-90.0);
         fCenterX = width() / 2.0;
         fCenterY = height() / 2.0;
         fRadius = width() / 2.0;
-        fSegmentRadians = maths::Radians(360.0 / fNumTicks);
+        fSegmentRadians = maths::radians(360.0 / fNumTicks);
         fBeginColor = Pixel(255, 255, 0);
         fEndColor = Pixel(255, 0, 0);
 

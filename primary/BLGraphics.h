@@ -23,8 +23,8 @@ protected:
     int fCommandCount = 0;  // How many commands since last flush
     int fCommandThreshold = 256;
 
-    BLContext fCtx;
-    BLImageData fImageData;
+    BLContext fCtx{};
+    BLImageData fImageData{};
 
     int fAngleMode = RADIANS;
     ELLIPSEMODE fEllipseMode = ELLIPSEMODE::RADIUS;
@@ -35,15 +35,15 @@ protected:
     double fDimensionScale = 1.0;
 
     // Typography
-    BLFontFace fFontFace;
-    BLFont fFont;
+    BLFontFace fFontFace{};
+    BLFont fFont{};
     float fFontSize = 12;
     ALIGNMENT fTextHAlignment = ALIGNMENT::LEFT;
     ALIGNMENT fTextVAlignment = ALIGNMENT::BASELINE;
 
     // Vertex shaping
     SHAPEMODE fShapeMode = SHAPEMODE::NONE;
-    std::vector<BLPoint> fShapeVertices;
+    std::vector<BLPoint> fShapeVertices{};
 
     Pixel fFillColor = BLRgba32(255, 255, 255, 255);
     Pixel fStrokeColor = BLRgba32(0, 0, 0, 255);

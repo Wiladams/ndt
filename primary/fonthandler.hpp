@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
 class FontHandler
 {
@@ -76,11 +76,11 @@ public:
 
     void loadDirectoryOfFonts(const char *dir)
     {
-        const fs::path fontPath(dir);
+        const std::filesystem::path fontPath(dir);
 
 
         
-        for (const auto& dir_entry : fs::directory_iterator(fontPath))
+        for (const auto& dir_entry : std::filesystem::directory_iterator(fontPath))
         {
             if (dir_entry.is_regular_file())
             {

@@ -3,12 +3,10 @@
 #include "uievent.h"
 #include "Graphics.h"
 
-class IDrawable
+struct IDrawable
 {
-protected:
-	virtual ~IDrawable() {}
 
-public:
+	virtual ~IDrawable() {}
 
 	virtual void draw(IGraphics & ctx) = 0;
 };
@@ -22,14 +20,9 @@ public:
 	Frame - The location, within the bounds of the parent frame
 
 */
-class IGraphic : public IDrawable
+struct IGraphic : public IDrawable
 {
-protected:
 	virtual ~IGraphic() {};
-
-public:
-	//virtual std::shared_ptr<IGraphics> getPreferredRenderer() const { return nullptr; }
-
 
 	virtual bool contains(int x, int y)
 	{
@@ -54,6 +47,7 @@ public:
 	virtual void mousePressed(const MouseEvent& e) = 0;
 	virtual void mouseReleased(const MouseEvent& e) = 0;
 	virtual void mouseWheel(const MouseEvent& e) = 0;
+	virtual void mouseHWheel(const MouseEvent& e) = 0;
 
 	// Keyboard events
 	//virtual void keyPressed(const KeyboardEvent& e) =0;

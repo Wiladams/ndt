@@ -23,8 +23,8 @@ void draw()
 
     BLRgba32 from = color(255, 0, 0, (int)(0.2 * 255));
     BLRgba32 to = color(0, 0, 255, (int)(0.2 * 255));
-    BLRgba32 c1 = lerpColor(from, to, 0.33);
-    BLRgba32 c2 = lerpColor(from, to, 0.66);
+    BLRgba32 c1 = lerpColor(from, to, 0.33f);
+    BLRgba32 c2 = lerpColor(from, to, 0.66f);
 
     noStroke();
     fill(from);

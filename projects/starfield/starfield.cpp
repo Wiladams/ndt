@@ -57,8 +57,8 @@ void draw()
 {
 	clear();
 
-	if (joy1.isValid()) {
-	//if (false) {
+	if (joy1.isValid()) 
+	{
 		// Get joystick position information
 		JoystickEvent je;
 		joy1.getPosition(je);
@@ -68,20 +68,17 @@ void draw()
 
 		centerX = (int)map(je.x, -1, 1, canvasWidth - 1, 0);
 		centerY = (int)map(je.y, -1, 1, 0, canvasHeight - bottomMargin);
-	}
-	else {
+	} else {
 		// use keyboard/mouse navigation
 		int mx = (int)map(mouseX, 0, canvasWidth - 1, canvasWidth - 1, 0);
 		int my = (int)map(mouseY, canvasHeight - bottomMargin, canvasHeight, canvasHeight - bottomMargin, 0);
-
-		//std::cout << "mx: " << mx << " my: " << my << std::endl;
 
 		// When you want to use the position for steering
 		// you'll want to center to track the mouse position
 		centerX = mx + posOffsetX;
 		centerY = my + posOffsetY;
 	}
-	//std::cout << centerX << " " << centerY << std::endl;
+
 
 	push();
 	translate(centerX, centerY);
@@ -93,7 +90,7 @@ void draw()
 	pop();
 
 	noStroke();
-	fill(127);
+	fill(127,127);
 	rect(0, canvasHeight - bottomMargin, canvasWidth, bottomMargin);
 
 	flush();
@@ -102,12 +99,13 @@ void draw()
 void setup()
 {
 	createCanvas(displayWidth, displayHeight-40);
+	layered();
+	setCanvasPosition(0, 0);
 
 	for (int i = 0; i < MaxStars; i++) {
 		stars[i].init(canvasWidth, canvasHeight);
 	}
 
-	centerX = canvasWidth / 2;
-	layered();
-	setCanvasPosition(0, 0);
+	centerX = canvasWidth / 2.0;
+
 }

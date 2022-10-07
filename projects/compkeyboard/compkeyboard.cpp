@@ -123,7 +123,8 @@ void drawNeutral(IGraphics & ctx)
 
     ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
     //ctx->textFont("Segoe UI");
-    ctx.textSize(8);
+    ctx.textFont("Consolas");
+    ctx.textSize(14);
 
     for (int i=0; i<nKeys; i++)
     {

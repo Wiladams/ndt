@@ -26,8 +26,8 @@ public:
 	WindowManager(int w, int h)
 		:Graphic(0,0,w,h)
 	{
-		//setLayout(std::make_shared<CascadeLayout>(w,h));
-		setLayout(std::make_shared<IdentityLayout>());
+		setLayout(std::make_shared<CascadeLayout>(w,h));
+		//setLayout(std::make_shared<IdentityLayout>());
 
 	}
 

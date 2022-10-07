@@ -12,13 +12,13 @@
 class Graphic : public IGraphic
 {
 protected:
-	std::deque<std::shared_ptr<IGraphic> > fChildren;
-	std::shared_ptr<ILayoutGraphics> fLayout;
-	std::shared_ptr<IGraphic> fActiveGraphic;
+	std::deque<std::shared_ptr<IGraphic> > fChildren{};
+	std::shared_ptr<ILayoutGraphics> fLayout{};
+	std::shared_ptr<IGraphic> fActiveGraphic{};
 	
 
 
-	BLMatrix2D fTransform;  // Internal transformation matrix
+	BLMatrix2D fTransform{};  // Internal transformation matrix
 
 	BLRect fFrame{};
 	BLRect fBounds{};
@@ -39,7 +39,7 @@ public:
 	Graphic(const BLRect& frame) 
 		:fFrame(frame)
 		,fBounds(0,0,frame.w, frame.h)
-		,fActiveGraphic(nullptr)
+		//,fActiveGraphic(nullptr)
 	{
 		fTransform = BLMatrix2D::makeIdentity();
 	}
@@ -227,6 +227,10 @@ public:
 			case MOUSEWHEEL:
 				mouseWheel(e);
 				break;
+
+			case MOUSEHWHEEL:
+				mouseHWheel(e);
+				break;
 			}
 		}
 
@@ -256,6 +260,11 @@ public:
 	virtual void mouseWheel(const MouseEvent& e)
 	{
 		printf("Graphic.mouseWheel\n");
+		// do nothing
+	}
+
+	virtual void mouseHWheel(const MouseEvent& e)
+	{
 		// do nothing
 	}
 

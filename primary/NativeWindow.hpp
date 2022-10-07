@@ -183,12 +183,12 @@ public:
 // it makes it relatively easy to create instances
 // of classes.
 class User32WindowClass {
-    WNDCLASSEXA fWndClass;      // data structure holding class information
-    bool fIsRegistered;
-    int fLastError;
+    WNDCLASSEXA fWndClass{};      // data structure holding class information
+    bool fIsRegistered{};
+    int fLastError{};
 
-    char* fClassName;       // this is only here to guarantee string sticks around
-    uint16_t    fClassAtom;
+    char* fClassName{};       // this is only here to guarantee string sticks around
+    uint16_t    fClassAtom{};
 
 public:
     User32WindowClass(const char* classOrAtom)

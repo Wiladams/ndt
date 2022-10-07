@@ -38,8 +38,9 @@ class BinaryLayout : ILayoutGraphics
 		LEFT
 	};
 
-	double fGap;
 	BinaryAlignment fAlign;
+	//double fGap;
+
 
 public:
 
@@ -47,8 +48,8 @@ public:
 		std::shared_ptr<IGraphic> secondary,
 		BinaryAlignment align, 
 		double gap)
-		: fGap(gap)
-		,fAlign(align)
+		: fAlign(align)
+		//,fGap(gap)
 	{
 		std::deque<std::shared_ptr<IGraphic> > gs{
 			primary,
@@ -59,8 +60,8 @@ public:
 	}
 
 	BinaryLayout(BinaryAlignment align, double gap)
-		:fGap(gap),
-		fAlign(align)
+		:fAlign(align)
+		//,fGap(gap)
 	{
 	}
 
@@ -71,9 +72,9 @@ public:
 		if (gs.size() < 2)
 			return;
 
-		auto primary = gs[0];
+		auto &primary = gs[0];
 		auto pFrame = primary->getFrame();
-		auto secondary = gs[1];
+		auto &secondary = gs[1];
 		auto sFrame = secondary->getFrame();
 
 		switch (fAlign) {

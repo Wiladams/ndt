@@ -11,25 +11,22 @@ int columnSize = 120;
 int scrollSize = fontSize*3;
 
 struct ColorEntry {
-    const char* name;
-    BLRgba32 value;
-
-    static const ColorEntry empty;
+    const char* name=nullptr;
+    BLRgba32 value{};
 };
 
 struct SVGGraphic {
-    ColorEntry svgcolor;
-    int column;
-    int row;
+    ColorEntry svgcolor{};
+    int column{};
+    int row{};
 
 
     bool operator==(const SVGGraphic& rhs) { return svgcolor.name == rhs.svgcolor.name; }
 
-    static const SVGGraphic empty;
 };
 
-const SVGGraphic SVGGraphic::empty;
-
+//const SVGGraphic SVGGraphic::empty;
+constexpr auto emptySVGGraphic = SVGGraphic{};
 
 // Database of colors
 ColorEntry svgcolors[] = {
@@ -177,21 +174,22 @@ ColorEntry svgcolors[] = {
 
 int nColors = sizeof(svgcolors) / sizeof(ColorEntry);
 
-SVGGraphic hoverGraphic = SVGGraphic::empty;
+SVGGraphic hoverGraphic = emptySVGGraphic;
 
 std::shared_ptr<GWindow> contentArea = nullptr;
 
-class SVGPage : public Graphic {
-    static BLSize getPreferredSize()
+class SVGPage : public Graphic 
+{
+    static maths::vec2f getPreferredSize()
     {
         int rows = (nColors / maxColumns) + 1;
 
-        return { (double)(maxColumns * columnSize), (double)(rows * rowSize) };
+        return { float((maxColumns * columnSize)), float((rows * rowSize)) };
     }
 
 public:
     SVGPage()
-        :Graphic(0,0,getPreferredSize().w, getPreferredSize().h)
+        :Graphic(0,0,getPreferredSize().x, getPreferredSize().y)
     {}
 
     // return the coordinate frame for a specified cell
@@ -214,7 +212,8 @@ public:
 
 
         if (index > nColors) {
-            return SVGGraphic::empty;
+            //return SVGGraphic::empty;
+            return emptySVGGraphic;
         }
         auto entry = svgcolors[index];
 
@@ -223,7 +222,7 @@ public:
         return { entry, column + 1, row + 1 };
     }
 
-    void mouseMoved(const MouseEvent& e)
+    void mouseMoved(const MouseEvent& e) override
     {
         //printf("moved: %d,%d\n", e.x, e.y);
         hoverGraphic = graphicAt(e.x, e.y);
@@ -259,7 +258,7 @@ public:
 
     void drawForeground(IGraphics & ctx) override
     {
-        if (hoverGraphic == SVGGraphic::empty)
+        if (hoverGraphic == emptySVGGraphic)
             return;
 
         auto frame = frameForCell(hoverGraphic.column, hoverGraphic.row);
@@ -294,25 +293,23 @@ public:
 
 std::shared_ptr<SVGPage> page = nullptr;
 
-void setup()
-{
-    createCanvas(800, 600);
-
-    // Create a window to hold stuff
-    contentArea = window(4, 4, 792, 592);
-    page = std::make_shared<SVGPage>();
-    contentArea->addChild(page);
-}
-
 void draw()
 {
     background(245, 246, 247);
 }
 
+// Vertical mouse wheel
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBy(0, (e.delta / 120)*scrollSize);
+    page->translateBy(0, (e.delta / 120) * scrollSize);
+}
+
+// Horizontal mouse wheel
+void mouseHWheel(const MouseEvent& e)
+{
+    //printf("wheel: %d\n", e.delta);
+    page->translateBy((e.delta / 120) * scrollSize, 0);
 }
 
 // Handling panning
@@ -320,4 +317,14 @@ void mouseWheel(const MouseEvent& e)
 void panMoved(const GestureEvent& e)
 {
     page->translateBy(panVecX, panVecY);
+}
+
+void setup()
+{
+    createCanvas(800, 600);
+
+    // Create a window to hold stuff
+    contentArea = window(4, 4, canvasWidth-8, canvasHeight-8);
+    page = std::make_shared<SVGPage>();
+    contentArea->addChild(page);
 }

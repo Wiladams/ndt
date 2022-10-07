@@ -11,12 +11,10 @@ std::shared_ptr<SegmentGauge> seggauge = nullptr;
 std::shared_ptr<Recorder> recorder = nullptr;
 std::shared_ptr<Slider> sld = nullptr;
 
-double gProgress = 0.0;
-double gDir = 1.0;
-double gIncrement = 0.01;
+float gProgress = 0.0;
 
 
-void progressChanged(const Topic<BLPoint> &pub, BLPoint pos)
+void progressChanged(const Topic<maths::vec2f> &pub, const maths::vec2f pos)
 {
 	//printf("Position: %f, %f\n", pos.x, pos.y);
 	gProgress = pos.x;
@@ -29,8 +27,6 @@ void onComposed()
 	if (recorder != nullptr)
 		recorder->saveFrame();
 }
-
-
 
 void draw()
 {

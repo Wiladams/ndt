@@ -143,11 +143,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="aabb.h" />
     <ClInclude Include="appconfig.h" />
     <ClInclude Include="apphost.h" />
     <ClInclude Include="appsurface.h" />
-    <ClInclude Include="arcball.h" />
     <ClInclude Include="bezier.hpp" />
     <ClInclude Include="binops.h" />
     <ClInclude Include="binstream.hpp" />
@@ -160,24 +158,21 @@
     <ClInclude Include="colorsampler.h" />
     <ClInclude Include="computicle.hpp" />
     <ClInclude Include="definitions.h" />
-    <ClInclude Include="dproc_gl.h" />
     <ClInclude Include="drawable.h" />
-    <ClInclude Include="dxcapture.h" />
     <ClInclude Include="Event.hpp" />
     <ClInclude Include="FastNoise.h" />
     <ClInclude Include="filestream.h" />
     <ClInclude Include="filesys.h" />
     <ClInclude Include="framestats.h" />
     <ClInclude Include="functor.hpp" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="GMesh.h" />
     <ClInclude Include="gpath.h" />
     <ClInclude Include="graphic.hpp" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GraphicsDecoder.hpp" />
     <ClInclude Include="GraphicsEncoder.hpp" />
-    <ClInclude Include="grmath.h" />
     <ClInclude Include="guistyle.hpp" />
-    <ClInclude Include="gview.h" />
     <ClInclude Include="gwindow.h" />
     <ClInclude Include="imagesampler.h" />
     <ClInclude Include="interpolator.h" />
@@ -229,7 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
-    <ClCompile Include="grmath.cpp" />
     <ClCompile Include="math3d.cpp" />
     <ClCompile Include="p5.cpp" />
     <ClCompile Include="primary.cpp" />

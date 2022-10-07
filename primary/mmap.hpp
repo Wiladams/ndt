@@ -21,33 +21,30 @@
 
 class mmap
 {
-    HANDLE fFileHandle;
-    HANDLE fMapHandle;
+    void* fData;
     size_t fSize;
-    void * fData;
-
     bool fIsValid;
 
-
-
+    HANDLE fFileHandle;
+    HANDLE fMapHandle;
 
 public:
     mmap(HANDLE filehandle, HANDLE maphandle, void* data, size_t length)
-        :fFileHandle(filehandle),
-        fMapHandle(maphandle),
-        fData(data),
-        fSize(length)
+        :fData(data)
+        ,fSize(length)
+        ,fFileHandle(filehandle)
+        ,fMapHandle(maphandle)
     {
         fIsValid = true;
     }
 
 
     mmap()
-        : fFileHandle(nullptr),
-        fMapHandle(nullptr),
-        fIsValid(false),
-        fSize(0),
-        fData(nullptr)
+        : fData(nullptr)
+        , fSize(0)
+        ,fIsValid(false)
+        ,fFileHandle(nullptr)
+        ,fMapHandle(nullptr)
     {}
 
     virtual ~mmap() {close();}
@@ -116,7 +113,7 @@ public:
         HANDLE maphandle = CreateFileMappingA(filehandle, nullptr, PAGE_READONLY, psize.HighPart, psize.LowPart, nullptr);
         //printf("CREATE File Mapping: ", maphandle)
 	    
-        if (maphandle == INVALID_HANDLE_VALUE) 
+        if ((maphandle == INVALID_HANDLE_VALUE) || (maphandle == nullptr))
         {
 		    //error("Could not create file map: "..tostring(ffi.C.GetLastError()))
             // close file handle and set it to invalid

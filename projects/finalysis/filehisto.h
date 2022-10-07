@@ -36,7 +36,7 @@ class FileHistogram : public Graphic
 		// the biggest value is
 		biggest = 0;
 		for (size_t i = 0; i < 256; i++) {
-			biggest = maths::Max(biggest, histogram[i]);
+			biggest = maths::max(biggest, histogram[i]);
 		}
 	}
 

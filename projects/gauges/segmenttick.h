@@ -53,7 +53,7 @@ struct SegmentGauge : public Graphic
 	Pixel fStartColor{};
 	Pixel fEndColor{};
 
-	double fProgress = 0.0;
+	float fProgress = 0.0;
 	std::vector<SegmentTick> fTicks;
 
 
@@ -65,11 +65,11 @@ struct SegmentGauge : public Graphic
 
 		fRadius = radius;
 
-		double sweepDegrees = 200.0;
-		double startDegrees = 90.0 + ((360 - sweepDegrees) / 2.0);
+		float sweepDegrees = 200.0;
+		float startDegrees = 90.0 + ((360 - sweepDegrees) / 2.0);
 
-		fSweep = maths::Radians(sweepDegrees);
-		fStartAngle = maths::Radians(startDegrees);
+		fSweep = maths::radians(sweepDegrees);
+		fStartAngle = maths::radians(startDegrees);
 
 		fStartColor = Pixel(255, 125, 0);
 		fEndColor = Pixel(0, 255, 0);
@@ -101,7 +101,7 @@ struct SegmentGauge : public Graphic
 
 			SegmentTick tick(fRadius, startAt, tickSweep);
 			tick.fWeight = fThickness;
-			auto c = ndt::lerpColor(fStartColor, fEndColor, (double)i / fNumTicks);
+			auto c = ndt::lerpColor(fStartColor, fEndColor, (float)i / fNumTicks);
 
 			tick.fProgressColor = c;
 
@@ -109,9 +109,9 @@ struct SegmentGauge : public Graphic
 		}
 	}
 
-	void setProgress(double prog)
+	void setProgress(float prog)
 	{
-		fProgress = maths::Clamp(prog, 0.0, 1.0);
+		fProgress = maths::clamp((float)prog, 0.0, 1.0);
 	}
 
 	void drawForeground(IGraphics &ctx)
@@ -119,9 +119,9 @@ struct SegmentGauge : public Graphic
 		ctx.push();
 
 		ctx.translate(fCx, fCy);
-		ctx.rotate(maths::Radians(0.0));
+		ctx.rotate(maths::radians(0.0));
 
-		size_t howMany = maths::Floor((fProgress * (double)fNumTicks));
+		size_t howMany = maths::floor((fProgress * (float)fNumTicks));
 		//printf("%3.2f  how many: %zd\n", fProgress, howMany);
 
 		for (size_t i = 0; i < howMany; i++)

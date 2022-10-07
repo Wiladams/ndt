@@ -12,13 +12,15 @@
 //==============================================================================================
 
 
-#include "grmath.h"
+#include "maths.hpp"
+#include "sampler.hpp"
+
 #include <cmath>
 
 class perlin {
 public:
     perlin() {
-        ranvec = new vec3[point_count];
+        ranvec = new vec3f[point_count];
         for (int i = 0; i < point_count; ++i) {
             //ranvec[i] = vec3::random(-1, 1).unit();
             ranvec[i] = unit_vector(random_vec3_range(-1, 1));
@@ -36,14 +38,14 @@ public:
         delete[] perm_z;
     }
 
-    double noise(const point3& p) const {
+    double noise(const vec3f& p) const {
         auto u = p.x - std::floor(p.x);
         auto v = p.y - std::floor(p.y);
         auto w = p.z - std::floor(p.z);
         auto i = static_cast<int>(std::floor(p.x));
         auto j = static_cast<int>(std::floor(p.y));
         auto k = static_cast<int>(std::floor(p.z));
-        vec3 c[2][2][2];
+        vec3f c[2][2][2];
 
         for (int di = 0; di < 2; di++)
             for (int dj = 0; dj < 2; dj++)
@@ -57,7 +59,7 @@ public:
         return perlin_interp(c, u, v, w);
     }
 
-    double turb(const point3& p, int depth = 7) const {
+    double turb(const vec3f& p, int depth = 7) const {
         auto accum = 0.0;
         auto temp_p = p;
         auto weight = 1.0;
@@ -73,7 +75,7 @@ public:
 
 private:
     static const int point_count = 256;
-    vec3* ranvec;
+    vec3f* ranvec;
     int* perm_x;
     int* perm_y;
     int* perm_z;

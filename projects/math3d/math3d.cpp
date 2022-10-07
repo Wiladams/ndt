@@ -1,6 +1,6 @@
 #include "apphost.h"
 
-#include "tinygl/include-demo/3dMath.h"
+#include "tinygl/3dMath.h"
 
 
 void onLoad()

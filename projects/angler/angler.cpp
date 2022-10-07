@@ -36,7 +36,7 @@ void setup()
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "angler-");
 
-	loadDefaultFonts();
+	//loadDefaultFonts();
 	textFont("Consolas");
 	
 	//BLFontFace ff = loadFont("c:\\Windows\\Fonts\\consola.ttf");
@@ -46,9 +46,8 @@ void setup()
 
 	//recorder->record();
 
+	// create, and Start the animation
 	indic = std::make_shared<CountdownTickClock>(DURATION);
-
-	// Start the animation
 	indic->start();
 }
 

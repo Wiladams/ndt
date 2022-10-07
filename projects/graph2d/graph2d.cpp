@@ -45,7 +45,7 @@ void draw()
         y = -h / 2;
         for (j = 0; j < rows; j += 1) {
             r = p5::sqrt(x * x + y * y); // Convert cartesian to polar
-            theta = atan2(y, x); // Convert cartesian to polar
+            theta = maths::atan2(y, x); // Convert cartesian to polar
             // Compute 2D polar coordinate function
             val = sin(n * cos(r) + 5 * theta); // Results in a value between -1 and 1
             //var val = cos(r);                            // Another simple function

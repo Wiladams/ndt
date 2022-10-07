@@ -1,7 +1,7 @@
 #pragma once
 
 #include "blend2d.h"
-#include "grmath.h"
+
 
 class GCanvas : public BLContext
 {

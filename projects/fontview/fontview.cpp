@@ -128,7 +128,7 @@ void draw()
 	clear();
 	background(200, 200,200);
 
-	noLoop();
+	//noLoop();
 }
 
 void setup()

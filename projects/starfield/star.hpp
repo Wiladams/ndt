@@ -2,7 +2,7 @@
 
 #include "p5.hpp"
 
-//using namespace p5;
+
 
 struct Star {
 	double x;

@@ -414,7 +414,7 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 
 	for (size_t idx = 0; idx < arr->size(); idx++)
 	{
-		auto item = arr->at(idx);
+		auto &item = arr->at(idx);
 
 		switch (item->fType) {
 		case PSTokenType::BOOLEAN:
@@ -435,7 +435,14 @@ void PSVM::execArray(shared_ptr<PSToken> tok)
 		case PSTokenType::EXECUTABLE_NAME:
 			execName(item);
 			break;
+
+		default:
+			// do nothing
+			printf("execArray: %d\n", item->fType); 
+			break;
 		}
+
+
 	}
 }
 
