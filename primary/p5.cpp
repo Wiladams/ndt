@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "random.hpp"
+#include "sampler.hpp"
 #include "stopwatch.hpp"
 #include "windowmgr.h"
 #include "ticktopic.h"
@@ -57,7 +57,7 @@ static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gComposedHandler = nullptr;
 
-int gFPS = 15;   // Frames per second
+float gFPS = 15;   // Frames per second
 TickTopic gTickTopic;
 bool gLooping = true;
 bool gIsFullscreen = false;
@@ -397,13 +397,13 @@ namespace p5 {
 
 
 
-    void frameRate(int newRate) noexcept
+    void frameRate(float newRate) noexcept
     {
         gFPS = newRate;
         gTickTopic.setFrequency(newRate);
     }
 
-    int getFrameRate() noexcept
+    float getFrameRate() noexcept
     {
         return gFPS;
     }
@@ -724,20 +724,34 @@ namespace p5 {
 
 
     // Random number generator
-    static TausPRNG mRandomNumberGenerator(5);
-    double random(double low, double high) noexcept
+    maths::rng_state gRNGState{};
+
+    void randomSeed(uint64_t s)noexcept
     {
-        return mRandomNumberGenerator.next(low, high);
+        gRNGState = maths::make_rng(s);
     }
 
-    double random() noexcept
+    float random(float low, float high) noexcept
     {
-        return mRandomNumberGenerator.next();
+        auto d = maths::rand1f(gRNGState);
+
+        d = (d * (high - low + 1.0)) + low;
+
+        return d;
     }
 
-    double random(double high) noexcept
+    float random() noexcept
     {
-        return mRandomNumberGenerator.next(0, high);
+        return maths::rand1f(gRNGState);
+    }
+
+    float random(float high) noexcept
+    {
+        auto d = maths::rand1f(gRNGState);
+
+        d = (d * (high + 1.0));
+
+        return d;
     }
 };  // namespace p5
 

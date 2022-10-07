@@ -17,11 +17,6 @@ Pixel randomColor(int alpha)
 	return Pixel(random(0, 255), random(0, 255), random(0, 255), alpha);
 }
 
-void setup()
-{
-	createCanvas(1280, 800);
-}
-
 
 void drawDiamonds(double radius, double size, int level, bool shadow = false)
 {
@@ -119,5 +114,11 @@ void draw()
 		pop();
 	}
 
-	noLoop();
+	//noLoop();
+}
+
+void setup()
+{
+	createCanvas(1280, 800);
+	frameRate(0.5);
 }

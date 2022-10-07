@@ -42,7 +42,7 @@ namespace maths
 
 	// Getting the next random number in sequence
 	// floats in [0..1)
-	//  ints in [0..1)
+	//  ints in [0..n)
 	inline int rand1i(rng_state& rng, int n);
 	inline float rand1f(rng_state& rng);
 	inline vec2f rand2f(rng_state& rng);

@@ -270,8 +270,8 @@ struct PVector {
     // Runtime management
     void loop() noexcept;
     void noLoop() noexcept;
-    void frameRate(int newRate) noexcept;
-    int getFrameRate() noexcept;
+    void frameRate(float newRate) noexcept;
+    float getFrameRate() noexcept;
 
     // coordinate transform
     void push() noexcept;
@@ -423,9 +423,10 @@ struct PVector {
     void updatePixels() noexcept;
 
     // create random numbers
-    double random() noexcept;
-    double random(double low, double high) noexcept;
-    double random(double high) noexcept;
+    void randomSeed(uint64_t s)noexcept;
+    float random() noexcept;
+    float random(float low, float high) noexcept;
+    float random(float high) noexcept;
 
     // get fractions of seconds
     double millis() noexcept;
