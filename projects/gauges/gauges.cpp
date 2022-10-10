@@ -14,7 +14,7 @@ std::shared_ptr<Slider> sld = nullptr;
 float gProgress = 0.0;
 
 
-void progressChanged(const Topic<maths::vec2f> &pub, const maths::vec2f pos)
+void progressChanged(const maths::vec2f pos)
 {
 	//printf("Position: %f, %f\n", pos.x, pos.y);
 	gProgress = pos.x;
@@ -30,13 +30,14 @@ void onComposed()
 
 void draw()
 {
-	background(0);
+	background(127);
 }
 
 void setup()
 {
 	createCanvas(400, 400, "gauges");
 	frameRate(20);
+	//layered();
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "gauges-");
 
@@ -49,10 +50,10 @@ void setup()
 	auto win1 = window(0, 0, canvasWidth, canvasHeight);
 	win1->setBackgroundColor(Pixel(0,0,0));
 
-	seggauge = std::make_shared<SegmentGauge>(150.0, canvasWidth/2.0, canvasHeight/2.0);
+	seggauge = std::make_shared<SegmentGauge>(100.0, canvasWidth/2.0, canvasHeight/2.0);
 	seggauge->setSegmentThickness(64.0);
 
-	sld = Slider::create(BLPoint(10, canvasHeight-30.0), BLPoint(canvasWidth - 10, canvasHeight-30));
+	sld = Slider::create({ 10, float(canvasHeight - 30) }, { float(canvasWidth - 10), float(canvasHeight - 30) });
 	sld->subscribe(progressChanged);
 
 	win1->addChild(seggauge);

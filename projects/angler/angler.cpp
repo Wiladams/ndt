@@ -13,10 +13,16 @@ std::shared_ptr<Recorder> recorder = nullptr;
 
 void draw()
 {
-	background(0);
+	if (isLayered())
+		clear();
+	else
+		background(0);
 
 	//noLoop();
 	indic->draw(*gAppSurface);
+
+	if (recorder != nullptr)
+		recorder->saveFrame();
 }
 
 // Implement onComposed(), because this is after draw()

@@ -178,11 +178,11 @@ public:
     }
 
 
-    static std::shared_ptr<Slider> create(const BLPoint& startPoint, const BLPoint& endPoint, double lowValue = 0, double highValue = 255, BLPoint pos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
+    static std::shared_ptr<Slider> create(const maths::vec2f& startPoint, const maths::vec2f& endPoint, float lowValue = 0, float highValue = 255, const maths::vec2f & pos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
     {
         //local thickness = params.thickness or 24
-        double dx = maths::abs((float)(endPoint.x - startPoint.x));
-        double dy = maths::abs((float)(endPoint.y - startPoint.y));
+        auto dx = maths::abs((endPoint.x - startPoint.x));
+        auto dy = maths::abs((endPoint.y - startPoint.y));
 
         int orientation = SLIDER_VERTICAL;
         if (dx > dy)
@@ -251,7 +251,7 @@ public:
         slider->fEndPoint = sliderEnd;
         slider->fTrackColor = Pixel(0xff, 0, 0);
         slider->fConstraint = sliderConstraint;
-        slider->fPosition = { 0, 0 };
+        slider->fPosition = pos;
 
         return slider;
     }

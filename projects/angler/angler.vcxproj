@@ -148,8 +148,10 @@
     <ClInclude Include="..\..\primary\framestats.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\pubsub.h" />
     <ClInclude Include="..\..\primary\Recorder.hpp" />
     <ClInclude Include="..\..\primary\secondtime.h" />
+    <ClInclude Include="..\..\primary\slider.h" />
     <ClInclude Include="countdowntickclock.hpp" />
   </ItemGroup>
   <ItemGroup>

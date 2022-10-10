@@ -17,45 +17,45 @@ public:
 	{
 	}
 
-	void drawBackground(std::shared_ptr<IGraphics> ctx)
+	void drawBackground(IGraphics & ctx)
 	{
-		ctx->push();
-		ctx->fill(160);
-		ctx->noStroke();
+		ctx.push();
+		ctx.fill(160);
+		ctx.noStroke();
 
-		ctx->rect(0, 0, fFrame.w, fFrame.h);
-		ctx->pop();
+		ctx.rect(0, 0, fFrame.w, fFrame.h);
+		ctx.pop();
 	}
 
-	void drawForeground(std::shared_ptr<IGraphics> ctx)
+	void drawForeground(IGraphics & ctx)
 	{
-		ctx->push();
-		ctx->fill(10, 10, 10, 70);
-		ctx->rect(4, 24, fFrame.w - 8, fFrame.h - 48);
-		ctx->pop();
+		ctx.push();
+		ctx.fill(10, 10, 10, 70);
+		ctx.rect(4, 24, fFrame.w - 8, fFrame.h - 48);
+		ctx.pop();
 	}
 
-	void drawSelf(std::shared_ptr<IGraphics> ctx)
+	void drawSelf(IGraphics & ctx)
 	{
 
-		ctx->push();
+		ctx.push();
 
 
-		ctx->noStroke();
+		ctx.noStroke();
 
 
-		ctx->textSize(18);
+		ctx.textSize(18);
 
-		ctx->fill(255);
-		ctx->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
-		ctx->text("CHRONOGRAPH", 100, 20);
+		ctx.fill(255);
+		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx.text("CHRONOGRAPH", 100, 20);
 
-		ctx->fill(0, 220, 220);
-		ctx->text(std::to_string(fClock.fHours).c_str(), 100, 44);
-		ctx->text(std::to_string(fClock.fMinutes).c_str(), 100, 68);
-		ctx->text(std::to_string(fClock.fSeconds).c_str(), 100, 92);
-		ctx->text(std::to_string(fClock.fTenths).c_str(), 100, 116);
-		ctx->pop();
+		ctx.fill(0, 220, 220);
+		ctx.text(std::to_string(fClock.fHours).c_str(), 100, 44);
+		ctx.text(std::to_string(fClock.fMinutes).c_str(), 100, 68);
+		ctx.text(std::to_string(fClock.fSeconds).c_str(), 100, 92);
+		ctx.text(std::to_string(fClock.fTenths).c_str(), 100, 116);
+		ctx.pop();
 	}
 
 	void setSeconds(double d)
@@ -69,9 +69,9 @@ TickTopic ttopic(10);
 std::shared_ptr<TickDisplay> _tdisplay=nullptr;
 
 
-void tickSubscriber(const Topic<double> & p, double e)
+void tickSubscriber(double e)
 {
-	printf("tick: %f\n", e);
+	//printf("tick: %f\n", e);
 	if (nullptr != _tdisplay)
 		_tdisplay->setSeconds(e);
 	

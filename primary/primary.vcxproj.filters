@@ -180,9 +180,6 @@
     <ClInclude Include="coloring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>

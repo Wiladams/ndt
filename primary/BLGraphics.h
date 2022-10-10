@@ -27,7 +27,7 @@ protected:
     BLImageData fImageData{};
 
     int fAngleMode = RADIANS;
-    ELLIPSEMODE fEllipseMode = ELLIPSEMODE::RADIUS;
+    ELLIPSEMODE fEllipseMode = ELLIPSEMODE::CENTER;
     RECTMODE fRectMode = RECTMODE::CORNER;
 
     bool fUseFill = true;
@@ -120,7 +120,7 @@ private:
     // Here we are crudely doing a minimal amount necessary
 // to see some text.  We should be using FontMonger to cache
 // font information so we're not reading it every time.
-    BLPoint calcTextPosition(const char* txt, double x, double y)
+    BLPoint calcTextPosition(const char* txt, double x, double y, double x2, double y2)
     {
         BLPoint txtSize = textMeasure(txt);
         double cx = txtSize.x;
@@ -560,9 +560,9 @@ public:
         return BLPoint(cx, cy);
     }
 
-    void text(const char* txt, double x, double y) override
+    void text(const char* txt, double x, double y, double x2=0, double y2=0) override
     {
-        BLPoint xy = calcTextPosition(txt, x, y);
+        BLPoint xy = calcTextPosition(txt, x, y,x2,y2);
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
         fCtx.fillUtf8Text(xy, fFont, txt);

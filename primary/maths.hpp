@@ -1058,12 +1058,12 @@ namespace maths
         return t * t * (3 - 2 * t);
     }
     inline float bias(float a, float bias) {
-        return a / ((1 / bias - 2) * (1 - a) + 1);
+        return a / ((1.0f / bias - 2) * (1.0f - a) + 1);
     }
     inline float gain(float a, float gain)
     {
-        return (a < 0.5f) ? bias(a * 2, gain) / 2
-            : bias(a * 2 - 1, 1 - gain) / 2 + 0.5f;
+        return (a < 0.5f) ? bias(a * 2.0f, gain) / 2.0f
+            : bias(a * 2.0f - 1, 1.0f - gain) / 2.0f + 0.5f;
     }
 
     inline float map(float x, float olow, float ohigh, float rlow, float rhigh)

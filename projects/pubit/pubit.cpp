@@ -4,19 +4,19 @@
 */
 
 #include "apphost.h"
+#include <iostream>
 
-
-void keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
+void keyboardSubscriber(const KeyboardEvent& e)
 {
 	std::cout << "keyboardSubscriber: " << e.activity << ", " << e.keyCode << std::endl;
 }
 
-void mouseSubscriber(const MouseEventTopic &p, const MouseEvent& e)
+void mouseSubscriber(const MouseEvent& e)
 {
 	std::cout << "mouseSubscriber: " << e.x << ", " << e.y << std::endl;
 }
 
-void joystickSubscriber(const JoystickEventTopic& p, const JoystickEvent& e)
+void joystickSubscriber(const JoystickEvent& e)
 {
 	std::cout << "joystickSubscriber: " << e.activity << ", " << e.z << std::endl;
 }

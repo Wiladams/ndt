@@ -103,6 +103,14 @@ enum class ALIGNMENT : unsigned
 
 } ;
 
+// Text Wrap
+// 
+enum class TEXTWRAP : unsigned
+{
+    WORD,
+    CHAR
+};
+
 // are angles specified in degrees
 // or in radians
 enum ANGLEMODE : unsigned
@@ -274,7 +282,7 @@ public:
     virtual void textFace(const BLFontFace& face) = 0;
     virtual void textFont(const char* fontname) = 0;
     virtual void textSize(double size) = 0;
-    virtual void text(const char* txt, double x, double y) = 0;
+    virtual void text(const char* txt, double x, double y, double x2=0, double y2=0) = 0;
     virtual BLPoint textMeasure(const char* txt) = 0;
 
     virtual void vartext(double x, double y, const char* format, ...)

@@ -53,9 +53,9 @@ public:
 
     static inline Pixel brighter(const Pixel& value)
     {
-        uint8_t red = tobyte(p5::constrain(value.r() * (1 / 0.80), 0, 255));
-        uint8_t green = tobyte(p5::constrain(value.g() * (1.0 / 0.85), 0, 255));
-        uint8_t blue = tobyte(p5::constrain(value.b() * (1.0 / 0.80), 0, 255));
+        uint8_t red = tobyte(p5::constrain(value.r() * (1.0f / 0.80f), 0, 255));
+        uint8_t green = tobyte(p5::constrain(value.g() * (1.0f / 0.85f), 0, 255));
+        uint8_t blue = tobyte(p5::constrain(value.b() * (1.0f / 0.80f), 0, 255));
 
         return Pixel(red, green, blue, value.a());
     }
@@ -79,7 +79,7 @@ public:
 
         for (int i = 1; i <= maxOffset; i++)
         {
-            auto alpha = p5::map(i, (double)1, (double)maxOffset, 20, 5);
+            auto alpha = p5::map(i, 1.0f, (float)maxOffset, 20, 5);
             shadow.setA((uint32_t)alpha);
             ctx.fill(shadow);
             //ctx.rect(r.x + i, r.y + i, r.w, r.h);

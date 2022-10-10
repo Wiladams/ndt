@@ -735,7 +735,7 @@ namespace p5 {
     {
         auto d = maths::rand1f(gRNGState);
 
-        d = (d * (high - low + 1.0)) + low;
+        d = (d * (high - low + 1.0f)) + low;
 
         return d;
     }
@@ -749,7 +749,7 @@ namespace p5 {
     {
         auto d = maths::rand1f(gRNGState);
 
-        d = (d * (high + 1.0));
+        d = (d * (high + 1.0f));
 
         return d;
     }
@@ -837,7 +837,8 @@ void handleMouseEvent(const MouseEvent& e)
     p5::mouseX = e.x;
     p5::mouseY = e.y;
     p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
-
+    //printf("  mouseX,Y: %d, %d\n", p5::mouseX, p5::mouseY);
+    
     // If there is a window manager, let it have first crack
     // at the mouse event.
     if (nullptr != gWindowManager) {
@@ -1029,44 +1030,44 @@ void handlePointerEvent(const PointerEvent& e)
 }
 
 
-static void p5frameTickSubscriber(const Topic<double>&p, const double t)
+static void p5frameTickSubscriber(const double t)
 {
     //droppedFrames = p.droppedFrames();
 
     handleFrameTick(t);
 }
 
-static void p5keyboardSubscriber(const KeyboardEventTopic& p, const KeyboardEvent& e)
+static void p5keyboardSubscriber(const KeyboardEvent& e)
 {
     handleKeyboardEvent(e);
 }
 
-static void p5mouseSubscriber(const MouseEventTopic &p, const MouseEvent& e)
+static void p5mouseSubscriber(const MouseEvent& e)
 {
     handleMouseEvent(e);
 }
 
-static void p5joystickSubscriber(const JoystickEventTopic& p, const JoystickEvent& e)
+static void p5joystickSubscriber(const JoystickEvent& e)
 {
     handleJoystickEvent(e);
 }
 
-static void p5touchSubscriber(const TouchEventTopic& p, const TouchEvent& e)
+static void p5touchSubscriber(const TouchEvent& e)
 {
     handleTouchEvent(e);
 }
 
-static void p5gestureSubscriber(const GestureEventTopic& p, const GestureEvent& e)
+static void p5gestureSubscriber(const GestureEvent& e)
 {
     handleGestureEvent(e);
 }
 
-static void p5pointerSubscriber(const PointerEventTopic& p, const PointerEvent& e)
+static void p5pointerSubscriber(const PointerEvent& e)
 {
     handlePointerEvent(e);
 }
 
-static void p5filedroppedSubscriber(const FileDropEventTopic& p, const FileDropEvent& e)
+static void p5filedroppedSubscriber(const FileDropEvent& e)
 {
     handleFileDroppedEvent(e);
 }
