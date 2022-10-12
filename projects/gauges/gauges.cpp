@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "segmenttick.h"
+#include "segmentgauge.h"
 #include "Recorder.hpp"
 #include "slider.h"
 
@@ -30,28 +30,27 @@ void onComposed()
 
 void draw()
 {
-	background(127);
+	if (isLayered)
+		clear();
+	else
+		background(127);
 }
 
 void setup()
 {
 	createCanvas(400, 400, "gauges");
 	frameRate(20);
-	//layered();
+	layered();
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "gauges-");
-
-	//loadDefaultFonts();
-	gAppSurface->textFont("Consolas");
 
 	gAppSurface->textSize(24);
 	gAppSurface->textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
 
 	auto win1 = window(0, 0, canvasWidth, canvasHeight);
-	win1->setBackgroundColor(Pixel(0,0,0));
+	win1->setBackgroundColor(Pixel(0,0,0,10));
 
-	seggauge = std::make_shared<SegmentGauge>(100.0, canvasWidth/2.0, canvasHeight/2.0);
-	seggauge->setSegmentThickness(64.0);
+	seggauge = std::make_shared<SegmentGauge>(BLRect(4,4, 300,300), 40);
 
 	sld = Slider::create({ 10, float(canvasHeight - 30) }, { float(canvasWidth - 10), float(canvasHeight - 30) });
 	sld->subscribe(progressChanged);

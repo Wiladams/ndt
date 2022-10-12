@@ -1,4 +1,5 @@
 #include "p5.hpp"
+#include "slider.h"
 
 #include <memory>
 
@@ -176,7 +177,6 @@ int nColors = sizeof(svgcolors) / sizeof(ColorEntry);
 
 SVGGraphic hoverGraphic = emptySVGGraphic;
 
-std::shared_ptr<GWindow> contentArea = nullptr;
 
 class SVGPage : public Graphic 
 {
@@ -302,14 +302,14 @@ void draw()
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBy(0, (e.delta / 120) * scrollSize);
+    page->translateBy(0, (e.delta / 120.0f) * scrollSize);
 }
 
 // Horizontal mouse wheel
 void mouseHWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBy((e.delta / 120) * scrollSize, 0);
+    page->translateBy((e.delta / (120.0f)) * scrollSize, 0);
 }
 
 // Handling panning
@@ -319,12 +319,33 @@ void panMoved(const GestureEvent& e)
     page->translateBy(panVecX, panVecY);
 }
 
+void onSlide(const maths::vec2f &pos)
+{
+    //printf("onSlide: %f, %f\n", pos.x, pos.y);
+    float maxY = page->getBounds().h;   // -window.h;
+    float transY = maths::map(pos.y, 0, 1, 0, maxY);
+
+    page->moveTo(0, transY);
+    //page->translateBy(0, transY);
+}
+
 void setup()
 {
     createCanvas(800, 600);
 
     // Create a window to hold stuff
-    contentArea = window(4, 4, canvasWidth-8, canvasHeight-8);
+    auto contentArea = window(0, 0, canvasWidth, canvasHeight);
+    contentArea->setTitle("contentArea");
     page = std::make_shared<SVGPage>();
     contentArea->addChild(page);
+
+    auto sldr = Slider::create(
+        { float(contentArea->width() - 12), 40}, 
+        {float(contentArea->width() - 12), float(contentArea->height() - 8)},
+        0.0f, 1.0f,{0.5f,0.5f});
+    contentArea->addChild(sldr);
+
+    sldr->subscribe(onSlide);
+    
+
 }

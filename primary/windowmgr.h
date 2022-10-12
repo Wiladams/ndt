@@ -26,8 +26,8 @@ public:
 	WindowManager(int w, int h)
 		:Graphic(0,0,w,h)
 	{
-		setLayout(std::make_shared<CascadeLayout>(w,h));
-		//setLayout(std::make_shared<IdentityLayout>());
+		//setLayout(std::make_shared<CascadeLayout>(w,h));
+		setLayout(std::make_shared<IdentityLayout>());
 
 	}
 
@@ -41,7 +41,8 @@ public:
 		// along the way, we can display whatever
 		// chrome we want, or do any rendering effects
 
-		for (std::shared_ptr<IGraphic> g : fChildren)
+		//for (std::shared_ptr<IGraphic> g : fChildren)
+		for (auto & g : fChildren)
 		{
 			auto f = g->getFrame();
 

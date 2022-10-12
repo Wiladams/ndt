@@ -107,7 +107,7 @@ public:
             }
             break;
             case GCMD_STROKEWEIGHT: {
-                fGraphics->strokeWeight((double)readFloat());
+                fGraphics->strokeWeight(readFloat());
             }
             break;
 

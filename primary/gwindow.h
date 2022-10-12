@@ -82,7 +82,7 @@ public:
 		// Draw a frame
 		auto frame = getFrame();
 
-		ctx.strokeWeight(2.0);
+		ctx.strokeWeight(2.0f);
 		ctx.stroke(0);
 		ctx.noFill();
 		ctx.rect(0, 0, frame.w, frame.h);
@@ -115,9 +115,16 @@ public:
 		ctx.image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
 	}
 
+	void setTitle(const char* title)
+	{
+		fTitle.clear();
+		fTitle.append(title);
+	}
+
 	void setTitle(const std::string& title)
 	{
-		fTitle = title;
+		fTitle.clear();
+		fTitle.append(title);
 	}
 
 	bool inTitleBar(int x, int y)
@@ -177,7 +184,7 @@ public:
 		// handle the event, so allow sub-graphics to deal with it
 		auto win = graphicAt(e.x, e.y);
 
-		if (win) {
+		if (win != nullptr) {
 			win->mouseEvent(e);
 		}
 

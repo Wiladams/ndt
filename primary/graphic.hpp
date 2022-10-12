@@ -63,7 +63,7 @@ public:
 		fLayout = layout;
 	}
 
-	void translateBy(double x, double y)
+	void translateBy(float x, float y)
 	{
 		fTransform.translate(x, y);
 	}
@@ -94,8 +94,14 @@ public:
 		std::deque<std::shared_ptr<IGraphic> >::reverse_iterator rit = fChildren.rbegin();
 		for (rit = fChildren.rbegin(); rit != fChildren.rend(); ++rit)
 		{
-			if ((*rit)->contains(x, y))
-				return *rit;
+			if ((*rit) != nullptr)
+			{
+				if ((*rit)->contains(x, y))
+					return *rit;
+			}
+			else {
+				//printf("GraphicAt() - contains null reference\n");
+			}
 		}
 
 		return nullptr;
@@ -157,9 +163,19 @@ public:
 
 	virtual void draw(IGraphics & ctx)
 	{
+		// Start by saving the context state
+		// so we're free to mess around with it
+		// while we're drawing ourself.
 		ctx.push();
-		//ctx->clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
 
+		// Before we do anything else, and while we're still
+		// in the coordinate system of our parent, we want to setup 
+		// a clip for our frame.
+		// Once the clip is set, we want to transform our
+		// coordinate sytem to have 0,0 be at the upper left corner.
+
+		ctx.clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+		
 
 		// BUGBUG - maybe perform arbitrary transform?
 		auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
@@ -170,7 +186,7 @@ public:
 		drawSelf(ctx);
 		drawForeground(ctx);
 
-		//ctx->noClip();
+		ctx.noClip();
 		ctx.pop();
 		
 	}

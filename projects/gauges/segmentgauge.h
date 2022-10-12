@@ -5,17 +5,17 @@
 
 struct SegmentTick : public IDrawable
 {
-	double fRadius = 0.0;
-	double fStartAngle = 0.0;
-	double fSweep = 0.0;
+	float fRadius = 0.0;
+	float fStartAngle = 0.0;
+	float fSweep = 0.0;
 
-	double fWeight = 20.0;
+	float fWeight = 20;
 
 	Pixel fIdleColor{};
 	Pixel fProgressColor{};
 
 
-	SegmentTick(double radius, double startAngle, double sweep)
+	SegmentTick(float radius, float startAngle, float sweep)
 	{
 		fRadius = radius;
 		fStartAngle = startAngle;
@@ -42,14 +42,14 @@ struct SegmentGauge : public Graphic
 {
 	static void getPreferredSize(int& x, int& y) { x = 300; y = 300; }
 
-	double fCx = 0;
-	double fCy = 0;
-	double fRadius = 0;
+	float fCx = 0;
+	float fCy = 0;
+	float fRadius = 0;
 
 	int fNumTicks = 20;
-	double fStartAngle = 0;
-	double fSweep = 0;
-	double fThickness = 20;
+	float fStartAngle = 0;
+	float fSweep = 0;
+	float fThickness = 20;
 	Pixel fStartColor{};
 	Pixel fEndColor{};
 
@@ -57,16 +57,17 @@ struct SegmentGauge : public Graphic
 	std::vector<SegmentTick> fTicks;
 
 
-	SegmentGauge(double radius, double cx, double cy)
-		:Graphic(0,0,radius*2,radius*2)
+	SegmentGauge(const BLRect &f, float thickness)
+		:Graphic(f.x, f.y, f.w, f.h)
 	{
-		fCx = cx;
-		fCy = cy;
+		fThickness = thickness;
+		fCx = f.w / 2.0f;
+		fCy = f.h/2.0f;
 
-		fRadius = radius;
+		fRadius = (fCx > fCy) ? fCy/2.0f : fCx/2.0f;
 
-		float sweepDegrees = 200.0;
-		float startDegrees = 90.0 + ((360 - sweepDegrees) / 2.0);
+		float sweepDegrees = 200;
+		float startDegrees = 90 + ((360 - sweepDegrees) / 2);
 
 		fSweep = maths::radians(sweepDegrees);
 		fStartAngle = maths::radians(startDegrees);
@@ -77,14 +78,15 @@ struct SegmentGauge : public Graphic
 		createTicks();
 	}
 
-	void setSegmentThickness(double thickness)
+	/*
+	void setSegmentThickness(float thickness)
 	{
 		for (auto& tick : fTicks)
 		{
 			tick.fWeight = thickness;
 		}
 	}
-
+	*/
 
 	// We only need to create the tick marks once.
  // Each tick is reponsible for its own drawing
@@ -92,18 +94,19 @@ struct SegmentGauge : public Graphic
  // radius
 	void createTicks()
 	{
-		double segSweep = (fSweep / fNumTicks);
-		double tickSweep = (fSweep / fNumTicks) * 0.9;
+		float segSweep = (fSweep / fNumTicks);
+		float tickSweep = (fSweep / fNumTicks) * 0.9f;
 
 		for (int i = 0; i < fNumTicks; i++)
 		{
-			double startAt = fStartAngle + (i*segSweep);
+			float startAt = fStartAngle + (i*segSweep);
 
 			SegmentTick tick(fRadius, startAt, tickSweep);
 			tick.fWeight = fThickness;
 			auto c = ndt::lerpColor(fStartColor, fEndColor, (float)i / fNumTicks);
 
 			tick.fProgressColor = c;
+			tick.fWeight = fThickness;
 
 			fTicks.push_back(tick);
 		}
@@ -112,6 +115,13 @@ struct SegmentGauge : public Graphic
 	void setProgress(float prog)
 	{
 		fProgress = maths::clamp((float)prog, 0.0, 1.0);
+	}
+
+	void drawBackground(IGraphics & ctx) override
+	{
+		ctx.stroke(0xff, 0, 0);
+		ctx.noFill();
+		ctx.rect(0, 0, fFrame.w, fFrame.h);
 	}
 
 	void drawForeground(IGraphics &ctx)

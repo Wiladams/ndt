@@ -48,6 +48,10 @@ void setup()
 	fullscreen();
 
 	dropFiles();	// allow dropping of files
+
+	// Use a cascading window layout
+	std::shared_ptr<ILayoutGraphics> layout = std::make_shared<CascadeLayout>(canvasWidth, canvasHeight);
+	windowLayout(layout);
 }
 
 // A file drop may contain the names

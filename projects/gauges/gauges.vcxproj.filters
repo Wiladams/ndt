@@ -32,13 +32,10 @@
     <ClInclude Include="..\..\primary\apphost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\canvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\primary\BLGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="segmenttick.h">
+    <ClInclude Include="segmentgauge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\primary\slider.h">

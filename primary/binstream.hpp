@@ -495,7 +495,7 @@ size_t readLine(char* buff, const size_t bufflen)
     // 16-bit
     float readF2Dot14()
     {
-        return (float)readUInt16() / 0x4000;
+        return float(readUInt16() / 0x4000);
     }
 
     // fixed 16_16 numbers

@@ -92,9 +92,9 @@ public:
     // stroking attributes
      void strokeCaps(int caps) {writeEnum(GCMD_STROKECAPS, caps);}
      void strokeJoin(int style) { writeEnum(GCMD_STROKEJOIN, style); }
-     void strokeWeight(double weight) { 
+     void strokeWeight(float weight) { 
         writeCommand(GCMD_STROKEWEIGHT);
-        writeFloat((float)weight);
+        writeFloat(weight);
     }
 
 
@@ -346,7 +346,7 @@ public:
         writeString(fontfile);
     }
     
-    virtual void textSize(double size)
+    virtual void textSize(float size)
     {
         writeCommand(GCMD_TEXTSIZE);
         writeFloat((float)size);

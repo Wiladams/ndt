@@ -113,7 +113,7 @@ enum class TEXTWRAP : unsigned
 
 // are angles specified in degrees
 // or in radians
-enum ANGLEMODE : unsigned
+enum class ANGLEMODE : unsigned
 {
     DEGREES,
     RADIANS
@@ -150,7 +150,7 @@ enum class DRAWSTYLE : unsigned
 
 
 typedef BLRgba32 Pixel;
-
+//using Pixel = maths::vec4b;
 
 /*
     IGraphics defines the essential interface for doing vector graphics
@@ -162,13 +162,13 @@ class IGraphics
 public:
     virtual ~IGraphics() = default;
 
-    virtual void angleMode(int newMode) = 0;
+    virtual void angleMode(const ANGLEMODE mode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
     virtual void rectMode(const RECTMODE mode) = 0;
     virtual void blendMode(int mode) = 0;
     virtual void strokeCaps(int caps) = 0;
     virtual void strokeJoin(int join) = 0;
-    virtual void strokeWeight(double weight) = 0;
+    virtual void strokeWeight(float weight) = 0;
 
     virtual void push()=0;
     virtual void pop()=0;
@@ -242,8 +242,8 @@ public:
     virtual void point(double x, double y) = 0;
     virtual void line(double x1, double y1, double x2, double y2) = 0;
     virtual void arc(double cx, double cy, double r, double start, double sweep) = 0;
-    virtual void rect(double x, double y, double width, double height) { rect(x, y, width, height, 1, 1); }
-    virtual void rect(double x, double y, double width, double height, double xradius, double yradius) = 0;
+    virtual void rect(float x, float y, float width, float height) { rect(x, y, width, height, 1, 1); }
+    virtual void rect(float x, float y, float width, float height, float xradius, float yradius) = 0;
     virtual void ellipse(double a, double b, double c, double d) = 0;
     virtual void circle(double cx, double cy, double diameter) = 0;
     virtual void triangle(double x1, double y1, double x2, double y2, double x3, double y3) = 0;
@@ -281,11 +281,11 @@ public:
     virtual void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) = 0;
     virtual void textFace(const BLFontFace& face) = 0;
     virtual void textFont(const char* fontname) = 0;
-    virtual void textSize(double size) = 0;
-    virtual void text(const char* txt, double x, double y, double x2=0, double y2=0) = 0;
-    virtual BLPoint textMeasure(const char* txt) = 0;
+    virtual void textSize(float size) = 0;
+    virtual void text(const char* txt, float x, float y, float x2=0, float y2=0) = 0;
+    virtual maths::vec2f textMeasure(const char* txt) = 0;
 
-    virtual void vartext(double x, double y, const char* format, ...)
+    virtual void vartext(float x, float y, const char* format, ...)
     {
         char txtBuff[512];
         va_list args = nullptr;

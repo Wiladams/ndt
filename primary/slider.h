@@ -62,21 +62,23 @@ constexpr int SLIDER_HORIZONTAL = 2;
 //
 // Slider Class
 //
-class Slider : public Graphic, public Topic<maths::vec2f>
+
+
+class Slider : public Graphic, public Topic<maths::vec2f &>
 {
-    static const int trackThickness = 8;
+    static constexpr float trackThickness = 8.0f;
 
     MotionConstraint fConstraint;
 
-    BLPoint fStartPoint;
-    BLPoint fEndPoint;
+    maths::vec2f fStartPoint{};
+    maths::vec2f fEndPoint{};
 
     float fLowValue;
     float fHighValue;
 
-    maths::vec2f fPosition;
-    maths::vec2f fLastLocation;
-
+    maths::vec2f fPosition{};
+    maths::vec2f fLastLocation{};
+    int fOrientation = 0;
 
     bool fDragging;
     Pixel fTrackColor;
@@ -95,33 +97,17 @@ public:
         setPosition(pos.x, pos.y);
     }
 
-    void drawBackground(IGraphics &ctx) override
+ 
+
+    void setOrientation(int orient)
     {
-        // Debugging
-        //ctx.strokeWeight(1.0);
-        //ctx.noFill();
-        //ctx.stroke(255, 255, 0);
-        //ctx.rect(fBounds.x, fBounds.y, fBounds.w, fBounds.h);
-
-
-        //print("slider.drawBackground: ", self.frame.x, self.frame.y, self.frame.width, self.frame.height)
-        //draw line between endpoints
-        //ctx.strokeWeight(Slider::trackThickness);
-        ctx.strokeWeight(trackThickness);
-        ctx.stroke(0xf5);
-        ctx.line(fBounds.x, fBounds.y+(fBounds.h/2.0), fBounds.x+fBounds.w, fBounds.y + (fBounds.h / 2.0));
-
-        //draw a couple of circles at the ends
-        ctx.noStroke();
-        ctx.fill(10);
-        ctx.circle(fBounds.x, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
-        ctx.circle(fBounds.x+fBounds.w, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
+        fOrientation = orient;
     }
 
     //
     //    Returns a number in range[0..1]
     //
-    maths::vec2f getPosition()
+    const maths::vec2f & getPosition() const
     {
         return fPosition;
         //return map(self.thumb.frame.x, self.constraint.minX, self.constraint.maxX, 0, 1)
@@ -171,16 +157,54 @@ public:
     void mouseMoved(const MouseEvent& e)
     {
         if (fDragging) {
-            maths::vec2f change(e.x - fLastLocation.x, e.y - fLastLocation.y);
+            maths::vec2f change{ e.x - fLastLocation.x, e.y - fLastLocation.y };
             changeThumbLocation(change);
         }
         fLastLocation = { float(e.x), float(e.y) };
     }
 
+    void drawBackground(IGraphics& ctx) override
+    {
+        // Debugging
+        //ctx.strokeWeight(1.0);
+        //ctx.noFill();
+        //ctx.stroke(255, 255, 0);
+        //ctx.rect(fBounds.x, fBounds.y, fBounds.w, fBounds.h);
+
+
+        //draw line between endpoints
+        ctx.strokeWeight(trackThickness);
+        ctx.stroke(0xf5);
+
+        if (fOrientation == SLIDER_HORIZONTAL)
+        {
+            ctx.stroke(0xf5);
+            ctx.line(fBounds.x, fBounds.y + (fBounds.h / 2.0), fBounds.x + fBounds.w, fBounds.y + (fBounds.h / 2.0));
+        
+            ctx.noStroke();
+            ctx.fill(10);
+            ctx.circle(fBounds.x, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
+            ctx.circle(fBounds.x + fBounds.w, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
+
+        }
+        else {
+            ctx.stroke(0xC0);
+            float x1 = fBounds.x + fBounds.w / 2.0f;
+            float y1 = fBounds.y;
+            float x2 = fBounds.x + fBounds.w / 2.0f;
+            float y2 = fBounds.y + fBounds.h;
+            ctx.line(x1, y1, x2, y2);
+
+            ctx.noStroke();
+            ctx.fill(10);
+            ctx.circle(x1, y1, (Slider::trackThickness / 2.0f) + 2);
+            ctx.circle(x1, y2, (Slider::trackThickness / 2.0f) + 2);
+        }
+    }
+
 
     static std::shared_ptr<Slider> create(const maths::vec2f& startPoint, const maths::vec2f& endPoint, float lowValue = 0, float highValue = 255, const maths::vec2f & pos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
     {
-        //local thickness = params.thickness or 24
         auto dx = maths::abs((endPoint.x - startPoint.x));
         auto dy = maths::abs((endPoint.y - startPoint.y));
 
@@ -190,11 +214,7 @@ public:
             orientation = SLIDER_HORIZONTAL;
         }
 
-
         // create the thumb
-        //local thumbParams = params.thumb or {}
-        //thumbParams.length = thumbParams.length or 60;
-        //thumbParams.thumbColor = thumbParams.thumbColor or 0x70;
         BLRect thumbFrame{};
 
         if (orientation == SLIDER_VERTICAL)
@@ -206,31 +226,31 @@ public:
         } else {
             thumbFrame.x = 0;
             thumbFrame.y = 0;
-            thumbFrame.w = trackThickness * 2;
-            thumbFrame.h = trackThickness * 4;
+            thumbFrame.w = trackThickness * 4;
+            thumbFrame.h = trackThickness * 2;
         }
         std::shared_ptr<SliderThumb> sliderThumb = std::make_shared<SliderThumb>(thumbFrame);
 
         //Now figure out the frame of the entire slider
         BLRect sliderFrame{};
         MotionConstraint sliderConstraint;
-        BLPoint sliderStart{};
-        BLPoint sliderEnd{};
+        maths::vec2f sliderStart{};
+        maths::vec2f sliderEnd{};
 
         if (orientation == SLIDER_VERTICAL)
         {
-            sliderFrame.w = trackThickness;
-            sliderFrame.h = abs(dy);
+            sliderFrame.w = thumbFrame.w;
+            sliderFrame.h = dy;
 
-            sliderFrame.x = startPoint.x - (trackThickness / 2.0);
+            sliderFrame.x = startPoint.x - (thumbFrame.w / 2.0);
             sliderFrame.y = startPoint.y;
 
 
 
             sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->getFrame().h);
 
-            sliderStart = BLPoint(trackThickness / 2.0, 0);
-            sliderEnd = BLPoint(trackThickness / 2.0, sliderFrame.h);
+            sliderStart = { trackThickness / 2, 0 };
+            sliderEnd = { trackThickness / 2, (float)sliderFrame.h };
         }
         else {
             sliderFrame.w = dx;
@@ -241,12 +261,13 @@ public:
 
             sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->getFrame().w, 0);
 
-            sliderStart = BLPoint(0, trackThickness / 2.0);
-            sliderEnd = BLPoint(sliderFrame.w, trackThickness / 2.0);
+            sliderStart = { 0, trackThickness / 2 };
+            sliderEnd = { (float)sliderFrame.w, trackThickness / 2 };
         }
 
         auto slider = std::make_shared<Slider>(lowValue, highValue, BLPoint(0, 0), sliderThumb);
         slider->setFrame(sliderFrame);
+        slider->setOrientation(orientation);
         slider->fStartPoint = sliderStart;
         slider->fEndPoint = sliderEnd;
         slider->fTrackColor = Pixel(0xff, 0, 0);

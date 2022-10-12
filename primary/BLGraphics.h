@@ -26,13 +26,13 @@ protected:
     BLContext fCtx{};
     BLImageData fImageData{};
 
-    int fAngleMode = RADIANS;
+    ANGLEMODE fAngleMode = ANGLEMODE::RADIANS;
     ELLIPSEMODE fEllipseMode = ELLIPSEMODE::CENTER;
     RECTMODE fRectMode = RECTMODE::CORNER;
 
     bool fUseFill = true;
     // Drawing Attributes
-    double fDimensionScale = 1.0;
+    float fDimensionScale = 1.0;
 
     // Typography
     BLFontFace fFontFace{};
@@ -86,12 +86,12 @@ private:
         return { cx, cy, rx, ry };
     }
 
-    static BLRect calcRectParams(RECTMODE mode, double& a, double& b, double& c, double& d)
+    static BLRect calcRectParams(RECTMODE mode, float& a, float& b, float& c, float& d)
     {
-        double x = 0;
-        double y = 0;
-        double w = 0;
-        double h = 0;
+        float x = 0;
+        float y = 0;
+        float w = 0;
+        float h = 0;
 
         switch (mode) {
         case RECTMODE::CORNER:
@@ -120,11 +120,11 @@ private:
     // Here we are crudely doing a minimal amount necessary
 // to see some text.  We should be using FontMonger to cache
 // font information so we're not reading it every time.
-    BLPoint calcTextPosition(const char* txt, double x, double y, double x2, double y2)
+    maths::vec2f calcTextPosition(const char* txt, float x, float y, float x2, float y2)
     {
-        BLPoint txtSize = textMeasure(txt);
-        double cx = txtSize.x;
-        double cy = txtSize.y;
+        maths::vec2f txtSize = textMeasure(txt);
+        float cx = txtSize.x;
+        float cy = txtSize.y;
 
         switch (fTextHAlignment)
         {
@@ -167,7 +167,7 @@ private:
             break;
         }
 
-        return BLPoint(x, y);
+        return { x, y };
     }
 
 
@@ -208,7 +208,7 @@ public:
         :fUseFill(true),
         fEllipseMode(ELLIPSEMODE::RADIUS),
         fRectMode(RECTMODE::CORNER),
-        fAngleMode(RADIANS)
+        fAngleMode(ANGLEMODE::RADIANS)
     {
         initContext(BLContext());
     }
@@ -259,7 +259,7 @@ public:
 
 
     // Various Modes
-    void angleMode(int mode) override { fAngleMode = mode; }
+    void angleMode(ANGLEMODE mode) override { fAngleMode = mode; }
     void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
     void rectMode(const RECTMODE mode) override { fRectMode = mode; }
     void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
@@ -267,7 +267,7 @@ public:
     // stroking attributes
     void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
     void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }
-    void strokeWeight(double weight) override { fCtx.setStrokeWidth(weight); }
+    void strokeWeight(float weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
     void push() override { fCtx.save(); }
@@ -349,8 +349,12 @@ public:
      void background(const Pixel& c) override
     {
         fCtx.save();
-        fCtx.setFillStyle(c);
-        fCtx.fillAll();
+        if (c.value == 0) {
+            fCtx.clearAll();
+        } else {
+            fCtx.setFillStyle(c);
+            fCtx.fillAll();
+        }
         fCtx.restore();
     }
 
@@ -396,7 +400,7 @@ public:
         incrCmd();
     }
     
-    void rect(double x, double y, double width, double height, double xradius, double yradius) override
+    void rect(float x, float y, float width, float height, float xradius, float yradius) override
     {
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
@@ -405,7 +409,7 @@ public:
     }
 
     
-    void rect(double a, double b, double c, double d) override
+    void rect(float a, float b, float c, float d) override
     {
             BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
             rect(params.x, params.y, params.w, params.h, 1, 1);
@@ -533,9 +537,9 @@ public:
         }
     }
     
-    void textSize(double size) override
+    void textSize(float size) override
     {
-        fFontSize = (float)size;
+        fFontSize = size;
         fFont.reset();
         fFont.createFromFace(fFontFace, fFontSize);
     }
@@ -543,7 +547,7 @@ public:
     // Get the width (in font units) of the text
     // BUGBUG - This is NOT in the base interface.  
     // maybe it should be?
-     BLPoint textMeasure(const char* txt) override
+     maths::vec2f textMeasure(const char* txt) override
     {
         //BLFontMetrics fm = fFont.metrics();
         BLTextMetrics tm;
@@ -553,22 +557,22 @@ public:
         fFont.shape(gb);
         fFont.getTextMetrics(gb, tm);
 
-        double cx = tm.boundingBox.x1 - tm.boundingBox.x0;
-        double cy = fFont.size();
+        float cx = tm.boundingBox.x1 - tm.boundingBox.x0;
+        float cy = fFont.size();
 
 
-        return BLPoint(cx, cy);
+        return { cx, cy };
     }
 
-    void text(const char* txt, double x, double y, double x2=0, double y2=0) override
+    void text(const char* txt, float x, float y, float x2=0, float y2=0) override
     {
-        BLPoint xy = calcTextPosition(txt, x, y,x2,y2);
+        maths::vec2f xy = calcTextPosition(txt, x, y,x2,y2);
         //printf("text: (%3.2f,%3.2f) => (%3.2f,%3.2f)\n", x, y, xy.x, xy.y);
 
-        fCtx.fillUtf8Text(xy, fFont, txt);
+        fCtx.fillUtf8Text(BLPoint(xy.x, xy.y), fFont, txt);
         
         
-        fCtx.strokeUtf8Text(xy, fFont, txt);
+        fCtx.strokeUtf8Text(BLPoint(xy.x, xy.y), fFont, txt);
 
         // there are proably a whole lot more 'commands'
         // generated when rendering text, but we have no 

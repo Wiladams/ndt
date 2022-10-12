@@ -823,8 +823,10 @@ bool setCanvasSize(long aWidth, long aHeight)
         //gAppSurface.reset();
     }
 
-
+    // BUGBUG - is state transferred?
     gAppSurface = std::make_shared<Surface>(aWidth, aHeight,0);
+    gAppSurface->textFont("Consolas");
+
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 

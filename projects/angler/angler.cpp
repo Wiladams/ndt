@@ -16,13 +16,14 @@ void draw()
 	if (isLayered())
 		clear();
 	else
-		background(0);
+		background(92);
 
-	//noLoop();
 	indic->draw(*gAppSurface);
 
 	if (recorder != nullptr)
 		recorder->saveFrame();
+
+	//noLoop();
 }
 
 // Implement onComposed(), because this is after draw()
@@ -47,8 +48,6 @@ void setup()
 	
 	//BLFontFace ff = loadFont("c:\\Windows\\Fonts\\consola.ttf");
 	//gAppSurface->textFace(ff);
-
-	frameRate(10);
 
 	//recorder->record();
 

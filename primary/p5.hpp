@@ -252,8 +252,9 @@ struct PVector {
     void addWindow(std::shared_ptr<GWindow> win);
     std::shared_ptr<GWindow> window(int x, int y, int w, int h);
     void windowToFront(std::shared_ptr<GWindow> win);
+    void windowLayout(std::shared_ptr<ILayoutGraphics>& layout);
 
-    void angleMode(int mode) noexcept;
+    void angleMode(const ANGLEMODE mode) noexcept;
     void ellipseMode(const ELLIPSEMODE mode) noexcept;
     void rectMode(const RECTMODE mode) noexcept;
     void blendMode(int mode) noexcept;
@@ -406,7 +407,7 @@ struct PVector {
     void text(const char* txt, REAL x, REAL y) noexcept;
     void text(REAL x, REAL y, const char* format, ...) noexcept;
     REAL textWidth(const char* txt) noexcept;
-    BLPoint textMeasure(const char* txt) noexcept;
+    maths::vec2f textMeasure(const char* txt) noexcept;
 
     void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) noexcept;
     void vertex(REAL x, REAL y) noexcept;

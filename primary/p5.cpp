@@ -121,10 +121,15 @@ namespace p5 {
 
     std::shared_ptr<GWindow> window(const int x, const int y, const int w, const int h)
     {
-        auto win = std::make_shared<GWindow>(x, y, w, h);
+        std::shared_ptr<GWindow> win = std::make_shared<GWindow>(x, y, w, h);
         addWindow(win);
 
         return win;
+    }
+
+    void windowLayout(std::shared_ptr<ILayoutGraphics> & layout)
+    {
+        gWindowManager->setLayout(layout);
     }
 
     void windowToFront(std::shared_ptr<GWindow> win)
@@ -145,7 +150,7 @@ namespace p5 {
     }
 
     // Various modes
-    void angleMode(int mode) noexcept
+    void angleMode(const ANGLEMODE mode) noexcept
     {
         gAppSurface->angleMode(mode);
     }
@@ -622,17 +627,17 @@ namespace p5 {
         gAppSurface->textFont(fontname);
     }
 
-    void textSize(double size) noexcept
+    void textSize(REAL size) noexcept
     {
         gAppSurface->textSize(size);
     }
 
-    void text(const char* txt, double x, double y) noexcept
+    void text(const char* txt, REAL x, REAL y) noexcept
     {
         gAppSurface->text(txt, x, y);
     }
 
-    void text(double x, double y, const char* format, ...) noexcept
+    void text(REAL x, REAL y, const char* format, ...) noexcept
     {
         va_list args = nullptr;
         va_start(args, format);
@@ -642,7 +647,7 @@ namespace p5 {
         va_end(args);
     }
 
-    BLPoint textMeasure(const char* txt) noexcept
+    maths::vec2f textMeasure(const char* txt) noexcept
     {
         return gAppSurface->textMeasure(txt);
     }
@@ -658,7 +663,7 @@ namespace p5 {
         gAppSurface->beginShape(shapeKind);
     }
 
-    void vertex(double x, double y) noexcept
+    void vertex(REAL x, REAL y) noexcept
     {
         gAppSurface->vertex(x, y);
     }
@@ -1170,6 +1175,3 @@ void onLoad()
     if (gLooping)
         gTickTopic.start();
 }
-
-
-

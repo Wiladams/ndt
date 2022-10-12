@@ -78,6 +78,7 @@ extern "C" {
 
 typedef void (* VOIDROUTINE)();
 typedef void (*PFNDOUBLE1)(const double param);
+typedef void (*PFNFLOAT1)(const float param);
 
 // Miscellaneous globals
 APP_EXPORT extern int gargc;

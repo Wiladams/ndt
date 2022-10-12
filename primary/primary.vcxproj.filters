@@ -204,9 +204,6 @@
     <ClInclude Include="joystick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="windowlayout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="appconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -244,6 +241,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
