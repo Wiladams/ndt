@@ -354,13 +354,17 @@ struct PVector {
     // constrain to boundary and clip area
     void line(REAL x1, REAL y1, REAL x2, REAL y2) noexcept;
 
-    // Draw a rectangle with sharp corners
-    // honors rectangle mode
-    void rect(REAL x, REAL y, REAL width, REAL height) noexcept;
 
     // draw rectangle with rounded corners
     // honors rectangle mode
     void rect(REAL x, REAL y, REAL width, REAL height, REAL xradius, REAL yradius) noexcept;
+
+    // Draw a rectangle with sharp corners
+    // honors rectangle mode
+    void rect(REAL x, REAL y, REAL width, REAL height) noexcept;
+
+
+    void square(REAL x, REAL y, REAL side) noexcept;
 
     // Draw an ellipse
     // honors the ellipse mode

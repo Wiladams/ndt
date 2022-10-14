@@ -64,7 +64,7 @@ public:
 	{
 	}
 
-	virtual void layout(std::deque<std::shared_ptr<IGraphic> > &gs)
+	virtual void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		// There must be at least two graphics in the vector
 		// only the first two will be part of the layout
@@ -138,7 +138,7 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > &gs)
+	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		int x = 10;
 		int y = 49;
@@ -218,7 +218,7 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > gs)
+	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		reset();
 
@@ -286,7 +286,7 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > gs)
+	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		reset();
 

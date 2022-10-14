@@ -19,6 +19,7 @@ protected:
 
 
 	BLMatrix2D fTransform{};  // Internal transformation matrix
+	maths::vec2f fTranslation;
 
 	BLRect fFrame{};
 	BLRect fBounds{};
@@ -63,9 +64,15 @@ public:
 		fLayout = layout;
 	}
 
+	void translateTo(float x, float y)
+	{
+		fTranslation = { x,y };
+	}
+
 	void translateBy(float x, float y)
 	{
-		fTransform.translate(x, y);
+		fTranslation += {x, y};
+		//fTransform.translate(x, y);
 	}
 
 	void setTransform(BLMatrix2D& m) { fTransform = m; }
@@ -89,6 +96,8 @@ public:
 	// Find the topmost window at a given position
 	std::shared_ptr<IGraphic> graphicAt(int x, int y)
 	{
+
+
 		// traverse through windows in reverse order
 		// return when one of them contains the mouse point
 		std::deque<std::shared_ptr<IGraphic> >::reverse_iterator rit = fChildren.rbegin();
@@ -178,8 +187,12 @@ public:
 		
 
 		// BUGBUG - maybe perform arbitrary transform?
-		auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-		ctx.translate(pt.x, pt.y);
+		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+		//ctx.translate(pt.x, pt.y);
+		ctx.translate(fFrame.x, fFrame.y);
+
+		// Apply user specified transform
+		ctx.translate(fTranslation.x, fTranslation.y);
 
 		drawBackground(ctx);
 		drawChildren(ctx);
@@ -199,12 +212,16 @@ public:
 
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
+		// 
+		int tx = e.x + fTranslation.x;
+		int ty = e.y - fTranslation.y;
+
 		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << " modified: " << pt.x << ", " << pt.y << std::endl;
 		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << std::endl;
 
 		// Figure out which child the mouse pointer 
 		// is currently over
-		auto g = graphicAt(e.x, e.y);
+		auto g = graphicAt(tx, ty);
 
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
@@ -215,8 +232,10 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			MouseEvent newEvent = e;
-			newEvent.x = (int)(e.x - g->getFrame().x);
-			newEvent.y = (int)(e.y - g->getFrame().y);
+			//newEvent.x = (int)(e.x - g->getFrame().x);
+			//newEvent.y = (int)(e.y - g->getFrame().y);
+			newEvent.x = (int)(tx - g->getFrame().x);
+			newEvent.y = (int)(ty - g->getFrame().y);
 
 			g->mouseEvent(newEvent);
 		}
@@ -275,17 +294,19 @@ public:
 
 	virtual void mouseWheel(const MouseEvent& e)
 	{
-		printf("Graphic.mouseWheel\n");
+		//printf("Graphic.mouseWheel\n");
 		// do nothing
 	}
 
 	virtual void mouseHWheel(const MouseEvent& e)
 	{
+		//printf("Graphic.mouseHWheel\n");
 		// do nothing
 	}
 
 	virtual void fileDrop(const FileDropEvent& e)
 	{
+		//printf("Graphic.fileDrop\n");
 		// do nothing
 	}
 

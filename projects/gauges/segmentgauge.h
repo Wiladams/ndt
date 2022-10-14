@@ -61,8 +61,8 @@ struct SegmentGauge : public Graphic
 		:Graphic(f.x, f.y, f.w, f.h)
 	{
 		fThickness = thickness;
-		fCx = f.w / 2.0f;
-		fCy = f.h/2.0f;
+		fCx = float(f.w / 2.0f);
+		fCy = float(f.h/2.0f);
 
 		fRadius = (fCx > fCy) ? fCy/2.0f : fCx/2.0f;
 

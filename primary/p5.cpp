@@ -526,6 +526,13 @@ namespace p5 {
         gAppSurface->rect(x, y, width, height);
     }
 
+
+    void square(REAL x, REAL y, REAL side) noexcept
+    {
+        gAppSurface->rect(x, y, side, side);
+    }
+
+
     void ellipse(REAL a, REAL b, REAL c, REAL d) noexcept
     {
         gAppSurface->ellipse(a, b, c, d);

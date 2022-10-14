@@ -9,17 +9,14 @@ using namespace p5;
 
 std::shared_ptr<SegmentGauge> seggauge = nullptr;
 std::shared_ptr<Recorder> recorder = nullptr;
-std::shared_ptr<Slider> sld = nullptr;
-
-float gProgress = 0.0;
+//std::shared_ptr<Slider> sld = nullptr;
 
 
-void progressChanged(const maths::vec2f pos)
+void progressChanged(const float pos)
 {
-	//printf("Position: %f, %f\n", pos.x, pos.y);
-	gProgress = pos.x;
+	//printf("Position: %f\n", pos);
 	if (seggauge != nullptr)
-		seggauge->setProgress(gProgress);
+		seggauge->setProgress(pos);
 }
 
 void onComposed()
@@ -52,7 +49,7 @@ void setup()
 
 	seggauge = std::make_shared<SegmentGauge>(BLRect(4,4, 300,300), 40);
 
-	sld = Slider::create({ 10, float(canvasHeight - 30) }, { float(canvasWidth - 10), float(canvasHeight - 30) });
+	auto sld = Slider::create({ 10, float(canvasHeight - 30) }, { float(canvasWidth - 10), float(canvasHeight - 30) });
 	sld->subscribe(progressChanged);
 
 	win1->addChild(seggauge);

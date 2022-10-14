@@ -45,8 +45,8 @@ public:
     // the context of our constrained range
     maths::vec2f calcPosition(const BLRect&frame)
     {
-        float xpos = maths::clamp(maths::map(frame.x, fminX, fmaxX, 0.0, 1.0), 0.0,1.0);
-        float ypos = maths::clamp(maths::map(frame.y, fminY, fmaxY, 0.0, 1.0), 0.0,1.0);
+        float xpos = maths::clamp(maths::map(float(frame.x), fminX, fmaxX, 0.0f, 1.0f), 0.0f,1.0f);
+        float ypos = maths::clamp(maths::map(float(frame.y), fminY, fmaxY, 0.0f, 1.0f), 0.0f,1.0f);
 
         return { xpos, ypos };
     }

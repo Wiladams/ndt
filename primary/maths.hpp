@@ -14,8 +14,8 @@
     here so you don't have to invent those from scratch for each new
     program.
 
-    Some specialization, such as 3D modeling, is outside this file, because that
-    is outside the scope of what we want in here.
+    Some specialization for 3D modeling is inside this file, due to convenience
+    but mostly outside.
 
     The routines in here might not be the fastest, but they're fairly compact, 
     and should not be embarrassing.
@@ -26,6 +26,9 @@
     yocto-gl
 
     And many others
+
+    The routines here assume columnar vectors (like OPenGL), so the 
+    multiplications go one way.
 */
 
 
@@ -435,7 +438,6 @@ namespace maths
 
     // Vector Products and Length
     inline float dot(const vec4f& a, const vec4f& b);
-    inline vec4f cross(const vec4f& a, const vec4f& b);
 
     inline float length(const vec4f& a);
     inline float lengthSquared(const vec4f& a);
@@ -1389,21 +1391,22 @@ namespace maths
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
     inline float length(const vec4f& a) { return sqrt(dot(a, a)); }
-    inline float length_squared(const vec4f& a) { return dot(a, a); }
+    inline float lengthSquared(const vec4f& a) { return dot(a, a); }
     inline vec4f normalize(const vec4f& a) {
-        auto l = length(a);
-        return (l != 0) ? a / l : a;
+        auto len = length(a);
+        return (len != 0) ? a / len : a;
     }
     inline float distance(const vec4f& a, const vec4f& b) { return length(a - b); }
-    inline float distance_squared(const vec4f& a, const vec4f& b) {
+    inline float distanceSquared(const vec4f& a, const vec4f& b) {
         return dot(a - b, a - b);
     }
     inline float angle(const vec4f& a, const vec4f& b) {
         return acos(clamp(dot(normalize(a), normalize(b)), (float)-1, (float)1));
     }
 
-    inline vec4f slerp(const vec4f& a, const vec4f& b, float u) {
-        // https://en.wikipedia.org/wiki/Slerp
+    // https://en.wikipedia.org/wiki/Slerp
+    inline vec4f slerp(const vec4f& a, const vec4f& b, float u) 
+    {
         auto an = normalize(a), bn = normalize(b);
         auto d = dot(an, bn);
         if (d < 0) {

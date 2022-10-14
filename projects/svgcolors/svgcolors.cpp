@@ -203,21 +203,24 @@ public:
         return BLRect(x, y, w, h);
     }
 
+    //std::shared_ptr<IGraphic> graphicAt(int x, int y)
+
     SVGGraphic graphicAt(int x, int y)
     {
-        int column = (int)floor(x / columnSize);
-        int row = (int)floor(y / rowSize);
+        int tx = x + fTranslation.x;
+        int ty = y - fTranslation.y;
+
+        int column = (int)floor(tx / columnSize);
+        int row = (int)floor(ty / rowSize);
 
         int index = (int)((row * maxColumns) + column + 1);
 
 
-        if (index > nColors) {
-            //return SVGGraphic::empty;
+        if (index > nColors) 
+        {
             return emptySVGGraphic;
         }
         auto entry = svgcolors[index];
-
-        //print("graphicAt: ", x, y, column, row, index, entry)
 
         return { entry, column + 1, row + 1 };
     }
@@ -225,7 +228,9 @@ public:
     void mouseMoved(const MouseEvent& e) override
     {
         //printf("moved: %d,%d\n", e.x, e.y);
+        //hoverGraphic = graphicAt(e.x+fTranslation.x, e.y-fTranslation.y);
         hoverGraphic = graphicAt(e.x, e.y);
+
     }
 
 
@@ -291,6 +296,7 @@ public:
     }
 };
 
+std::shared_ptr<GWindow> mainWin = nullptr;
 std::shared_ptr<SVGPage> page = nullptr;
 
 void draw()
@@ -319,31 +325,32 @@ void panMoved(const GestureEvent& e)
     page->translateBy(panVecX, panVecY);
 }
 
-void onSlide(const maths::vec2f &pos)
+void onSlide(const float pos)
 {
     //printf("onSlide: %f, %f\n", pos.x, pos.y);
-    float maxY = page->getBounds().h;   // -window.h;
-    float transY = maths::map(pos.y, 0, 1, 0, maxY);
+    float maxY = page->getBounds().h - mainWin->getFrame().h;
+    float transY = maths::map(pos, 0, 1, 0, maxY);
 
-    page->moveTo(0, transY);
-    //page->translateBy(0, transY);
+    page->translateTo(0, -transY);
+
 }
+
 
 void setup()
 {
     createCanvas(800, 600);
 
     // Create a window to hold stuff
-    auto contentArea = window(0, 0, canvasWidth, canvasHeight);
-    contentArea->setTitle("contentArea");
+    mainWin = window(0, 0, canvasWidth, canvasHeight);
+    mainWin->setTitle("contentArea");
+    
     page = std::make_shared<SVGPage>();
-    contentArea->addChild(page);
+    mainWin->addChild(page);
 
     auto sldr = Slider::create(
-        { float(contentArea->width() - 12), 40}, 
-        {float(contentArea->width() - 12), float(contentArea->height() - 8)},
-        0.0f, 1.0f,{0.5f,0.5f});
-    contentArea->addChild(sldr);
+        { float(mainWin->width() - 20), 40},
+        {float(mainWin->width() - 20), float(mainWin->height() - 8)});
+    mainWin->addChild(sldr);
 
     sldr->subscribe(onSlide);
     

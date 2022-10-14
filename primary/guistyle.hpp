@@ -83,7 +83,7 @@ public:
             shadow.setA((uint32_t)alpha);
             ctx.fill(shadow);
             //ctx.rect(r.x + i, r.y + i, r.w, r.h);
-            ctx.rect(r.x + i, r.y + i, r.w, r.h, 4, 4);
+            ctx.rect(float(r.x + i), float(r.y + i), float(r.w), float(r.h), 4, 4);
         }
         ctx.pop();
     }

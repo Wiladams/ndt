@@ -249,7 +249,7 @@ public:
     // BUGBUG - this kinda works.  It will scale everything, which 
     // is not quite what we want.  What we really want is to just
     // add to our own transformation window for coordinate conversion
-    void setPpiUnits(double ppi, double units)
+    void setPpiUnits(float ppi, float units)
     {
         fDimensionScale = ppi / units;
         fCtx.scale(fDimensionScale);

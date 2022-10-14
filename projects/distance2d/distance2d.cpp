@@ -8,6 +8,15 @@ using namespace p5;
 
 int max_distance;
 
+enum SHAPEKIND {
+    FIRSTSHAPE
+    ,ELLIPSE = FIRSTSHAPE
+    ,SQUARE
+    ,LASTSHAPE = SQUARE
+};
+
+int gKindOfShape = FIRSTSHAPE;
+
 void setup() {
     //createCanvas(1920, 1080);
     //setCanvasPosition(0, 0);
@@ -16,7 +25,7 @@ void setup() {
     noStroke();
     fill(255);
 
-    max_distance = dist(canvasWidth/2, 0, canvasWidth, canvasHeight);
+    max_distance = dist((float)canvasWidth/2.0f, 0, canvasWidth, canvasHeight);
 
     layered();
 
@@ -38,7 +47,19 @@ void draw() {
         for (int j = 0; j <= canvasHeight; j += 20) {
             float size = (dist(mouseX, mouseY, i, j))/2;
             size = (size / max_distance) * 66;
-            ellipse(i, j, size, size);
+
+            switch (gKindOfShape)
+            {
+            case ELLIPSE:
+                ellipse(i, j, size, size);
+                break;
+
+            case SQUARE:
+                square(i, j, size*2);
+                break;
+            }
+
+
         }
     }
 }
@@ -54,6 +75,12 @@ void keyReleased(const KeyboardEvent& e)
     switch (e.keyCode) {
     case 'R':	// toggle recording
         recorder->toggleRecording();
+        break;
+
+    case VK_SPACE:
+        gKindOfShape += 1;
+        if (gKindOfShape > LASTSHAPE)
+            gKindOfShape = FIRSTSHAPE;
         break;
 
     case VK_ESCAPE:
