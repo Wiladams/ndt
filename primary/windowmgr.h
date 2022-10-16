@@ -30,7 +30,7 @@ public:
 		setLayout(std::make_shared<IdentityLayout>());
 
 	}
-
+/*
 	// Maybe we want to do some special drawing
 	// around each window
 	virtual void drawChildren(IGraphics & ctx)
@@ -44,17 +44,16 @@ public:
 		//for (std::shared_ptr<IGraphic> g : fChildren)
 		for (auto & g : fChildren)
 		{
-			auto f = g->getFrame();
-
-			//GUIStyle::drawDropShadow(ctx, f, 8, shadow);
+			//GUIStyle::drawDropShadow(ctx, g->frame(), 8, shadow);
 			
 			// Tell the window to draw itself into the context
 			g->draw(ctx);
 		}
 	}
+*/
 
 	// Handling mouse events
-	virtual void mouseEvent(const MouseEvent& e)
+	void mouseEvent(const MouseEvent& e) override
 	{
 		//printf("WindowManager.mouseEvent: %d\n", e.activity);
 		// Figure out which child the mouse pointer 
@@ -64,8 +63,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			MouseEvent newEvent = e;
-			newEvent.x = (int)(e.x - g->getFrame().x);
-			newEvent.y = (int)(e.y - g->getFrame().y);
+			newEvent.x = (int)(e.x - g->frame().x);
+			newEvent.y = (int)(e.y - g->frame().y);
 
 			switch (e.activity) 
 			{

@@ -17,9 +17,10 @@ FrameStats _stats;
 
 void draw()
 {
-    //background(255);
-    clear();
-    //printf("lerpcolor.draw()\n");
+    if (isLayered())
+        clear();
+    else
+        background(255);
 
     BLRgba32 from = color(255, 0, 0, (int)(0.2 * 255));
     BLRgba32 to = color(0, 0, 255, (int)(0.2 * 255));

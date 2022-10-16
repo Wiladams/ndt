@@ -49,7 +49,7 @@ struct SliderThumb : public Graphic
         ctx.strokeWeight(2);
         ctx.stroke(Pixel(127, 127, 127, 120));
         ctx.fill(thumbColor);
-        ctx.rect(getFrame().x, getFrame().y, getFrame().w, getFrame().h,
+        ctx.rect(frame().x, frame().y, frame().w, frame().h,
             fRadius, fRadius);
     }
 };
@@ -117,18 +117,18 @@ public:
         if (fThumb != nullptr)
         {
             fThumb->moveTo(locX, locY);
-            fLastLocation = { float(fThumb->getFrame().x), float(fThumb->getFrame().y) };
+            fLastLocation = { float(fThumb->frame().x), float(fThumb->frame().y) };
         }
     }
 
 
     void changeThumbLocation(const maths::vec2f &change)
     {
-        maths::vec2f movement = fConstraint.tryChange(fThumb->getFrame(), change);
+        maths::vec2f movement = fConstraint.tryChange(fThumb->frame(), change);
 
         fThumb->moveBy(movement.x, movement.y);
 
-        maths::vec2f position = fConstraint.calcPosition(fThumb->getFrame());
+        maths::vec2f position = fConstraint.calcPosition(fThumb->frame());
         fPosition = position;
 
         //publish change event
@@ -250,7 +250,7 @@ public:
 
 
 
-            sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->getFrame().h);
+            sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->frame().h);
 
             //sliderStart = { trackThickness / 2, 0 };
             //sliderEnd = { trackThickness / 2, (float)sliderFrame.h };
@@ -262,7 +262,7 @@ public:
             sliderFrame.x = startPoint.x;
             sliderFrame.y = startPoint.y - (thumbFrame.h/2.0);
 
-            sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->getFrame().w, 0);
+            sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->frame().w, 0);
 
             //sliderStart = { 0, trackThickness / 2 };
             //sliderEnd = { (float)sliderFrame.w, trackThickness / 2 };

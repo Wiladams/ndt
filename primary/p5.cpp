@@ -107,7 +107,7 @@ namespace p5 {
     double gAppLastTime = 0;
 
 
-    void setUnitsPerInch(double units)
+    void setUnitsPerInch(REAL units)
     {
         gAppSurface->setPpiUnits(systemPpi, units);
     }
@@ -663,6 +663,16 @@ namespace p5 {
     {
         auto pt = textMeasure(txt);
         return pt.x;
+    }
+
+    REAL textAscent() noexcept
+    {
+        return gAppSurface->textAscent();
+    }
+
+    REAL textDescent() noexcept
+    {
+        return gAppSurface->textDescent();
     }
 
     void beginShape(SHAPEMODE shapeKind) noexcept

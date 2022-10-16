@@ -7,7 +7,7 @@
 	Draw a view of a month with the previous and next month's
 	numbers filling in the grid where available.
 */
-class SlidingMonth : public Graphic
+class SlidingMonth : public GraphicElement
 {
 	Calendar::USACalendar fPreviousCalendar;
 	Calendar::USACalendar fCalendar;
@@ -34,8 +34,8 @@ class SlidingMonth : public Graphic
 	double cellGap = 0.5;
 
 public:
-	SlidingMonth(int year, int month, double w, double h)
-		: Graphic(0, 0, w, h),
+	SlidingMonth(int year, int month, float w, float h)
+		: GraphicElement(0, 0, w, h),
 		fCalendar(year),
 		fPreviousCalendar(year),
 		fNextCalendar(year)
@@ -90,8 +90,6 @@ public:
 		ctx.text(std::to_string(date).c_str(), toffsetx, toffsety);
 	}
 
-
-	//void drawSelf(std::shared_ptr<IGraphics> ctx)
 	void drawSelf(IGraphics &ctx) override
 	{
 		// draw numeric squares

@@ -57,14 +57,14 @@ public:
 		fBackgroundColor = c;
 	}
 
-	void drawBackground(IGraphics & ctx)
+	void drawBackground(IGraphics & ctx) override
 	{
 		ctx.push();
 
 		ctx.clear();
 
 		if (fBackgroundColor.value == 0) {
-
+			ctx.clearRect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
 		} else {
 			// Fill in background
 			ctx.noStroke();
@@ -80,13 +80,12 @@ public:
 		drawTitleBar(ctx);
 		
 		// Draw a frame
-		auto frame = getFrame();
+		const BLRect & f = frame();
 
 		ctx.strokeWeight(2.0f);
 		ctx.stroke(0);
 		ctx.noFill();
-		ctx.rect(0, 0, frame.w, frame.h);
-
+		ctx.rect(0, 0, f.w, f.h);
 	}
 
 	void draw(IGraphics & ctx)

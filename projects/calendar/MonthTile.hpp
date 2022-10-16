@@ -14,39 +14,33 @@ using namespace p5;
 // The amount of detail just changes the rendering, not the size
 // it is up to the user to display in the appropriate size
 
-class CalendarMonthTile : public Graphic
+class CalendarMonthTile : public GraphicElement
 {
 	static const int colWidth = 28;
 	static const int colHeight = 28;
 
 	Calendar::USACalendar fCalendar;
 	int fMonth;
-	int fOriginX;
-	int fOriginY;
 	float fLevelOfDetail;
-	BLRectI fBounds;
-	BLRectI fFrame;
 	Pixel fBackgroundColor;
 
 	char  fTitle[64];
 
 public:
-	static BLSizeI getClassPreferredSize() { return { 200,200 }; }
+	static maths::vec2f preferredSize() { return { 200,200 }; }
 
 
-	CalendarMonthTile(int year, int month, int x = 0, int y = 0, const Pixel& bkg = { 0xf0, 0xf0, 0xf0, 127 })
-		: Graphic({ 0,0,200,200 }),
-		fCalendar(year),
-		fMonth(month),
-		fBackgroundColor(bkg)
+	CalendarMonthTile(int year, int month, float x = 0, float y = 0, const Pixel& bkg = { 0xf0, 0xf0, 0xf0, 127 })
+		: GraphicElement({ x,y,CalendarMonthTile::preferredSize().x,CalendarMonthTile::preferredSize().y})
+		,fCalendar(year)
+		,fMonth(month)
+		,fBackgroundColor(bkg)
 	{
-		auto size = getClassPreferredSize();
-		fBounds = { 0,0,size.w,size.h };
-		fFrame = { x, y, size.w, size.h };
+		auto size = preferredSize();
+		setBounds({ 0,0,size.x,size.y });
+		//setFrame({ x, y, size.x, size.y });
 		sprintf_s(fTitle, 64, "%s  %d", Calendar::MonthsLong[fMonth].c_str(), year);
 	}
-
-
 
 	void drawDayNumbers(IGraphics & ctx)
 	{

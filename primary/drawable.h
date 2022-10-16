@@ -26,18 +26,18 @@ struct IGraphic : public IDrawable
 
 	virtual bool contains(int x, int y)
 	{
-		auto f = getFrame();
+		const BLRect & f = frame();
 		return ((x >= f.x) && (y >= f.y) &&
 			(x - f.x <= f.w) &&
 			(y - f.y <= f.h));
 	}
 
-	virtual BLRect getFrame() const = 0;
-	virtual void moveTo(const double x, const double y) = 0;
+	virtual const BLRect& frame() const = 0;
+	virtual void moveTo(const float x, const float y) = 0;
 
 	virtual void moveBy(double dx, double dy)
 	{
-		auto f = getFrame();
+		const BLRect & f = frame();
 		moveTo(f.x + dx, f.y + dy);
 	}
 

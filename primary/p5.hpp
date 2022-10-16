@@ -412,6 +412,8 @@ struct PVector {
     void text(REAL x, REAL y, const char* format, ...) noexcept;
     REAL textWidth(const char* txt) noexcept;
     maths::vec2f textMeasure(const char* txt) noexcept;
+    REAL textAscent() noexcept;
+    REAL textDescent() noexcept;
 
     void beginShape(SHAPEMODE shapeKind = SHAPEMODE::OPEN) noexcept;
     void vertex(REAL x, REAL y) noexcept;

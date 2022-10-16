@@ -242,8 +242,8 @@ public:
     virtual void point(double x, double y) = 0;
     virtual void line(double x1, double y1, double x2, double y2) = 0;
     virtual void arc(double cx, double cy, double r, double start, double sweep) = 0;
-    virtual void rect(float x, float y, float width, float height) { rect(x, y, width, height, 1, 1); }
-    virtual void rect(float x, float y, float width, float height, float xradius, float yradius) = 0;
+    virtual void rect(double x, double y, double width, double height) { rect(x, y, width, height, 1, 1); }
+    virtual void rect(double x, double y, double width, double height, double xradius, double yradius) = 0;
     virtual void ellipse(double a, double b, double c, double d) = 0;
     virtual void circle(double cx, double cy, double diameter) = 0;
     virtual void triangle(double x1, double y1, double x2, double y2, double x3, double y3) = 0;
@@ -283,7 +283,10 @@ public:
     virtual void textFont(const char* fontname) = 0;
     virtual void textSize(float size) = 0;
     virtual void text(const char* txt, float x, float y, float x2=0, float y2=0) = 0;
+    virtual void textAtBaseline(const char* txt, float x, float y, float x2 = 0, float y2 = 0) = 0;
     virtual maths::vec2f textMeasure(const char* txt) = 0;
+    virtual float textAscent() = 0;
+    virtual float textDescent() = 0;
 
     virtual void vartext(float x, float y, const char* format, ...)
     {

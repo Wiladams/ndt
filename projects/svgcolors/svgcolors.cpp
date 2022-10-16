@@ -308,21 +308,21 @@ void draw()
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBy(0, (e.delta / 120.0f) * scrollSize);
+    page->translateBoundsBy(0, (e.delta / 120.0f) * scrollSize);
 }
 
 // Horizontal mouse wheel
 void mouseHWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBy((e.delta / (120.0f)) * scrollSize, 0);
+    page->translateBoundsBy((e.delta / (120.0f)) * scrollSize, 0);
 }
 
 // Handling panning
 // do translation
 void panMoved(const GestureEvent& e)
 {
-    page->translateBy(panVecX, panVecY);
+    page->translateBoundsBy(panVecX, panVecY);
 }
 
 void onSlide(const float pos)
@@ -331,7 +331,7 @@ void onSlide(const float pos)
     float maxY = page->getBounds().h - mainWin->getFrame().h;
     float transY = maths::map(pos, 0, 1, 0, maxY);
 
-    page->translateTo(0, -transY);
+    page->translateBoundsTo(0, -transY);
 
 }
 

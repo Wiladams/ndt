@@ -12,36 +12,40 @@ using namespace p5;
 
 void draw()
 {
-	// Start with a clear screen
-	clear();
+	if (isLayered())
+		// Start with a clear screen
+		clear();
+	else
+		background(0xcd);
 }
 
 
 void setup()
 {	
-	createCanvas(1280, 1024);
+	//createCanvas(1280, 1024);
 	fullscreen();
 
+	std::shared_ptr<ILayoutGraphics> layout = std::make_shared<CascadeLayout>(canvasWidth, canvasHeight);
+	windowLayout(layout);
 	
 	// Setup day tile
-	auto ps = DayTile::getPreferredSize();
-	auto dtWindow = window(0, 0, ps.w, ps.h);
+	auto ps = DayTile::preferredSize();
+	auto dtWindow = window(0, 0, ps.x, ps.y);
 	auto dt = std::make_shared<DayTile>();
-	dt->setDate(2022, 9, 5);
+	//dt->setDate(2022, 9, 5);
 	dtWindow->addChild(dt);
 	
 
-	
 	// Setup year of months window
 	auto yom = std::make_shared<YearOfMonths>();
-	auto fr = yom->getFrame();
+	auto & fr = yom->frame();
 	auto yomWin = window(0, 0, fr.w, fr.h);
 	yomWin->addChild(yom);
 	
 	
 	// Setup perpetual calendar
 	auto pc = std::make_shared<SlidingMonth>(2022, 9, 240, 240);
-	auto pcfr = pc->getFrame();
+	auto & pcfr = pc->frame();
 	auto pcWin = window(0, 0, pcfr.w, pcfr.h);
 	pcWin->addChild(pc);
 	

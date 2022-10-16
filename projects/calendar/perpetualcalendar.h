@@ -25,12 +25,12 @@ class PerpetualCalendar : public Graphic
 			{30,31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	};
 
-	double cellWidth;
-	double cellHeight;
-	double cellGap = 0.5;
+	float cellWidth;
+	float cellHeight;
+	float cellGap = 0.5;
 
 public:
-	PerpetualCalendar(int year, int month, double w, double h)
+	PerpetualCalendar(int year, int month, float w, float h)
 		: Graphic(0,0,w,h),
 		fCalendar(year),
 		fPreviousCalendar(year),

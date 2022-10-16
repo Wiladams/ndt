@@ -13,7 +13,7 @@ class YearOfMonths : public Graphic
 public:
 	YearOfMonths()
 	{
-		auto cellSize = CalendarMonthTile::getClassPreferredSize();
+		auto cellSize = CalendarMonthTile::preferredSize();
 
 		int xoffset = edgeMargin;
 		int yoffset = edgeMargin;
@@ -24,15 +24,15 @@ public:
 
 			if (month % 3 > 0) {
 				// continue advancing
-				xoffset += cellSize.w + edgeMargin;
+				xoffset += cellSize.x + edgeMargin;
 			}
 			else {
 				// end of row, move to next row
 				xoffset = edgeMargin;
-				yoffset += cellSize.h + lineGap;
+				yoffset += cellSize.y + lineGap;
 			}
 		}
 
-		setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
+		setFrame({ 0,0,(double)cellSize.x * 3 + (edgeMargin * 4), (double)cellSize.y * 4 + (edgeMargin * 2) + (lineGap * 3) });
 	}
 };

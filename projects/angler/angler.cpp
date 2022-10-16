@@ -38,8 +38,11 @@ void onComposed()
 
 void setup()
 {
-	createCanvas(320, 320, "angler");
 	frameRate(10);
+
+	createCanvas(320, 320, "angler");
+	layered();
+
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "angler-");
 
@@ -62,6 +65,10 @@ void keyReleased(const KeyboardEvent& e)
 	switch (e.keyCode) {
 	case 'R':	// toggle recording
 		recorder->toggleRecording();
+		break;
+
+	case VK_ESCAPE:
+		halt();
 		break;
 
 	case VK_SPACE:	// Restart the indicator

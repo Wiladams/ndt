@@ -22,27 +22,40 @@ std::array<LineEntry, 7> const lines { {
 } };
 
 
-class GFontSummary : public Graphic
+class GFontSummary : public GraphicElement
 {
     std::string fontFamily;
 
 public:
-    BLSizeI static getPrefferedSize()
+    maths::vec2f static prefferedSize()
     {
         return { 3000, 1024 };
     }
 
 
+    GFontSummary(const char* family, float x, float y, float w, float h)
+        :GraphicElement(x, y, w, h)
+    {
+        fontFamily = family;
+
+        auto psize = GFontSummary::prefferedSize();
+
+        setBounds(BLRect(0, 0, psize.x, psize.y));
+    }
 
     GFontSummary(const char *family)
     {
-        auto psize = GFontSummary::getPrefferedSize();
-        setFrame(BLRect(0, 0, psize.w, psize.h));
-    
         fontFamily = family;
+        auto psize = GFontSummary::prefferedSize();
+
+        setBounds(BLRect(0, 0, psize.x, psize.y));
+
+        setFrame(bounds());
+    
+
     }
 
-    void draw(IGraphics & ctx)
+    void drawSelf(IGraphics & ctx) override
     {
         // print("GFontSummary.draw 1.0")
         ctx.background(color(255));
@@ -64,7 +77,7 @@ public:
         // Draw font attribute titles
         //ctx.textFont("consolas");
         ctx.textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
-        //ctx.textFont("Consolas");
+        ctx.textFont("Consolas");
         ctx.textSize(16);
         ctx.text("Font Name:", 92, 10);
         ctx.text("Attributes:", 92, 24);

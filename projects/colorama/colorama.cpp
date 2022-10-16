@@ -32,6 +32,7 @@ void draw()
 	//std::cout << "colorama.draw()" << std::endl;
 
 	background(0xff);
+	//gAppSurface->flush();
 
 	for (int y = 0; y < canvasHeight; y+=1) {
 		double gamma = map(y, 0, (double)canvasHeight -1, 0.025, 2.5);
@@ -40,6 +41,7 @@ void draw()
 			auto c = ndt::ColorRGBAFromWavelength(wl, gamma);
 			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
 			canvas->set(x, y, p);
+			//gAppSurface->set(x, y, p);
 		}
 	}
 

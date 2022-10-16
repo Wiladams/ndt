@@ -72,9 +72,9 @@ public:
 			return;
 
 		auto &primary = gs[0];
-		auto pFrame = primary->getFrame();
+		auto & pFrame = primary->frame();
 		auto &secondary = gs[1];
-		auto sFrame = secondary->getFrame();
+		BLRect sFrame = secondary->frame();
 
 		switch (fAlign) {
 		case BinaryAlignment::CENTER: {
@@ -125,7 +125,7 @@ public:
 		int x = wX;
 		int y = wY;
 
-		wX += (int)(win->getFrame().w + fHorizontalOffset);
+		wX += (int)(win->frame().w + fHorizontalOffset);
 		wY += (int)fVerticalOffset;
 
 		if (wX > fWidth - 256)
@@ -148,7 +148,7 @@ public:
 			int offsetx = x;
 			int offsety = y;
 
-			x += (int)(g->getFrame().w + fHorizontalOffset);
+			x += (int)(g->frame().w + fHorizontalOffset);
 			y += fVerticalOffset;
 
 			if (x > fWidth - 256) {
@@ -203,7 +203,7 @@ public:
 
 	virtual void addGraphic(std::shared_ptr<IGraphic> win)
 	{
-		auto winFrame = win->getFrame();
+		auto winFrame = win->frame();
 		auto winWidth = winFrame.w;
 		auto winHeight = winFrame.h;
 
@@ -271,9 +271,8 @@ public:
 
 	virtual void addGraphic(std::shared_ptr<IGraphic> win)
 	{
-		auto winFrame = win->getFrame();
-		auto winWidth = winFrame.w;
-		auto winHeight = winFrame.h;
+		auto winWidth = win->frame().w;
+		auto winHeight = win->frame().h;
 
 		auto winX = maxX;
 		auto winY = maxY+ fVerticalGap;

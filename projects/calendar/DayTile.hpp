@@ -4,7 +4,7 @@
 #include "calendar.hpp"
 #include "graphic.hpp"
 
-class DayTile : public Graphic
+class DayTile : public GraphicElement
 {
 	static const int hourLabelGap = 36;
 	static const int hourLineHeight = 48;
@@ -22,12 +22,14 @@ class DayTile : public Graphic
 
 public:
 	// Return the size we prefer to be
-	static BLSize getPreferredSize() { return { 300,400 }; }
+	static maths::vec2f preferredSize() { return { 300,400 }; }
 
 public:
 	DayTile()
-		: Graphic({ 0,0,300,400 })
+		: GraphicElement(0,0,300,400 )
 	{
+		setBounds({ 0,0,300,400 });
+
 		// Set Date to today's date
 		SYSTEMTIME sysTime;
 		::GetLocalTime(&sysTime);
@@ -35,8 +37,9 @@ public:
 	}
 
 	DayTile(int year, int month, int day)
-		: Graphic({0,0,300,400})
+		: GraphicElement(0,0,300,400)
 	{
+		setBounds({ 0,0,300,400 });
 		setDate(year, month, day);
 	}
 
@@ -50,15 +53,14 @@ public:
 
 		return true;
 	}
-
+	/*
 	void moveTo(double x, double y) override
 	{
 
 	}
-
+	*/
 	void drawHourGrid(IGraphics & ctx)
 	{
-		auto bounds = getBounds();
 		char buff[32];
 		int buffLen = 32;
 		Pixel hourColor(140, 213, 240);
@@ -68,7 +70,7 @@ public:
 //ctx->fill(230, 230, 220);	// color used when hours not available
 		ctx.fill(250);
 		//ctx->rect(hourLabelGap, 0, bounds.w - hourLabelGap, bounds.h - 72);
-		ctx.rect(0, 0, bounds.w, bounds.h - 72);
+		ctx.rect(0, 0, bounds().w, bounds().h - 72);
 
 		// Draw a line top to bottom separating the hour 
 		// numbers from the event grid to the right
@@ -84,13 +86,13 @@ public:
 			ctx.stroke(hourColor);
 			// draw full hour line
 			//ctx->line(0, (hour * hourLineHeight)+0.5, bounds.w, (hour * hourLineHeight)+0.5);
-			ctx.line(0, (hour * hourLineHeight), bounds.w, (hour * hourLineHeight));
+			ctx.line(0, (hour * hourLineHeight), bounds().w, (hour * hourLineHeight));
 
 
 			// draw half hour line
 			// should be dashed line
 			ctx.stroke(halfHourColor);
-			ctx.line(hourLabelGap, (hour * hourLineHeight) + hourLineHeight / 2, bounds.w, (hour * hourLineHeight) + hourLineHeight / 2);
+			ctx.line(hourLabelGap, (hour * hourLineHeight) + hourLineHeight / 2, bounds().w, (hour * hourLineHeight) + hourLineHeight / 2);
 
 			// 12 hour clock numbers
 			ctx.noStroke();
@@ -117,10 +119,10 @@ ctx->text(buff, 32, 24);
 	void drawMonthDay(IGraphics & ctx)
 	{
 		// Draw nice blue background rectangle for black text
-		auto bounds = getBounds();
+
 		ctx.noStroke();
 		ctx.fill(0, 170, 220);
-		ctx.rect(hourLabelGap, 0, bounds.w- hourLabelGap, 30);
+		ctx.rect(hourLabelGap, 0, bounds().w - hourLabelGap, 30);
 
 		// Weekday long name
 		char buff[32];
@@ -138,7 +140,7 @@ ctx->text(buff, 32, 24);
 
 		// Clip for the hourly grid
 		ctx.push();
-		ctx.clip(0, 72, bounds.w, bounds.h - 72);
+		ctx.clip(0, 72, bounds().w, bounds().h - 72);
 		ctx.translate(0, 72);
 
 		drawHourGrid(ctx);
@@ -152,8 +154,8 @@ ctx->text(buff, 32, 24);
 		// draw background
 		ctx.noStroke();
 		ctx.fill(fBackgroundColor);
-		auto bounds = getBounds();
-		ctx.rect(0, 0, bounds.w, bounds.h);
+
+		ctx.rect(0, 0, bounds().w, bounds().h);
 	}
 
 	void drawSelf(IGraphics & ctx) override

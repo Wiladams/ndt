@@ -115,7 +115,32 @@ public:
         //printf("loadDefaultFonts(), query Tahoma: %d\n", errFace.isValid());
     }
 
+    maths::vec2f textMeasure(const char* txt, const char *familyname, float size)
+    {
+        //BLFontMetrics fm = fFont.metrics();
+        BLTextMetrics tm;
+        BLGlyphBuffer gb;
 
+
+        // Get the fontface
+        // if not found, return zero size
+        BLFontFace face = queryFontFace(familyname);
+        if (!face.isValid())
+            return { 0.0 };
+
+        // Create the font of the right size
+        BLFont font;
+        font.createFromFace(face, size);
+
+        gb.setUtf8Text(txt);
+        font.shape(gb);
+        font.getTextMetrics(gb, tm);
+
+        float cx = tm.boundingBox.x1 - tm.boundingBox.x0;
+        float cy = font.size();
+
+        return { cx, cy };
+    }
 };
 
 EXPORT extern std::shared_ptr<FontHandler> gFontHandler;

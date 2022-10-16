@@ -86,7 +86,7 @@ private:
         return { cx, cy, rx, ry };
     }
 
-    static BLRect calcRectParams(RECTMODE mode, float& a, float& b, float& c, float& d)
+    static BLRect calcRectParams(RECTMODE mode, double& a, double& b, double& c, double& d)
     {
         float x = 0;
         float y = 0;
@@ -118,7 +118,8 @@ private:
     }
 
     // Here we are crudely doing a minimal amount necessary
-// to see some text.  We should be using FontMonger to cache
+    // to see some text.  
+// We should be using FontMonger to cache
 // font information so we're not reading it every time.
     maths::vec2f calcTextPosition(const char* txt, float x, float y, float x2, float y2)
     {
@@ -146,7 +147,7 @@ private:
         switch (fTextVAlignment)
         {
         case ALIGNMENT::TOP:
-            y = y + cy;
+            y = y + cy - fFont.metrics().descent;
             break;
         case ALIGNMENT::CENTER:
             y = y + (cy / 2);
@@ -157,10 +158,16 @@ private:
             break;
 
         case ALIGNMENT::BASELINE:
+            // If what was passed as y is the baseline
+            // do nothing to it because blend2d draws
+            // text from baseline
+            break;
+
         case ALIGNMENT::BOTTOM:
-            // do nothing
-            // maybe adjust for descent
-            // y = y;
+            // Adjust from the bottom as blend2d
+            // prints from the baseline, so adjust
+            // by the amount of the descent
+            y = y - fFont.metrics().descent;
             break;
 
         default:
@@ -400,7 +407,7 @@ public:
         incrCmd();
     }
     
-    void rect(float x, float y, float width, float height, float xradius, float yradius) override
+    void rect(double x, double y, double width, double height, double xradius, double yradius) override
     {
         fCtx.fillRoundRect(x, y, width, height, xradius, yradius);
         fCtx.strokeRoundRect(x, y, width, height, xradius, yradius);
@@ -409,7 +416,7 @@ public:
     }
 
     
-    void rect(float a, float b, float c, float d) override
+    void rect(double a, double b, double c, double d) override
     {
             BLRect params = BLGraphics::calcRectParams(fRectMode, a, b, c, d);
             rect(params.x, params.y, params.w, params.h, 1, 1);
@@ -547,7 +554,7 @@ public:
     // Get the width (in font units) of the text
     // BUGBUG - This is NOT in the base interface.  
     // maybe it should be?
-     maths::vec2f textMeasure(const char* txt) override
+    maths::vec2f textMeasure(const char* txt) override
     {
         //BLFontMetrics fm = fFont.metrics();
         BLTextMetrics tm;
@@ -562,6 +569,15 @@ public:
 
 
         return { cx, cy };
+    }
+
+    float textAscent() { return fFont.metrics().ascent; }
+    float textDescent() { return fFont.metrics().descent; }
+
+    void textAtBaseline(const char* txt, float x, float y, float x2 = 0, float y2 = 0) override
+    {
+         fCtx.fillUtf8Text(BLPoint(x, y), fFont, txt);
+         fCtx.strokeUtf8Text(BLPoint(x, y), fFont, txt);
     }
 
     void text(const char* txt, float x, float y, float x2=0, float y2=0) override

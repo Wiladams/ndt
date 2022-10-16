@@ -7,9 +7,8 @@
 #include <string>
 
 
-
-
-class TabbedView : public Graphic {
+class TabbedView : public Graphic 
+{
 	
 	// Content Area details
 	GPath fWholePath;
@@ -27,7 +26,7 @@ class TabbedView : public Graphic {
 
 public:
 	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
-		: Graphic(frame),
+		: Graphic(frame.x,frame.y,frame.w,frame.h),
 		fTabParam(tParam),
 		fTabColor(tColor),
 		fTabTitle(title),
@@ -82,9 +81,6 @@ public:
 		ctx.fill(fTabColor);
 		ctx.path(fTabPath);
 
-
-
-
 		// draw title centered on tab
 		double titleX = fTabContentArea.x + fTabContentArea.w / 2;
 		double titleY = fTabContentArea.y + fTabContentArea.h - 4;
@@ -102,9 +98,9 @@ public:
 
 
 		// check size of content area
-		//ctx->stroke(255, 0, 0);
-		//ctx->noFill();
-		//ctx->rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
+		ctx.stroke(255, 0, 0);
+		ctx.noFill();
+		ctx.rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
 
 	}
 };
@@ -121,7 +117,7 @@ public:
 		return tset;
 	}
 
-	void mousePressed(const MouseEvent& e)
+	void mouseReleased(const MouseEvent& e) override
 	{
 		// Figure out which window is being 
 		// clicked
@@ -132,11 +128,6 @@ public:
 			//fActiveGraphic = nullptr;
 			return;
 		}
-
-		// deactivate old active window
-
-		// Activate new active window
-		//setActiveGraphic(win);
 
 		// bring it to the front
 		moveToFront(g);

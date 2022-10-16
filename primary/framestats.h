@@ -4,13 +4,13 @@
 #include "secondtime.h"
 
 
-class FrameStats : public Graphic 
+class FrameStats : public GraphicElement
 {
 	SecondTime fTime;
 
 public:
 	FrameStats()
-		:Graphic(0,0,200, 140)
+		:GraphicElement(0,0,200, 140)
 	{}
 
 	void drawBackground(IGraphics & ctx)override
@@ -46,7 +46,7 @@ public:
 		sprintf_s(buff, "frame count: %d", p5::frameCount);
 		ctx.text(buff, 10, 68);
 
-		sprintf_s(buff, "expected fps: %d", p5::getFrameRate());
+		sprintf_s(buff, "expected fps: %f", p5::getFrameRate());
 		ctx.text(buff, 10, 92);
 		
 		sprintf_s(buff, "actual fps: %3.2f", p5::frameCount / p5::seconds());
