@@ -111,8 +111,8 @@ public:
             return rtcolor(0, 1, 1);
 
         // Clamp input texture coordinates to [0,1] x [1,0]
-        int i = static_cast<int>(maths::Map(Clamp(u,0.0,1.0), 0, 1, 0, fData.size.w - 1));
-        int j = static_cast<int>(maths::Map(Clamp(v,0.0,1.0), 0, 1, fData.size.h - 1, 0));
+        int i = static_cast<int>(maths::map(Clamp(u,0.0,1.0), 0, 1, 0, fData.size.w - 1));
+        int j = static_cast<int>(maths::map(Clamp(v,0.0,1.0), 0, 1, fData.size.h - 1, 0));
 
         uint8_t * pix = (uint8_t *)fData.pixelData + j * fData.stride + i * bytes_per_pixel;
 

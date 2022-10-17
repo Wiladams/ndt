@@ -149,7 +149,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
+    <ClInclude Include="..\..\primary\geometry.h" />
     <ClInclude Include="..\..\primary\graphic.hpp" />
+    <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\p5.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

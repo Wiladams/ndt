@@ -40,10 +40,10 @@ void draw()
 			double wl = map(x, 0, (double)canvasWidth - 1, 380, 780);
 			auto c = ndt::ColorRGBAFromWavelength(wl, gamma);
 			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
-			canvas->set(x, y, p);
-			//gAppSurface->set(x, y, p);
+			//canvas->set(x, y, p);
+			gAppSurface->set(x, y, p);
 		}
 	}
 
-	image(canvas->getImage(), 0, 0);
+	//image(canvas->getImage(), 0, 0);
 }

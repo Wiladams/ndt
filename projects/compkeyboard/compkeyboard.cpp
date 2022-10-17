@@ -86,93 +86,112 @@ keyStruct keyValues[] = {
 {0xa3, {554, 242, 50, 40}, "Ctrl"},
 };
 
-static const int nKeys = sizeof(keyValues) / sizeof(keyStruct);
-static const int unit = 40;
+static constexpr int nKeys = sizeof(keyValues) / sizeof(keyStruct);
+static constexpr int unit = 40;
 
 BLGradient gradient(BLLinearGradientValues(unit/2, unit/2, unit/2, unit/2));
 
-BLRoundRect insetRoundRect(const BLRoundRect& rrect, double cx, double cy)
+struct VisualKeyboard : public GraphicElement
 {
-    double dx = cx / 2;
-    double dy = cy / 2;
-
-    return BLRoundRect(rrect.x + dx, rrect.y + dy, rrect.w - cx, rrect.h - cy, rrect.rx, rrect.ry);
-}
-
-
-void drawKeyStates(IGraphics & ctx)
-{   
-    for (int i = 0; i < nKeys; i++)
+    static BLRoundRect insetRoundRect(const BLRoundRect& rrect, float cx, float cy)
     {
-        auto key = keyValues[i];
-        int state = (::GetAsyncKeyState(key.vkey) & 0xffff);
+        double dx = cx / 2;
+        double dy = cy / 2;
 
-        if (state) {
-            BLRoundRect rrect(key.frame.x, key.frame.y, key.frame.w, key.frame.h, 3, 3);
-            ctx.fill(0x30, 0x6f);
-            ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+        return BLRoundRect(rrect.x + dx, rrect.y + dy, rrect.w - cx, rrect.h - cy, rrect.rx, rrect.ry);
+    }
+
+    VisualKeyboard()
+        : GraphicElement(0,0,610,290)
+    {
+
+    }
+
+    void drawKeyStates(IGraphics& ctx)
+    {
+        for (int i = 0; i < nKeys; i++)
+        {
+            auto key = keyValues[i];
+            int state = (::GetAsyncKeyState(key.vkey) & 0xffff);
+
+            if (state) {
+                BLRoundRect rrect(key.frame.x, key.frame.y, key.frame.w, key.frame.h, 3, 3);
+                ctx.fill(0x30, 0x6f);
+                ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+            }
         }
     }
-}
 
-void drawNeutral(IGraphics & ctx)
-{
-    ctx.fill(127);
-    ctx.stroke(10);
-    ctx.strokeWeight(1);
-
-    ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-    //ctx->textFont("Segoe UI");
-    ctx.textFont("Consolas");
-    ctx.textSize(14);
-
-    for (int i=0; i<nKeys; i++)
+    void drawNeutral(IGraphics& ctx)
     {
-        auto key = keyValues[i];
-        BLRoundRect rrect{ key.frame.x, key.frame.y, key.frame.w,key.frame.h,3,3 };
-        auto crect = insetRoundRect(rrect, unit*0.15 , unit*0.30);
+        ctx.fill(127);
+        ctx.stroke(10);
+        ctx.strokeWeight(1);
 
-        // need to adjust values of linear gradient
-        double cx = key.frame.x + key.frame.w / 2;
-        double cy = key.frame.y + key.frame.h / 2;
-        auto r = key.frame.h;
+        ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+        ctx.textFont("Segoe UI");
+        //ctx.textFont("Consolas");
+        ctx.textSize(14);
 
-        auto values = BLLinearGradientValues(cx, key.frame.y + key.frame.h, cx, cy);
-        gradient.setValues(values);
+        for (int i = 0; i < nKeys; i++)
+        {
+            auto key = keyValues[i];
+            BLRoundRect rrect{ key.frame.x, key.frame.y, key.frame.w,key.frame.h,3,3 };
+            auto crect = insetRoundRect(rrect, unit * 0.15, unit * 0.30);
 
-        ctx.noStroke();
-        ctx.fill(gradient);
+            // need to adjust values of linear gradient
+            double cx = key.frame.x + key.frame.w / 2;
+            double cy = key.frame.y + key.frame.h / 2;
+            auto r = key.frame.h;
+
+            auto values = BLLinearGradientValues(cx, key.frame.y + key.frame.h, cx, cy);
+            gradient.setValues(values);
+
+            ctx.noStroke();
+            ctx.fill(gradient);
 
 
-        ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+            ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
 
-        ctx.noFill();
-        ctx.stroke(0);
-        ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
+            ctx.noFill();
+            ctx.stroke(0);
+            ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
 
-        // do the inset rectangle
-        ctx.noStroke();
-        ctx.fill(255, 0x6f);
-        ctx.rect(crect.x, crect.y, crect.w, crect.h, crect.rx, crect.ry);
+            // do the inset rectangle
+            ctx.noStroke();
+            ctx.fill(255, 0x6f);
+            ctx.rect(crect.x, crect.y, crect.w, crect.h, crect.rx, crect.ry);
 
-        // Now do the text
-        ctx.fill(0);
-        ctx.text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
+            // Now do the text
+            ctx.fill(0);
+            ctx.text(key.caption, key.frame.x + (key.frame.w / 2), key.frame.y + (key.frame.h / 2));
+        }
     }
-}
 
+    void drawSelf(IGraphics& ctx)
+    {
+        drawNeutral(ctx);
+        drawKeyStates(ctx);
+    }
+};
 
 void setup()
 {
     setUnitsPerInch(96);
-    //gAppSurface->setPpiUnits(systemDpi, 96);
 
     createCanvas(800, 600);
-    layered();
+    //fullscreen();
+
 
     // slightly bluish
     gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
     gradient.addStop(1.0, BLRgba32(0xFF9f9fff));
+
+    auto page = std::make_shared<VisualKeyboard>();
+    auto win = window(0, 0, 640, 480);
+    win->setBackgroundColor(Pixel(0, 0, 0,10));
+
+    win->addChild(page);
 }
 
 void draw()
@@ -184,14 +203,12 @@ void draw()
         clear();
     }
 
-    drawNeutral(*gAppSurface);
-    drawKeyStates(*gAppSurface);
 }
 
 void keyReleased(const KeyboardEvent& e)
 {
     // toggle layered
-    printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", e.keyCode, e.scanCode);
+    //printf("keyReleased: e.keyCode: 0x%x  scanCode: 0x%x\n", e.keyCode, e.scanCode);
     if (e.keyCode == VK_ESCAPE) {
         halt();
     }

@@ -121,7 +121,7 @@ public:
 	// Handling mouse events
 	virtual void mouseEvent(const MouseEvent& e)
 	{
-		printf("GraphicElement.mouseEvent: %d\n", e.activity);
+		//printf("GraphicElement.mouseEvent: %d\n", e.activity);
 
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);

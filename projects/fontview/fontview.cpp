@@ -143,7 +143,7 @@ void setup()
 	//face = gFontHandler->queryFontFace("Cascadia Code");
 
 	acons = std::make_shared<Console>(60, 40, "Cascadia Code");
-	auto win1 = window(0, 0, acons->getBounds().w, acons->getBounds().h);
+	auto win1 = window(0, 0, acons->bounds().w, acons->bounds().h);
 	win1->setBackgroundColor(color(25,55,55,200));
 	//win1->setTitle("console");
 

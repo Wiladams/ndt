@@ -21,7 +21,7 @@ public:
 		float xoffset = columnGap;
 		float yoffset = columnGap;
 
-		auto f = getFrame();
+		auto f = frame();
 
 		for (auto& name : gFontHandler->familyNames())
 		{
@@ -33,12 +33,12 @@ public:
 
 			addChild(icon);
 
-			xoffset += (icon->getFrame().w + columnGap);
-			float lastX = f.w - icon->getFrame().w;
+			xoffset += (icon->frame().w + columnGap);
+			float lastX = f.w - icon->frame().w;
 			if (xoffset > lastX)
 			{
 				xoffset = columnGap;
-				yoffset += icon->getFrame().h+columnGap;
+				yoffset += icon->frame().h+columnGap;
 			}
 
 		}

@@ -32,7 +32,7 @@ struct FontFaceIcon : public Graphic, public Topic<std::string &>
 		ctx.fill(210);
 
 		BLPath p;
-		auto f = getFrame();
+		auto & f = frame();
 		p.moveTo(0, 0);
 		p.lineTo(f.w - 30, 0);
 		p.quadTo(f.w - 20, 0, f.w - 20, 20);
@@ -62,7 +62,7 @@ struct FontFaceIcon : public Graphic, public Topic<std::string &>
 		ctx.textSize(32);
 		ctx.noStroke();
 		ctx.fill(0);
-		ctx.text("Abg", getFrame().w / 2.0, 68);
+		ctx.text("Abg", frame().w / 2.0, 68);
 	}
 
 	void drawName(IGraphics& ctx)
@@ -70,7 +70,7 @@ struct FontFaceIcon : public Graphic, public Topic<std::string &>
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
 		ctx.textFont("Consolas");
 		ctx.textSize(12);
-		ctx.text(fFaceName.c_str(), getFrame().w / 2.0, 140);
+		ctx.text(fFaceName.c_str(), frame().w / 2.0, 140);
 	}
 
 	void drawBackground(IGraphics& ctx) override

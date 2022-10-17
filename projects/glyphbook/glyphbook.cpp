@@ -15,10 +15,10 @@ std::shared_ptr<FontSummary> summaryPage = nullptr;
 void onSlide(const float pos)
 {
 	//printf("onSlide: %f\n", pos);
-	float maxY = page->getBounds().h - iconWin->getFrame().h;
+	float maxY = page->bounds().h - iconWin->frame().h;
 	float transY = maths::map(pos, 0, 1, 0, maxY);
 
-	page->translateTo(0, -transY);
+	page->translateBoundsTo(0, -transY);
 
 }
 
