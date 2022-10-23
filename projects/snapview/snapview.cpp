@@ -52,7 +52,7 @@ void keyTyped(const KeyboardEvent& event)
 void setup()
 {
     createCanvas(displayWidth/2, displayHeight/2);
-    frameRate(30);
+    frameRate(15);
 
     ss = new ScreenSnapshot(0, 0, displayWidth/3, displayHeight/2);
 }

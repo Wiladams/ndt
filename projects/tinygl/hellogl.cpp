@@ -1,6 +1,6 @@
-#include "p5.hpp"
-#include "framestats.h"
-#include "Recorder.hpp"
+#include "apphost.h"
+//#include "framestats.h"
+//#include "Recorder.hpp"
 
 #include <math.h>
 #include <stdio.h>
@@ -13,16 +13,19 @@
 #include "tinygl/GL/gl.h"
 #include "tinygl/zbuffer.h"
 #include "3dMath.h"
+#include <stopwatch.hpp>
 
 
-using namespace p5;
+StopWatch wallclock{};
+//using namespace p5;
 
 
-FrameStats _stats;
-std::shared_ptr<Recorder> recorder;
+//FrameStats _stats;
+//std::shared_ptr<Recorder> recorder;
 
 int winSizeX = 0;
 int winSizeY = 0;
+int frameCount = 0;
 
 void drawGL() {
 	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -67,7 +70,7 @@ void drawGL2() {
 
 	// Draw a rotating colorful triangle
 	glTranslatef(0.0f, 14.0f, 0.0f);
-	glRotatef(0.3f * (GLfloat)x + (GLfloat)seconds() * 100.0f, 0.0f, 0.0f, 1.0f);
+	glRotatef(0.3f * (GLfloat)x + (GLfloat)wallclock.seconds() * 100.0f, 0.0f, 0.0f, 1.0f);
 	
 	glBegin(GL_TRIANGLES);
 	glColor4f(1.0f, 0.01f, 0.01f, 0.0f);
@@ -79,8 +82,9 @@ void drawGL2() {
 	glEnd();
 }
 
-void draw()
+void onLoop()
 {
+	frameCount++;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -107,18 +111,18 @@ void initScene()
 	glEnable(GL_NORMALIZE);
 }
 
-void setup()
+void onLoad()
 {
-	createCanvas(800, 600, "tinygl - hellogl");
+	createAppWindow(800, 600, "tinygl - hellogl");
 	//layered();
-	frameRate(30);
-	recorder = std::make_shared<Recorder>(gAppSurface, "hellogl");
+	//frameRate(30);
+	//recorder = std::make_shared<Recorder>(gAppSurface, "hellogl");
 
 	winSizeX = canvasWidth;
 	winSizeY = canvasHeight;
 
 	ZBuffer* frameBuffer = NULL;
-	frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, canvasPixels);
+	frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, canvasPixelData);
 
 
 	glInit(frameBuffer);
@@ -136,6 +140,4 @@ void setup()
 	// glTranslatef( 0.0, 0.0, -45.0 );
 
 	initScene();
-
-
 }

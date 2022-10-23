@@ -42,25 +42,35 @@
 */
 
 #include "Surface.h"
+#include "User32PixelMap.h"
+
+bool BLImageFromPixelArray(const PixelArray &arr, BLImage &img)
+{
+    BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.fData, (intptr_t)arr.stride(), nullptr, nullptr);
+
+    return bResult == 0;
+}
 
 class ScreenSnapshot
 {
     HDC fSourceDC;
-    Surface fSurface;
+    User32PixelMap fPixelMap{};
+    BLImage fImage{};
 
-    int fOriginX;
-    int fOriginY;
-    size_t fWidth;
-    size_t fHeight;
+    int fOriginX=0;
+    int fOriginY=0;
+    size_t fWidth=0;
+    size_t fHeight=0;
 
 public:
-    ScreenSnapshot(int x, int y, size_t awidth, size_t aheight, uint32_t threadCount=0)
-        : fSurface(awidth, aheight, threadCount),
-        fOriginX(x),
-        fOriginY(y),
-        fWidth(awidth),
-        fHeight(aheight)
+    ScreenSnapshot(int x, int y, size_t awidth, size_t aheight)
+        : fOriginX(x)
+        ,fOriginY(y)
+        ,fWidth(awidth)
+        ,fHeight(aheight)
     {
+        fPixelMap.init(awidth, aheight);
+
         // create a device context for the display
         fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
     }
@@ -72,21 +82,22 @@ public:
     size_t width() { return fWidth; }
     size_t height() { return fHeight; }
 
-    Surface & getCurrent()
+    PixelArray & getCurrent()
     {
-        return fSurface;
+        return fPixelMap;
     }
 
     // return image directly
     BLImage& getImage()
     {
-        return fSurface.getImage();
+        BLImageFromPixelArray(fPixelMap, fImage);
+        return fImage;
     }
 
     // take a snapshot
     bool next()
     {
-        auto bResult = BitBlt(fSurface.getDC(), 0, 0, fSurface.getWidth(), fSurface.getHeight(),
+        auto bResult = BitBlt(fPixelMap.bitmapDC(), 0, 0, fPixelMap.width(), fPixelMap.height(),
             fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
 
         return true;

@@ -41,7 +41,7 @@ void setup()
 	frameRate(10);
 
 	createCanvas(320, 320, "angler");
-	layered();
+	//layered();
 
 
 	recorder = std::make_shared<Recorder>(gAppSurface, "angler-");

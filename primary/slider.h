@@ -70,9 +70,6 @@ class Slider : public Graphic, public Topic<float>
 
     MotionConstraint fConstraint;
 
-    //maths::vec2f fStartPoint{};
-    //maths::vec2f fEndPoint{};
-
     maths::vec2f fPosition{};
     maths::vec2f fLastLocation{};
     int fOrientation = 0;
@@ -177,15 +174,12 @@ public:
         if (fOrientation == SLIDER_HORIZONTAL)
         {
             ctx.stroke(0xf5);
+            // Set line join to rounded
+            ctx.strokeCaps(BL_STROKE_CAP_ROUND);
             ctx.line(fBounds.x, fBounds.y + (fBounds.h / 2.0), fBounds.x + fBounds.w, fBounds.y + (fBounds.h / 2.0));
-        
-            ctx.noStroke();
-            ctx.fill(10);
-            ctx.circle(fBounds.x, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
-            ctx.circle(fBounds.x + fBounds.w, fBounds.y + (fBounds.h / 2.0), (Slider::trackThickness / 2.0) + 2.0);
-
         }
         else {
+            ctx.strokeCaps(BL_STROKE_CAP_ROUND);
             ctx.stroke(0x3d, 60);
             float x1 = fBounds.x + fBounds.w / 2.0f;
             float y1 = fBounds.y;
@@ -197,11 +191,6 @@ public:
             ctx.stroke(0xc0,220);
             ctx.line(x1, y1, x2, y2);
 
-            // line endings
-            ctx.noStroke();
-            ctx.fill(10);
-            ctx.circle(x1, y1, (Slider::trackThickness / 2.0f) + 2);
-            ctx.circle(x1, y2, (Slider::trackThickness / 2.0f) + 2);
         }
     }
 
@@ -224,13 +213,13 @@ public:
         {
             thumbFrame.x = 0;
             thumbFrame.y = 0;
-            thumbFrame.w = trackThickness*4;
-            thumbFrame.h = trackThickness*2;
+            thumbFrame.w = trackThickness*4.0;
+            thumbFrame.h = trackThickness*2.0;
         } else {
             thumbFrame.x = 0;
             thumbFrame.y = 0;
-            thumbFrame.w = trackThickness * 2;
-            thumbFrame.h = trackThickness * 4;
+            thumbFrame.w = trackThickness * 2.0;
+            thumbFrame.h = trackThickness * 4.0;
         }
         std::shared_ptr<SliderThumb> sliderThumb = std::make_shared<SliderThumb>(thumbFrame);
 

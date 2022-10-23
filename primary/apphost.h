@@ -56,7 +56,8 @@
 #include "joystick.h"
 #include "uievent.h"
 #include "Network.hpp"
-#include "Surface.h"
+#include "User32PixelMap.h"
+//#include "Surface.h"
 #include "fonthandler.hpp"
 
 #include <stdio.h>
@@ -86,7 +87,8 @@ APP_EXPORT extern char **gargv;
 
 
 APP_EXPORT extern User32Window * gAppWindow;
-APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
+APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
+
 
 
 // Raw Mouse input
@@ -101,7 +103,7 @@ APP_EXPORT extern unsigned int systemPpi;
 
 APP_EXPORT extern int canvasWidth;
 APP_EXPORT extern int canvasHeight;
-APP_EXPORT extern Pixel *canvasPixels;
+APP_EXPORT extern uint8_t *canvasPixelData;
 APP_EXPORT extern size_t canvasStride;
 
 

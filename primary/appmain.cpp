@@ -60,7 +60,7 @@ char **gargv;
 
 
 User32Window * gAppWindow = nullptr;
-std::shared_ptr<Surface>  gAppSurface = nullptr;
+std::shared_ptr<User32PixelMap> gAppFrameBuffer = nullptr;
 std::shared_ptr<FontHandler> gFontHandler = nullptr;
 
 
@@ -70,7 +70,7 @@ bool gIsLayered = false;
 // Display Globals
 int canvasWidth = 0;
 int canvasHeight = 0;
-Pixel* canvasPixels = nullptr;
+uint8_t* canvasPixelData = nullptr;
 size_t canvasStride = 0;
 
 int displayWidth = 0;
@@ -132,7 +132,13 @@ void HID_UnregisterDevice(USHORT usage)
 // window to the actual screen
 void screenRefresh()
 {
-    if ((gAppSurface == nullptr)) {
+
+    //if ((gAppSurface == nullptr)) {
+    //    printf("forceRedraw, NULL PTRs\n");
+    //    return;
+    //}
+    if ((gAppFrameBuffer == nullptr))
+    {
         printf("forceRedraw, NULL PTRs\n");
         return;
     }
@@ -144,7 +150,9 @@ void screenRefresh()
     }
     else {
         LayeredWindowInfo lw(canvasWidth, canvasHeight);
-        lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
+        //lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
+        lw.display(gAppWindow->getHandle(), gAppFrameBuffer->bitmapDC());
+
     }
 }
 
@@ -226,7 +234,7 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {   
     LRESULT res = 0;
-    MouseEvent e;
+    MouseEvent e{};
 
     e.x = GET_X_LPARAM(lParam);
     e.y = GET_Y_LPARAM(lParam);
@@ -497,17 +505,17 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int SrcWidth = canvasWidth;
     int SrcHeight = canvasHeight;
 
-    BITMAPINFO info = gAppSurface->getBitmapInfo();
+    BITMAPINFO info = gAppFrameBuffer->bitmapInfo();
     
     // Make sure we sync all current drawing
-    gAppSurface->flush();
+    //gAppSurface->flush();
 
     int pResult = StretchDIBits(hdc,
         xDest,yDest,
         DestWidth,DestHeight,
         xSrc,ySrc,
         SrcWidth, SrcHeight,
-        gAppSurface->getPixels(),&info,
+        gAppFrameBuffer->data(),&info,
         DIB_RGB_COLORS,
         SRCCOPY);
         
@@ -817,21 +825,21 @@ void setCanvasPosition(int x, int y)
 bool setCanvasSize(long aWidth, long aHeight)
 {
     // Create new drawing surface
-    if (gAppSurface != nullptr) {
+    if (gAppFrameBuffer != nullptr) {
         // Delete old one if it exists
         //delete gAppSurface;
         //gAppSurface.reset();
     }
 
     // BUGBUG - is state transferred?
-    gAppSurface = std::make_shared<Surface>(aWidth, aHeight,0);
-    gAppSurface->textFont("Consolas");
+    gAppFrameBuffer = std::make_shared<User32PixelMap>(aWidth, aHeight);
+    //gAppSurface->textFont("Consolas");
 
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 
-    canvasPixels = gAppSurface->getPixels();
-    canvasStride = gAppSurface->getStride();
+    canvasPixelData = gAppFrameBuffer->data();
+    canvasStride = gAppFrameBuffer->stride();
 
     return true;
 }

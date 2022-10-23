@@ -14,13 +14,13 @@ class YearOfMonths : public Graphic
 	int fBaseYear;
 
 public:
-	static BLSizeI getPreferredSize() 
+	static maths::vec2f preferredSize() 
 	{ 
 		auto cellSize = CalendarMonth::getClassPreferredSize();
 
 		return { 
-			int((double)cellSize.w * 3 + (edgeMargin * 4)),
-			int((double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3)) 
+			((float)cellSize.w * 3 + (edgeMargin * 4)),
+			((float)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3)) 
 		};
 	}
 
@@ -54,12 +54,14 @@ public:
 		}
 
 		setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
+		setBounds({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
+
 	}
 
 	virtual void drawForeground(IGraphics & ctx) override
 	{
 		// draw the year
-		auto f = getFrame();
+		auto & f = frame();
 		char yearText[64];
 		sprintf_s(yearText, "%d", fBaseYear);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);

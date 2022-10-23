@@ -379,8 +379,6 @@ public:
         ((BLRgba32 *)(fImageData.pixelData))[(int)y * fImageData.size.w + (int)x] = c;
     }
     
-
-
     void point(double x, double y) override
     { 
         line(x, y, x+1, y);

@@ -14,7 +14,8 @@ protected:
 	Pixel fTitleBarColor;
 	std::string fTitle;
 
-	std::shared_ptr<Surface> fSurface;	// backing store for drawing
+	User32PixelMap fPixelMap;
+	Surface fSurface;
 
 public:
 
@@ -27,10 +28,11 @@ public:
 		fLastMouse(0, 0),
 		fIsMoving(false)
 	{
-		fSurface = std::make_shared<Surface>(w, h);
+		fPixelMap.init(w, h);
+		fSurface.attachPixelArray(fPixelMap);
 	}
 
-	BLImage& getImage() { return fSurface->getImage(); }
+	BLImage& getImage() { return fSurface.getImage(); }
 
 
 	void drawTitleBar(IGraphics & ctx)
@@ -61,7 +63,7 @@ public:
 	{
 		ctx.push();
 
-		ctx.clear();
+		//ctx.clear();
 
 		if (fBackgroundColor.value == 0) {
 			ctx.clearRect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
@@ -75,7 +77,7 @@ public:
 		ctx.pop();
 	}
 
-	void drawForeground(IGraphics& ctx)
+	void drawForeground(IGraphics& ctx) override
 	{
 		drawTitleBar(ctx);
 		
@@ -88,30 +90,19 @@ public:
 		ctx.rect(0, 0, f.w, f.h);
 	}
 
-	void draw(IGraphics & ctx)
+	void compose(IGraphics& ctx)
 	{
-		//fSurface->push();
-		//ctx.clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
-
-
-		// BUGBUG - maybe perform arbitrary transform?
-		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-		//ctx->translate(pt.x, pt.y);
-
-		drawBackground(*fSurface);
-		drawChildren(*fSurface);
-		drawSelf(*fSurface);
-		drawForeground(*fSurface);
-
-		//ctx->noClip();
-		//ctx.pop();
-
-		compose(ctx);
+		ctx.image(fSurface.getImage(), (int)fFrame.x, (int)fFrame.y);
 	}
 
-	void compose(IGraphics & ctx)
+	void draw(IGraphics & ctx) override
 	{
-		ctx.image(fSurface->getImage(), (int)fFrame.x, (int)fFrame.y);
+		drawBackground(fSurface);
+		drawChildren(fSurface);
+		drawSelf(fSurface);
+		drawForeground(fSurface);
+
+		compose(ctx);
 	}
 
 	void setTitle(const char* title)
@@ -133,14 +124,9 @@ public:
 			(y - fTitleBar.y <= fTitleBar.h));
 	}
 	
-
-
-
-
 	virtual void mouseEvent(const MouseEvent& e)
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
-
 
 		switch (e.activity)
 		{

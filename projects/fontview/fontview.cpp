@@ -26,10 +26,15 @@ BLFontFace face;
 
 void displayFace(Console &cons, BLFontFace &fontFace)
 {
+	printf("displayFace\n");
 	BLFontFaceInfo faceInfo{};
 
 	if (!fontFace.isValid())
+	{
+		cons.putsln("invalid font face");
 		return;
+	}
+
 
 	faceInfo = fontFace.faceInfo();
 
@@ -81,15 +86,15 @@ void displayFace(Console &cons, BLFontFace &fontFace)
 	cons.printf(" strikethroughPosition: %d\n", designMetrics.strikethroughPosition);
 	cons.printf("strikethroughThickness: %d\n", designMetrics.strikethroughThickness);
 
-	BLFont fon;
-	BLFontMatrix fontMatrix;
-	fon.createFromFace(fontFace, 72);
-	blFontGetMatrix(&fon, &fontMatrix);
-
 	cons.newLine();
 	cons.newLine();
 
 	cons.putsln(" == FONT INFORMATION == ");
+
+	BLFont fon;
+	BLFontMatrix fontMatrix;
+	fon.createFromFace(fontFace, 72);
+	blFontGetMatrix(&fon, &fontMatrix);
 
 	cons.putsln("  Font Matrix ");
 	cons.printf(" %f  %f\n", fontMatrix.m00, fontMatrix.m01);
@@ -102,16 +107,7 @@ void selectFace(BLFontFace& face)
 	displayFace(*acons, face);
 }
 
-void displayStream()
-{
-	FileStream strm("n4-wendy.ans");
-	VT100Stream tstrm(strm);
 
-	while (tstrm.next())
-	{
-		printf("something\n");
-	}
-}
 
 
 
@@ -133,7 +129,7 @@ void draw()
 
 void setup()
 {
-	frameRate(8);
+	frameRate(1);
 	createCanvas(1280, 1024, "fontview");
 	//fullscreen();
 	//loadFontDirectory("c:\\windows\\fonts");
@@ -143,12 +139,12 @@ void setup()
 	//face = gFontHandler->queryFontFace("Cascadia Code");
 
 	acons = std::make_shared<Console>(60, 40, "Cascadia Code");
-	auto win1 = window(0, 0, acons->bounds().w, acons->bounds().h);
-	win1->setBackgroundColor(color(25,55,55,200));
+	//auto win1 = window(0, 0, acons->bounds().w, acons->bounds().h);
+	//win1->setBackgroundColor(color(25,55,55,200));
 	//win1->setTitle("console");
 
-	win1->addChild(acons);
-	win1->moveTo(8, 8);
+	//win1->addChild(acons);
+	//win1->moveTo(8, 8);
 
 
 	emView = std::make_shared<EMSpaceView>(600,600);
@@ -162,12 +158,9 @@ void setup()
 	glyphGrid = std::make_shared<FontGlyphGrid>(600, 0);
 	glyphGrid->setFontFace(face);
 
-	auto win3 = window(0, 0, 600, 200);
-	win3->addChild(glyphGrid);
-	win3->moveTo(462, 610);
-
-	//displayFamilies();
-	//displayStream();
+	//auto win3 = window(0, 0, 600, 200);
+	//win3->addChild(glyphGrid);
+	//win3->moveTo(462, 610);
 
 	selectFace(face);
 }
@@ -184,6 +177,18 @@ void keyReleased(const KeyboardEvent& event)
 			acons->scrollUp();
 		}break;
 		
+		case VK_RIGHT:
+		{
+			emView->incrementGlyph();
+		}
+		break;
+
+		case VK_LEFT:
+		{
+			emView->decrementGlyph();
+		}
+		break;
+
 		case VK_ESCAPE:
 		{
 			halt();

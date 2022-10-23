@@ -16,27 +16,32 @@
     on the object directly.
 */
 
-#include "User32PixelMap.h"
 #include "BLGraphics.h"
+#include "pixelarray.h"
 
 #include <cstdio>
 
+
+
 class Surface : public BLGraphics
 {
-    // for interacting with win32
-    User32PixelMap fPixelMap;
-
     // For interacting with blend2d
-    BLImage fImage;
+    BLImage fImage{};
+    BLImageData fImageInfo{};
 
 public:
-    Surface(long awidth, long aheight, uint32_t threadCount=0)
+    Surface() = default;
+
+    void attachPixelArray(PixelArray& pixmap, uint32_t threadCount = 0)
     {
-        fPixelMap.init(awidth, aheight);
+        // Reset the BLImage so we can initialize it anew
+        fImage.reset();
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
-        BLResult bResult = blImageInitAsFromData(&fImage, awidth, aheight, BL_FORMAT_PRGB32, fPixelMap.data(), (intptr_t)fPixelMap.stride(), nullptr, nullptr);
+        BLResult bResult = blImageInitAsFromData(&fImage, pixmap.width(), pixmap.height(), BL_FORMAT_PRGB32, pixmap.data(), (intptr_t)pixmap.stride(), nullptr, nullptr);
+    
+        fImage.getData(&fImageInfo);
 
         // BUGBUG - with multi-thread, flush/sync doesn't quite seem
         // to be in sync, causing tearing.
@@ -45,45 +50,44 @@ public:
         createInfo.commandQueueLimit = 255;
         createInfo.threadCount = threadCount;
 
-
         bResult = fCtx.begin(fImage, createInfo);
-
     }
+
 
     virtual ~Surface()
     {
         fImage.reset();
     }
 
-    long getWidth() { return fPixelMap.width(); }
-    long getHeight() { return fPixelMap.height(); }
-    long getStride() { return fPixelMap.stride(); }
-    Pixel * getPixels() { return (Pixel *)fPixelMap.data(); }
+    long getWidth() { return fImageInfo.size.w; }
+    long getHeight() { return fImageInfo.size.h; }
+    ptrdiff_t getStride() { return ptrdiff_t(fImageInfo.stride);}
+    Pixel * getPixels() { return (Pixel *)fImageInfo.pixelData; }
 
     // Calculate whether a point is whithin our bounds
     bool contains(double x, double y) 
     { 
         return (
-            (x >= 0) && (x < fPixelMap.width()) && 
-            (y >= 0) && (y < fPixelMap.height())
+            (x >= 0) && (x < fImage.width()) &&
+            (y >= 0) && (y < fImage.height())
                 ); 
     }
 
-    BITMAPINFO getBitmapInfo() {return fPixelMap.bitmapInfo(); }
+    //BITMAPINFO getBitmapInfo() {return fPixelMap.bitmapInfo(); }
 
-    HDC getDC() {return fPixelMap.bitmapDC(); }
+    //HDC getDC() {return fPixelMap.bitmapDC(); }
 
     BLImage& getImage() {return fImage;}
 
     inline int pixelOffset(int x, int y)
     {
-        return (y * fPixelMap.width()) + x;
+        return (y * fImage.width()) + x;
     }
 
     Pixel get(int x, int y)
     {
-        x = (int)maths::clamp(x, 0, fPixelMap.width() - 1);
-        y = (int)maths::clamp(y, 0, fPixelMap.height() - 1);
+        x = (int)maths::clamp(x, 0, fImage.width() - 1);
+        y = (int)maths::clamp(y, 0, fImage.height() - 1);
 
         // Get data from BLContext
         int offset = pixelOffset(x, y);

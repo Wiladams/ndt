@@ -151,6 +151,7 @@
     <ClInclude Include="binstream.hpp" />
     <ClInclude Include="bitbang.h" />
     <ClInclude Include="blend2d.h" />
+    <ClInclude Include="blend2d\context.h" />
     <ClInclude Include="BLGraphics.h" />
     <ClInclude Include="canvas.h" />
     <ClInclude Include="codec_targa.hpp" />

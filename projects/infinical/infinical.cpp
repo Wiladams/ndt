@@ -33,7 +33,7 @@ using namespace Calendar;
 //
 class Decade : public Graphic
 {
-	int fBaseYear;
+	int fBaseYear=2022;
 
 public:
 	Decade(int baseYear)
@@ -48,8 +48,10 @@ public:
 			addChild(std::make_shared<YearOfMonths>(year));
 		}
 
-		auto sz = YearOfMonths::getPreferredSize();
-		setFrame({ 0,0,(double)(sz.w*10),(double)(sz.h) });
+		auto sz = YearOfMonths::preferredSize();
+		setFrame({ 0,0,(double)(sz.x*10),(double)(sz.y) });
+		setBounds({ 0,0,(double)(sz.x * 10),(double)(sz.y) });
+
 	}
 };
 
@@ -60,11 +62,12 @@ public:
 //
 class Century : public Graphic
 {
-	int fBaseYear;
+	//int fBaseYear=2000;
 
 public:
 	Century(int baseYear) :
-		fBaseYear(baseYear)
+		Graphic()
+		//,fBaseYear(baseYear)
 	{
 		setLayout(std::make_shared < VerticalLayout>());
 
@@ -131,7 +134,7 @@ void keyPressed(const KeyboardEvent& e)
 void keyReleased(const KeyboardEvent& e)
 {
 	switch (e.keyCode) {
-	case VK_SPACE:
+	case 'R':
 		// toggle recording
 		recorder->toggleRecording();
 
@@ -156,9 +159,9 @@ void mouseHWheel(const MouseEvent& e)
 	double scrollSize = 10;
 
 	if (e.delta > 0)
-		cent.translateBy(scrollSize, 0);
+		cent.translateBoundsBy(scrollSize, 0);
 	else
-		cent.translateBy(-scrollSize, 0);
+		cent.translateBoundsBy(-scrollSize, 0);
 }
 
 
@@ -170,16 +173,16 @@ void mouseDragged(const MouseEvent& e)
 
 	//printf("mouseDragged: %d %d\n", deltaX, deltaY);
 
-	double scrollSize = 10;
+	//double scrollSize = 10;
 
-	cent.translateBy(deltaX, deltaY);
+	cent.translateBoundsBy(deltaX, deltaY);
 }
 
 // Handling panning
 // do translation
 void panMoved(const GestureEvent& e)
 {
-	cent.translateBy(panVecX, panVecY);
+	cent.translateBoundsBy(panVecX, panVecY);
 }
 
 // Handle zooming gesture

@@ -246,6 +246,9 @@
     <ClInclude Include="memutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="blend2d\context.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

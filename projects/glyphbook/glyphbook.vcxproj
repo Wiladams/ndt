@@ -148,7 +148,11 @@
     <ClCompile Include="glyphbook.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\fonthandler.hpp" />
+    <ClInclude Include="..\..\primary\pixelarray.h" />
+    <ClInclude Include="..\..\primary\slider.h" />
+    <ClInclude Include="..\..\primary\User32PixelMap.h" />
     <ClInclude Include="FontFaceIcon.h" />
     <ClInclude Include="FontIconPage.h" />
     <ClInclude Include="fontsummary.hpp" />

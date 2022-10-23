@@ -40,27 +40,26 @@ void drawHundreds()
 
 void draw()
 {
+
 	//background(255, 255, 0);
 	noStroke();
 	fill(255);
-	textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
+	textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
 	textSize(16);
 
 	char txtBuff[256];
 	sprintf_s(txtBuff, "Display Pixels Per Inch: %d", systemDpi);
-	text(txtBuff, 240, 4);
-	text("User Units/inch: 100 ", 240,20);
+	text(txtBuff, 4, 4);
+	text("User Units/inch: 100 ", 4,20);
 
 	drawHundreds();
-
-
 
 	noLoop();
 }
 
 void setup()
 {
-	createCanvas(320, 240, "calibration");
+	createCanvas(800, 600, "calibration");
 
 	// Set user space units to be 96/inch
 	setUnitsPerInch(100);

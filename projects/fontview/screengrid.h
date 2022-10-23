@@ -304,7 +304,7 @@ struct ScreenGrid
 	void eraseToEndOfLine() 
 	{
 		for (int x = fCursorX; x < width(); x++)
-			setCell(x, y, CellT());
+			setCell(x, fCursorY, CellT());
 	}
 
 	void eraseFromBeginningOfLine() {}

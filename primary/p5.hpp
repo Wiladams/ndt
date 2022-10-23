@@ -26,10 +26,13 @@
 
 #include "apphost.h"
 #include "gwindow.h"
+#include "Surface.h"
 
 #include <memory>
 
 using REAL = float;
+
+APP_EXPORT extern std::shared_ptr<Surface> gAppSurface;
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,27 +2,34 @@
 // Reference
 //  https://p5js.org/examples/math-graphing-2d-equations.html
 //
-#include "p5.hpp"
+//#include "p5.hpp"
+#include "apphost.h"
 
-using namespace p5;
+//using namespace p5;
 
 int width = 0;
 int height = 0;
+int mouseX = 0;
+int mouseY = 0;
 
-void setup() 
+void handleMouse(const MouseEvent& e)
 {
-    createCanvas(710, 400, "graph2d");
-    //pixelDensity(1);
-    frameRate(20);
+    mouseX = e.x;
+    mouseY = e.y;
+}
+
+void onLoad() 
+{
+    createAppWindow(710, 400, "graph2d");
 
     width = canvasWidth;
     height = canvasHeight;
+
+    subscribe(handleMouse);
 }
 
-void draw() 
+void onLoop() 
 {
-    loadPixels();
-
     auto n = (mouseX * 10.0) / width;
     const double w = 16.0; // 2D space width
     const double h = 16.0; // 2D space height
@@ -35,7 +42,7 @@ void draw()
     double theta;
     double val;
 
-    Pixel bw; //variable to store grayscale
+    int bw; //variable to store grayscale
     int i;
     int j;
     int cols = width;
@@ -44,22 +51,24 @@ void draw()
     for (i = 0; i < cols; i += 1) {
         y = -h / 2;
         for (j = 0; j < rows; j += 1) {
-            r = p5::sqrt(x * x + y * y); // Convert cartesian to polar
+            r = maths::sqrt(x * x + y * y); // Convert cartesian to polar
             theta = maths::atan2(y, x); // Convert cartesian to polar
             // Compute 2D polar coordinate function
-            val = sin(n * cos(r) + 5 * theta); // Results in a value between -1 and 1
+            val = maths::sin(n * maths::cos(r) + 5 * theta); // Results in a value between -1 and 1
             //var val = cos(r);                            // Another simple function
             //var val = sin(theta);                        // Another simple function
-            bw = color(((val + 1) * 255) / 2);
+            bw = int(((val + 1) * 255) / 2);
             int index = 4 * (i + j * width);
-            pixels[index] = red(bw);
-            pixels[index + 1] = green(bw);
-            pixels[index + 2] = blue(bw);
-            pixels[index + 3] = alpha(bw);
+
+            canvasPixelData[index] = bw;
+            canvasPixelData[index + 1] = bw;
+            canvasPixelData[index + 2] = bw;
+            canvasPixelData[index + 3] = bw;
 
             y += dy;
         }
         x += dx;
     }
-    updatePixels();
+
+    screenRefresh();
 }

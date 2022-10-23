@@ -53,6 +53,7 @@ static GestureEventHandler gZoomEndedHandler = nullptr;
 static PointerEventHandler gPointerHandler = nullptr;
 
 
+std::shared_ptr<Surface> gAppSurface = nullptr;
 static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gComposedHandler = nullptr;
@@ -705,6 +706,8 @@ namespace p5 {
         createAppWindow(aWidth, aHeight, title);
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
+
+        gAppSurface->attachPixelArray(*gAppFrameBuffer);
     }
 
     void fullscreen() noexcept
@@ -1099,13 +1102,13 @@ void onUnload()
     gTickTopic.stop();
 }
 
-
-
-
 void onLoad()
 {
 
     // setup the drawing context
+    gAppSurface = std::make_shared<Surface>();
+    gAppSurface->attachPixelArray(*gAppFrameBuffer);
+
     // ppi and user units
     gAppSurface->setPpiUnits(systemPpi, systemPpi);     // default to raw pixels
 

@@ -3,14 +3,27 @@
 #include "binstream.hpp"
 #include <cctype>
 
+/*
+void displayStream()
+{
+	FileStream strm("n4-wendy.ans");
+	VT100Stream tstrm(strm);
+
+	while (tstrm.next())
+	{
+		printf("something\n");
+	}
+}
+*/
+
 //
 // Turn vt100 stream into command sequences
 //
-constexpr uint8_t TAB			= 011;	// 9
+//constexpr uint8_t TAB			= 011;	// 9
 constexpr uint8_t ESC			= 033;	// 0x1B;
 constexpr uint8_t LEFTBRACKET	= 0x5B;
-constexpr uint8_t XON			= 0x11;
-constexpr uint8_t XOFF			= 0x13;
+//constexpr uint8_t XON			= 0x11;
+//constexpr uint8_t XOFF			= 0x13;
 
 
 struct VT100Stream

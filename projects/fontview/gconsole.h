@@ -68,12 +68,13 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 		fFontFace = gFontHandler->queryFontFace(fontname);
 		fFont.createFromFace(fFontFace, fontSize);
 
-		BLFontMetrics metrics = fFont.metrics();
+		//BLFontMetrics metrics = fFont.metrics();
 
 		//float vSize = metrics.ascent + metrics.descent;
 		//printf("metrics.vsize: %f\n", vSize);
 
 		//putsln("");
+		setFrame(BLRectI(0, 0, (fWidth * charWidth), (fHeight * charHeight)));
 		setBounds(BLRectI(0, 0, (fWidth * charWidth), (fHeight * charHeight)));
 	}
 

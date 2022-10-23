@@ -9,6 +9,7 @@ struct PixelArray
     size_t fWidth=0;
     size_t fHeight=0;
     ptrdiff_t fStride=0;
+    bool fOwnData = false;
 
 
     PixelArray()
@@ -21,6 +22,12 @@ struct PixelArray
         attach(d, w, h, s);
     }
 
+    virtual ~PixelArray()
+    {
+        if (fOwnData)
+            printf("Deallocate Pixel Array");
+    }
+
     void attach(void* d, const size_t w, const size_t h, const ptrdiff_t s)
     {
         fData = (uint8_t*)d;
@@ -30,14 +37,16 @@ struct PixelArray
         fStride = s;
     }
 
-    constexpr int width() const noexcept { return fWidth; }
-    constexpr int height() const noexcept { return fHeight; }
+    constexpr const int width() const noexcept { return fWidth; }
+    constexpr const int height() const noexcept { return fHeight; }
 
 
-    constexpr ptrdiff_t stride() const noexcept { return fStride; }
+    constexpr const ptrdiff_t stride() const noexcept { return fStride; }
 
+    // Get a pointer to the raw data
     uint8_t * data() { return fData; }
 
+    // Get a pointer to the beginning of a row
     uint8_t* rowPointer(const size_t y)
     {
         return (&fData[y * fStride]);
