@@ -99,25 +99,25 @@ public:
 	{
 		//printf("MonthDay: (%d) %d\n", fMonth, fCalendar.dayCodeForMonth(fMonth));
 		ctx.push();
-		ctx.translate(fFrame.x, fFrame.y);
+		ctx.translate(frame().min.x, frame().min.y);
 
 		// Draw Calendar rectangle
 		ctx.noStroke();
 
 
 		ctx.fill(fBackgroundColor);
-		ctx.rect(0, 0, fBounds.w, fBounds.h);
+		ctx.rect(0, 0, boundsWidth(), boundsHeight());
 
 		// Draw shadow rect for month title
 
 		ctx.fill(0xa0);
-		ctx.rect(0, 0, fBounds.w, 16);
+		ctx.rect(0, 0, boundsWidth(), 16);
 
 		// Draw the month long name, and year
 		ctx.fill(0);
 		ctx.textSize(12);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-		ctx.text(fTitle, fBounds.w / 2, 6);
+		ctx.text(fTitle, boundsWidth() / 2, 6);
 
 		drawDayHeadings(ctx);
 		drawDayNumbers(ctx);

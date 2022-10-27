@@ -48,10 +48,14 @@ public:
 			addChild(std::make_shared<YearOfMonths>(year));
 		}
 
-		auto sz = YearOfMonths::preferredSize();
-		setFrame({ 0,0,(double)(sz.x*10),(double)(sz.y) });
-		setBounds({ 0,0,(double)(sz.x * 10),(double)(sz.y) });
+		setFrame(bounds());
 
+		//printf("Decade\n");
+		//printf("  Frame: %3.2f,%3.2f  %3.2f,%3.2f\n", frame().x, frame().y, frame().w, frame().h);
+		//printf("  Bound: %3.2f,%3.2f  %3.2f,%3.2f\n", bounds().x, bounds().y, bounds().w, bounds().h);
+
+		//auto sz = YearOfMonths::preferredSize();
+		//setFrame({ 0,0,(double)(sz.x*10),(double)(sz.y) });
 	}
 };
 
@@ -67,7 +71,6 @@ class Century : public Graphic
 public:
 	Century(int baseYear) :
 		Graphic()
-		//,fBaseYear(baseYear)
 	{
 		setLayout(std::make_shared < VerticalLayout>());
 
@@ -75,6 +78,12 @@ public:
 		for (int year = baseYear; year < (baseYear + 100); year += 10) {
 			addChild(std::make_shared<Decade>(year));
 		}
+
+		setFrame(bounds());
+
+		//printf("Century\n");
+		//printf("  Frame: %3.2f,%3.2f  %3.2f,%3.2f\n", frame().x, frame().y, frame().w, frame().h);
+		//printf("  Bound: %3.2f,%3.2f  %3.2f,%3.2f\n", bounds().x, bounds().y, bounds().w, bounds().h);
 	}
 };
 
@@ -109,6 +118,8 @@ void draw()
 	recorder->saveFrame();
 
 	pop();
+
+	noLoop();
 }
 
 

@@ -44,12 +44,12 @@ struct SliderThumb : public Graphic
     }
 
     // a lozinger rounded rect
-    void draw(IGraphics& ctx) override
+    void drawSelf(IGraphics& ctx) override
     {
         ctx.strokeWeight(2);
         ctx.stroke(Pixel(127, 127, 127, 120));
         ctx.fill(thumbColor);
-        ctx.rect(frame().x, frame().y, frame().w, frame().h,
+        ctx.rect(frameX(), frameY(), frameWidth(), frameHeight(),
             fRadius, fRadius);
     }
 };
@@ -113,8 +113,8 @@ public:
         auto locX = maths::map(x, 0.0, 1.0, fConstraint.fminX, fConstraint.fmaxX);
         if (fThumb != nullptr)
         {
-            fThumb->moveTo(locX, locY);
-            fLastLocation = { float(fThumb->frame().x), float(fThumb->frame().y) };
+            fThumb->moveTo({ locX, locY });
+            fLastLocation = { fThumb->frameX(), fThumb->frameY() };
         }
     }
 
@@ -176,15 +176,15 @@ public:
             ctx.stroke(0xf5);
             // Set line join to rounded
             ctx.strokeCaps(BL_STROKE_CAP_ROUND);
-            ctx.line(fBounds.x, fBounds.y + (fBounds.h / 2.0), fBounds.x + fBounds.w, fBounds.y + (fBounds.h / 2.0));
+            ctx.line(boundsX(), boundsY() + (boundsHeight() / 2), boundsX() + boundsWidth(), boundsY() + (boundsHeight() / 2));
         }
         else {
             ctx.strokeCaps(BL_STROKE_CAP_ROUND);
             ctx.stroke(0x3d, 60);
-            float x1 = fBounds.x + fBounds.w / 2.0f;
-            float y1 = fBounds.y;
-            float x2 = fBounds.x + fBounds.w / 2.0f;
-            float y2 = fBounds.y + fBounds.h;
+            float x1 = boundsX() + boundsWidth() / 2.0f;
+            float y1 = boundsY();
+            float x2 = boundsX() + boundsWidth() / 2.0f;
+            float y2 = boundsY() + boundsHeight();
             ctx.line(x1, y1, x2, y2);
 
             ctx.strokeWeight(trackThickness / 4.0f);
@@ -239,7 +239,7 @@ public:
 
 
 
-            sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->frame().h);
+            sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->frameHeight());
 
             //sliderStart = { trackThickness / 2, 0 };
             //sliderEnd = { trackThickness / 2, (float)sliderFrame.h };
@@ -251,7 +251,7 @@ public:
             sliderFrame.x = startPoint.x;
             sliderFrame.y = startPoint.y - (thumbFrame.h/2.0);
 
-            sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->frame().w, 0);
+            sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->frameWidth(), 0);
 
             //sliderStart = { 0, trackThickness / 2 };
             //sliderEnd = { (float)sliderFrame.w, trackThickness / 2 };

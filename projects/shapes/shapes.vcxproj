@@ -158,8 +158,13 @@
     <ClCompile Include="shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\BLGraphics.h" />
+    <ClInclude Include="..\..\primary\drawable.h" />
+    <ClInclude Include="..\..\primary\gpath.h" />
     <ClInclude Include="..\..\primary\graphic.hpp" />
+    <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\Surface.h" />
     <ClInclude Include="..\..\primary\tabbedview.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

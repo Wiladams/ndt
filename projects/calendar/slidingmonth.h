@@ -29,9 +29,9 @@ class SlidingMonth : public GraphicElement
 			{30,31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	};
 
-	double cellWidth;
-	double cellHeight;
-	double cellGap = 0.5;
+	float cellWidth;
+	float cellHeight;
+	float cellGap = 0.5;
 
 public:
 	SlidingMonth(int year, int month, float w, float h)
@@ -70,7 +70,7 @@ public:
 		// draw a black background rectangle to start
 		ctx.fill(0);
 		ctx.noStroke();
-		ctx.rect(0, 0, fFrame.w, fFrame.h);
+		ctx.rect(0, 0, frameWidth(), frameHeight());
 	}
 
 	//void drawDate(std::shared_ptr<IGraphics> ctx, int row, int col, int date, const Pixel &c)
@@ -80,8 +80,8 @@ public:
 		auto cellX = (col * cellWidth);
 		auto cellY = (row * cellHeight);
 
-		auto toffsetx = cellGap + ((cellWidth / 2) + (col * cellWidth));
-		auto toffsety = cellGap + ((cellHeight / 2) + (row * cellHeight));
+		float toffsetx = cellGap + ((cellWidth / 2) + (col * cellWidth));
+		float toffsety = cellGap + ((cellHeight / 2) + (row * cellHeight));
 
 		// Put number in cell
 		ctx.fill(0xFF, 120);

@@ -328,7 +328,7 @@ void panMoved(const GestureEvent& e)
 void onSlide(const float pos)
 {
     //printf("onSlide: %f, %f\n", pos.x, pos.y);
-    float maxY = page->bounds().h - mainWin->frame().h;
+    float maxY = page->boundsHeight() - mainWin->frameHeight();
     float transY = maths::map(pos, 0, 1, 0, maxY);
 
     page->translateBoundsTo(0, -transY);
@@ -347,8 +347,8 @@ void setup()
     mainWin->addChild(page);
 
     auto sldr = Slider::create(
-        { float(mainWin->width() - 20), 40},
-        {float(mainWin->width() - 20), float(mainWin->height() - 8)});
+        { float(mainWin->frameWidth() - 20), 40},
+        {float(mainWin->frameWidth() - 20), float(mainWin->frameHeight() - 8)});
     mainWin->addChild(sldr);
 
     sldr->subscribe(onSlide);

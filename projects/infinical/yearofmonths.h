@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CalendarMonth.hpp"
-
+#include "layout.h"
 
 #include <memory>
 
@@ -16,7 +16,7 @@ class YearOfMonths : public Graphic
 public:
 	static maths::vec2f preferredSize() 
 	{ 
-		auto cellSize = CalendarMonth::getClassPreferredSize();
+		auto cellSize = CalendarMonth::preferredSize();
 
 		return { 
 			((float)cellSize.w * 3 + (edgeMargin * 4)),
@@ -28,7 +28,7 @@ public:
 	YearOfMonths(int baseYear)
 		:fBaseYear(baseYear)
 	{
-		auto cellSize = CalendarMonth::getClassPreferredSize();
+		auto cellSize = CalendarMonth::preferredSize();
 
 		int xoffset = edgeMargin;
 		int yoffset = edgeMargin;
@@ -52,9 +52,20 @@ public:
 				yoffset += cellSize.h + lineGap;
 			}
 		}
+		
+		IdentityLayout layit;
+		auto b = layit.layout(fChildren);
 
-		setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
-		setBounds({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
+		
+		setFrame(bounds());
+
+		printf("yearofmonths\n");
+		printf("  Frame: %3.2f,%3.2f  %3.2f,%3.2f\n", frame().x, frame().y, frame().w, frame().h);
+		printf("  Bound: %3.2f,%3.2f  %3.2f,%3.2f\n", bounds().x, bounds().y, bounds().w, bounds().h);
+
+
+		//setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
+		//setBounds({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
 
 	}
 

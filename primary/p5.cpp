@@ -472,9 +472,9 @@ namespace p5 {
 
 
     // Clipping
-    void clip(double x, double y, double w, double h) noexcept
+    void clip(float x, float y, float w, float h) noexcept
     {
-        gAppSurface->clip(x, y, w, h);
+        gAppSurface->clip({ {x,y},{x+w,y+h} });
     }
 
     void noClip() noexcept

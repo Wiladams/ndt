@@ -9,7 +9,8 @@
 
 class TabbedView : public Graphic 
 {
-	
+	static constexpr int ContentMargin = 4;
+
 	// Content Area details
 	GPath fWholePath;
 	BLRgba32 fBackgroundColor;
@@ -22,38 +23,43 @@ class TabbedView : public Graphic
 	BLRect fTabContentArea;
 	std::string fTabTitle;
 
-	static const int ContentMargin=4;
+
 
 public:
-	TabbedView(const BLRect& frame, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
-		: Graphic(frame.x,frame.y,frame.w,frame.h),
+	TabbedView(const BLRect& f, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
+		: Graphic(f.x,f.y,f.w,f.h),
 		fTabParam(tParam),
 		fTabColor(tColor),
 		fTabTitle(title),
 		fBackgroundColor(bColor)
 	{
-		fTabPath.moveTo(fFrame.x+fTabParam.x, fFrame.y + fTabParam.h);
+		maths::bbox2f b = bounds();
+		maths::vec2f bsz = maths::size(b);
+
+		// Create the tab that sits on top
+		fTabPath.moveTo(b.min.x + fTabParam.x, b.min.y + fTabParam.h);
 		fTabPath.cubicBy(fTabParam.rx, 0, 0, -fTabParam.h, fTabParam.rx, 0);
 		fTabPath.lineBy(fTabParam.w, 0);
 		fTabPath.cubicBy(fTabParam.rx, 0, 0, fTabParam.h, fTabParam.rx, 0);
 		fTabPath.close();
-		fTabContentArea = { fFrame.x + fTabParam.x + fTabParam.rx*2, fFrame.y + 2, fTabParam.w, fTabParam.h - 4 };
+		fTabContentArea = { b.min.x + fTabParam.x + fTabParam.rx * 2, b.min.y + 2, fTabParam.w, fTabParam.h - 4};
 		
-		fWholePath.moveTo(fFrame.x, fFrame.y + fTabParam.h);
+		// Create the path including the tab
+		fWholePath.moveTo(b.min.x, b.min.y + fTabParam.h);
 		fWholePath.lineBy(fTabParam.x, 0);
 		fWholePath.cubicBy(fTabParam.rx, 0, 0, -fTabParam.h, fTabParam.rx, 0);
 		fWholePath.lineBy(fTabParam.w, 0);
 		fWholePath.cubicBy(fTabParam.rx, 0,  0, fTabParam.h, fTabParam.rx, 0);
-		fWholePath.lineTo(fFrame.x + fFrame.w, fTabParam.h);
-		fWholePath.lineTo(fFrame.x + fFrame.w, fTabParam.h + fFrame.h - fTabParam.h);
-		fWholePath.lineTo(fFrame.x, fTabParam.h + fFrame.h - fTabParam.h);
+		fWholePath.lineTo(b.max.x, fTabParam.h);
+		fWholePath.lineTo(b.max.x, fTabParam.h + bsz.y - fTabParam.h);
+		fWholePath.lineTo(b.min.x, fTabParam.h + bsz.y - fTabParam.h);
 		fWholePath.close();
-		fContentArea = { fFrame.x + ContentMargin, fFrame.y + fTabParam.h + ContentMargin, fFrame.w - ContentMargin*2, fFrame.h - fTabParam.h-ContentMargin*2 };
+		fContentArea = { b.min.x + ContentMargin, b.min.y + fTabParam.h + ContentMargin, bsz.x - ContentMargin * 2, bsz.y - fTabParam.h - ContentMargin * 2};
 	}
 
-	virtual bool contains(int x, int y)
+	virtual bool contains(float x, float y) override
 	{
-		return fWholePath.contains((double)x, (double)y);
+		return fWholePath.contains(x, y);
 	}
 
 	void setBackgroundColor(const Pixel& c) { fBackgroundColor = c; }
@@ -105,17 +111,12 @@ public:
 	}
 };
 
-class TabViewSet : public Graphic {
+class TabViewSet : public Graphic 
+{
 public:
-	TabViewSet(const double w, const double h)
+	TabViewSet(const float w, const float h)
 		:Graphic(0, 0, w, h)
 	{}
-
-	static std::shared_ptr<TabViewSet> create(const double w, const double h)
-	{
-		auto tset = std::make_shared<TabViewSet>(w, h);
-		return tset;
-	}
 
 	void mouseReleased(const MouseEvent& e) override
 	{
@@ -134,5 +135,10 @@ public:
 		g->mousePressed(e);
 	}
 
-
+	// Factory method to create a set
+	static std::shared_ptr<TabViewSet> create(const float w, const float h)
+	{
+		auto tset = std::make_shared<TabViewSet>(w, h);
+		return tset;
+	}
 };

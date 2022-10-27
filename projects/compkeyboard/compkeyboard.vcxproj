@@ -157,6 +157,9 @@
     <ClCompile Include="..\..\primary\p5.cpp" />
     <ClCompile Include="compkeyboard.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\primary\windowmgr.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

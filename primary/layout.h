@@ -1,6 +1,7 @@
 #pragma once
 
 #include "drawable.h"
+#include "geometry.h"
 
 #include <deque>
 #include <memory>
@@ -11,17 +12,25 @@
 */
 struct ILayoutGraphics 
 {
-	virtual void layout(std::deque<std::shared_ptr<IGraphic> > &gs)
-	{
-		// by default, do nothing
-	}
+	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs) = 0;
+
 };
 
-class IdentityLayout : public ILayoutGraphics
+struct IdentityLayout : public ILayoutGraphics
 {
-	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
-		// by default, do nothing
+		maths::bbox2f bounds;
+
+		// traverse the graphics
+		// expand bounding box to include their frames, without alternation
+		for (auto& g : gs)	// std::shared_ptr<IGraphic> g
+		{
+			maths::expand(bounds, g->frame());
+		}
+		
+		// return the expanded bounding box
+		return bounds;
 	}
 };
 
@@ -64,25 +73,30 @@ public:
 	{
 	}
 
-	virtual void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
+		maths::bbox2f bounds{};
+
 		// There must be at least two graphics in the vector
 		// only the first two will be part of the layout
 		if (gs.size() < 2)
-			return;
+			return bounds;
 
-		auto &primary = gs[0];
-		auto & pFrame = primary->frame();
-		auto &secondary = gs[1];
-		BLRect sFrame = secondary->frame();
+		auto & primary = gs[0];
+		maths::bbox2f pFrame = primary->frame();
+		auto & secondary = gs[1];
+		maths::bbox2f sFrame = secondary->frame();
 
 		switch (fAlign) {
 		case BinaryAlignment::CENTER: {
 			// use center of primary to be center of secondary
-			double pCenterX = pFrame.x + pFrame.w / 2.0;
-			double pCenterY = pFrame.y + pFrame.h / 2.0;
-			sFrame.x = pCenterX - sFrame.w / 2.0;
-			sFrame.y = pCenterY - sFrame.h / 2.0;
+			auto pCenter = maths::center(pFrame);
+			auto sCenter = maths::center(sFrame);
+
+			auto dxy = sCenter - pCenter;
+
+			sFrame.min += dxy;
+			sFrame.max += dxy;
 		}
 			break;
 
@@ -99,52 +113,73 @@ public:
 			break;
 		}
 
-		secondary->moveTo(sFrame.x, sFrame.y);
+		secondary->moveTo(sFrame.min.x, sFrame.min.y);
+
+		return bounds;
 	}
 };
 
 class CascadeLayout : public ILayoutGraphics
 {
-	int wX = 10;
-	int wY = 49;
-	int fWidth;
-	int fHeight;
+	static constexpr int leftMargin = 10;
+	static constexpr int topMargin = 49;
+	static constexpr int verticalGap = 8;
+
+	// Where is the next graphic about to be placed
+	int wX = leftMargin;
+	int wY = topMargin;
+
+	// Constraints of the boundaries
+	int fCanvasWidth;
+	int fCanvasHeight;
+
 	int fVerticalOffset = 10;
 	int fHorizontalOffset = -10;
-	int fVerticalGap = 8;
+
 
 public:
 	CascadeLayout(int w, int h)
 	{
-		fWidth = w;
-		fHeight = h;
+		fCanvasWidth = w;
+		fCanvasHeight = h;
+
+		reset();
 	}
 
-	virtual void addWindow(std::shared_ptr<IGraphic> win)
+	void reset()
 	{
-		int x = wX;
-		int y = wY;
+		wX = leftMargin;
+		wY = topMargin;
+	}
 
-		wX += (int)(win->frame().w + fHorizontalOffset);
+	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
+	{
+		// Move the graphic to the next position
+		gr->moveTo(wX, wY);
+		maths::expand(b, gr->frame());
+
+		// Calculate what will be the next position
+		maths::vec2f sz = maths::size(gr->frame());
+		wX += (int)(sz.x + fHorizontalOffset);
 		wY += (int)fVerticalOffset;
 
-		if (wX > fWidth - 256)
+		if (wX > fCanvasWidth - 256)
 		{
-			wX = 10;
-			wY += 256 + fVerticalGap;
+			wX = leftMargin;
+			wY += 256 + verticalGap;
 		}
-
-		win->moveTo(x, y);
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
-		int x = 10;
-		int y = 49;
+		reset();
+		maths::bbox2f b{};
 
 		for (auto & g : gs)	// std::shared_ptr<IGraphic> g
 		{
+			addGraphic(g, b);
+			/*
 			int offsetx = x;
 			int offsety = y;
 
@@ -157,7 +192,10 @@ public:
 			}
 
 			g->moveTo(offsetx, offsety);
+			*/
 		}
+
+		return b;
 	}
 };
 
@@ -171,8 +209,8 @@ class HorizontalLayout : public ILayoutGraphics
 	int maxY = 0;
 	
 	// Imposed extent limits
-	int fWidth;
-	int fHeight;
+	int fCanvasWidth;
+	int fCanvasHeight;
 
 	// Gap between elements
 	double fHorizontalGap= 8;
@@ -182,14 +220,14 @@ class HorizontalLayout : public ILayoutGraphics
 public:
 	HorizontalLayout()
 	{
-		fWidth = 0;
-		fHeight = 0;
+		fCanvasWidth = 0;
+		fCanvasHeight = 0;
 	}
 
 	HorizontalLayout(int w, int h)
 	{
-		fWidth = w;
-		fHeight = h;
+		fCanvasWidth = w;
+		fCanvasHeight = h;
 	}
 
 	virtual void reset()
@@ -201,50 +239,55 @@ public:
 		maxY = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> win)
+	virtual void addGraphic(std::shared_ptr<IGraphic> win, maths::bbox2f &b)
 	{
 		auto winFrame = win->frame();
-		auto winWidth = winFrame.w;
-		auto winHeight = winFrame.h;
+		maths::vec2f sz = maths::size(win->frame());
+		auto winWidth = sz.x;
+		auto winHeight = sz.y;
 
 		auto winX = maxX + fHorizontalGap;
 		auto winY = maxY;
 
 		// Move the graphic to the specified location
 		win->moveTo(winX, winY);
+		maths::expand(b, win->frame());
 
 		maxX = (int)(winX + winWidth);
 
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		reset();
+		maths::bbox2f b{};
 
 		for (std::shared_ptr<IGraphic> g : gs)
 		{
-			addGraphic(g);
+			addGraphic(g, b);
 		}
+
+		return b;
 	}
 };
 
 
 class VerticalLayout : public ILayoutGraphics
 {
-	double xOffset = 0;
-	double yOffset = 0;
+	float xOffset = 0;
+	float yOffset = 0;
 
-	int maxX = 0;
-	int maxY = 0;
+	float maxX = 0;
+	float maxY = 0;
 
 	// Imposed extent limits
-	int fWidth;
-	int fHeight;
+	float fWidth;
+	float fHeight;
 
 	// Gap between elements
-	double fHorizontalGap = 8;
-	double fVerticalGap = 8;
+	float fHorizontalGap = 8;
+	float fVerticalGap = 8;
 
 
 public:
@@ -254,7 +297,7 @@ public:
 		fHeight = 0;
 	}
 
-	VerticalLayout(int w, int h)
+	VerticalLayout(float w, float h)
 	{
 		fWidth = w;
 		fHeight = h;
@@ -269,30 +312,36 @@ public:
 		maxY = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> win)
+	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
 	{
-		auto winWidth = win->frame().w;
-		auto winHeight = win->frame().h;
+		maths::vec2f sz = maths::size(gr->frame());
+		float winWidth = sz.x;
+		float winHeight = sz.y;
 
-		auto winX = maxX;
-		auto winY = maxY+ fVerticalGap;
+		float winX = maxX;
+		float winY = maxY+ fVerticalGap;
 
 		// Move the graphic to the specified location
-		win->moveTo(winX, winY);
+		gr->moveTo(winX, winY);
+		maths::expand(b, gr->frame());
 
 		maxY = (int)(winY + winHeight);
 
 	}
 
 	// Perform layout starting from scratch
-	void layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		reset();
 
+		maths::bbox2f b{};
+
 		for (std::shared_ptr<IGraphic> g : gs)
 		{
-			addGraphic(g);
+			addGraphic(g, b);
 		}
+
+		return b;
 	}
 };
 

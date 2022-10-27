@@ -63,8 +63,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			MouseEvent newEvent = e;
-			newEvent.x = (int)(e.x - g->frame().x);
-			newEvent.y = (int)(e.y - g->frame().y);
+			newEvent.x = (int)(e.x - g->frame().min.x);
+			newEvent.y = (int)(e.y - g->frame().min.y);
 
 			switch (e.activity) 
 			{

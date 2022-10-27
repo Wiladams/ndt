@@ -39,8 +39,8 @@ struct EMSpaceView : public GraphicElement
 	EMSpaceView(int w, int h)
 		:GraphicElement(0,0,w,h)
 	{
-		coordsWidth = frame().w - (edgeMargin * 2);
-		coordsHeight = frame().h - (edgeMargin * 2);
+		coordsWidth = frameWidth() - (edgeMargin * 2);
+		coordsHeight = frameHeight() - (edgeMargin * 2);
 	}
 
 	void setFace(const BLFontFace& face)
@@ -88,7 +88,7 @@ struct EMSpaceView : public GraphicElement
 		// Draw the frame outline of the whole space
 		ctx.stroke(0,0,255);
 		ctx.noFill();
-		ctx.rect(0, 0, frame().w, frame().h);
+		ctx.rect(0, 0, frameWidth(), frameHeight());
 	}
 
 	void drawGlyphOutline(IGraphics& ctx)
@@ -240,7 +240,7 @@ struct EMSpaceView : public GraphicElement
 		ctx.fill(0);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::TOP);
 		ctx.textSize(16);
-		ctx.text("Glyph Bounding Box", frame().w / 2.0, 0.0);
+		ctx.text("Glyph Bounding Box", frameWidth() / 2.0, 0.0);
 
 		// Coordinate labels
 		// upper left
@@ -248,12 +248,12 @@ struct EMSpaceView : public GraphicElement
 		ctx.fill(0);
 		ctx.textSize(edgeMargin * 0.75);
 		ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::TOP);
-		ctx.vartext(edgeMargin / 2.0, frame().h - edgeMargin, "(%d, %d)",
+		ctx.vartext(edgeMargin / 2.0, frameHeight() - edgeMargin, "(%d, %d)",
 			fDesignMetrics.glyphBoundingBox.x0, fDesignMetrics.glyphBoundingBox.y0);
 
 		// upper right
 		ctx.textAlign(ALIGNMENT::RIGHT, ALIGNMENT::TOP);
-		ctx.vartext(frame().w - (edgeMargin / 2.0), 0.0, "(%d, %d)",
+		ctx.vartext(frameWidth() - (edgeMargin / 2.0), 0.0, "(%d, %d)",
 			fDesignMetrics.glyphBoundingBox.x1, fDesignMetrics.glyphBoundingBox.y1);
 
 	}

@@ -42,21 +42,23 @@ class ColorPlaneWindow : public Graphic
     // much faster.
     bool splitPlanes()
     {
-        auto src = ss->getCurrent();
+        PixelArray & src = ss->getCurrent();
 
-        for (int y = 0; y < src.getHeight(); y++)
-            for (int x = 0; x < src.getWidth(); x++)
+        for (int y = 0; y < src.height(); y++)
+        {
+            Pixel* ptr = (Pixel*)src.rowPointer(y);
+            for (int x = 0; x < src.width(); x++)
             {
-                Pixel srcColor = src.get(x, y);
+                Pixel srcColor = ptr[x];
 
-                redSurface.set(x, y, { srcColor.r(),0,0,255});
-                greenSurface.set(x, y, { 0,srcColor.g(),0,255});
-                blueSurface.set(x, y, { 0,0,srcColor.b(),255});
-                
+                redSurface.set(x, y, { srcColor.r(),0,0,255 });
+                greenSurface.set(x, y, { 0,srcColor.g(),0,255 });
+                blueSurface.set(x, y, { 0,0,srcColor.b(),255 });
+
                 auto g = toGray(srcColor);
                 graySurface.set(x, y, { g,g,g,255 });
             }
-
+        }
         return true;
     }
 

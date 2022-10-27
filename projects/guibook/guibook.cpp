@@ -29,7 +29,9 @@ public:
 
         ctx.noFill();
         ctx.stroke(0xff, 0, 0);
-        ctx.rect(fBounds.x, fBounds.y, fBounds.w, fBounds.h);
+
+        auto bsz = maths::size(bounds());
+        ctx.rect(bounds().min.x, bounds().min.y, bsz.x, bsz.y);
     
         ctx.pop();
     }
@@ -42,8 +44,8 @@ public:
         ctx.fill(0);
         ctx.textFont(fFontFamily.c_str());
         ctx.textSize(fFontSize); 
-        float x = fBounds.x;
-        float y = fBounds.y+ctx.textAscent();
+        float x = bounds().min.x;
+        float y = bounds().min.y + ctx.textAscent();
         ctx.textAtBaseline(fText.c_str(), x, y);
     
         ctx.pop();

@@ -19,9 +19,8 @@ class GraphicElement : public IGraphic
 protected:
 	BLMatrix2D fTransform{};  // Internal transformation matrix
 	maths::vec2f fTranslation{};
-
-	BLRect fFrame{};
-	BLRect fBounds{};
+	maths::bbox2f fBounds{};
+	maths::bbox2f fFrame{};
 
 public:
 	GraphicElement()
@@ -29,30 +28,33 @@ public:
 		fTransform = BLMatrix2D::makeIdentity();
 	}
 
-	GraphicElement(float x, float y, float w, float h)
-		:fFrame(x,y,w,h)
-		,fBounds(0,0,w,h)
+	GraphicElement(const maths::bbox2f& f)
+		:fFrame(f)
 	{
+		auto sz = maths::size(f);
+		fBounds = { {0,0},{sz.x,sz.y} };
 		fTransform = BLMatrix2D::makeIdentity();
 	}
 
+	GraphicElement(float x, float y, float w, float h)
+		:GraphicElement(maths::bbox2f{ {x,y},{x + w,y + h} })
+	{}
 
-	const BLRect & bounds() const { return fBounds; }
-	void setBounds(const BLRect& b) { fBounds = b; }
+	const maths::bbox2f& bounds() const override {return fBounds;}
+	void setBounds(const maths::bbox2f& b) { fBounds = b; }
 
-	const BLRect & frame() const { return fFrame; }
-	void setFrame(const BLRect& frame)
-	{
-		fFrame = frame;
-		//fBounds = BLRect(0, 0, frame.w, frame.h);
-	}
+	const maths::bbox2f& frame() const override { return fFrame; }
+	void setFrame(const maths::bbox2f& frame) {fFrame = frame;}
 
 	// Moves the frame
-	virtual void moveTo(const float x, const float y)
+	void moveTo(const maths::vec2f &xy) override
 	{
-		fFrame.x = x;
-		fFrame.y = y;
+		auto dxy = xy - frame().min;
+		fFrame.min += dxy;
+		fFrame.max += dxy;
 	}
+
+
 
 	// Changes the coordinate system of the bounds
 	void translateBoundsTo(float x, float y)
@@ -97,14 +99,13 @@ public:
 		// a clip for our frame.
 		// Once the clip is set, we want to transform our
 		// coordinate sytem to have 0,0 be at the upper left corner.
-
-		ctx.clip(fFrame.x, fFrame.y, fFrame.w, fFrame.h);
+		ctx.clip(frame());
 
 
 		// BUGBUG - maybe perform arbitrary transform?
 		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
 		//ctx.translate(pt.x, pt.y);
-		ctx.translate(fFrame.x, fFrame.y);
+		ctx.translate(frameX(), frameY());
 
 		// Apply user specified transform
 		ctx.translate(fTranslation.x, fTranslation.y);
@@ -119,7 +120,7 @@ public:
 	}
 
 	// Handling mouse events
-	virtual void mouseEvent(const MouseEvent& e)
+	virtual void mouseEvent(const MouseEvent& e) override
 	{
 		//printf("GraphicElement.mouseEvent: %d\n", e.activity);
 
@@ -166,41 +167,41 @@ public:
 		}
 	}
 
-	virtual void mouseMoved(const MouseEvent& e)
+	virtual void mouseMoved(const MouseEvent& e) override
 	{
 		// do nothing
 	}
 
-	virtual void mouseDragged(const MouseEvent& e)
+	virtual void mouseDragged(const MouseEvent& e) override
 	{
 		// do nothing
 	}
 
-	virtual void mousePressed(const MouseEvent& e)
+	virtual void mousePressed(const MouseEvent& e) override
 	{
 		// do nothing
 		//printf("Graphic::mousePressed\n");
 	}
 
-	virtual void mouseReleased(const MouseEvent& e)
+	virtual void mouseReleased(const MouseEvent& e) override
 	{
 		printf("mouseReleased()\n");
 		// do nothing
 	}
 
-	virtual void mouseWheel(const MouseEvent& e)
+	virtual void mouseWheel(const MouseEvent& e) override
 	{
 		//printf("Graphic.mouseWheel\n");
 		// do nothing
 	}
 
-	virtual void mouseHWheel(const MouseEvent& e)
+	virtual void mouseHWheel(const MouseEvent& e) override
 	{
 		//printf("Graphic.mouseHWheel\n");
 		// do nothing
 	}
 
-	virtual void fileDrop(const FileDropEvent& e)
+	virtual void fileDrop(const FileDropEvent& e) override
 	{
 		//printf("Graphic.fileDrop\n");
 		// do nothing
@@ -227,8 +228,8 @@ public:
 	{
 	}
 
-	double width() const { return fBounds.w; }
-	double height() const { return fBounds.h; }
+	//double width() const { return fBounds.w; }
+	//double height() const { return fBounds.h; }
 
 
 	void setLayout(std::shared_ptr<ILayoutGraphics> layout)
@@ -236,16 +237,21 @@ public:
 		fLayout = layout;
 	}
 
+	// Add a child to our set of children
+	// If we're using layout, automatically set
+	// the bounds to include the child's frame
 	void addChild(std::shared_ptr<IGraphic> child)
 	{
 		fChildren.push_back(child);
 		if (nullptr != fLayout) {
-			fLayout->layout(fChildren);
+			auto b = fLayout->layout(fChildren);
+			//auto sz = maths::size(b);
+			setBounds(b);
 		}
 	}
 	
 	// Find the topmost window at a given position
-	std::shared_ptr<IGraphic> graphicAt(int x, int y)
+	std::shared_ptr<IGraphic> graphicAt(float x, float y)
 	{
 		// traverse through windows in reverse order
 		// return when one of them contains the mouse point
@@ -327,10 +333,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			MouseEvent newEvent = e;
-			//newEvent.x = (int)(e.x - g->getFrame().x);
-			//newEvent.y = (int)(e.y - g->getFrame().y);
-			newEvent.x = (int)(tx - g->frame().x);
-			newEvent.y = (int)(ty - g->frame().y);
+			newEvent.x = (int)(tx - g->frame().min.x);
+			newEvent.y = (int)(ty - g->frame().min.y);
 
 			g->mouseEvent(newEvent);
 		}

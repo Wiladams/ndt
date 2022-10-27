@@ -16,7 +16,7 @@ class GPath : public BLPath
 	BLPoint fLastPoint;
 
 public:
-	bool contains(double x, double y)
+	bool contains(float x, float y)
 	{
 		return hitTest({ x,y }, BL_FILL_RULE_NON_ZERO) != 0;
 	}
@@ -44,3 +44,25 @@ public:
 		moveTo(fLastPoint.x + x, fLastPoint.y + y);
 	}
 };
+
+/*
+this ckind of typing.
+typing
+this is how I type when I'm in the one.
+
+you can type relly fast when you're not typing
+anything.
+this is typeig.
+Now you can see how we get karpal tunnel syndrome.
+From too much typing.
+
+especially when people are taking pictures of you
+and you're sweaty.
+And hankering for vegetarian food.
+
+Oh my gosh!!  When could I possithis is what I should type,
+
+we'll type more here
+and(some);
+How about;this?
+*/

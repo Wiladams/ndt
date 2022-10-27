@@ -21,7 +21,7 @@ Pixel  randomColor(uint32_t alpha=255)
 }
 
 struct Ball {
-    maths::vec2f xy{};      // position
+    maths::vec2f fCenter{};      // position
     float fRadius = 0;       // serves as 'mass'
 
     maths::vec2f vxy{};     // velocity
@@ -37,7 +37,7 @@ struct Ball {
     Ball(const maths::vec2f &posin, float radius)
     {
 
-        xy = posin;
+        fCenter = posin;
 
         fRadius = radius;
 
@@ -49,25 +49,25 @@ struct Ball {
     void move()
     {
         vxy.y += gravity;
-        xy += vxy;
+        fCenter += vxy;
 
         // calculate new x position
-        if ((xy.x + fRadius) > canvasWidth) {
-            xy.x = canvasWidth - fRadius;
+        if ((fCenter.x + fRadius) > canvasWidth) {
+            fCenter.x = canvasWidth - fRadius;
             vxy.x *= friction;  // bounced off wall, slow down
         }
-        else if (xy.x - fRadius < 0) {
-            xy.x = fRadius;
+        else if (fCenter.x - fRadius < 0) {
+            fCenter.x = fRadius;
             vxy.x *= friction;
         }
 
         // Calculate new y position
-        if ((xy.y + fRadius) > canvasHeight) {
-            xy.y = canvasHeight - fRadius;
+        if ((fCenter.y + fRadius) > canvasHeight) {
+            fCenter.y = canvasHeight - fRadius;
             vxy.y *= friction;
         }
-        else if ((xy.y - fRadius) < 0) {
-            xy.y = fRadius;
+        else if ((fCenter.y - fRadius) < 0) {
+            fCenter.y = fRadius;
             vxy.y *= friction;
         }
 
@@ -77,12 +77,13 @@ struct Ball {
         noStroke();
 
         fill(fColor);
-        ellipse(xy.x, xy.y, fRadius, fRadius);
+        ellipseMode(ELLIPSEMODE::RADIUS);
+        ellipse(fCenter.x, fCenter.y, fRadius, fRadius);
         //rect(xy.x, xy.y, radius, radius);
 
         // draw a center
-        fill(0,127);
-        rect(xy.x, xy.y, 2, 2);
+        //fill(0,127);
+        //rect(fCenter.x, fCenter.y, 2, 2);
     }
 };
 
@@ -99,8 +100,8 @@ void collision()
             //printf("ID: %d  i: %d\n", id, i);
 
             // console.log(others[i]);
-            auto dxy = balls[id]->xy - balls[i]->xy;
-            auto dist = maths::distance(balls[id]->xy, balls[i]->xy);
+            auto dxy = balls[id]->fCenter - balls[i]->fCenter;
+            auto dist = maths::distance(balls[id]->fCenter, balls[i]->fCenter);
 
             // Minimal distance between balls before they are 'touching'
             auto minDist = (balls[id]->fRadius) + (balls[i]->fRadius);
@@ -110,14 +111,14 @@ void collision()
                 //printf("distance: %d-%d;  %f (%f)\n",id, i, dist, minDist);
                 stroke(255,0,0);
                 strokeWeight(2);
-                line(balls[id]->xy.x, balls[id]->xy.y, balls[i]->xy.x, balls[i]->xy.y);
+                line(balls[id]->fCenter.x, balls[id]->fCenter.y, balls[i]->fCenter.x, balls[i]->fCenter.y);
 
                 //console.log("2");
-                //auto ang = maths::angle(balls[id]->xy, balls[i]->xy);
+                //auto ang = maths::angle(balls[id]->fCenter, balls[i]->fCenter);
                 auto ang = maths::atan2(dxy.y, dxy.x);
-                auto targetX = balls[id]->xy.x + maths::cos(ang) * minDist;
-                auto targetY = balls[id]->xy.y + maths::sin(ang) * minDist;
-                maths::vec2f axy{ (targetX - balls[id]->xy.x) * spring , (targetY - balls[id]->xy.y) * spring };
+                auto targetX = balls[id]->fCenter.x + maths::cos(ang) * minDist;
+                auto targetY = balls[id]->fCenter.y + maths::sin(ang) * minDist;
+                maths::vec2f axy{ (targetX - balls[id]->fCenter.x) * spring , (targetY - balls[id]->fCenter.y) * spring };
 
                 balls[i]->vxy -= axy;
                 balls[id]->vxy += axy;

@@ -366,7 +366,12 @@ public:
     }
 
     // Clipping
-    void clip(double x, double y, double w, double h) override {fCtx.clipToRect(x, y, w, h);}
+    void clip(const maths::bbox2f &c) override 
+    {
+        auto sz = maths::size(c);
+        fCtx.clipToRect(BLRect(c.min.x,c.min.y,sz.x,sz.y));
+    }
+    
     void noClip() override { fCtx.restoreClipping(); }
 
     // Geometry

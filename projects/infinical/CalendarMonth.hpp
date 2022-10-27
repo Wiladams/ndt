@@ -26,8 +26,7 @@ class CalendarMonth : public Graphic
 	char  fTitle[64];
 
 public:
-	static BLSizeI getClassPreferredSize() { return { 200,200 }; }
-
+	static BLSizeI preferredSize() { return { 200,200 }; }
 
 	CalendarMonth(int year, int month, int x = 0, int y = 0, const Pixel& bkg = { 0xf0, 0xf0, 0xf0, 127 })
 		: Graphic(0,0,200,200),
@@ -35,8 +34,8 @@ public:
 		fMonth(month),
 		fBackgroundColor(bkg)
 	{
-		auto size = getClassPreferredSize();
-		fBounds = { 0,0,size.w,size.h };
+		auto size = preferredSize();
+		setBounds({ 0, 0, (double)size.w, (double)size.h });
 		fFrame = { x, y, size.w, size.h };
 		//sprintf_s(fTitle, 64, "%s  %d", Calendar::MonthsLong[fMonth].c_str(), year);
 		sprintf_s(fTitle, 64, "%s", Calendar::MonthsLong[fMonth].c_str());

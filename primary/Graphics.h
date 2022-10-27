@@ -2,7 +2,7 @@
 
 
 #include "blend2d.h"
-#include "maths.hpp"
+#include "geometry.h"
 
 // Enumerations for all the commands
 // 
@@ -233,7 +233,9 @@ public:
     virtual void background(const Pixel& c) = 0;
 
     // Clipping
-    virtual void clip(double x, double y, double w, double h) = 0;
+    virtual void clip(const maths::bbox2f& bb) = 0;
+    //{ clip(bb.min.x, bb.min.y, bb.max.x - bb.min.x, bb.max.y - bb.min.y); }
+    //virtual void clip(double x, double y, double w, double h) = 0;
     virtual void noClip() = 0;
 
     // Geometry

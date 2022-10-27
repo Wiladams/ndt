@@ -2,6 +2,7 @@
 
 #include "uievent.h"
 #include "Graphics.h"
+#include "geometry.h"
 
 struct IDrawable
 {
@@ -16,29 +17,70 @@ struct IDrawable
 	size, a boundary, and a frame.
 
 	PreferredSize - How big the graphic would like to be
-	Bounds - How big the graphic actually is
-	Frame - The location, within the bounds of the parent frame
+	bounds - How big the graphic actually is
+	frame - The location, within the bounds of the parent frame
 
 */
 struct IGraphic : public IDrawable
 {
 	virtual ~IGraphic() {};
 
-	virtual bool contains(int x, int y)
+	virtual bool contains(float x, float y)
 	{
-		const BLRect & f = frame();
-		return ((x >= f.x) && (y >= f.y) &&
-			(x - f.x <= f.w) &&
-			(y - f.y <= f.h));
+		return (x >= frame().min.x) && (y >= frame().min.y) &&
+			(x < frame().max.x) && (y < frame().max.y);
 	}
 
-	virtual const BLRect& frame() const = 0;
-	virtual void moveTo(const float x, const float y) = 0;
+	// Dealing with  boundary coordinates
+	virtual const maths::bbox2f& bounds() const = 0;
+	constexpr float boundsX() { return bounds().min.x; }
+	constexpr float boundsY() { return bounds().min.y; }
+	float boundsWidth() { return bounds().max.x - bounds().min.x; }
+	float boundsHeight() { return bounds().max.y - bounds().min.y; }
 
-	virtual void moveBy(double dx, double dy)
+	//  Dealing with frame coordinates
+	virtual const maths::bbox2f & frame() const = 0;
+	constexpr float frameX() { return frame().min.x; }
+	constexpr float frameY() { return frame().min.y; }
+	float frameWidth() { return frame().max.x - frame().min.x; }
+	float frameHeight() { return frame().max.y - frame().min.y; }
+
+	/*
+	// Convenience methods for the size of the frame
+	// if you need to know the size of the contents
+	// use the bounds()
+	maths::vec2f size() {
+		return maths::size(frame());
+	}
+
+	float width() {
+		auto sz = maths::size(frame());
+		return sz.x;
+	}
+
+	float height() {
+		auto sz = maths::size(frame());
+		return sz.y;
+	}
+	*/
+
+
+
+	virtual void moveTo(const maths::vec2f&) = 0;
+
+	virtual void moveTo(const float nx, const float ny)
 	{
-		const BLRect & f = frame();
-		moveTo(f.x + dx, f.y + dy);
+		moveTo({ nx,ny });
+	}
+
+	void moveBy(const maths::vec2f& dxy)
+	{
+		moveTo(frame().min + dxy);
+	}
+
+	void moveBy(const float dx, const float dy)
+	{
+		return moveBy({ dx,dy });
 	}
 
 	virtual void mouseEvent(const MouseEvent& e) = 0;
@@ -54,6 +96,6 @@ struct IGraphic : public IDrawable
 	//virtual void keyReleased(const KeyboardEvent& e)=0;
 	//virtual void keyTyped(const KeyboardEvent& e)=0;
 
-		// File dropping
+	// File dropping
 	virtual void fileDrop(const FileDropEvent& e) = 0;
 };

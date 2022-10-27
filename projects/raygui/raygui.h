@@ -175,11 +175,11 @@
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
-#define NUM_CONTROLS                    16      // Number of standard controls
-#define NUM_PROPS_DEFAULT               16      // Number of standard properties
-#define NUM_PROPS_EXTENDED               8      // Number of extended properties
+constexpr auto NUM_CONTROLS             = 16;      // Number of standard controls;
+constexpr auto NUM_PROPS_DEFAULT        = 16;      // Number of standard properties
+constexpr auto NUM_PROPS_EXTENDED       =  8;      // Number of extended properties
 
-#define TEXTEDIT_CURSOR_BLINK_FRAMES    20      // Text edit controls cursor blink timming
+constexpr auto TEXTEDIT_CURSOR_BLINK_FRAMES = 20;      // Text edit controls cursor blink timming
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -769,7 +769,7 @@ static void GuiDrawText(const char* text, GRectangle bounds, int alignment, Colo
         if (iconId >= 0)
         {
             // NOTE: We consider icon height, probably different than text size
-            GuiDrawIcon(iconId, RAYGUI_CLITERAL(Vector2){ position.x, bounds.y + bounds.height / 2 - RICON_SIZE / 2 + TEXT_VALIGN_PIXEL_OFFSET(bounds.height) }, 1, tint);
+            GuiDrawIcon(iconId, RAYGUI_CLITERAL(Vector2){ position.x, (float)bounds.y + bounds.height / 2 - RICON_SIZE / 2 + TEXT_VALIGN_PIXEL_OFFSET(bounds.height) }, 1, tint);
             position.x += (RICON_SIZE + ICON_TEXT_PADDING);
         }
 #endif
@@ -1209,7 +1209,7 @@ bool GuiLabelButton(GRectangle bounds, const char* text)
 // Image button control, returns true when clicked
 bool GuiImageButton(GRectangle bounds, const char* text, Texture2D texture)
 {
-    return GuiImageButtonEx(bounds, text, texture, RAYGUI_CLITERAL(GRectangle){ 0, 0, (float)texture.width, (float)texture.height });
+    return GuiImageButtonEx(bounds, text, texture, RAYGUI_CLITERAL(GRectangle){ 0, 0, texture.width, texture.height });
 }
 
 // Image button control, returns true when clicked
@@ -1240,7 +1240,7 @@ bool GuiImageButtonEx(GRectangle bounds, const char* text, Texture2D texture, GR
     DrawRectangle(bounds.x + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.y + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BASE + (state * 3))), guiAlpha));
 
     if (text != NULL) GuiDrawText(text, GetTextBounds(BUTTON, bounds), GuiGetStyle(BUTTON, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(BUTTON, TEXT + (state * 3))), guiAlpha));
-    if (texture.id > 0) DrawTextureRec(texture, texSource, RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width / 2 - texSource.width / 2, bounds.y + bounds.height / 2 - texSource.height / 2 }, Fade(GetColor(GuiGetStyle(BUTTON, TEXT + (state * 3))), guiAlpha));
+    if (texture.id > 0) DrawTextureRec(texture, texSource, RAYGUI_CLITERAL(Vector2){ (float)bounds.x + bounds.width / 2 - texSource.width / 2, (float)bounds.y + bounds.height / 2 - texSource.height / 2 }, Fade(GetColor(GuiGetStyle(BUTTON, TEXT + (state * 3))), guiAlpha));
     //------------------------------------------------------------------
 
     return clicked;
@@ -1549,9 +1549,9 @@ bool GuiDropdownBox(GRectangle bounds, const char* text, int* active, bool editM
     }
 
     // TODO: Avoid this function, use icon instead or 'v'
-    DrawTriangle(RAYGUI_CLITERAL(Vector2) { bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING), bounds.y + bounds.height / 2 - 2 },
-        RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 5, bounds.y + bounds.height / 2 - 2 + 5 },
-        RAYGUI_CLITERAL(Vector2){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 10, bounds.y + bounds.height / 2 - 2 },
+    DrawTriangle(RAYGUI_CLITERAL(Vector2) { (float)bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING), (float)bounds.y + bounds.height / 2 - 2 },
+        RAYGUI_CLITERAL(Vector2){ (float)bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 5, (float)bounds.y + bounds.height / 2 - 2 + 5 },
+        RAYGUI_CLITERAL(Vector2){ (float)bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING) + 10, (float)bounds.y + bounds.height / 2 - 2 },
         Fade(GetColor(GuiGetStyle(DROPDOWNBOX, TEXT + (state * 3))), guiAlpha));
 
     //GuiDrawText("v", RAYGUI_CLITERAL(GRectangle){ bounds.x + bounds.width - GuiGetStyle(DROPDOWNBOX, ARROW_PADDING), bounds.y + bounds.height/2 - 2, 10, 10 },
@@ -1759,7 +1759,7 @@ bool GuiValueBox(GRectangle bounds, const char* text, int* value, int minValue, 
     bool pressed = false;
 
     char textValue[VALUEBOX_MAX_CHARS + 1] = "\0";
-    sprintf(textValue, "%i", *value);
+    sprintf_s(textValue, "%i", *value);
 
     GRectangle textBounds = { 0 };
     if (text != NULL)
@@ -2232,21 +2232,21 @@ int GuiScrollBar(GRectangle bounds, int value, int minValue, int maxValue)
     int sliderSize = GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_SIZE);
 
     // Calculate rectangles for all of the components
-    arrowUpLeft = RAYGUI_CLITERAL(GRectangle) { (float)bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)spinnerSize, (float)spinnerSize };
+    arrowUpLeft = RAYGUI_CLITERAL(GRectangle) { bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), spinnerSize, spinnerSize };
 
     if (isVertical)
     {
-        arrowDownRight = RAYGUI_CLITERAL(GRectangle) { (float)bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)bounds.y + bounds.height - spinnerSize - GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)spinnerSize, (float)spinnerSize };
+        arrowDownRight = RAYGUI_CLITERAL(GRectangle) { bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), bounds.y + bounds.height - spinnerSize - GuiGetStyle(SCROLLBAR, BORDER_WIDTH), spinnerSize, spinnerSize };
         scrollbar = RAYGUI_CLITERAL(GRectangle) { bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_PADDING), arrowUpLeft.y + arrowUpLeft.height, bounds.width - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_PADDING)), bounds.height - arrowUpLeft.height - arrowDownRight.height - 2 * GuiGetStyle(SCROLLBAR, BORDER_WIDTH) };
         sliderSize = (sliderSize >= scrollbar.height) ? (scrollbar.height - 2) : sliderSize;     // Make sure the slider won't get outside of the scrollbar
-        slider = RAYGUI_CLITERAL(GRectangle) { (float)bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING), (float)scrollbar.y + (int)(((float)(value - minValue) / range) * (scrollbar.height - sliderSize)), (float)bounds.width - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING)), (float)sliderSize };
+        slider = RAYGUI_CLITERAL(GRectangle) { bounds.x + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING), scrollbar.y + (int)(((float)(value - minValue) / range) * (scrollbar.height - sliderSize)), bounds.width - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING)), sliderSize };
     }
     else
     {
-        arrowDownRight = RAYGUI_CLITERAL(GRectangle) { (float)bounds.x + bounds.width - spinnerSize - GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), (float)spinnerSize, (float)spinnerSize };
+        arrowDownRight = RAYGUI_CLITERAL(GRectangle) { bounds.x + bounds.width - spinnerSize - GuiGetStyle(SCROLLBAR, BORDER_WIDTH), bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH), spinnerSize, spinnerSize };
         scrollbar = RAYGUI_CLITERAL(GRectangle) { arrowUpLeft.x + arrowUpLeft.width, bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_PADDING), bounds.width - arrowUpLeft.width - arrowDownRight.width - 2 * GuiGetStyle(SCROLLBAR, BORDER_WIDTH), bounds.height - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_PADDING)) };
         sliderSize = (sliderSize >= scrollbar.width) ? (scrollbar.width - 2) : sliderSize;       // Make sure the slider won't get outside of the scrollbar
-        slider = RAYGUI_CLITERAL(GRectangle) { (float)scrollbar.x + (int)(((float)(value - minValue) / range) * (scrollbar.width - sliderSize)), (float)bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING), (float)sliderSize, (float)bounds.height - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING)) };
+        slider = RAYGUI_CLITERAL(GRectangle) { scrollbar.x + (int)(((float)(value - minValue) / range) * (scrollbar.width - sliderSize)), bounds.y + GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING), sliderSize, bounds.height - 2 * (GuiGetStyle(SCROLLBAR, BORDER_WIDTH) + GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING)) };
     }
 
     // Update control
@@ -2911,13 +2911,13 @@ Vector2 GuiGrid(GRectangle bounds, float spacing, int subdivs)
             // Draw vertical grid lines
             for (int i = 0; i < linesV; i++)
             {
-                DrawRectangleRec(RAYGUI_CLITERAL(GRectangle) { bounds.x + spacing * i / subdivs, bounds.y, 1, bounds.height }, ((i % subdivs) == 0) ? Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA * 4) : Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA));
+                DrawRectangleRec(RAYGUI_CLITERAL(GRectangle) { bounds.x + (int)((float)spacing * i / subdivs), bounds.y, 1, bounds.height }, ((i % subdivs) == 0) ? Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA * 4) : Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA));
             }
 
             // Draw horizontal grid lines
             for (int i = 0; i < linesH; i++)
             {
-                DrawRectangleRec(RAYGUI_CLITERAL(GRectangle) { bounds.x, bounds.y + spacing * i / subdivs, bounds.width, 1 }, ((i % subdivs) == 0) ? Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA * 4) : Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA));
+                DrawRectangleRec(RAYGUI_CLITERAL(GRectangle) { bounds.x, bounds.y + (int)((float)spacing * i / subdivs), bounds.width, 1 }, ((i % subdivs) == 0) ? Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA * 4) : Fade(GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)), GRID_COLOR_ALPHA));
             }
         }
     } break;
@@ -2937,7 +2937,8 @@ void GuiLoadStyle(const char* fileName)
     bool tryBinary = false;
 
     // Try reading the files as text file first
-    FILE* rgsFile = fopen(fileName, "rt");
+    FILE *rgsFile{};
+    auto err = fopen_s(&rgsFile, fileName, "rt");
 
     if (rgsFile != NULL)
     {
@@ -2958,7 +2959,7 @@ void GuiLoadStyle(const char* fileName)
                 {
                     // Style property: p <control_id> <property_id> <property_value> <property_name>
 
-                    sscanf(buffer, "p %d %d 0x%x", &controlId, &propertyId, &propertyValue);
+                    sscanf_s(buffer, "p %d %d 0x%x", &controlId, &propertyId, &propertyValue);
 
                     GuiSetStyle(controlId, propertyId, (int)propertyValue);
 
@@ -2970,7 +2971,7 @@ void GuiLoadStyle(const char* fileName)
                     int fontSize = 0;
                     char charmapFileName[256] = { 0 };
                     char fontFileName[256] = { 0 };
-                    sscanf(buffer, "f %d %s %[^\n]s", &fontSize, charmapFileName, fontFileName);
+                    sscanf_s(buffer, "f %d %s %[^\n]s", &fontSize, charmapFileName, fontFileName);
 
                     Font font = { 0 };
 
@@ -3010,7 +3011,7 @@ void GuiLoadStyle(const char* fileName)
 
     if (tryBinary)
     {
-        rgsFile = fopen(fileName, "rb");
+        err = fopen_s(&rgsFile, fileName, "rb");
 
         if (rgsFile == NULL) return;
 
@@ -3207,7 +3208,7 @@ const char* GuiIconText(int iconId, const char* text)
     static char buffer[1024] = { 0 };
     memset(buffer, 0, 1024);
 
-    sprintf(buffer, "#%03i#", iconId);
+    sprintf_s(buffer, "#%03i#", iconId);
 
     if (text != NULL)
     {
@@ -3259,7 +3260,8 @@ char** GuiLoadIcons(const char* fileName, bool loadIconsName)
     //   ...   | K       | unsigned int | Icon Data
     // }
 
-    FILE* rgiFile = fopen(fileName, "rb");
+    FILE* rgiFile{};
+    auto err = fopen_s(&rgiFile, fileName, "rb");
 
     char** guiIconsName = NULL;
 
@@ -3603,7 +3605,7 @@ static const char* TextFormat(const char* text, ...)
 
     va_list args;
     va_start(args, text);
-    vsprintf(buffer, text, args);
+    vsprintf_s(buffer, text, args);
     va_end(args);
 
     return buffer;

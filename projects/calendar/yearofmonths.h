@@ -7,20 +7,24 @@ class YearOfMonths : public Graphic
 {
 	static const int numColumns = 3;
 	static const int numRows = 4;
-	static const int edgeMargin = 4;
-	static const int lineGap = 8;
+	static constexpr float edgeMargin = 4;
+	static constexpr float lineGap = 8;
+
+	int fBaseYear = 2022;
 
 public:
-	YearOfMonths()
+	YearOfMonths(int baseYear = 2022)
+		:fBaseYear(baseYear)
 	{
 		auto cellSize = CalendarMonthTile::preferredSize();
 
-		int xoffset = edgeMargin;
-		int yoffset = edgeMargin;
+		float xoffset = edgeMargin;
+		float yoffset = edgeMargin;
 
 		// Setup 12 monthly tiles for this calendar
 		for (int month = 1; month <= 12; month++) {
-			addChild(std::make_shared<CalendarMonthTile>(2022, month, xoffset, yoffset));
+			auto mon = std::make_shared<CalendarMonthTile>(2022, month, xoffset, yoffset);
+			addChild(mon);
 
 			if (month % 3 > 0) {
 				// continue advancing
@@ -33,6 +37,7 @@ public:
 			}
 		}
 
-		setFrame({ 0,0,(double)cellSize.x * 3 + (edgeMargin * 4), (double)cellSize.y * 4 + (edgeMargin * 2) + (lineGap * 3) });
+		setFrame({ {0,0},{cellSize.x * 3 + (edgeMargin * 4), cellSize.y * 4 + (edgeMargin * 2) + (lineGap * 3)} });
+		//setBounds(frame());
 	}
 };

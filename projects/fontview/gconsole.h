@@ -74,8 +74,8 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 		//printf("metrics.vsize: %f\n", vSize);
 
 		//putsln("");
-		setFrame(BLRectI(0, 0, (fWidth * charWidth), (fHeight * charHeight)));
-		setBounds(BLRectI(0, 0, (fWidth * charWidth), (fHeight * charHeight)));
+		setFrame({ {0, 0}, {float(fWidth * charWidth), float(fHeight * charHeight)} });
+		setBounds({ {0, 0}, {float(fWidth * charWidth), float(fHeight * charHeight)} });
 	}
 
 	// Simplification commands

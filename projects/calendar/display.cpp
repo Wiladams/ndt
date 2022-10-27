@@ -3,6 +3,8 @@
 #include "DayTile.hpp"
 #include "yearofmonths.h"
 #include "slidingmonth.h"
+#include "decade.hpp"
+#include "century.hpp"
 
 #include <cstdio>
 #include <vector>
@@ -38,17 +40,24 @@ void setup()
 
 	// Setup year of months window
 	auto yom = std::make_shared<YearOfMonths>();
-	auto & fr = yom->frame();
-	auto yomWin = window(0, 0, fr.w, fr.h);
+	auto yomWin = window(0, 0, yom->frameWidth(), yom->frameHeight());
 	yomWin->addChild(yom);
 	
 	
 	// Setup perpetual calendar
 	auto pc = std::make_shared<SlidingMonth>(2022, 9, 240, 240);
-	auto & pcfr = pc->frame();
-	auto pcWin = window(0, 0, pcfr.w, pcfr.h);
+	auto pcWin = window(0, 0, pc->frameWidth(), pc->frameHeight());
 	pcWin->addChild(pc);
 	
+	// Setup a decade
+	auto dc = std::make_shared<Decade>(2020);
+	auto dcWin = window(0, 0, dc->frameWidth(), dc->frameHeight());
+	dcWin->addChild(dc);
+
+	// Setup a century 
+	//auto cen = std::make_shared<Century>(2000);
+	//auto cenWin = window(0, 0, cen->frameWidth(), cen->frameHeight());
+	//cenWin->addChild(cen);
 }
 
 

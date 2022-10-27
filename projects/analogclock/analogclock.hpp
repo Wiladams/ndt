@@ -9,45 +9,38 @@
 #include <sstream>
 #include <cstdio>
 
-//using namespace p5;
 
+struct AnalogClock 
+{
+    maths::vec2f fCenter;
 
-class AnalogClock {
-
-    double fCenterX;
-    double fCenterY;
-    double fRadius;
-    double fCenterRadius;
+    float fRadius;
+    float fCenterRadius;
     Pixel fBackgroundColor;
 
     bool fDrivenExternally;
     SYSTEMTIME fTime;
 
     // For animation
-    double fOvershootAmount;
-    double fOvershootRemaining;
-    double fRecoveryIncrement;
+    float fOvershootAmount;
+    float fOvershootRemaining;
+    float fRecoveryIncrement;
     long fLastSec;
 
     // For flying
+    bool fInFlight = false;
     double fFlightTime=0;     // at which seconds will we start flying
-    double fFlightSpeed=0;
-    double fFlightDuration = 0;
-    BLPoint fFlightDirection;
-
+    float fFlightSpeed=0;
+    float fFlightDuration = 0;
+    maths::vec2f fFlightDirection;
 
 public:
     static const int SmallestRadius = 90;
     static const int LargestRadius = 300;
 
-
-    static BLSize getPreferredSize() { return BLSize(240, 240); }
-
-    AnalogClock(double cx, double cy, double radius = 240)
+    AnalogClock(float cx, float cy, float radius = 240)
     {
-
-        fCenterX = cx;
-        fCenterY = cy;
+        fCenter = { cx,cy };
         fRadius = radius;
         fCenterRadius = fRadius*.618;
         fBackgroundColor = p5::color(0xe2, 0x84, 0x30, 0x7f);
@@ -66,6 +59,28 @@ public:
         calculateFlightTime();
     }
 
+    void setDirection(const maths::vec2f& dv)
+    {
+        // If we're not currently moving
+        // don't take on additional velocity
+        if (!fInFlight)
+        {
+            return;
+        }
+
+        //printf("setDirection: %3.2f,%3.2f\n", dv.x, dv.y);
+
+        fFlightDirection = dv;
+    }
+
+    void adjustSpeed(const float sp)
+    {
+        if (!fInFlight)
+            return;
+
+        fFlightSpeed *= sp;
+    }
+
     void calculateFlightTime()
     {
         // Every time we calculate the flight time, the 
@@ -73,17 +88,20 @@ public:
         // to the smallest internal radius (3)
         fCenterRadius = p5::constrain(fCenterRadius-0.3, 3, fCenterRadius);
 
-        // delay before flight takeoff, 10 to 60 seconds
-        fFlightTime = p5::seconds() + p5::random(10, 60);
+        // delay before flight takeoff, 
+        // 10 to 40 seconds
+        fFlightTime = p5::seconds() + p5::random(4, 30);
 
-        // flight duration from 10 to 60 seconds
-        fFlightDuration = p5::random(10, 60);
+        // flight duration 
+        // from 10 to 40 seconds
+        fFlightDuration = p5::random(10, 40);
 
+        fFlightDirection = maths::normalize(maths::vec2f{ p5::random(-1, 1), p5::random(-1, 1) });
 
-        fFlightDirection = BLPoint(p5::random(-2, 2), p5::random(-2, 2));
+       
         // The speed is inversely proportional to the size
         // smaller clocks move faster
-        fFlightSpeed = p5::map(fRadius, SmallestRadius, LargestRadius, 10, 1);
+        fFlightSpeed = p5::map(fRadius, SmallestRadius, LargestRadius, 10, 4);
 
     }
 
@@ -92,29 +110,45 @@ public:
         fBackgroundColor = c;
     }
 
-    void moveTo(const double cx, const double cy)
+    void moveTo(const float cx, const float cy)
     {
-        fCenterX = cx;
-        fCenterY = cy;
+        fCenter = { cx, cy };
     }
 
     void autoMove()
     {
-        fCenterX += fFlightDirection.x * fFlightSpeed;
-        fCenterY += fFlightDirection.y * fFlightSpeed;
-        
-        //printf("automove: %f %f\n", fCenterX, fCenterY);
+        fCenter += (fFlightDirection * fFlightSpeed);
+
+        maths::vec2f newdir = fFlightDirection;
 
         // boundary test
         // if we hit a limit, reverse direction
-        if ((fCenterX < 0) || (fCenterX > displayWidth))
-            fFlightDirection.x *= -1;
+        if ((fCenter.x < 0) || (fCenter.x > canvasWidth))
+        {
+            fCenter.x = maths::clamp(fCenter.x, 0.0f, canvasWidth - 1.0f);
+            newdir.x *= -1;
+        }
 
-        if ((fCenterY < 0) || (fCenterY > displayHeight))
-            fFlightDirection.y *= -1;
+        if ((fCenter.y < 0) || (fCenter.y > canvasHeight))
+        {
+            fCenter.y = maths::clamp(fCenter.y, 0.0f, canvasHeight - 1.0f);
+            newdir.y *= -1;
+        }
 
-        if (p5::seconds() > fFlightTime + fFlightDuration) {
-            calculateFlightTime();
+        setDirection(newdir);
+
+        // If the current time is beyond our intended time
+        // then we're no longer in flight
+        if (p5::seconds() > fFlightTime) 
+        {
+            if (p5::seconds() < (fFlightTime + fFlightDuration))
+            {
+                fInFlight = true;
+            }
+            else {
+                fInFlight = false;
+                calculateFlightTime();
+            }
         }
     }
 
@@ -152,6 +186,7 @@ public:
         ctx.push();
 
         ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+        ctx.noStroke();
         ctx.fill(30);
 
         double segmentRads = p5::radians(360 / 12);
@@ -160,7 +195,7 @@ public:
 
         for (int i = 1; i <= 12; i++) {
             std::string Number = std::to_string(i);
-            ctx.text(Number.c_str(), fCenterX + (r * cos(angle)), fCenterY + (r * sin(angle)));
+            ctx.text(Number.c_str(), fCenter.x + (r * cos(angle)), fCenter.y + (r * sin(angle)));
             angle = angle + segmentRads;
         }
 
@@ -254,32 +289,32 @@ public:
             Calendar::MonthsShort[fTime.wMonth].c_str(), 
             fTime.wDay);
         
-        ctx.stroke(0x20);
+        //ctx.stroke(0x20);
+        ctx.noStroke();
         ctx.fill(0x20);
-        ctx.text(buff, fCenterX, fCenterY + 24);
+        ctx.text(buff, fCenter.x, fCenter.y + 24);
     }
 
     void drawBackground(IGraphics& ctx)
     {
         // fill background
-        BLGradient gradient(BLRadialGradientValues(fCenterX, fCenterY, fCenterX, fCenterY, fRadius));
+        BLGradient gradient(BLRadialGradientValues(fCenter.x, fCenter.y, fCenter.x, fCenter.y, fRadius));
         gradient.addStop(0, p5::color(220, 127));       // center
         gradient.addStop(0.20, p5::color(fBackgroundColor.r(), fBackgroundColor.g(), fBackgroundColor.b(), 127));     // center
         gradient.addStop(0.80, fBackgroundColor);
         gradient.addStop(1.0, p5::color(65, 127));     // edge
         ctx.fill(gradient);
         //ctx.fill(fBackgroundColor);
-
-        p5::noStroke();
+        ctx.noStroke();
 
         ctx.ellipseMode(ELLIPSEMODE::RADIUS);
-        ctx.circle(fCenterX, fCenterY, fRadius);
+        ctx.circle(fCenter.x, fCenter.y, fRadius);
 
         // draw inside radius
         // This indicates where mouse activation occurs
-        p5::noStroke();
+        ctx.noStroke();
         ctx.fill(240,65);
-        ctx.circle(fCenterX, fCenterY, fCenterRadius);
+        ctx.circle(fCenter.x, fCenter.y, fCenterRadius);
     }
 
     void draw(IGraphics& ctx)
@@ -299,7 +334,7 @@ public:
         //orient so 0 angle is at 12 - oclock
         // and do all angle oriented drawing within the
         // context of this save / restore
-        ctx.translate(fCenterX, fCenterY);
+        ctx.translate(fCenter.x, fCenter.y);
         ctx.rotate(p5::radians(-90));
 
         drawHourTickmarks(ctx);
@@ -315,13 +350,13 @@ public:
         // If the mouse down while inside us, we'll stop
         if (p5::mouseIsPressed)
         {
-            double ldistance = p5::dist(p5::mouseX, p5::mouseY, fCenterX, fCenterY);
-
+            //double ldistance = p5::dist(p5::mouseX, p5::mouseY, fCenterX, fCenterY);
+            float ldistance = maths::distance(maths::vec2f{ (float)p5::mouseX,(float)p5::mouseY }, fCenter);
             if ((ldistance >= 1) && (ldistance < fCenterRadius))
             {
                 // Move closer to the cursor location position
-                double x = p5::lerp(p5::mouseX, fCenterX, 0.3);
-                double y = p5::lerp(p5::mouseY, fCenterY, 0.3);
+                float x = p5::lerp(p5::mouseX, fCenter.x, 0.3);
+                float y = p5::lerp(p5::mouseY, fCenter.y, 0.3);
                 moveTo(x, y);
 
                 calculateFlightTime();

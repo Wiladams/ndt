@@ -19,7 +19,8 @@ public:
 		ctx.fill(160,220);
 		ctx.noStroke();
 
-		ctx.rect(0, 0, fFrame.w, fFrame.h);
+		auto fsz = maths::size(frame());
+		ctx.rect(0, 0, fsz.x, fsz.y);
 		ctx.pop();
 	}
 

@@ -10,7 +10,7 @@ class DayTile : public GraphicElement
 	static const int hourLineHeight = 48;
 
 	Calendar::USACalendar fCalendar;
-	double fJulianDayNumber;
+	uint64_t fJulianDayNumber;
 
 	int fMonth;
 	int fYear;
@@ -70,7 +70,7 @@ public:
 //ctx->fill(230, 230, 220);	// color used when hours not available
 		ctx.fill(250);
 		//ctx->rect(hourLabelGap, 0, bounds.w - hourLabelGap, bounds.h - 72);
-		ctx.rect(0, 0, bounds().w, bounds().h - 72);
+		ctx.rect(0, 0, boundsWidth(), boundsHeight() - 72);
 
 		// Draw a line top to bottom separating the hour 
 		// numbers from the event grid to the right
@@ -86,20 +86,20 @@ public:
 			ctx.stroke(hourColor);
 			// draw full hour line
 			//ctx->line(0, (hour * hourLineHeight)+0.5, bounds.w, (hour * hourLineHeight)+0.5);
-			ctx.line(0, (hour * hourLineHeight), bounds().w, (hour * hourLineHeight));
+			ctx.line(0, (hour * hourLineHeight), boundsWidth(), (hour * hourLineHeight));
 
 
 			// draw half hour line
 			// should be dashed line
 			ctx.stroke(halfHourColor);
-			ctx.line(hourLabelGap, (hour * hourLineHeight) + hourLineHeight / 2, bounds().w, (hour * hourLineHeight) + hourLineHeight / 2);
+			ctx.line(hourLabelGap, (hour * hourLineHeight) + hourLineHeight / 2, boundsWidth(), (hour * hourLineHeight) + hourLineHeight / 2);
 
 			// 12 hour clock numbers
 			ctx.noStroke();
 			ctx.fill(20);
 			int displayHour = hour % 12;
 			sprintf_s(buff, buffLen, "%d", (displayHour == 0) ? 12 : displayHour);
-			ctx.text(buff, hourLabelGap / 2, (hour * hourLineHeight) + hourLineHeight / 2);
+			ctx.text(buff, hourLabelGap / 2, float((hour * hourLineHeight) + hourLineHeight / 2));
 		}
 	}
 
@@ -122,7 +122,7 @@ ctx->text(buff, 32, 24);
 
 		ctx.noStroke();
 		ctx.fill(0, 170, 220);
-		ctx.rect(hourLabelGap, 0, bounds().w - hourLabelGap, 30);
+		ctx.rect(hourLabelGap, 0, boundsWidth() - hourLabelGap, 30);
 
 		// Weekday long name
 		char buff[32];
@@ -140,7 +140,7 @@ ctx->text(buff, 32, 24);
 
 		// Clip for the hourly grid
 		ctx.push();
-		ctx.clip(0, 72, bounds().w, bounds().h - 72);
+		ctx.clip({ {0, 72}, {boundsWidth(), boundsHeight() - 72} });
 		ctx.translate(0, 72);
 
 		drawHourGrid(ctx);
@@ -155,7 +155,7 @@ ctx->text(buff, 32, 24);
 		ctx.noStroke();
 		ctx.fill(fBackgroundColor);
 
-		ctx.rect(0, 0, bounds().w, bounds().h);
+		ctx.rect(0, 0, boundsWidth(), boundsHeight());
 	}
 
 	void drawSelf(IGraphics & ctx) override

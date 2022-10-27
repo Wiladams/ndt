@@ -121,7 +121,7 @@ struct SegmentGauge : public Graphic
 	{
 		ctx.stroke(0xff, 0, 0);
 		ctx.noFill();
-		ctx.rect(0, 0, fFrame.w, fFrame.h);
+		ctx.rect(0, 0, frameWidth(), frameHeight());
 	}
 
 	void drawForeground(IGraphics &ctx)

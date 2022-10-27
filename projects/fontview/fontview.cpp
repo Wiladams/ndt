@@ -153,7 +153,7 @@ void setup()
 
 	auto win2 = window(0, 0, 600, 600);
 	win2->addChild(emView);
-	win2->moveTo(462, 8);
+	win2->moveTo({ 462, 8 });
 
 	glyphGrid = std::make_shared<FontGlyphGrid>(600, 0);
 	glyphGrid->setFontFace(face);

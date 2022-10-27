@@ -19,7 +19,7 @@ protected:
 
 public:
 
-	GWindow(double x, double y, double w, double h)
+	GWindow(float x, float y, float w, float h)
 		: Graphic(x, y, w, h),
 		fClientArea(0, 0, w, h),
 		fTitleBar(2, 2, w, 32),
@@ -63,7 +63,7 @@ public:
 	{
 		ctx.push();
 
-		//ctx.clear();
+		ctx.clear();
 
 		if (fBackgroundColor.value == 0) {
 			ctx.clearRect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
@@ -82,17 +82,16 @@ public:
 		drawTitleBar(ctx);
 		
 		// Draw a frame
-		const BLRect & f = frame();
-
+		auto sz = maths::size(frame());
 		ctx.strokeWeight(2.0f);
 		ctx.stroke(0);
 		ctx.noFill();
-		ctx.rect(0, 0, f.w, f.h);
+		ctx.rect(0, 0, sz.x, sz.y);
 	}
 
 	void compose(IGraphics& ctx)
 	{
-		ctx.image(fSurface.getImage(), (int)fFrame.x, (int)fFrame.y);
+		ctx.image(fSurface.getImage(), (int)fFrame.min.x, (int)fFrame.min.y);
 	}
 
 	void draw(IGraphics & ctx) override
