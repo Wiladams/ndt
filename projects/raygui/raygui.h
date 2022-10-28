@@ -172,6 +172,8 @@
 #define RAYGUI_FREE(p)          free(p)
 #endif
 
+#include "p5.hpp"
+
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
@@ -597,7 +599,10 @@ static int GetKeyPressed(void);         // -- GuiTextBox(), GuiTextBoxMulti(), G
 static void DrawRectangle(int x, int y, int width, int height, Color color);
 static void DrawRectangleGradientEx(GRectangle rec, Color col1, Color col2, Color col3, Color col4);     // -- GuiColorPicker()
 static void DrawTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Color color);                              // -- GuiDropdownBox(), GuiScrollBar()
-static void DrawTextureRec(Texture2D texture, GRectangle sourceRec, Vector2 position, Color tint);       // -- GuiImageButtonEx()
+static void DrawTextureRec(Texture2D texture, GRectangle sourceRec, Vector2 position, Color tint)       // -- GuiImageButtonEx()
+{
+
+}
 
 static void DrawTextRec(Font font, const char* text, GRectangle rec, float fontSize, float spacing, bool wordWrap, Color tint); // -- GuiTextBoxMulti()
 //-------------------------------------------------------------------------------
