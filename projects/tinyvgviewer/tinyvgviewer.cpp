@@ -30,8 +30,8 @@ void draw()
 
 void setup()
 {
-	fullscreen();
-	//createCanvas(1920, 1080);
+	//fullscreen();
+	createCanvas(1024, 768);
 
 	std::shared_ptr<ILayoutGraphics> layout = std::make_shared<CascadeLayout>(canvasWidth, canvasHeight);
 	windowLayout(layout);

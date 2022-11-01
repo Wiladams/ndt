@@ -152,6 +152,11 @@ Examples
 * Project: [tgaviewer](projects/tgaviewer)
 * Notes: Display bitmap from .tga file
 
+### tinyvgviewer
+<img src="docs/images/tinyvgviewer.png" alt="tinyvgviewer" width=240/></br>
+* Project: [tinyvgviewer](projects/tinyvgviewer)
+* Notes: parsing and displaying tinyvg graphic files
+
 ### touchy
 <img src="docs/images/touchy.png" alt="touchy" width=240/></br>
 * Project: [touchy](projects/touchy)
