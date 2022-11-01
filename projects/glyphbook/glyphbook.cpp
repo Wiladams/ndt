@@ -56,7 +56,7 @@ void setup()
 	iconWin = window(0, 0, 580, 800);
 	page = std::make_shared<FontIconPage>(0, 0, 560, 800);
 	page->subscribe(onSelectFace);
-	//page->subscribe(*summaryPage);
+	page->subscribe(*summaryPage);
 
 
 	// Create a slider to go into the icon window

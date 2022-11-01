@@ -72,6 +72,11 @@ Examples
 * Project: [gauges](projects/gauges)
 * Notes:thick lines, arc segments, linear interpolation
 
+### glyphbook
+<img src="docs/images/glyphbook.png" alt="glyphbook" width=240/></br>
+* Project: [glyphbook](projects/glyphbook)
+* Notes:directory iteration, font render, font sizing
+
 ### graph2d
 <img src="docs/images/graph2d.png" alt="graph2d" width=240/></br>
 * Project: [graph2d](projects/graph2d)
