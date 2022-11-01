@@ -50,7 +50,7 @@ protected:
     Pixel fTextFillColor = BLRgba32(0, 0, 0, 255);
 
 private:
-    static BLEllipse calcEllipseParams(ELLIPSEMODE mode, double& a, double& b, double& c, double& d)
+    static BLEllipse calcEllipseParams(ELLIPSEMODE mode, double a, double b, double c, double d)
     {
         double cx = 0;
         double cy = 0;
@@ -86,12 +86,12 @@ private:
         return { cx, cy, rx, ry };
     }
 
-    static BLRect calcRectParams(RECTMODE mode, double& a, double& b, double& c, double& d)
+    static BLRect calcRectParams(RECTMODE mode, double  a, double b, double c, double d)
     {
-        float x = 0;
-        float y = 0;
-        float w = 0;
-        float h = 0;
+        double x = 0;
+        double y = 0;
+        double w = 0;
+        double h = 0;
 
         switch (mode) {
         case RECTMODE::CORNER:
@@ -117,10 +117,10 @@ private:
         return { x, y, w, h };
     }
 
+
     // Here we are crudely doing a minimal amount necessary
     // to see some text.  
-// We should be using FontMonger to cache
-// font information so we're not reading it every time.
+
     maths::vec2f calcTextPosition(const char* txt, float x, float y, float x2, float y2)
     {
         maths::vec2f txtSize = textMeasure(txt);
@@ -205,8 +205,7 @@ protected:
         stroke(Pixel(0, 0, 0, 255));
 
         // Start with a default font so we can start drawing text
-        textFont("Consolas");
-
+        //textFont("Consolas");
     }
 
 
@@ -256,7 +255,9 @@ public:
     // BUGBUG - this kinda works.  It will scale everything, which 
     // is not quite what we want.  What we really want is to just
     // add to our own transformation window for coordinate conversion
-    void setPpiUnits(float ppi, float units)
+     
+    
+    void setDpiUnits(const int ppi, const float units) override
     {
         fDimensionScale = ppi / units;
         fCtx.scale(fDimensionScale);
@@ -550,6 +551,7 @@ public:
     void textSize(float size) override
     {
         fFontSize = size;
+        gFontHandler->getAdjustedFontSize(size);
         fFont.reset();
         fFont.createFromFace(fFontFace, fFontSize);
     }

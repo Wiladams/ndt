@@ -131,12 +131,12 @@ extern "C" {
     APP_EXPORT extern int keyChar;      // actual character typed
 
     // Mouse Globals
-    APP_EXPORT extern bool mouseIsPressed;
-    APP_EXPORT extern int mouseX;
-    APP_EXPORT extern int mouseY;
-    APP_EXPORT extern int mouseDelta;
-    APP_EXPORT extern int pmouseX;
-    APP_EXPORT extern int pmouseY;
+ //   APP_EXPORT extern bool mouseIsPressed;
+ //   APP_EXPORT extern int mouseX;
+ //   APP_EXPORT extern int mouseY;
+ //   APP_EXPORT extern int mouseDelta;
+ //   APP_EXPORT extern int pmouseX;
+ //   APP_EXPORT extern int pmouseY;
 
     // Gesture Globals
     APP_EXPORT extern long panX;
@@ -249,6 +249,8 @@ struct PVector {
     };
 
     // Environment attributes
+    void setFontDpiUnits(const int dpi, const float units);
+    void setDpiUnits(const int dpi, const float units);
     void setUnitsPerInch(REAL units);
 
     // Windowing functions

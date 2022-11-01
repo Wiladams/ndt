@@ -121,13 +121,13 @@ public:
 
 class CascadeLayout : public ILayoutGraphics
 {
-	static constexpr int leftMargin = 10;
-	static constexpr int topMargin = 49;
-	static constexpr int verticalGap = 8;
+	static constexpr float leftMargin = 10;
+	static constexpr float topMargin = 49;
+	static constexpr float verticalGap = 8;
 
 	// Where is the next graphic about to be placed
-	int wX = leftMargin;
-	int wY = topMargin;
+	float wX = leftMargin;
+	float wY = topMargin;
 
 	// Constraints of the boundaries
 	int fCanvasWidth;
@@ -202,19 +202,19 @@ public:
 
 class HorizontalLayout : public ILayoutGraphics
 {
-	double xOffset = 0;
-	double yOffset = 0;
+	float xOffset = 0;
+	float yOffset = 0;
 
-	int maxX = 0;
-	int maxY = 0;
+	float maxX = 0;
+	float maxY = 0;
 	
 	// Imposed extent limits
 	int fCanvasWidth;
 	int fCanvasHeight;
 
 	// Gap between elements
-	double fHorizontalGap= 8;
-	double fVerticalGap = 8;
+	float fHorizontalGap= 8;
+	float fVerticalGap = 8;
 
 
 public:
@@ -241,13 +241,13 @@ public:
 
 	virtual void addGraphic(std::shared_ptr<IGraphic> win, maths::bbox2f &b)
 	{
-		auto winFrame = win->frame();
+		maths::bbox2f winFrame = win->frame();
 		maths::vec2f sz = maths::size(win->frame());
-		auto winWidth = sz.x;
-		auto winHeight = sz.y;
+		float winWidth = sz.x;
+		float winHeight = sz.y;
 
-		auto winX = maxX + fHorizontalGap;
-		auto winY = maxY;
+		float winX = maxX + fHorizontalGap;
+		float winY = maxY;
 
 		// Move the graphic to the specified location
 		win->moveTo(winX, winY);
@@ -325,7 +325,7 @@ public:
 		gr->moveTo(winX, winY);
 		maths::expand(b, gr->frame());
 
-		maxY = (int)(winY + winHeight);
+		maxY = (winY + winHeight);
 
 	}
 

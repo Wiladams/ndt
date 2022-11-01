@@ -137,26 +137,26 @@ namespace tinyvg
 
 	// each color channel between 0.0 and 1.0
 	struct tinyvg_rgbaf32_t {
-		float r;
-		float g;
-		float b;
-		float a;
+		float r{};
+		float g{};
+		float b{};
+		float a{};
 	};
 	
 	struct tvg_point {
-		float x;
-		float y;
+		float x{};
+		float y{};
 	};
 
 	struct tvg_style_t
 	{
-		int kind;	// flat, linear, radial
+		int kind{};	// flat, linear, radial
 
-		tvg_point point_0;
-		tvg_point point_1;
+		tvg_point point_0{};
+		tvg_point point_1{};
 
-		tinyvg_rgba8888_t color_0;
-		tinyvg_rgba8888_t color_1;
+		tinyvg_rgba8888_t color_0{};
+		tinyvg_rgba8888_t color_1{};
 	};
 
 	// Representation of a single element of a countour
@@ -164,7 +164,7 @@ namespace tinyvg
 	// using anonymous type union makes it easy to capture
 	// contour commands
 	struct tvg_contour_command_t {
-		int kind;			// what kind of path command is it
+		uint64_t kind;			// what kind of path command is it
 		bool hasLineWidth;	// is the lineWidth valid
 		float lineWidth;	// what is the line width if it's specialized
 
@@ -217,7 +217,7 @@ namespace tinyvg
 
 		// Convenience constructor, to ensure the structure
 		// starts out nice and clean
-		tvg_contour_command_t(const int aKind)
+		tvg_contour_command_t(const uint64_t aKind)
 		{
 			memset(this, 0, sizeof(tvg_contour_command_t));
 			kind = aKind;
@@ -264,7 +264,7 @@ namespace tinyvg
 		BinStream& bs;
 		bool isValid=false;
 		bool endOfDocument = false;
-		int commandStart = 0;
+		size_t commandStart = 0;
 
 		tvgparser(BinStream& bs)
 			:bs(bs)
@@ -681,7 +681,7 @@ namespace tinyvg
 		// Read an x,y pair of Units
 		tvg_point readPoint()
 		{
-			tvg_point pt;
+			tvg_point pt{};
 			pt.x = readUnit();
 			pt.y = readUnit();
 

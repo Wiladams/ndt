@@ -57,7 +57,6 @@
 #include "uievent.h"
 #include "Network.hpp"
 #include "User32PixelMap.h"
-//#include "Surface.h"
 #include "fonthandler.hpp"
 
 #include <stdio.h>
@@ -90,6 +89,13 @@ APP_EXPORT extern User32Window * gAppWindow;
 APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
 
 
+// Mouse Globals
+APP_EXPORT extern bool mouseIsPressed;
+APP_EXPORT extern int mouseX;
+APP_EXPORT extern int mouseY;
+APP_EXPORT extern int mouseDelta;
+APP_EXPORT extern int pmouseX;
+APP_EXPORT extern int pmouseY;
 
 // Raw Mouse input
 APP_EXPORT extern int rawMouseX;

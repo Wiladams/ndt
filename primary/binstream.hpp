@@ -332,12 +332,12 @@ size_t readLine(char* buff, const size_t bufflen)
 
         if (fbigend) {
             while  (i < n) {
-                v = ((v<< 8) | readOctet());
+                v = ((v<< 8) | (uint64_t)readOctet());
                 i = i + 1;
             }
         } else {
             while  (i < n) {
-                v = (v | (readOctet() << 8*i));
+                v = (v | ((uint64_t)readOctet() << 8*i));
                 i = i + 1;
             }
         }

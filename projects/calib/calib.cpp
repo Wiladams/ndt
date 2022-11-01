@@ -3,7 +3,7 @@
 using namespace p5;
 
 //
-// demonstrating how to us setPpiUnits()
+// demonstrating how to us setDpiUnits()
 // to setup user determined drawing units
 //
 // Draw some lines that should be specific

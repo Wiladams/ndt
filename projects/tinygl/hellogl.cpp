@@ -8,8 +8,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-
-
 #include "tinygl/GL/gl.h"
 #include "tinygl/zbuffer.h"
 #include "3dMath.h"
@@ -87,11 +85,12 @@ void onLoop()
 	frameCount++;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 	//drawGL();
 	drawGL2();
 
 	glDrawText((unsigned char*)"Hello World!\nFrom TinyGL", 0, 0, 0x00FFFFFF);
+
+	screenRefresh();
 }
 
 void initScene() 

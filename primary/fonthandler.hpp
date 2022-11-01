@@ -17,12 +17,50 @@ class FontHandler
 {
 public:
     // Typography
-    BLFontManager fFontManager;
-    std::vector<std::string> fFamilyNames;
+    BLFontManager fFontManager{};
+    std::vector<std::string> fFamilyNames{};
+
+    // For size helper
+    int fDotsPerInch=1;
+    float fUnitsPerInch=1;
 
     FontHandler()
     {
         fFontManager.create();
+    }
+
+/*
+    setDpiUnits makes it possible to let the FontHandler to 
+    understand the DPI we're rendering to, as well as
+    the intended units we're using to specify font sizes.
+    
+    This combination allows you to say; "my display is 192 dpi,
+    and I want to use 'inches' to specify my font sizes"
+
+    setDpiUnits(192, 1);
+
+    Or, if you want to work in millimeters
+
+    setDpiUnits(192, 25.4);
+
+    If you don't know your displays dpi, and you just
+    want to work in pixels, then you can use the default
+    which is;
+
+    setDpiUnits(1,1);
+
+// Some typical units  
+    local unitFactors = {
+    ["in"] = 1;
+    ["mm"] = 25.4;
+    ["px"] = 96;
+    ["pt"] = 72;
+} 
+*/
+    void setDpiUnits(int dpi, float unitsPerInch)
+    {
+        fDotsPerInch = dpi;
+        fUnitsPerInch = unitsPerInch;
     }
 
     const std::vector<std::string>& familyNames() const { return fFamilyNames; }
@@ -44,7 +82,7 @@ public:
     // create a single font face by filename
     // Put it into the font manager
     // return it to the user
-    BLFontFace loadFont(const char* filename)
+    BLFontFace loadFontFace(const char* filename)
     {
         BLFontFace ff;
         //BLResult err = ff.createFromFile(filename, BL_FILE_READ_MMAP_AVOID_SMALL);
@@ -69,7 +107,7 @@ public:
     {
         for (const auto& filename : fontNames)
         {
-            BLFontFace face = loadFont(filename);
+            BLFontFace face = loadFontFace(filename);
             //printf("loadFonts: %s, 0x%x\n", face.familyName().data(), face.isValid());
         }
     }
@@ -78,14 +116,12 @@ public:
     {
         const std::filesystem::path fontPath(dir);
 
-
-        
         for (const auto& dir_entry : std::filesystem::directory_iterator(fontPath))
         {
             if (dir_entry.is_regular_file())
             {
                 BLFontFace ff;
-                ff = loadFont(dir_entry.path().generic_string().c_str());
+                ff = loadFontFace(dir_entry.path().generic_string().c_str());
             }
         }
     }
@@ -109,10 +145,29 @@ public:
             "c:\\Windows\\Fonts\\wingding.ttf"
         };
         loadFonts(fontNames);
+    }
 
-        // try to retrieve one again
-        //BLFontFace errFace = queryFont("Tahoma");
-        //printf("loadDefaultFonts(), query Tahoma: %d\n", errFace.isValid());
+    float getAdjustedFontSize(float sz)
+    {
+        float fsize = sz / (fUnitsPerInch * fDotsPerInch);
+        return fsize;
+    }
+
+    void textFont(const char* fontname, float sz, BLFontCore &font)
+    {
+        auto err = blFontReset(&font);
+
+        // query the font manager
+        // set the found face as the current face
+
+        BLFontFace face;
+        face = queryFontFace(fontname);
+
+        if (face.isValid()) 
+        {
+            float fsize = getAdjustedFontSize(sz);
+            blFontCreateFromFace(&font, &face, fsize);
+        }
     }
 
     maths::vec2f textMeasure(const char* txt, const char *familyname, float size)
@@ -130,16 +185,17 @@ public:
 
         // Create the font of the right size
         BLFont font;
-        font.createFromFace(face, size);
+        auto fsize = getAdjustedFontSize(size);
+        font.createFromFace(face, fsize);
 
         gb.setUtf8Text(txt);
         font.shape(gb);
         font.getTextMetrics(gb, tm);
 
-        float cx = tm.boundingBox.x1 - tm.boundingBox.x0;
-        float cy = font.size();
+        auto cx = tm.boundingBox.x1 - tm.boundingBox.x0;
+        auto cy = font.size();
 
-        return { cx, cy };
+        return { (float)cx, (float)cy };
     }
 };
 

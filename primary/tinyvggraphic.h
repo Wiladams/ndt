@@ -12,10 +12,15 @@ using namespace tinyvg;
 struct VGCommandPath
 {
 	int fCommand;
-	BLVar fFillStyle;
-	BLVar fLineStyle;
+	
+	tvg_style_t fillStyle{};
+	tvg_style_t lineStyle{};
+
+	BLVar fFillStyle{};
+	BLVar fLineStyle{};
+	
 	float fLineWidth;
-	BLPath fPath;
+	BLPath fPath{};
 
 private:
 	// convert a tinyvg_style_t to a BLStyle
@@ -25,7 +30,9 @@ private:
 		switch (tvgs.kind) {
 		case DrawingStyle::FlatColored:
 		{
-			s = BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a);
+			BLRgba32 c = BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a);
+			//s.assign(c);
+			s.assign(c.value);
 		}
 		break;
 
@@ -36,6 +43,7 @@ private:
 				BLGradient linear(BLLinearGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_1.x, tvgs.point_1.y));
 				linear.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				linear.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
+				//s.assign(linear);
 				s = linear;
 			}
 			else if (tvgs.kind == DrawingStyle::RadialGradient) {
@@ -46,6 +54,7 @@ private:
 				BLGradient radial(BLRadialGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_0.x, tvgs.point_0.y, r0));
 				radial.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				radial.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
+				//s.assign(radial);
 				s = radial;
 			}
 		}
@@ -139,6 +148,10 @@ public:
 	{
 		fCommand = cmd.command;
 		fLineWidth = cmd.lineWidth;
+
+		lineStyle = cmd.lineStyle;
+		fillStyle = cmd.fillStyle;
+
 		initStyle(fLineStyle, cmd.lineStyle);
 		initStyle(fFillStyle, cmd.fillStyle);
 
@@ -150,7 +163,7 @@ public:
 		}
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx)
 	{
 		switch (fCommand) {
 		case Commands::DrawLinePath:
@@ -158,11 +171,13 @@ public:
 		case Commands::DrawLineLoop:
 		case Commands::DrawLineStrip:
 		{
-			ctx->noFill();
-			ctx->stroke(fLineStyle);
-			ctx->strokeWeight(fLineWidth);
-			ctx->path(fPath);
+			ctx.noFill();
+			ctx.stroke(lineStyle.color_0.r, lineStyle.color_0.g, lineStyle.color_0.b);
 
+			//ctx.stroke(fLineStyle);
+
+			ctx.strokeWeight(fLineWidth);
+			ctx.path(fPath);
 		}
 		break;
 
@@ -170,9 +185,10 @@ public:
 		case Commands::FillPolygon:
 		case Commands::FillRectangles:
 		{
-			ctx->noStroke();
-			ctx->fill(fFillStyle);
-			ctx->path(fPath);
+			ctx.noStroke();
+			ctx.fill(fillStyle.color_0.r, fillStyle.color_0.g, fillStyle.color_0.b);
+			//ctx.fill(fFillStyle);
+			ctx.path(fPath);
 		}
 		break;
 
@@ -180,10 +196,14 @@ public:
 		case Commands::OutlineFillRectangles:
 		case Commands::OutlineFillPolygon:
 		{
-			ctx->fill(fFillStyle);
-			ctx->stroke(fLineStyle);
-			ctx->strokeWeight(fLineWidth);
-			ctx->path(fPath);
+
+			ctx.fill(fillStyle.color_0.r, fillStyle.color_0.g, fillStyle.color_0.b);
+			ctx.stroke(lineStyle.color_0.r, lineStyle.color_0.g, lineStyle.color_0.b);
+
+			//ctx.fill(fFillStyle);
+			//ctx.stroke(fLineStyle);
+			ctx.strokeWeight(fLineWidth);
+			ctx.path(fPath);
 		}
 		break;
 
@@ -196,7 +216,7 @@ public:
 	}
 };
 
-class TinyVGGraphic : public Graphic
+class TinyVGGraphic : public GraphicElement
 {
 	BinStream& fStream;
 	std::vector<VGCommandPath> fFigures;
@@ -209,8 +229,9 @@ public:
 
 		// Assuming the parse was ok
 		// BUGBUG - should check isValid()
-		setBounds(BLRect(0, 0, parser.header.width, parser.header.height));
-		
+		setBounds(maths::bbox2f{ 0, 0, (float)parser.header.width, (float)parser.header.height });
+		setFrame(bounds());
+
 		// Construct our graphic commands
 		while (true)
 		{
@@ -223,7 +244,7 @@ public:
 		}
 	}
 
-	virtual void drawSelf(std::shared_ptr<IGraphics> ctx)
+	void drawSelf(IGraphics & ctx) override
 	{
 		for (int i = 0; i < fFigures.size(); i++)
 		{

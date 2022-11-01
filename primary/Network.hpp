@@ -109,60 +109,12 @@ public:
 };
 
 class IPHost {
-    char fHostName[256];
-    std::vector<IPAddress *> fAddresses;
-    std::vector<char *> fAliases;
+    char fHostName[256]{};
+    std::vector<IPAddress*> fAddresses{};
+    std::vector<char*> fAliases{};
 
 public:
-    static IPHost * create(const char *hostname, const char *portname, int family = AF_INET, int socktype = SOCK_STREAM,  bool isnumericstring=false)
-    {
-        int err;
-        addrinfo hints;
-        struct addrinfo *ppResult;
 
-        // need to zero out some members before using
-        memset(&hints, 0, sizeof(hints));
-
-	    hints.ai_family = family;
-        hints.ai_socktype = socktype;
-        hints.ai_protocol = IPPROTO_TCP;
-        hints.ai_flags = AI_CANONNAME;    // hostname is a canonical name
-
-        if (isnumericstring) {
-            hints.ai_flags = AI_NUMERICHOST;
-        }
-
-        err = getaddrinfo(hostname, portname, &hints, &ppResult);
-
-        if (err != 0) {
-            printf("IPHost.create(), getaddrinfo ERROR: %d\n", WSAGetLastError());
-            return nullptr;
-        }
-
-        // Create the host
-        IPHost *host = new IPHost();
-        // Add initial name and address
-        host->setName(ppResult->ai_canonname);
-        host->addAddress(ppResult->ai_addr, ppResult->ai_addrlen);
-
-        // go through the rest of the entries
-        // and add their information as well
-        struct addrinfo * sentinel = ppResult->ai_next;
-        while (sentinel != nullptr) {
-            if (sentinel->ai_canonname != nullptr)
-            {
-                host->addAlias(sentinel->ai_canonname);
-            }
-
-            host->addAddress(sentinel->ai_addr, sentinel->ai_addrlen);
-            sentinel = sentinel->ai_next;
-        }
-
-        // free the addrinfos structure
-	    freeaddrinfo(ppResult);
-
-	    return host;
-    }
 
     void setName(const char *name)
     {
@@ -194,15 +146,66 @@ public:
     {
         return false;
     }
+
+    static IPHost* create(const char* hostname, const char* portname, int family = AF_INET, int socktype = SOCK_STREAM, bool isnumericstring = false)
+    {
+        int err;
+        addrinfo hints;
+        struct addrinfo* ppResult;
+
+        // need to zero out some members before using
+        memset(&hints, 0, sizeof(hints));
+
+        hints.ai_family = family;
+        hints.ai_socktype = socktype;
+        hints.ai_protocol = IPPROTO_TCP;
+        hints.ai_flags = AI_CANONNAME;    // hostname is a canonical name
+
+        if (isnumericstring) {
+            hints.ai_flags = AI_NUMERICHOST;
+        }
+
+        err = getaddrinfo(hostname, portname, &hints, &ppResult);
+
+        if (err != 0) {
+            printf("IPHost.create(), getaddrinfo ERROR: %d\n", WSAGetLastError());
+            return nullptr;
+        }
+
+        // Create the host
+        IPHost* host = new IPHost();
+        // Add initial name and address
+        host->setName(ppResult->ai_canonname);
+        host->addAddress(ppResult->ai_addr, ppResult->ai_addrlen);
+
+        // go through the rest of the entries
+        // and add their information as well
+        struct addrinfo* sentinel = ppResult->ai_next;
+        while (sentinel != nullptr) {
+            if (sentinel->ai_canonname != nullptr)
+            {
+                host->addAlias(sentinel->ai_canonname);
+            }
+
+            host->addAddress(sentinel->ai_addr, sentinel->ai_addrlen);
+            sentinel = sentinel->ai_next;
+        }
+
+        // free the addrinfos structure
+        freeaddrinfo(ppResult);
+
+        return host;
+    }
 };
 
 class IPSocket {
 public:
     SOCKET fSocket;
+
 private:
-    bool fIsValid;
-    int fLastError;
-    bool fAutoClose;
+    bool fIsValid=false;
+    int fLastError=0;
+    bool fAutoClose=false;
 
 public:
     // Construct with an existing native socket
@@ -251,8 +254,8 @@ public:
 
     IPSocket accept()
     {
-        struct sockaddr clientAddr;
-        int clientAddrLen;
+        struct sockaddr clientAddr {};
+        int clientAddrLen=0;
 
         //int res = ::accept(fSocket,&clientAddr,&clientAddrLen);
         int res = ::accept(fSocket,nullptr,nullptr);

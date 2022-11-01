@@ -56,7 +56,7 @@ typedef aabb colshape; /*c.d[3] determines if it's a sphere or box. 0 or less = 
 
 
 static inline mat4 scalemat4( vec4 s){
-	mat4 ret;
+	mat4 ret{};
 	for(int i = 1; i < 16; i++)
 		ret.d[i]= 0.0;
 	ret.d[0*4 + 0] = s.d[0]; 
@@ -68,7 +68,7 @@ static inline mat4 scalemat4( vec4 s){
 
 static inline int invmat4( mat4 m, mat4* invOut) /*returns 1 if successful*/
 {
-    mat4 inv;
+	mat4 inv{};
     f_ det;
     int i;
 
@@ -193,7 +193,7 @@ static inline int invmat4( mat4 m, mat4* invOut) /*returns 1 if successful*/
     return 1;
 }
 static inline mat4 perspective( f_ fov,  f_ aspect,  f_ nearest,  f_ farthest){
-	mat4 ret;
+	mat4 ret{};
 	f_ D2R = 3.14159265358979323 / 180.0;
 	f_ yScale = 1.0/tanf(D2R * fov/2);
 	f_ xScale = yScale/aspect;
@@ -224,7 +224,7 @@ static inline mat4 rotate( vec3 rotation){
 	f_ a = rotation.d[0];
 	f_ b = rotation.d[1];
 	f_ c = rotation.d[2];
-	mat4 rm;
+	mat4 rm{};
 	rm.d[0*4 + 0] = cosf(a)*cosf(b);
 	rm.d[1*4 + 0] = sinf(a)*cosf(b);
 	rm.d[2*4 + 0] = -sinf(b);
@@ -257,29 +257,33 @@ static inline f_ lengthv4( vec4 a){
 	return sqrtf(a.d[0] * a.d[0] + a.d[1] * a.d[1] + a.d[2] * a.d[2] + a.d[3] * a.d[3]);
 }
 static inline vec3 multvec3( vec3 a,  vec3 b){
-	return (vec3){
-		.d[0]=a.d[0]*b.d[0],
-		.d[1]=a.d[1]*b.d[1],
-		.d[2]=a.d[2]*b.d[2]
-	};
+	vec3 ret{};
+	ret.d[0] = a.d[0] * b.d[0];
+	ret.d[1] = a.d[1] * b.d[1];
+	ret.d[2] = a.d[2] * b.d[2];
+
+	return ret;
 }
+
 static inline vec4 multvec4( vec4 a,  vec4 b){
-	return (vec4){
-		.d[0]=a.d[0]*b.d[0],
-		.d[1]=a.d[1]*b.d[1],
-		.d[2]=a.d[2]*b.d[2],
-		.d[3]=a.d[3]*b.d[3]
-	};
+	vec4 ret{};
+	
+		ret.d[0] = a.d[0] * b.d[0];
+		ret.d[1] = a.d[1] * b.d[1];
+		ret.d[2] = a.d[2] * b.d[2];
+		ret.d[3] = a.d[3] * b.d[3];
+
+	return ret;
 }
 static inline vec3 clampvec3( vec3 a,  vec3 min,  vec3 max){
-	vec3 ret;
+	vec3 ret{};
 	ret.d[0] = clampf(a.d[0],min.d[0],max.d[0]);
 	ret.d[1] = clampf(a.d[1],min.d[1],max.d[1]);
 	ret.d[2] = clampf(a.d[2],min.d[2],max.d[2]);
 	return ret;
 }
 static inline vec4 clampvec4( vec4 a,  vec4 min,  vec4 max){
-	vec4 ret;
+	vec4 ret{};
 	ret.d[0] = clampf(a.d[0],min.d[0],max.d[0]);
 	ret.d[1] = clampf(a.d[1],min.d[1],max.d[1]);
 	ret.d[2] = clampf(a.d[2],min.d[2],max.d[2]);
@@ -301,11 +305,11 @@ static inline vec4 getrow( mat4 a,  uint index){
 	};
 }
 static inline mat4 swapRowColumnMajor( mat4 in){
-	mat4 result;
+	mat4 result{};
 	vec4 t;
 	int i = 0;
 	t = getrow(in,i);
-	memcpy(result.d+i*4, t.d, 4*4);i++;
+	memcpy(result.d+i*4, t.d, static_cast<size_t>(4)*4);i++;
 	t = getrow(in,i);
 	memcpy(result.d+i*4, t.d, 4*4);i++;
 	t = getrow(in,i);
@@ -324,7 +328,7 @@ static inline vec4 getcol( mat4 a,  uint index){
 	};
 }
 static inline mat4 multm4( mat4 a,  mat4 b){
-	mat4 ret;
+	mat4 ret{};
 #ifdef _OPENMP
 #pragma omp simd
 #endif
@@ -337,7 +341,7 @@ static inline mat4 multm4( mat4 a,  mat4 b){
 	return ret;
 }
 static inline vec4 mat4xvec4( mat4 t,  vec4 v){
-	vec4 vr;
+	vec4 vr{};
 	/*
 	Getting a ROW of the matrix and dotting it with the COLUMN VECTOR to get
 	 ONE ROW of the output COLUMN VECTOR- one float.*/

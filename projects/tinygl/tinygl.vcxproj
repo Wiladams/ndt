@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\tinygl\3dMath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

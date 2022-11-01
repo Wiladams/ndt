@@ -30,10 +30,13 @@ void draw()
 
 void setup()
 {
-	//fullscreen();
-	createCanvas(800, 800);
+	fullscreen();
+	//createCanvas(1920, 1080);
 
-	gAppSurface->setPpiUnits(systemDpi, 96);
+	std::shared_ptr<ILayoutGraphics> layout = std::make_shared<CascadeLayout>(canvasWidth, canvasHeight);
+	windowLayout(layout);
+
+	gAppSurface->setDpiUnits(systemDpi, 96);
 
 	// create some graphics from tiny vg files
 	auto g1 = TinyVGGraphic::createFromFilename("comic.tvg");
@@ -45,12 +48,11 @@ void setup()
 	auto g7 = TinyVGGraphic::createFromFilename("app-icon.tvg");
 
 	// create some windows to hold the graphics
-	//window(0, 0, g1->width(), g1->height())->addChild(g1);
-	window(0, 0, g2->width(), g2->height())->addChild(g2);
-	//window(0, 0, g3->width(), g3->height())->addChild(g3);
-	//window(0, 0, g4->width(), g4->height())->addChild(g4);
-	//window(0, 0, g5->width(), g5->height())->addChild(g5);
-	window(0, 0, 400, 400)->addChild(g6);
-	//window(0, 0, g6->width(), g6->height())->addChild(g6);
-	//window(0, 0, g7->width(), g7->height())->addChild(g7);
+	window(0, 0, g1->frameWidth(), g1->frameHeight())->addChild(g1);
+	window(0, 0, g2->frameWidth(), g2->frameHeight())->addChild(g2);
+	window(0, 0, g3->frameWidth(), g3->frameHeight())->addChild(g3);
+	window(0, 0, g4->frameWidth(), g4->frameHeight())->addChild(g4);
+	window(0, 0, g5->frameWidth(), g5->frameHeight())->addChild(g5);
+	window(0, 0, g6->frameWidth(), g6->frameHeight())->addChild(g6);
+	window(0, 0, g7->frameWidth(), g7->frameHeight())->addChild(g7);
 }

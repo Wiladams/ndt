@@ -82,6 +82,15 @@ unsigned int systemPpi = 192;   // starting pixel density
 int clientLeft;
 int clientTop;
 
+// Mouse Globals
+bool mouseIsPressed = false;
+int mouseX = 0;
+int mouseY = 0;
+int mouseDelta = 0;
+int pmouseX = 0;
+int pmouseY = 0;
+
+
 // Raw Mouse input
 int rawMouseX = 0;
 int rawMouseY = 0;
@@ -236,6 +245,8 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     LRESULT res = 0;
     MouseEvent e{};
 
+
+
     e.x = GET_X_LPARAM(lParam);
     e.y = GET_Y_LPARAM(lParam);
 
@@ -286,6 +297,13 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             
         break;
     }
+
+    mouseX = e.x;
+    mouseY = e.y;
+    mouseDelta = e.delta;
+    mouseIsPressed = isPressed;
+
+
 
     gMouseEventTopic.notify(e);
 
@@ -864,7 +882,7 @@ void showAppWindow()
 // Typography
 BLFontFace loadFont(const char* filename)
 {
-    BLFontFace ff = gFontHandler->loadFont(filename);
+    BLFontFace ff = gFontHandler->loadFontFace(filename);
     return ff;
 }
 

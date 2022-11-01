@@ -37,8 +37,8 @@ struct PixelArray
         fStride = s;
     }
 
-    constexpr const int width() const noexcept { return fWidth; }
-    constexpr const int height() const noexcept { return fHeight; }
+    constexpr const size_t width() const noexcept { return fWidth; }
+    constexpr const size_t height() const noexcept { return fHeight; }
 
 
     constexpr const ptrdiff_t stride() const noexcept { return fStride; }

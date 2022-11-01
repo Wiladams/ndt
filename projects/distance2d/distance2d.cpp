@@ -1,9 +1,12 @@
 #include "p5.hpp"
-#include "Recorder.hpp"
+//#include "apphost.h"
+//#include "maths.hpp"
+//#include "Surface.h"
 
 
-std::shared_ptr<Recorder> recorder = nullptr;
+#include <memory>
 
+//Surface gSurface;
 using namespace p5;
 
 int max_distance;
@@ -17,64 +20,43 @@ enum SHAPEKIND {
 
 int gKindOfShape = FIRSTSHAPE;
 
-void setup() {
+void setup()
+{
+    //createCanvas();
     //createCanvas(1920, 1080);
     //setCanvasPosition(0, 0);
     fullscreen();
 
     noStroke();
-    fill(255);
+    fill(Pixel(255, 255, 255, 255));
 
-    max_distance = dist((float)canvasWidth/2.0f, 0, canvasWidth, canvasHeight);
+    max_distance = maths::distance(
+        maths::vec2f{ (float)canvasWidth / 2.0f, 0 },
+        maths::vec2f{ (float)canvasWidth, (float)canvasHeight });
 
     layered();
 
-    recorder = std::make_shared<Recorder>(gAppSurface, "dist2d-");
+    //recorder = std::make_shared<Recorder>(gSurface, "dist2d-");
 
 }
 
-void draw() {
-    if (isLayered())
-    {
-        clear();
-        background(10, 127);
-    }
-    else
-        background(10,127);
-
-    fill(250,220);
-    for (int i = 0; i <= canvasWidth; i += 20) {
-        for (int j = 0; j <= canvasHeight; j += 20) {
-            float size = (dist(mouseX, mouseY, i, j))/2;
-            size = (size / max_distance) * 66;
-
-            switch (gKindOfShape)
-            {
-            case ELLIPSE:
-                ellipse(i, j, size, size);
-                break;
-
-            case SQUARE:
-                square(i, j, size*2);
-                break;
-            }
-
-
-        }
-    }
-}
-
-void onComposed()
+/*
+void createCanvas()
 {
-    if (recorder != nullptr)
-        recorder->saveFrame();
+    createAppWindow(displayWidth, displayHeight, "distance2d");
+    gAppWindow->moveTo(0, 0);
+
+    gSurface.attachPixelArray(*gAppFrameBuffer);
+
+    layered();
 }
+*/
 
 void keyReleased(const KeyboardEvent& e)
 {
     switch (e.keyCode) {
     case 'R':	// toggle recording
-        recorder->toggleRecording();
+        //recorder->toggleRecording();
         break;
 
     case VK_SPACE:
@@ -88,3 +70,41 @@ void keyReleased(const KeyboardEvent& e)
         break;
     }
 }
+
+
+
+
+void draw() {
+    if (isLayered())
+    {
+        clear();
+        background(Pixel(10, 10,10, 127));
+    }
+    else
+        background(Pixel(10, 10, 10, 127));
+
+    fill(Pixel(250,250,250,220));
+    for (int i = 0; i <= canvasWidth; i += 20) {
+        for (int j = 0; j <= canvasHeight; j += 20) {
+            float size = (maths::distance(maths::vec2f{ (float)mouseX, (float)mouseY }, 
+                maths::vec2f{ (float)i, (float)j })) / 2;
+            size = (size / max_distance) * 66;
+
+            switch (gKindOfShape)
+            {
+            case ELLIPSE:
+                ellipse(i, j, size, size);
+                break;
+
+            case SQUARE:
+                square(i, j, size*2);
+                break;
+            }
+        }
+    }
+
+    screenRefresh();
+}
+
+
+

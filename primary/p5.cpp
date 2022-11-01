@@ -81,12 +81,12 @@ namespace p5 {
     int keyChar = 0;
 
     // Mouse Globals
-    bool mouseIsPressed = false;
-    int mouseX = 0;
-    int mouseY = 0;
-    int mouseDelta = 0;
-    int pmouseX = 0;
-    int pmouseY = 0;
+ //   bool mouseIsPressed = false;
+ //   int mouseX = 0;
+ //   int mouseY = 0;
+ //   int mouseDelta = 0;
+ //   int pmouseX = 0;
+ //   int pmouseY = 0;
 
     // Gesture Globals
     long panX = 0;
@@ -107,10 +107,20 @@ namespace p5 {
     double deltaTime = 0;
     double gAppLastTime = 0;
 
+    void setFontDpiUnits(const int dpi, const float units)
+    {
+        gFontHandler->setDpiUnits(dpi, units);
+    }
+
+    void setDpiUnits(const int dpi, const float units)
+    {
+        gAppSurface->setDpiUnits(dpi, units);
+        gFontHandler->setDpiUnits(dpi, units);
+    }
 
     void setUnitsPerInch(REAL units)
     {
-        gAppSurface->setPpiUnits(systemPpi, units);
+        setDpiUnits(systemPpi, units);
     }
 
     // Window management
@@ -287,10 +297,10 @@ namespace p5 {
 
     Pixel lerpColor(const Pixel& from, const Pixel& to, REAL f) noexcept
     {
-        uint8_t r = (uint8_t)maths::lerp(from.r(), to.r(),f);
-        uint8_t g = (uint8_t)maths::lerp(from.g(), to.g(),f);
-        uint8_t b = (uint8_t)maths::lerp(from.b(), to.b(),f);
-        uint8_t a = (uint8_t)maths::lerp(from.a(), to.a(),f);
+        uint8_t r = (uint8_t)maths::lerp((float)from.r(), (float)to.r(),f);
+        uint8_t g = (uint8_t)maths::lerp((float)from.g(), (float)to.g(),f);
+        uint8_t b = (uint8_t)maths::lerp((float)from.b(), (float)to.b(),f);
+        uint8_t a = (uint8_t)maths::lerp((float)from.a(), (float)to.a(),f);
 
         return color((int)r, (int)g, (int)b, (int)a);
     }
@@ -857,11 +867,11 @@ void handleMouseEvent(const MouseEvent& e)
 {
     //printf("p5::handleMouseEvent: %d (%d, %d)\n", e.activity, e.x, e.y);
     // assign new mouse position
-    p5::pmouseX = p5::mouseX;
-    p5::pmouseY = p5::mouseY;
-    p5::mouseX = e.x;
-    p5::mouseY = e.y;
-    p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
+    //p5::pmouseX = p5::mouseX;
+    //p5::pmouseY = p5::mouseY;
+    //p5::mouseX = e.x;
+    //p5::mouseY = e.y;
+    //p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
     //printf("  mouseX,Y: %d, %d\n", p5::mouseX, p5::mouseY);
     
     // If there is a window manager, let it have first crack
@@ -881,7 +891,7 @@ void handleMouseEvent(const MouseEvent& e)
             gMouseMovedHandler(e);
         }
 
-        if (p5::mouseIsPressed && gMouseDraggedHandler) {
+        if (mouseIsPressed && gMouseDraggedHandler) {
             gMouseDraggedHandler(e);
         }
         break;
@@ -901,14 +911,14 @@ void handleMouseEvent(const MouseEvent& e)
         break;
 
     case MOUSEWHEEL:
-        p5::mouseDelta = e.delta;
+        //p5::mouseDelta = e.delta;
         if (gMouseWheelHandler != nullptr) {
             gMouseWheelHandler(e);
         }
         break;
 
     case MOUSEHWHEEL:
-        p5::mouseDelta = e.delta;
+        //p5::mouseDelta = e.delta;
         if (gMouseHWheelHandler != nullptr) {
             gMouseHWheelHandler(e);
         }
@@ -1104,13 +1114,13 @@ void onUnload()
 
 void onLoad()
 {
-
     // setup the drawing context
     gAppSurface = std::make_shared<Surface>();
     gAppSurface->attachPixelArray(*gAppFrameBuffer);
-
+    gAppSurface->textFont("Consolas");
+    
     // ppi and user units
-    gAppSurface->setPpiUnits(systemPpi, systemPpi);     // default to raw pixels
+    gAppSurface->setDpiUnits(systemPpi, (float)systemPpi);     // default to raw pixels
 
     HMODULE hInst = ::GetModuleHandleA(NULL);
 

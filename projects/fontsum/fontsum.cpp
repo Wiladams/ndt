@@ -8,7 +8,7 @@ static std::string lineText = "The quick brown fox jumps over the lazy dog. 1234
 
 struct LineEntry {
     size_t size;
-    size_t lineHeight;
+    float lineHeight;
 };
 
 std::array<LineEntry, 7> const lines { {
@@ -55,12 +55,10 @@ public:
 
     }
 
-    void drawSelf(IGraphics & ctx) override
+    void drawBackground(IGraphics& ctx)
     {
-        // print("GFontSummary.draw 1.0")
         ctx.background(color(255));
 
-        // Save state on entry
         ctx.push();
 
         // Get line stroking done first
@@ -69,6 +67,13 @@ public:
         ctx.line(0, 52, frameWidth(), 52);
         ctx.line(0, 93.5, frameWidth(), 93.5);
 
+        ctx.pop();
+    }
+
+    void drawSelf(IGraphics & ctx) override
+    {
+        // Save state on entry
+        ctx.push();
 
 
         ctx.noStroke();
@@ -95,13 +100,13 @@ public:
         ctx.translate(4, 90);
 
         for (size_t i = 0; i < lines.size(); i++) {
-            auto line = lines[i];
+            auto & line = lines[i];
             ctx.translate(0, line.lineHeight);
 
             // draw lines showing our baseline
             //ctx.stroke(255, 0, 0);
             //ctx.line(0, 0, canvasWidth, 0);
-            //ctx.line(0, 0, 0, -((double)line.lineHeight)*0.85);
+            //ctx.line(0, 0, 0, -((float)line.lineHeight)*0.85);
 
             //draw the size indicator
             ctx.noStroke();
@@ -116,7 +121,6 @@ public:
             ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
             ctx.textFont(fontFamily.c_str());
             ctx.textSize(line.size);
-            //ctx.text(lineText.c_str(), 40, 0);
             ctx.text(lineText.c_str(), 24, 0);
         }
 
@@ -162,7 +166,9 @@ void setup()
     createCanvas(1920, 1280, "fontsum");
 
     // Set user space units to be 96/inch
-    //gAppSurface->setPpiUnits(systemPpi, 72);    // Using points (1/72in)
+    // setDpiUnits(systemPpi, 1);    // Using points (1in)
+    //setDpiUnits(systemPpi, 96);    // Using points (1/72in)
+    setFontDpiUnits(systemPpi, 72);    // Using points (1/72in)
 }
 
 

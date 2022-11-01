@@ -166,7 +166,7 @@ public:
 
 		// if we are here, the window itself did not 
 		// handle the event, so allow sub-graphics to deal with it
-		auto win = graphicAt(e.x, e.y);
+		auto win = graphicAt((float)e.x, (float)e.y);
 
 		if (win != nullptr) {
 			win->mouseEvent(e);

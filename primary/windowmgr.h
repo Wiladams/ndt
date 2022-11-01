@@ -23,7 +23,7 @@ class WindowManager : public Graphic
 protected:
 
 public:
-	WindowManager(int w, int h)
+	WindowManager(float w, float h)
 		:Graphic(0,0,w,h)
 	{
 		//setLayout(std::make_shared<CascadeLayout>(w,h));

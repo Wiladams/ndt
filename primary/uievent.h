@@ -152,10 +152,10 @@ struct JoystickEvent {
     int POV;				// Value of hat switch
 
     // Axes values, return -1.0..1.0
-    double x;
-    double y;
-    double z;
-    double r;
-    double u;
-    double v;
+    float x;
+    float y;
+    float z;
+    float r;
+    float u;
+    float v;
 };

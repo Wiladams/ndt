@@ -162,6 +162,8 @@ class IGraphics
 public:
     virtual ~IGraphics() = default;
 
+    virtual void setDpiUnits(const int dpi, const float units) = 0;
+
     virtual void angleMode(const ANGLEMODE mode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
     virtual void rectMode(const RECTMODE mode) = 0;
@@ -267,18 +269,6 @@ public:
     virtual void scaleImage(const BLImage& src,
         double srcX, double srcY, double srcWidth, double srcHeight,
         double dstX, double dstY, double dstWidth, double dstHeight)=0;
-    /*
-    void scaleImage(BLImage& src, double x, double y, double scaleX, double scaleY)
-    {
-        double dstWidth = src.width() * scaleX;
-        double dstHeight = src.height() * scaleY;
-
-        BLRect dst{ x,y,dstWidth,dstHeight };
-        BLRectI srcArea{ 0,0,src.width(),src.height() };
-
-        gAppDC.blitImage(dst, src, srcArea);
-    }
-    */
 
     virtual void textAlign(ALIGNMENT horizontal, ALIGNMENT vertical) = 0;
     virtual void textFace(const BLFontFace& face) = 0;
