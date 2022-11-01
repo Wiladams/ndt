@@ -52,6 +52,11 @@ Examples
 * Project: [fontsum](projects/fontsum)
 * Notes: font, text size
 
+### graph2d
+<img src="docs/images/graph2d.png" alt="graph2d" width=240/></br>
+* Project: [graph2d](projects/graph2d)
+* Notes: mouse tracking, direct pixel setting, apphost
+
 ### infinical
 <img src="docs/images/infinical.png" alt="infinical" width=240/></br>
 * Project: [infinical](projects/infinical)
@@ -161,6 +166,12 @@ Examples
 <img src="docs/images/touchy.png" alt="touchy" width=240/></br>
 * Project: [touchy](projects/touchy)
 * Notes: demonstrate using multi-point touch interface
+
+### WaltzOfTheCircles
+<img src="docs/images/WaltzOfTheCircles.png" alt="WaltzOfTheCircles" width=240/></br>
+* Project: [WaltzOfTheCircles](projects/WaltzOfTheCircles)
+* Notes: mouse tracking, reactive geometry
+
 
 ### wavemaker
 <img src="docs/images/wavemaker.png" alt="wavemaker" width=240/></br>

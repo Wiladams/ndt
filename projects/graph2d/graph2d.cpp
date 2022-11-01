@@ -2,21 +2,21 @@
 // Reference
 //  https://p5js.org/examples/math-graphing-2d-equations.html
 //
-//#include "p5.hpp"
+
 #include "apphost.h"
 
-//using namespace p5;
 
 int width = 0;
 int height = 0;
-int mouseX = 0;
-int mouseY = 0;
-
+//int mouseX = 0;
+//int mouseY = 0;
+/*
 void handleMouse(const MouseEvent& e)
 {
     mouseX = e.x;
     mouseY = e.y;
 }
+*/
 
 void onLoad() 
 {
@@ -25,7 +25,7 @@ void onLoad()
     width = canvasWidth;
     height = canvasHeight;
 
-    subscribe(handleMouse);
+    //subscribe(handleMouse);
 }
 
 void onLoop() 
