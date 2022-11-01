@@ -6,7 +6,7 @@
 
 using namespace p5;
 
-float DURATION = 10*1;
+float DURATION = 120*1;
 std::shared_ptr<CountdownTickClock> indic=nullptr;
 std::shared_ptr<Recorder> recorder = nullptr;
 
@@ -23,7 +23,6 @@ void draw()
 	if (recorder != nullptr)
 		recorder->saveFrame();
 
-	//noLoop();
 }
 
 // Implement onComposed(), because this is after draw()

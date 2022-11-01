@@ -17,6 +17,11 @@ Examples
 * Project: [analogclock](projects/analogclock)
 * Notes: animation, transparency, rotation
 
+### angler
+<img src="docs/images/angler.png" alt="angler" width=240/></br>
+* Project: [angler](projects/angler)
+* Notes: compound animation, rotation, timing
+
 ### bannersketch
 <img src="docs/images/bannersketch.png" alt="bannersketch" width=240/></br>
 * Project: [bannersketch](projects/bannersketch)
@@ -26,6 +31,16 @@ Examples
 <img src="docs/images/calendar.png" alt="calendar" width=240/></br>
 * Project: [calendar](projects/calendar)
 * Notes: Text of different sizes, calendar object
+
+### calib
+<img src="docs/images/calib.png" alt="calib" width=240/></br>
+* Project: [calib](projects/calib)
+* Notes: using display dpi, user specified units per inch
+
+### cards
+<img src="docs/images/cards.png" alt="cards" width=240/></br>
+* Project: [cards](projects/cards)
+* Notes: card deck, sprite sheet, shuffle operation
 
 ### colorama
 <img src="docs/images/colorama.png" alt="colorama" width=240/></br>

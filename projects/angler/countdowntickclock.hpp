@@ -117,9 +117,9 @@ struct CountdownTickClock : public Graphic
         fDuration = dur;
 
         fStartRotation = maths::radians(-90.0);
-        fCenterX = width() / 2.0;
-        fCenterY = height() / 2.0;
-        fRadius = width() / 2.0;
+        fCenterX = boundsWidth() / 2.0;
+        fCenterY = boundsHeight() / 2.0;
+        fRadius = boundsWidth() / 2.0;
         fSegmentRadians = maths::radians(360.0 / fNumTicks);
         fBeginColor = Pixel(255, 255, 0);
         fEndColor = Pixel(255, 0, 0);

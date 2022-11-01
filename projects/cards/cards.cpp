@@ -21,7 +21,7 @@ void draw()
 	int col = 0;
 
 	int rowHeight = 104;
-	int xincrement = 16;
+	int xincrement = 40;
 	int yincrement = 6;
 
 	int cardNum = 1;
