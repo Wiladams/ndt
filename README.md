@@ -67,6 +67,11 @@ Examples
 * Project: [fontsum](projects/fontsum)
 * Notes: font, text size
 
+### gauges
+<img src="docs/images/gauges.png" alt="gauges" width=240/></br>
+* Project: [gauges](projects/gauges)
+* Notes:thick lines, arc segments, linear interpolation
+
 ### graph2d
 <img src="docs/images/graph2d.png" alt="graph2d" width=240/></br>
 * Project: [graph2d](projects/graph2d)

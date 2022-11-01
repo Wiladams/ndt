@@ -24,7 +24,7 @@
 // knows how to draw a thumb for a slider
 // easily augmented with any draw method
 // to specialize the appearance.
-struct SliderThumb : public Graphic
+struct SliderThumb : public GraphicElement
 {
     static const int thumbRadius = 4;
     static const int thumbThickness = 24;
@@ -33,18 +33,22 @@ struct SliderThumb : public Graphic
     double fRadius;
     Pixel thumbColor{};
 
-    SliderThumb(const BLRect &f)
-        : Graphic(f.x, f.y, f.w, f.h)
+    SliderThumb(float x, float y, float w, float h)
+        :GraphicElement(x, y, w, h)
     {
         thumbColor = Pixel(0xc2, 0xc3, 0xc9);
 
         fRadius = thumbRadius;
-
-        //shape = BLRoundRect(0, 0, width(), height(), fRadius, fRadius);
     }
 
+    
+    SliderThumb(const BLRect& f)
+        : SliderThumb(f.x, f.y, f.w, f.h)
+    {}
+    
+
     // a lozinger rounded rect
-    void drawSelf(IGraphics& ctx) override
+    void draw(IGraphics& ctx) override
     {
         ctx.strokeWeight(2);
         ctx.stroke(Pixel(127, 127, 127, 120));
@@ -76,17 +80,17 @@ class Slider : public Graphic, public Topic<float>
 
     bool fDragging;
     Pixel fTrackColor;
-    std::shared_ptr<Graphic> fThumb;
+    std::shared_ptr<GraphicElement> fThumb;
 
 
 public:
-    Slider(const BLRect &f, const maths::vec2f &pos, std::shared_ptr<Graphic> thumb)
+    Slider(const BLRect &f, const maths::vec2f &pos, std::shared_ptr<GraphicElement> thumb)
         :Graphic(f.x, f.y, f.w, f.h)
         ,fDragging(false)
         ,fThumb(thumb)
 
     {
-        addChild(thumb);
+        //addChild(thumb);
         setPosition(pos.x, pos.y);
     }
 
@@ -164,7 +168,7 @@ public:
         //ctx.strokeWeight(4.0);
         //ctx.noFill();
         //ctx.stroke(255, 0, 0);
-        //ctx.rect(fBounds.x, fBounds.y, fBounds.w, fBounds.h);
+        //ctx.rect(bounds().min.x, bounds().min.y, boundsWidth(), boundsHeight());
 
 
         //draw line between endpoints
@@ -194,6 +198,10 @@ public:
         }
     }
 
+    void drawForeground(IGraphics& ctx) override
+    {
+        fThumb->draw(ctx);
+    }
 
     static std::shared_ptr<Slider> create(const maths::vec2f& startPoint, const maths::vec2f& endPoint, const maths::vec2f & startPos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
     {
@@ -207,54 +215,45 @@ public:
         }
 
         // create the thumb
-        BLRect thumbFrame{};
+        BLRect tFrame{};
 
         if (orientation == SLIDER_VERTICAL)
         {
-            thumbFrame.x = 0;
-            thumbFrame.y = 0;
-            thumbFrame.w = trackThickness*4.0;
-            thumbFrame.h = trackThickness*2.0;
+            tFrame.x = 0;
+            tFrame.y = 0;
+            tFrame.w = trackThickness*4.0;
+            tFrame.h = trackThickness*2.0;
         } else {
-            thumbFrame.x = 0;
-            thumbFrame.y = 0;
-            thumbFrame.w = trackThickness * 2.0;
-            thumbFrame.h = trackThickness * 4.0;
+            tFrame.x = 0;
+            tFrame.y = 0;
+            tFrame.w = trackThickness * 2.0;
+            tFrame.h = trackThickness * 4.0;
         }
-        std::shared_ptr<SliderThumb> sliderThumb = std::make_shared<SliderThumb>(thumbFrame);
+        std::shared_ptr<SliderThumb> sliderThumb = std::make_shared<SliderThumb>(tFrame);
 
         //Now figure out the frame of the entire slider
         BLRect sliderFrame{};
         MotionConstraint sliderConstraint;
-        //maths::vec2f sliderStart{};
-        //maths::vec2f sliderEnd{};
 
         if (orientation == SLIDER_VERTICAL)
         {
-            sliderFrame.w = thumbFrame.w;
+            sliderFrame.w = tFrame.w;
             sliderFrame.h = dy;
 
-            sliderFrame.x = startPoint.x - (thumbFrame.w / 2.0);
+            sliderFrame.x = startPoint.x - (tFrame.w / 2.0);
             sliderFrame.y = startPoint.y;
-
-
 
             sliderConstraint = MotionConstraint(0, 0, 0, sliderFrame.h - sliderThumb->frameHeight());
 
-            //sliderStart = { trackThickness / 2, 0 };
-            //sliderEnd = { trackThickness / 2, (float)sliderFrame.h };
         }
         else {
             sliderFrame.w = dx;
-            sliderFrame.h = thumbFrame.h;
+            sliderFrame.h = tFrame.h;
 
             sliderFrame.x = startPoint.x;
-            sliderFrame.y = startPoint.y - (thumbFrame.h/2.0);
+            sliderFrame.y = startPoint.y - (tFrame.h/2.0);
 
             sliderConstraint = MotionConstraint(0, 0, sliderFrame.w - sliderThumb->frameWidth(), 0);
-
-            //sliderStart = { 0, trackThickness / 2 };
-            //sliderEnd = { (float)sliderFrame.w, trackThickness / 2 };
         }
 
         auto slider = std::make_shared<Slider>(sliderFrame, startPos, sliderThumb);

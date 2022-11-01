@@ -47,6 +47,7 @@ public:
 	void setFrame(const maths::bbox2f& frame) {fFrame = frame;}
 
 	// Moves the frame
+	void moveTo(const float x, const float y) { moveTo({ x,y }); }
 	void moveTo(const maths::vec2f &xy) override
 	{
 		auto dxy = xy - frame().min;

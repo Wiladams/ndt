@@ -78,15 +78,6 @@ struct SegmentGauge : public Graphic
 		createTicks();
 	}
 
-	/*
-	void setSegmentThickness(float thickness)
-	{
-		for (auto& tick : fTicks)
-		{
-			tick.fWeight = thickness;
-		}
-	}
-	*/
 
 	// We only need to create the tick marks once.
  // Each tick is reponsible for its own drawing
@@ -119,12 +110,12 @@ struct SegmentGauge : public Graphic
 
 	void drawBackground(IGraphics & ctx) override
 	{
-		ctx.stroke(0xff, 0, 0);
+		ctx.stroke(127);
 		ctx.noFill();
-		ctx.rect(0, 0, frameWidth(), frameHeight());
+		ctx.rect(0, 0, boundsWidth(), boundsHeight());
 	}
 
-	void drawForeground(IGraphics &ctx)
+	void drawForeground(IGraphics &ctx) override
 	{
 		ctx.push();
 
@@ -144,6 +135,7 @@ struct SegmentGauge : public Graphic
 		ctx.noStroke();
 		ctx.fill(Pixel(0, 220, 150));
 		ctx.textSize(36);
+		ctx.textFont("Consolas");
 		ctx.text("FUEL", 0, 0);
 
 		ctx.pop();

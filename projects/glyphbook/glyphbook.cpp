@@ -15,7 +15,7 @@ std::shared_ptr<FontSummary> summaryPage = nullptr;
 void onSlide(const float pos)
 {
 	//printf("onSlide: %f\n", pos);
-	float maxY = page->bounds().h - iconWin->frame().h;
+	float maxY = page->boundsHeight() - iconWin->frameHeight();
 	float transY = maths::map(pos, 0, 1, 0, maxY);
 
 	page->translateBoundsTo(0, -transY);
@@ -61,8 +61,8 @@ void setup()
 
 	// Create a slider to go into the icon window
 	auto sldr = Slider::create(
-		{ float(iconWin->width() - 20), 40 },
-		{ float(iconWin->width() - 20), float(iconWin->height() - 8) });
+		{ float(iconWin->frameWidth() - 20), 40},
+		{ float(iconWin->frameWidth() - 20), float(iconWin->frameHeight() - 8)});
 	sldr->subscribe(onSlide);
 
 	iconWin->addChild(page);

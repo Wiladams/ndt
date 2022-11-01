@@ -83,8 +83,8 @@ public:
         // Get line stroking done first
         ctx.stroke(0);
         ctx.strokeWeight(0.25);
-        ctx.line(0, 52, fFrame.w, 52);
-        ctx.line(0, 93.5, fFrame.w, 93.5);
+        ctx.line(0, 52, frameWidth(), 52);
+        ctx.line(0, 93.5, frameWidth(), 93.5);
 
 
 

@@ -29,21 +29,21 @@ public:
 
 			auto icon = std::make_shared<FontFaceIcon>(name.c_str());
 			icon->subscribe(*this);
-			icon->moveTo(xoffset, yoffset);
+			icon->moveTo({ xoffset, yoffset });
 
 			addChild(icon);
 
-			xoffset += (icon->frame().w + columnGap);
-			float lastX = f.w - icon->frame().w;
+			xoffset += (icon->frameWidth() + columnGap);
+			float lastX = frameWidth() - icon->frameWidth();
 			if (xoffset > lastX)
 			{
 				xoffset = columnGap;
-				yoffset += icon->frame().h+columnGap;
+				yoffset += icon->frameHeight() + columnGap;
 			}
 
 		}
 
-		setBounds(BLRect(0, 0, fBounds.w, yoffset + columnGap));
+		setBounds({ 0, 0, boundsWidth(), yoffset + columnGap });
 	}
 
 	// Catch the clicks on specific icons.  
