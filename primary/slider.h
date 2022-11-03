@@ -29,7 +29,6 @@ struct SliderThumb : public GraphicElement
     static const int thumbRadius = 4;
     static const int thumbThickness = 24;
 
-    //BLRoundRect shape;
     double fRadius;
     Pixel thumbColor{};
 
@@ -53,8 +52,12 @@ struct SliderThumb : public GraphicElement
         ctx.strokeWeight(2);
         ctx.stroke(Pixel(127, 127, 127, 120));
         ctx.fill(thumbColor);
-        ctx.rect(frameX(), frameY(), frameWidth(), frameHeight(),
-            fRadius, fRadius);
+        //ctx.rect(frameX(), frameY(), frameWidth(), frameHeight(),
+        //    fRadius, fRadius);
+        float cx = frameX() + frameWidth() / 2;
+        float cy = frameY() + frameHeight() / 2;
+        ctx.ellipseMode(ELLIPSEMODE::CENTER);
+        ctx.circle(cx, cy, frameWidth()/2);
     }
 };
 
@@ -175,27 +178,36 @@ public:
         ctx.strokeWeight(trackThickness);
         ctx.stroke(0xf5);
 
+        ctx.strokeCaps(BL_STROKE_CAP_ROUND);
+
+        float x1 = 0;
+        float y1 = 0;
+        float x2 = 0;
+        float y2 = 0;
+
         if (fOrientation == SLIDER_HORIZONTAL)
         {
-            ctx.stroke(0xf5);
-            // Set line join to rounded
-            ctx.strokeCaps(BL_STROKE_CAP_ROUND);
-            ctx.line(boundsX(), boundsY() + (boundsHeight() / 2), boundsX() + boundsWidth(), boundsY() + (boundsHeight() / 2));
+            x1 = boundsX();
+            y1 = boundsY() + (boundsHeight() / 2);
+            x2 = boundsX() + boundsWidth();
+            y2 = boundsY() + (boundsHeight() / 2);
         }
         else {
-            ctx.strokeCaps(BL_STROKE_CAP_ROUND);
-            ctx.stroke(0x3d, 60);
-            float x1 = boundsX() + boundsWidth() / 2.0f;
-            float y1 = boundsY();
-            float x2 = boundsX() + boundsWidth() / 2.0f;
-            float y2 = boundsY() + boundsHeight();
-            ctx.line(x1, y1, x2, y2);
 
-            ctx.strokeWeight(trackThickness / 4.0f);
-            ctx.stroke(0xc0,220);
-            ctx.line(x1, y1, x2, y2);
-
+            x1 = boundsX() + boundsWidth() / 2.0f;
+            y1 = boundsY();
+            x2 = boundsX() + boundsWidth() / 2.0f;
+            y2 = boundsY() + boundsHeight();
         }
+
+        // draw faint background
+        ctx.stroke(0x3d, 60);
+        ctx.line(x1, y1, x2, y2);
+
+        // draw fainter center line
+        ctx.strokeWeight(trackThickness / 4.0f);
+        ctx.stroke(0xc0, 220);
+        ctx.line(x1, y1, x2, y2);
     }
 
     void drawForeground(IGraphics& ctx) override

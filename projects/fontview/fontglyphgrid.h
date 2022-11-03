@@ -4,27 +4,27 @@
 #include "blend2d.h"
 #include "graphic.hpp"
 
+
+
 // Display all the glyphs in a font
 struct FontGlyphGrid : public Graphic
 {
-
-
-	BLFontFace fFontFace;
-	BLFont fFont;
-	BLFontDesignMetrics fDesignMetrics;
+	BLFontFace fFontFace{};
+	BLFont fFont{};
+	BLFontDesignMetrics fDesignMetrics{};
 
 	uint32_t fFontSize=16;
-	uint16_t fGlyphCount;
-	uint16_t fFirstGlyph;
-	uint32_t fCurrentGlyph;
+	uint16_t fGlyphCount=0;
+	uint16_t fFirstGlyph=0;
+	uint32_t fCurrentGlyph=0;
 
 	int maxColumns=16;
 	int cellWidth = 12;
 	int cellHeight = 16;
 
 
-	FontGlyphGrid(int w, int h)
-		:Graphic(0,0,w,16*32767)
+	FontGlyphGrid(float w, float h)
+		:Graphic(0,0,w,h)
 	{
 		cellWidth = w / maxColumns;
 		cellHeight = cellWidth;

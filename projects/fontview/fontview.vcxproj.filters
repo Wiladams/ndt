@@ -32,12 +32,6 @@
     <ClInclude Include="..\..\primary\blend2d\font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\blend2d\fontdata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\primary\blend2d\fontdefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\primary\blend2d\fontface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,6 +96,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="familyselector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fontfaceconsole.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\graphic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

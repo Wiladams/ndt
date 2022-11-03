@@ -278,6 +278,7 @@ struct PVector {
     void noLoop() noexcept;
     void frameRate(float newRate) noexcept;
     float getFrameRate() noexcept;
+    size_t getFrameCount() noexcept;
 
     // coordinate transform
     void push() noexcept;

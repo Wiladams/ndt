@@ -142,6 +142,8 @@ public:
 		case MOUSERELEASED:
 			if (fIsMoving) {
 				fIsMoving = false;
+
+				return;
 			}
 			break;
 
@@ -159,20 +161,31 @@ public:
 			}
 			break;
 
-		case MOUSEWHEEL:
-			//printf("GWindow.MouseEvent: WHEEL\n");
-			break;
 		}
 
 		// if we are here, the window itself did not 
 		// handle the event, so allow sub-graphics to deal with it
 		auto win = graphicAt((float)e.x, (float)e.y);
 
-		if (win != nullptr) {
+		if (win != fActiveGraphic)
+		{
+			// tell the active graphic it's no longer
+		}
+
+		if (win != nullptr)
+		{
+			setActiveGraphic(win);
+
 			win->mouseEvent(e);
 		}
 
 	}
 
+	virtual void keyEvent(const KeyboardEvent& e) override
+	{
+		//printf("GWindow:keyEvent\n");
 
+		if (fActiveGraphic != nullptr)
+			fActiveGraphic->keyEvent(e);
+	}
 };

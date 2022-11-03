@@ -1,11 +1,10 @@
 #pragma once
 
 #include "graphic.hpp"
-//#include "fonthandler.hpp"
 
 struct FontFaceIcon : public GraphicElement, public Topic<std::string &>
 {
-	static maths::vec2f getPreferredSize() { return { 150,160 }; }
+	static maths::vec2f preferredSize() { return { 150,160 }; }
 
 	std::string fFaceName{};
 	bool fIsHovering = false;
@@ -14,7 +13,7 @@ struct FontFaceIcon : public GraphicElement, public Topic<std::string &>
 
 
 	FontFaceIcon(const char *facename)
-		:GraphicElement(0, 0, getPreferredSize().x, getPreferredSize().y)
+		:GraphicElement(0, 0, preferredSize().x, preferredSize().y)
 	{
 		fFaceName.append(facename);
 

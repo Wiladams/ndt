@@ -1,6 +1,7 @@
 #include "p5.hpp"
-#include "MonthTile.hpp"
+
 #include "DayTile.hpp"
+#include "MonthTile.hpp"
 #include "yearofmonths.h"
 #include "slidingmonth.h"
 #include "decade.hpp"
@@ -26,6 +27,8 @@ void setup()
 {	
 	//createCanvas(1280, 1024);
 	fullscreen();
+
+	gAppSurface->textFont("Consolas");
 
 	std::shared_ptr<ILayoutGraphics> layout = std::make_shared<CascadeLayout>(canvasWidth, canvasHeight);
 	windowLayout(layout);

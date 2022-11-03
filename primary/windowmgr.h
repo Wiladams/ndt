@@ -41,7 +41,6 @@ public:
 		// along the way, we can display whatever
 		// chrome we want, or do any rendering effects
 
-		//for (std::shared_ptr<IGraphic> g : fChildren)
 		for (auto & g : fChildren)
 		{
 			//GUIStyle::drawDropShadow(ctx, g->frame(), 8, shadow);
@@ -51,6 +50,20 @@ public:
 		}
 	}
 */
+	// Handling Keyboard Events
+	// If there's anything special that a window manager
+	// wants to do with keyboard events, here is where 
+	// to do it.
+	// In general, we'll just pass the event to the currently
+	// active graphic, if there is one.
+	// If there is no active graphic, then the event is just ignored
+	void keyEvent(const KeyboardEvent& e) override
+	{
+		if (fActiveGraphic != nullptr)
+			fActiveGraphic->keyEvent(e);
+	}
+
+
 
 	// Handling mouse events
 	void mouseEvent(const MouseEvent& e) override
@@ -63,8 +76,8 @@ public:
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
 			MouseEvent newEvent = e;
-			newEvent.x = (int)(e.x - g->frame().min.x);
-			newEvent.y = (int)(e.y - g->frame().min.y);
+			newEvent.x = (int)(e.x - g->frameX() );
+			newEvent.y = (int)(e.y - g->frameY());
 
 			switch (e.activity) 
 			{
@@ -89,14 +102,18 @@ public:
 	}
 
 
-	void mousePressed(const MouseEvent& e)
+	void mousePressed(const MouseEvent& e) override
 	{
 		// Figure out which window is being 
 		// clicked
 		auto win = graphicAt(e.x, e.y);
+		//auto oldGraphic = fActiveGraphic;
 
 		// if not clicked on a view, then simply return
 		if (nullptr == win) {
+			// BUGBUG - before moving on, the currently active
+			// graphic should be told it is no longer the
+			// focus
 			fActiveGraphic = nullptr;
 			return;
 		}
@@ -135,21 +152,9 @@ public:
 	}
 	*/
 
-	//Handling Keyboard Events
-	void keyboardEvent(const KeyboardEvent& e)
-	{}
 
 
-	void keyPressed(const KeyboardEvent& e)
-	{}
-
-	void keyReleased(const KeyboardEvent& e)
-	{}
-
-	void keyTyped(const KeyboardEvent& e)
-	{}
-
-	void fileDropped(const FileDropEvent& e)
+	void fileDrop(const FileDropEvent& e) override
 	{
 		auto win = graphicAt(e.x, e.y);
 		if (win != nullptr)

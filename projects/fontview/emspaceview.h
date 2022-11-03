@@ -5,12 +5,14 @@
 // Display the graphic details of a font glyph
 //
 
+#include "apphost.h"
 #include "Graphics.h"
 #include "blend2d.h"
 #include "graphic.hpp"
 
-struct EMSpaceView : public GraphicElement
+class EMSpaceView : public GraphicElement
 {
+public:
 	static constexpr int edgeMargin = 24;
 	static constexpr int edgeTopMargin = 48;
 	static constexpr int edgeBottomMargin = 24;
@@ -130,7 +132,7 @@ struct EMSpaceView : public GraphicElement
 		double emTop = fFont.metrics().yMax;
 		double emBottom = fFont.metrics().yMin;
 
-		printf("emSpace: %f,%f  %f,%f\n", emLeft, emTop, emRight, emBottom);
+		//printf("emSpace: %f,%f  %f,%f\n", emLeft, emTop, emRight, emBottom);
 		
 
 
@@ -258,9 +260,8 @@ struct EMSpaceView : public GraphicElement
 
 	}
 
-	void drawSelf(IGraphics& ctx)
+	void drawSelf(IGraphics& ctx) override
 	{
-		
 		ctx.push();
 
 		// Do this first to get the right coordinate orientation
@@ -269,6 +270,50 @@ struct EMSpaceView : public GraphicElement
 		drawGlyphOutline(ctx);
 
 		ctx.pop();
+	}
+
+	virtual void mouseWheel(const MouseEvent& e) override
+	{
+		printf("emspaceview.mouseWheel\n");
+
+	}
+
+	virtual void keyEvent(const KeyboardEvent& e) override
+	{
+		switch (e.activity)
+		{
+		case KEYPRESSED:
+			keyPressed(e);
+			break;
+
+		case KEYRELEASED:
+			keyReleased(e);
+			break;
+
+		case KEYTYPED:
+			keyTyped(e);
+			break;
+		}
+	}
+
+
+	void keyPressed(const KeyboardEvent& e) override
+	{
+		switch (e.keyCode)
+		{
+		case VK_RIGHT:
+		{
+			incrementGlyph();
+		}
+		break;
+
+		case VK_LEFT:
+		{
+			decrementGlyph();
+		}
+		break;
+
+		}
 	}
 };
 

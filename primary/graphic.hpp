@@ -40,6 +40,8 @@ public:
 		:GraphicElement(maths::bbox2f{ {x,y},{x + w,y + h} })
 	{}
 
+	virtual ~GraphicElement() {}
+
 	const maths::bbox2f& bounds() const override {return fBounds;}
 	void setBounds(const maths::bbox2f& b) { fBounds = b; }
 
@@ -47,7 +49,6 @@ public:
 	void setFrame(const maths::bbox2f& frame) {fFrame = frame;}
 
 	// Moves the frame
-	void moveTo(const float x, const float y) { moveTo({ x,y }); }
 	void moveTo(const maths::vec2f &xy) override
 	{
 		auto dxy = xy - frame().min;
@@ -88,7 +89,7 @@ public:
 		// if they like
 	}
 
-	virtual void draw(IGraphics& ctx)
+	void draw(IGraphics& ctx) override
 	{
 		// Start by saving the context state
 		// so we're free to mess around with it
@@ -128,8 +129,8 @@ public:
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
 		// 
-		int tx = e.x + fTranslation.x;
-		int ty = e.y - fTranslation.y;
+		//float tx = (float)e.x + fTranslation.x;
+		//float ty = (float)e.y - fTranslation.y;
 
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
@@ -186,7 +187,7 @@ public:
 
 	virtual void mouseReleased(const MouseEvent& e) override
 	{
-		printf("mouseReleased()\n");
+		//printf("GraphicElement::mouseReleased()\n");
 		// do nothing
 	}
 
@@ -202,6 +203,47 @@ public:
 		// do nothing
 	}
 
+	virtual void keyEvent(const KeyboardEvent& e) override
+	{
+		switch (e.activity)
+		{
+		case KEYPRESSED:
+			keyPressed(e);
+			break;
+
+		case KEYRELEASED:
+			keyReleased(e);
+			break;
+
+		case KEYTYPED:
+			keyTyped(e);
+			break;
+		}
+	}
+
+	virtual void keyPressed(const KeyboardEvent& e) override
+	{
+		//printf("GraphicElement:keyPressed\n");
+		// do nothing
+	}
+
+	virtual void keyReleased(const KeyboardEvent& e) override
+	{
+		//printf("GraphicElement:keyReleased\n");
+
+		// do nothing
+	}
+
+	virtual void keyTyped(const KeyboardEvent& e) override
+	{
+		printf("GraphicElement:keyTyped\n");
+
+		// do nothing
+	}
+
+	// fileDrop
+	// Handling the case where a file was dropped atop
+	// the graphic.
 	virtual void fileDrop(const FileDropEvent& e) override
 	{
 		//printf("Graphic.fileDrop\n");
@@ -228,9 +270,6 @@ public:
 		:GraphicElement(x, y, w, h)
 	{
 	}
-
-	//double width() const { return fBounds.w; }
-	//double height() const { return fBounds.h; }
 
 
 	void setLayout(std::shared_ptr<ILayoutGraphics> layout)

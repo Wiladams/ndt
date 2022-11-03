@@ -137,8 +137,7 @@ struct VisualKeyboard : public GraphicElement
         ctx.strokeWeight(1);
 
         ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-        ctx.textFont("Segoe UI");
-        //ctx.textFont("Consolas");
+        ctx.textFont("Consolas");
         ctx.textSize(14);
 
         for (int i = 0; i < nKeys; i++)

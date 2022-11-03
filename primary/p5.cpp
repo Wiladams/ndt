@@ -2,7 +2,7 @@
 #include "sampler.hpp"
 #include "stopwatch.hpp"
 #include "windowmgr.h"
-#include "ticktopic.h"
+
 
 #include <iostream>
 
@@ -58,8 +58,8 @@ static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gComposedHandler = nullptr;
 
-float gFPS = 15;   // Frames per second
-TickTopic gTickTopic;
+//float gFPS = 15;   // Frames per second
+//TickTopic gTickTopic;
 bool gLooping = true;
 bool gIsFullscreen = false;
 
@@ -69,8 +69,12 @@ namespace p5 {
     int canvasWidth = 0;              // width of the canvas
     int canvasHeight = 0;             // height of the canvas
 
-    int frameCount = 0;         // how many frames drawn so far
-    int droppedFrames = 0;
+    float fFrameRate = 15;
+    float fInterval = 1000;
+    float fNextMillis = 0;
+    size_t fDroppedFrames = 0;
+    uint64_t fFrameCount = 0;         // how many frames drawn so far
+
 
     int textLineSize = 16;
     int textCursorX = 0;
@@ -106,7 +110,11 @@ namespace p5 {
     static StopWatch SWatch;    // Stopwatch used for time 
     double deltaTime = 0;
     double gAppLastTime = 0;
+    
+    // Random number generator
+    maths::rng_state gRNGState{};
 
+    
     void setFontDpiUnits(const int dpi, const float units)
     {
         gFontHandler->setDpiUnits(dpi, units);
@@ -415,20 +423,26 @@ namespace p5 {
 
     void frameRate(float newRate) noexcept
     {
-        gFPS = newRate;
-        gTickTopic.setFrequency(newRate);
+        fFrameRate = newRate;
+        fInterval = 1000 / newRate;
+        fNextMillis = SWatch.millis() + fInterval;
     }
 
     float getFrameRate() noexcept
     {
-        return gFPS;
+        return fFrameRate;
+    }
+
+    size_t getFrameCount() noexcept
+    {
+        return fFrameCount;
     }
 
     // turn looping on
     void loop() noexcept
     {
         gLooping = true;
-        gTickTopic.start();
+        //gTickTopic.start();
     }
 
     // turn looping off
@@ -437,7 +451,7 @@ namespace p5 {
     void noLoop() noexcept
     {
         gLooping = false;
-        gTickTopic.pause();
+        //gTickTopic.pause();
     }
 
     // Clearing is a complete wipe, which will leave 
@@ -758,8 +772,7 @@ namespace p5 {
 
 
 
-    // Random number generator
-    maths::rng_state gRNGState{};
+
 
     void randomSeed(uint64_t s)noexcept
     {
@@ -825,10 +838,15 @@ void handleComposition()
 
 void handleFrameTick(const double secs)
 {
-    p5::frameCount = p5::frameCount + 1;
-    
+    p5::fFrameCount += 1;
+
     // Do whatever drawing the application wants to do
     handleComposition();
+
+
+
+
+    //gRecorder.saveFrame();
     
     // Push our drawing to the screen
     screenRefresh();
@@ -838,6 +856,13 @@ void handleFrameTick(const double secs)
 void handleKeyboardEvent(const KeyboardEvent& e)
 {
     //std::cout << "keyboardEvent: " << e.activity << "\n" ;
+    
+    // If there's a window manager, let it have
+    // a crack at the event.
+    // Of course, it could just subscribe to keyboard events
+    if (nullptr != gWindowManager) {
+        gWindowManager->keyEvent(e);
+    }
 
     switch (e.activity) {
 
@@ -959,7 +984,7 @@ void handleJoystickEvent(const JoystickEvent& e)
 void handleFileDroppedEvent(const FileDropEvent& e)
 {
     if (nullptr != gWindowManager) {
-        gWindowManager->fileDropped(e);
+        gWindowManager->fileDrop(e);
     }
 
     // do the file drop handling
@@ -1065,13 +1090,6 @@ void handlePointerEvent(const PointerEvent& e)
 }
 
 
-static void p5frameTickSubscriber(const double t)
-{
-    //droppedFrames = p.droppedFrames();
-
-    handleFrameTick(t);
-}
-
 static void p5keyboardSubscriber(const KeyboardEvent& e)
 {
     handleKeyboardEvent(e);
@@ -1108,12 +1126,36 @@ static void p5filedroppedSubscriber(const FileDropEvent& e)
 }
 
 void onUnload()
+{}
+
+void onLoop()
 {
-    gTickTopic.stop();
+    // We'll wait here until it's time to 
+// signal the frame
+    if (p5::SWatch.millis() > p5::fNextMillis)
+    {
+        // WAA - Might also be interesting to get absolute keyboard, mouse, 
+        // and joystick positions here.
+        //
+        handleFrameTick(p5::SWatch.seconds());
+        
+
+
+        // catch up to next frame interval
+        // this will possibly result in dropped
+        // frames, but it will ensure we keep up
+        // to speed with the wall clock
+        while (p5::fNextMillis <= p5::SWatch.millis())
+        {
+            p5::fNextMillis += p5::fInterval;
+        }
+    }
 }
 
 void onLoad()
 {
+    p5::frameRate(15);
+
     // setup the drawing context
     gAppSurface = std::make_shared<Surface>();
     gAppSurface->attachPixelArray(*gAppFrameBuffer);
@@ -1124,11 +1166,7 @@ void onLoad()
 
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
-    // Setup initial frequency
-    gTickTopic.setFrequency(gFPS);
-
     // setup subscriptions
-    gTickTopic.subscribe(p5frameTickSubscriber);
     subscribe(p5mouseSubscriber);
     subscribe(p5keyboardSubscriber);
     subscribe(p5joystickSubscriber);
@@ -1199,9 +1237,5 @@ void onLoad()
     // do drawing at least once in case
     // the user calls noLoop() within 
     // the setup() routine
-    handleFrameTick(0);
-
-    // Start ticking if the user hasn't called noLoop()
-    if (gLooping)
-        gTickTopic.start();
+    screenRefresh();
 }

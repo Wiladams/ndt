@@ -151,8 +151,6 @@
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\binstream.hpp" />
     <ClInclude Include="..\..\primary\blend2d\font.h" />
-    <ClInclude Include="..\..\primary\blend2d\fontdata.h" />
-    <ClInclude Include="..\..\primary\blend2d\fontdefs.h" />
     <ClInclude Include="..\..\primary\blend2d\fontface.h" />
     <ClInclude Include="..\..\primary\blend2d\fontfeaturesettings.h" />
     <ClInclude Include="..\..\primary\blend2d\fontmanager.h" />
@@ -161,6 +159,7 @@
     <ClInclude Include="..\..\primary\definitions.h" />
     <ClInclude Include="..\..\primary\filestream.h" />
     <ClInclude Include="..\..\primary\fonthandler.hpp" />
+    <ClInclude Include="..\..\primary\graphic.hpp" />
     <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
@@ -168,6 +167,7 @@
     <ClInclude Include="..\..\primary\Surface.h" />
     <ClInclude Include="..\..\primary\windowmgr.h" />
     <ClInclude Include="familyselector.h" />
+    <ClInclude Include="fontfaceconsole.hpp" />
     <ClInclude Include="fontglyphgrid.h" />
     <ClInclude Include="screengrid.h" />
     <ClInclude Include="demoart.h" />

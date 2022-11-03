@@ -348,15 +348,15 @@ public:
         drawDate(ctx);
 
         // If the mouse down while inside us, we'll stop
-        if (p5::mouseIsPressed)
+        if (mouseIsPressed)
         {
             //double ldistance = p5::dist(p5::mouseX, p5::mouseY, fCenterX, fCenterY);
-            float ldistance = maths::distance(maths::vec2f{ (float)p5::mouseX,(float)p5::mouseY }, fCenter);
+            float ldistance = maths::distance(maths::vec2f{ (float)mouseX,(float)mouseY }, fCenter);
             if ((ldistance >= 1) && (ldistance < fCenterRadius))
             {
                 // Move closer to the cursor location position
-                float x = p5::lerp(p5::mouseX, fCenter.x, 0.3);
-                float y = p5::lerp(p5::mouseY, fCenter.y, 0.3);
+                float x = p5::lerp(mouseX, fCenter.x, 0.3);
+                float y = p5::lerp(mouseY, fCenter.y, 0.3);
                 moveTo(x, y);
 
                 calculateFlightTime();

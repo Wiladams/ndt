@@ -94,6 +94,7 @@ public:
 	{
 		// draw numeric squares
 		ctx.textSize(12);
+		ctx.textFont("Consolas");
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
 		ctx.noStroke();
 

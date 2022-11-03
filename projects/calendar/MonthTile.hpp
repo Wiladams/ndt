@@ -117,6 +117,7 @@ public:
 		ctx.fill(0);
 		ctx.textSize(12);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
+		ctx.textFont("Consolas");
 		ctx.text(fTitle, boundsWidth() / 2, 6);
 
 		drawDayHeadings(ctx);

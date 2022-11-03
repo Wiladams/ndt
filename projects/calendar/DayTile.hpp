@@ -28,7 +28,7 @@ public:
 	DayTile()
 		: GraphicElement(0,0,300,400 )
 	{
-		setBounds({ 0,0,300,400 });
+		setBounds({ 0,0,frameWidth(),frameHeight()});
 
 		// Set Date to today's date
 		SYSTEMTIME sysTime;
@@ -130,6 +130,7 @@ ctx->text(buff, 32, 24);
 		ctx.noStroke();
 		ctx.fill(82);
 		ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::CENTER);
+		ctx.textFont("Consolas");
 		ctx.textSize(18);
 		ctx.text(buff, hourLabelGap, 10);
 

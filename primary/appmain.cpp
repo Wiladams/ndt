@@ -1057,8 +1057,8 @@ void run()
     }
 
     // Do a typical Windows message pump
-    MSG msg;
-    LRESULT res;
+    MSG msg{};
+    LRESULT res{};
 
     showAppWindow();
 

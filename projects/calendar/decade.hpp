@@ -24,8 +24,8 @@ public:
 			addChild(std::make_shared<YearOfMonths>(year));
 		}
 
-		auto b = bounds();
-		printf("Decade bounds: %3.2f, %3.2f  %3.2f, %3.2f\n", b.min.x, b.min.y, b.max.x, b.max.y);
+		auto & b = bounds();
+		//printf("Decade bounds: %3.2f, %3.2f  %3.2f, %3.2f\n", b.min.x, b.min.y, b.max.x, b.max.y);
 
 		setFrame(bounds());
 

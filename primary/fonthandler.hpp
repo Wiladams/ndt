@@ -149,7 +149,7 @@ public:
 
     float getAdjustedFontSize(float sz)
     {
-        float fsize = sz / (fUnitsPerInch * fDotsPerInch);
+        float fsize = sz * ((float)fDotsPerInch / fUnitsPerInch);
         return fsize;
     }
 

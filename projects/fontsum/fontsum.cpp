@@ -44,15 +44,12 @@ public:
     }
 
     GFontSummary(const char *family)
+        :GraphicElement(0,0,prefferedSize().x, prefferedSize().y)
     {
         fontFamily = family;
         auto psize = GFontSummary::prefferedSize();
 
         setBounds({ 0, 0, psize.x, psize.y });
-
-        setFrame(bounds());
-    
-
     }
 
     void drawBackground(IGraphics& ctx)
@@ -135,17 +132,17 @@ void draw()
 {
     background(0xC0);
 
-    //GFontSummary s("algerian");
+    GFontSummary s("algerian");
     //GFontSummary s("d:\\Fonts\\Old Copperfield.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
-    GFontSummary s("Bookman Old Style");
+    //GFontSummary s("Bookman Old Style");
     //GFontSummary s("Snap ITC");
     //GFontSummary s("Stencil");
 
     s.draw(*gAppSurface);
 
-    noLoop();
+    //noLoop();
 }
 
 void loadSomeFonts()
@@ -163,7 +160,7 @@ void setup()
 {
     loadSomeFonts();
 
-    createCanvas(1920, 1280, "fontsum");
+    createCanvas(1920, 600, "fontsum");
 
     // Set user space units to be 96/inch
     // setDpiUnits(systemPpi, 1);    // Using points (1in)

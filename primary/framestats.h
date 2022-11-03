@@ -44,13 +44,13 @@ public:
 		ctx.text(buff, 10, 44);
 		
 		// Frame rate
-		sprintf_s(buff, "frame count: %d", p5::frameCount);
+		sprintf_s(buff, "frame count: %d", p5::getFrameCount());
 		ctx.text(buff, 10, 68);
 
 		sprintf_s(buff, "expected fps: %f", p5::getFrameRate());
 		ctx.text(buff, 10, 92);
 		
-		sprintf_s(buff, "actual fps: %3.2f", p5::frameCount / p5::seconds());
+		sprintf_s(buff, "actual fps: %3.2f", p5::getFrameCount() / p5::seconds());
 		ctx.text(buff, 10, 116);
 
 		

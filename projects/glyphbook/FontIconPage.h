@@ -3,25 +3,57 @@
 
 #include "FontFaceIcon.h"
 
-// We'll publish face names
-struct FontIconPage : public Graphic, public Topic<std::string &>
+struct VerticalGridLayout : public ILayoutGraphics
 {
-private:
-	static maths::vec2f getPreferredSize() { return {160*8,-1}; }
+	static constexpr float columnGap = 20;
 
-	//FontIconPage(const FontIconPage&) = delete;
+	maths::bbox2f fBoundary;
+	float fBoundaryWidth = 0;
 
-public:
-	FontIconPage(float x, float y, float w, float h)
-		:Graphic(x,y,w,h)
+	VerticalGridLayout(maths::bbox2f boundary)
+		:fBoundary(boundary)
 	{
-		constexpr float columnGap = 20;
+		auto sz = maths::size(fBoundary);
+		fBoundaryWidth = sz.x;
+	}
 
-
+	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs)
+	{
 		float xoffset = columnGap;
 		float yoffset = columnGap;
 
-		auto f = frame();
+		maths::bbox2f extent{};
+
+		for (auto& g : gs)
+		{
+			g->moveTo(xoffset, yoffset);
+
+			xoffset += (g->frameWidth() + columnGap);
+			float lastX = fBoundaryWidth - g->frameWidth();
+			if (xoffset > lastX)
+			{
+				xoffset = columnGap;
+				yoffset += g->frameHeight() + columnGap;
+			}
+
+			maths::expand(extent, g->frame());
+		}
+
+		return extent;
+	}
+
+};
+
+// We'll publish face names
+struct FontIconPage : public Graphic, public Topic<std::string &>
+{
+	FontIconPage(float x, float y, float w, float h)
+		:Graphic(x,y,w,h)
+	{
+		auto layout = std::make_shared<VerticalGridLayout>(frame());
+		setLayout(layout);
+
+		auto & f = frame();
 
 		for (auto& name : gFontHandler->familyNames())
 		{
@@ -29,21 +61,9 @@ public:
 
 			auto icon = std::make_shared<FontFaceIcon>(name.c_str());
 			icon->subscribe(*this);
-			icon->moveTo({ xoffset, yoffset });
 
 			addChild(icon);
-
-			xoffset += (icon->frameWidth() + columnGap);
-			float lastX = frameWidth() - icon->frameWidth();
-			if (xoffset > lastX)
-			{
-				xoffset = columnGap;
-				yoffset += icon->frameHeight() + columnGap;
-			}
-
 		}
-
-		setBounds({ 0, 0, boundsWidth(), yoffset + columnGap });
 	}
 
 	// Catch the clicks on specific icons.  

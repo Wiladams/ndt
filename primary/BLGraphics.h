@@ -534,6 +534,12 @@ public:
         }
     }
 
+    void setFontSize(const float size)
+    {
+        fFont.reset();
+        fFont.createFromFace(fFontFace, size);
+    }
+
     void textFont(const char* fontname) override
     {
         // query the font manager
@@ -544,16 +550,14 @@ public:
         
         if (face.isValid()) {
             fFontFace = face;
-            textSize(fFontSize);
+            setFontSize(fFontSize);
         }
     }
-    
+
     void textSize(float size) override
     {
-        fFontSize = size;
-        gFontHandler->getAdjustedFontSize(size);
-        fFont.reset();
-        fFont.createFromFace(fFontFace, fFontSize);
+        fFontSize = gFontHandler->getAdjustedFontSize(size);
+        setFontSize(fFontSize);
     }
 
     // Get the width (in font units) of the text
