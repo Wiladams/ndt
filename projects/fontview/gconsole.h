@@ -10,13 +10,13 @@
 #include "screengrid.h"
 
 // Some typical colors
-constexpr Pixel darkAmber = Pixel(0xffffb000);
-constexpr Pixel lightAmber = Pixel(0xffffcc00);
-constexpr Pixel green1 = Pixel(0xff33ff00);			// 524nm
-constexpr Pixel green2 = Pixel(0xff00ff33);			// 506nm
-constexpr Pixel green3 = Pixel(0xff00ff66);			// 502nm
-constexpr Pixel appleII = Pixel(0xff33ff33);		// apple II 
-constexpr Pixel appleIIc = Pixel(0xff66ff66);		// apple IIc
+constexpr Pixel darkAmber{ 0xffffb000 };
+constexpr Pixel lightAmber{ 0xffffcc00 };
+constexpr Pixel green1{ 0xff33ff00 };			// 524nm
+constexpr Pixel green2{ 0xff00ff33 };			// 506nm
+constexpr Pixel green3{ 0xff00ff66 };			// 502nm
+constexpr Pixel appleII{ 0xff33ff33 };		// apple II 
+constexpr Pixel appleIIc{ 0xff66ff66 };		// apple IIc
 
 // Representation of a single character cell
 template <typename T>

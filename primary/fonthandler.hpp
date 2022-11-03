@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "blend2d/fontmanager.h"
+#include "maths.hpp"
 
 #include <filesystem>
 #include <algorithm>
@@ -181,7 +182,7 @@ public:
         // if not found, return zero size
         BLFontFace face = queryFontFace(familyname);
         if (!face.isValid())
-            return { 0.0 };
+            return { 0,0 };
 
         // Create the font of the right size
         BLFont font;
@@ -192,10 +193,10 @@ public:
         font.shape(gb);
         font.getTextMetrics(gb, tm);
 
-        auto cx = tm.boundingBox.x1 - tm.boundingBox.x0;
-        auto cy = font.size();
+        float cx = tm.boundingBox.x1 - tm.boundingBox.x0;
+        float cy = font.size();
 
-        return { (float)cx, (float)cy };
+        return { cx, cy };
     }
 };
 

@@ -67,6 +67,11 @@ Examples
 * Project: [fontsum](projects/fontsum)
 * Notes: font, text size
 
+### fontview
+<img src="docs/images/fontview.png" alt="fontview" width=240/></br>
+* Project: [fontview](projects/fontview)
+* Notes: font, design metrics, contour details
+
 ### gauges
 <img src="docs/images/gauges.png" alt="gauges" width=240/></br>
 * Project: [gauges](projects/gauges)

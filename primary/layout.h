@@ -12,12 +12,16 @@
 */
 struct ILayoutGraphics 
 {
+	virtual ~ILayoutGraphics() {}
+
 	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs) = 0;
 
 };
 
 struct IdentityLayout : public ILayoutGraphics
 {
+	virtual ~IdentityLayout() {};
+
 	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
 		maths::bbox2f bounds;
@@ -46,32 +50,32 @@ class BinaryLayout : ILayoutGraphics
 		LEFT
 	};
 
-	BinaryAlignment fAlign;
-	//double fGap;
-
+	BinaryAlignment fAlign = BinaryAlignment::RIGHT;
+	float fGap = 0;
 
 public:
-
+	/*
 	BinaryLayout(std::shared_ptr<IGraphic> primary, 
 		std::shared_ptr<IGraphic> secondary,
 		BinaryAlignment align, 
 		double gap)
 		: fAlign(align)
-		//,fGap(gap)
 	{
 		std::deque<std::shared_ptr<IGraphic> > gs{
 			primary,
 			secondary
 		};
 
-		layout(gs);
+		//layout(gs);
 	}
-
+	*/
 	BinaryLayout(BinaryAlignment align, double gap)
 		:fAlign(align)
-		//,fGap(gap)
+		,fGap(gap)
 	{
 	}
+
+	virtual ~BinaryLayout() {}
 
 	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{

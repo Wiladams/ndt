@@ -91,6 +91,8 @@ public:
 
 	void compose(IGraphics& ctx)
 	{
+		fSurface.flush();
+
 		ctx.image(fSurface.getImage(), (int)fFrame.min.x, (int)fFrame.min.y);
 	}
 
@@ -123,7 +125,7 @@ public:
 			(y - fTitleBar.y <= fTitleBar.h));
 	}
 	
-	virtual void mouseEvent(const MouseEvent& e)
+	void mouseEvent(const MouseEvent& e) override
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
 

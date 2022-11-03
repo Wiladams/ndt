@@ -85,7 +85,7 @@ public:
 			fCurrentGlyph = fFirstGlyph+fGlyphCount - 1;
 	}
 
-	void drawBackground(IGraphics& ctx)
+	void drawBackground(IGraphics& ctx) override
 	{
 		// Draw the frame outline of the whole space
 		ctx.stroke(0,0,255);

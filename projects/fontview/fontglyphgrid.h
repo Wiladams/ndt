@@ -23,8 +23,8 @@ struct FontGlyphGrid : public Graphic
 	int cellHeight = 16;
 
 
-	FontGlyphGrid(float w, float h)
-		:Graphic(0,0,w,h)
+	FontGlyphGrid(float x, float y, float w, float h)
+		:Graphic(x,y,w,h)
 	{
 		cellWidth = w / maxColumns;
 		cellHeight = cellWidth;
@@ -38,15 +38,21 @@ struct FontGlyphGrid : public Graphic
 
 		fGlyphCount = fFontFace.faceInfo().glyphCount;
 		fFirstGlyph = 0;
+
+		int numRows = fGlyphCount / maxColumns;
+		float bheight = numRows * cellHeight;
+		float bwidth = maxColumns * cellWidth;
+
+		setBounds({ {0,0},{bwidth,bheight} });
 	}
 
 	void drawSelf(IGraphics& ctx) override
 	{
+		ctx.fill(65,127);
+		ctx.rect(boundsX(), boundsY(), boundsWidth(), boundsHeight());
+
 		int column = 0;
 		int row = 0;
-
-		ctx.fill(0);
-		ctx.noStroke();
 
 		for (size_t glyphid = fFirstGlyph; glyphid < (fFirstGlyph + fGlyphCount); glyphid++)
 		{
@@ -57,6 +63,15 @@ struct FontGlyphGrid : public Graphic
 			double dx = column * cellWidth;
 			double dy = row * cellHeight;
 			ctx.translate(dx, dy);
+
+			// For debug, so we can see cell outline
+			//ctx.stroke(0);
+			//ctx.noFill();
+			//ctx.rect(0, 0, cellWidth, cellHeight);
+
+			// draw the path outline
+			ctx.fill(255);
+			ctx.noStroke();
 			ctx.path(gpath);
 
 			ctx.pop();

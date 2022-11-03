@@ -392,14 +392,14 @@ public:
 
     void line(double x1, double y1, double x2, double y2) override
     {
-        BLResult bResult = fCtx.strokeLine(x1, y1, x2, y2);
+        fCtx.strokeLine(x1, y1, x2, y2);
 
         incrCmd();
     }
     
     void arc(double cx, double cy, double r, double start, double sweep) override
     {
-        BLResult bResult = fCtx.strokeArc(cx, cy, r, r, start, sweep);
+        fCtx.strokeArc(cx, cy, r, r, start, sweep);
         incrCmd();
     }
 
@@ -580,8 +580,8 @@ public:
         return { cx, cy };
     }
 
-    float textAscent() { return fFont.metrics().ascent; }
-    float textDescent() { return fFont.metrics().descent; }
+    float textAscent() override { return fFont.metrics().ascent; }
+    float textDescent() override { return fFont.metrics().descent; }
 
     void textAtBaseline(const char* txt, float x, float y, float x2 = 0, float y2 = 0) override
     {

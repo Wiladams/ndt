@@ -1,6 +1,6 @@
 
 #include "p5.hpp"
-//#include "filestream.h"
+
 
 #include "emspaceview.h"
 #include "fontglyphgrid.h"
@@ -17,7 +17,6 @@ using namespace p5;
 namespace fs = std::filesystem;
 
 
-//std::shared_ptr<Console> acons;
 std::shared_ptr<EMSpaceView> emView;
 std::shared_ptr<FontGlyphGrid> glyphGrid;
 
@@ -36,15 +35,18 @@ void selectFace(BLFontFace& face)
 
 void draw()
 {
-	clear();
-	background(200, 200,200);
+	if (isLayered())
+		clear();
+	else
+		background(200, 200,200);
 }
 
 void setup()
 {
 	//frameRate(1);
-	createCanvas(1280, 1024, "fontview");
-	//fullscreen();
+	//createCanvas(displayWidth, displayHeight, "fontview");
+	fullscreen();
+	
 	//loadFontDirectory("c:\\windows\\fonts");
 	//loadDefaultFonts();
 
@@ -67,10 +69,15 @@ void setup()
 	win2->addChild(emView);
 	win2->moveTo({ 462, 8 });
 
-	glyphGrid = std::make_shared<FontGlyphGrid>(600, 0);
-	glyphGrid->setFontFace(face);
+
 
 	auto win3 = window(0, 0, 600, 200);
+
+	glyphGrid = std::make_shared<FontGlyphGrid>(0, 0, win3->boundsWidth(), win3->boundsHeight());
+	glyphGrid->setFontFace(face);
+	
+	//win3->setBackgroundColor(color(25, 55, 55, 200));
+	win3->setBackgroundColor(color(0, 0, 0, 0));
 	win3->addChild(glyphGrid);
 	win3->moveTo({ 462, 610 });
 
@@ -81,6 +88,10 @@ void keyReleased(const KeyboardEvent& event)
 {
 	switch (keyCode)
 	{
+		case VK_SPACE:
+			layered();
+		break;
+
 		case VK_ESCAPE:
 		{
 			halt();

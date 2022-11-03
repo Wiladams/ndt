@@ -162,6 +162,7 @@
     <ClInclude Include="..\..\primary\graphic.hpp" />
     <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
+    <ClInclude Include="..\..\primary\layout.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\pixelarray.h" />
     <ClInclude Include="..\..\primary\Surface.h" />

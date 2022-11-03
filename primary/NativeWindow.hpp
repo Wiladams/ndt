@@ -64,7 +64,7 @@ public:
     int getWidth() 
     {
         RECT wRect;
-        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        BOOL bResult = ::GetWindowRect(fHandle, &wRect);
         int cx = wRect.right-wRect.left;
         return cx;
     }
@@ -82,8 +82,8 @@ public:
     {
         RECT wRect;
         BOOL bResult = ::GetWindowRect(fHandle, &wRect);
-        int cx = wRect.right - wRect.left;
-        int cy = wRect.bottom - wRect.top;
+        //int cx = wRect.right - wRect.left;
+        //int cy = wRect.bottom - wRect.top;
         int flags = SWP_NOOWNERZORDER | SWP_NOSIZE;
 
         bResult = ::SetWindowPos(fHandle, (HWND)0, x, y, 0, 0, flags);

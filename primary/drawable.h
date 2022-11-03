@@ -40,17 +40,17 @@ struct IGraphic : public IDrawable
 
 	// Dealing with  boundary coordinates
 	virtual const maths::bbox2f& bounds() const = 0;
-	constexpr float boundsX() { return bounds().min.x; }
-	constexpr float boundsY() { return bounds().min.y; }
-	constexpr float boundsWidth() { return bounds().max.x - bounds().min.x; }
-	constexpr float boundsHeight() { return bounds().max.y - bounds().min.y; }
+	float boundsX() const { return bounds().min.x; }
+	float boundsY() const { return bounds().min.y; }
+	float boundsWidth() const { return bounds().max.x - bounds().min.x; }
+	float boundsHeight() const { return bounds().max.y - bounds().min.y; }
 
 	//  Dealing with frame coordinates
 	virtual const maths::bbox2f & frame() const = 0;
-	constexpr float frameX() { return frame().min.x; }
-	constexpr float frameY() { return frame().min.y; }
-	constexpr float frameWidth() { return frame().max.x - frame().min.x; }
-	constexpr float frameHeight() { return frame().max.y - frame().min.y; }
+	float frameX() const { return frame().min.x; }
+	float frameY() const { return frame().min.y; }
+	float frameWidth() const { return frame().max.x - frame().min.x; }
+	float frameHeight() const { return frame().max.y - frame().min.y; }
 
 	virtual void moveTo(const maths::vec2f&) = 0;
 

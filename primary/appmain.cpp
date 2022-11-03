@@ -967,7 +967,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HandleJoystickMessage(hWnd, msg, wParam, lParam);
     }
     else if (msg == WM_TOUCH) {
-        std::cout << "WM_TOUCH" << std::endl;
+        //std::cout << "WM_TOUCH" << std::endl;
 
         // Handle touch specific messages
         HandleTouchMessage(hWnd, msg, wParam, lParam);
@@ -981,7 +981,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     //    HandlePointerMessage(hWnd, msg, wParam, lParam);
     //}
     else if (msg == WM_ERASEBKGND) {
-        //printf("WM_ERASEBKGND\n");
+        printf("WM_ERASEBKGND\n");
         if (gPaintHandler != nullptr) {
             gPaintHandler(hWnd, msg, wParam, lParam);
         }
