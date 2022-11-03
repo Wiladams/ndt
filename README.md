@@ -182,6 +182,11 @@ Examples
 * Project: [tgaviewer](projects/tgaviewer)
 * Notes: Display bitmap from .tga file
 
+### tinygl
+<img src="docs/images/tinygl.png" alt="tinygl" width=240/></br>
+* Project: [tinygl](projects/tinygl)
+* Notes: software only OpenGL implementation
+
 ### tinyvgviewer
 <img src="docs/images/tinyvgviewer.png" alt="tinyvgviewer" width=240/></br>
 * Project: [tinyvgviewer](projects/tinyvgviewer)
