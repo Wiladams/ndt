@@ -64,3 +64,8 @@ projects/.vs/projects/v16/Solution.VC.db-wal
 !lib/Debug/blend2d.lib
 !projects/x64/Debug/blend2d.dll
 
+*.vsidx
+*.db-shm
+*.db-wal
+*.opendb
+/projects/.vs/projects/v17/fileList.bin
