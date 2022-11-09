@@ -33,7 +33,7 @@ void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
 void draw()
 {
     ss->next();
-    auto src = ss->getImage();
+    auto & src = ss->getImage();
     displayQuad(src, { 0,0,src.width(), src.height() }, 8);
 }
 

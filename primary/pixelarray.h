@@ -2,32 +2,31 @@
 
 #include <stdint.h>
 
-struct PixelArray
+
+struct PixelAccessor
 {
     uint8_t* fData=nullptr;
 
     size_t fWidth=0;
     size_t fHeight=0;
     ptrdiff_t fStride=0;
-    bool fOwnData = false;
 
-
-    PixelArray()
+    PixelAccessor()
     {
         attach(nullptr, 0, 0, 0);
     }
 
-    PixelArray(void* d, const size_t w, const size_t h, const ptrdiff_t s)
+    virtual ~PixelAccessor(){;}
+
+    void reset()
     {
-        attach(d, w, h, s);
+        fData = nullptr;
+        fWidth = 0;
+        fHeight = 0;
+        fStride = 0;
     }
 
-    virtual ~PixelArray()
-    {
-        if (fOwnData)
-            printf("Deallocate Pixel Array");
-    }
-
+    // Connect to a specific source of data
     void attach(void* d, const size_t w, const size_t h, const ptrdiff_t s)
     {
         fData = (uint8_t*)d;
@@ -51,5 +50,18 @@ struct PixelArray
     {
         return (&fData[y * fStride]);
     }
+
+};
+
+template <typename T>
+struct PixelBuffer : public PixelAccessor
+{
+    PixelBuffer() { reset(); }
+    PixelBuffer(void* d, const size_t w, const size_t h, const ptrdiff_t s)
+    {
+        attach(d, w, h, s);
+    }
+
+    virtual ~PixelBuffer() { ; }
 
 };

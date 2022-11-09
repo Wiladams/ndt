@@ -68,7 +68,7 @@
 // function in the .dll using GetProcAddress
 // So, if that's needed, just put EXPORT at the front
 // of a declaration.
-//#define EXPORT __declspec(dllexport)
+
 
 
 #ifdef __cplusplus
@@ -173,23 +173,28 @@ APP_EXPORT bool setCanvasSize(long aWidth, long aHeight);
 }
 #endif
 
+// The various 'onxxx' routines are meant to be implemented by
+// user application code.  The general pattern is, 
+// if a function is implemented then it will be called at the appropriate time.
+// If the function is not implemented, then it simply won't be called.
+//
+// This makes for a nice 'fill in the blanks' kind of programming, where
+// you just implement as much as you need, without being forced to 
+// implement a bunch of boilerplate for no reason.
+//
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-	// The various 'onxxx' routines are meant to be implemented by
-// application environment code.  If they are implemented
-// the ndt runtime will load them in and call them at appropriate times
-// if they are not implemented, they simply won't be called.
-	APP_EXPORT void onLoad();	// upon loading application
-	APP_EXPORT void onUnload();
-
-	APP_EXPORT void onLoop();	// called each time through application main loop
+	APP_EXPORT void onLoad();		// called once before main loop is running
+	APP_EXPORT void onUnload();		// called once halt() occurs, and before app exits
+	APP_EXPORT void onLoop();		// called each iteration of main application loop
 #ifdef __cplusplus
 }
 #endif
 
 // Typography
+// These should be in the 'extern C' section
 APP_EXPORT void loadDefaultFonts();
 APP_EXPORT void loadFontDirectory(const char * dir);
 APP_EXPORT BLFontFace loadFont(const char* filename);
@@ -197,6 +202,7 @@ APP_EXPORT void loadFontFiles(std::vector<const char*> filenames);
 
 // Make Topic publishers available
 // Doing C++ pub/sub
+// These are only accessible through the C++ interface
 using SignalEventTopic = Topic<intptr_t>; 
 using MouseEventTopic = Topic<MouseEvent&>;
 using KeyboardEventTopic = Topic<KeyboardEvent&>;

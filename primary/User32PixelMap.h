@@ -21,12 +21,13 @@
 #include "Graphics.h"
 #include "blend2d.h"
 #include "pixelarray.h"
+#include "memutils.h"
 
 // Use this intrinsic for fast memory copies
-#pragma intrinsic(__stosd)
+//#pragma intrinsic(__stosd)
 
 
-class User32PixelMap : public PixelArray
+class User32PixelMap : public PixelBuffer<Pixel>
 {
     BITMAPINFO fBMInfo{0};              // retain bitmap info for  future usage
     HBITMAP fDIBHandle = nullptr;       // Handle to the dibsection to be created
@@ -140,10 +141,8 @@ public:
     // the whole area
     void setAllPixels(const Pixel &c)
     {
-        // BUGBUG - should use a fast copy, rather than this
-        // specific __stosd
         size_t nPixels = width() * height();
-        __stosd((unsigned long*)fData, c.value, nPixels);
+        ndt::memset_l((unsigned long*)fData, c.value, nPixels);
     }
     
  };

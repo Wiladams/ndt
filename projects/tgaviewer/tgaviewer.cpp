@@ -3,25 +3,40 @@
 
 using namespace p5;
 
-BLImage* diffuse = nullptr;
-
-void preload()
-{
-	targa::TargaMeta meta;
-
-	diffuse = targa::readFromFile("shuttle.tga", meta);
-
-	printf("loaded diffuse: %p\n", diffuse);
-}
+BLImage img{};
 
 void setup()
 {
-	preload();
-	createCanvas(800, 800);
+	FileStream bs("shuttle.tga");
+
+	targa::TargaMeta meta{};
+
+	bool success = targa::readMetaInformation(bs, meta);
+
+	if (!success)
+	{
+		printf("could not load meta information\n");
+		halt();
+	}
+
+	success = targa::readBody(bs, meta, img);
+
+	if (!success)
+	{
+		printf("ERROR: failed to load diffuse: %d\n", success);
+		halt();
+	}
+
+	createCanvas(meta.header.Width, meta.header.Height);
+	//layered();
 }
 
 void draw()
 {
-	if (nullptr != diffuse)
-		image(*diffuse, 0, 0);
+	if (isLayered())
+		clear();
+	else
+		background(0xdd);
+
+	image(img, 0, 0);
 }

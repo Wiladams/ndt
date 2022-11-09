@@ -127,6 +127,7 @@ extern "C" {
     APP_EXPORT extern int textCursorY;
 
     // Keyboard Globals
+    APP_EXPORT extern uint8_t keyStates[];    // state of each key (1==pressed)
     APP_EXPORT extern int keyCode;      // virtual keycode
     APP_EXPORT extern int keyChar;      // actual character typed
 

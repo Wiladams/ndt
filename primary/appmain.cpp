@@ -78,15 +78,13 @@ int displayHeight= 0;
 unsigned int systemDpi = 96;    // 96 == px measurement
 unsigned int systemPpi = 192;   // starting pixel density
 
-// Client Area globals
-int clientLeft;
-int clientTop;
 
 // Mouse Globals
 bool mouseIsPressed = false;
 int mouseX = 0;
 int mouseY = 0;
 int mouseDelta = 0;
+int mouseHDelta = 0;
 int pmouseX = 0;
 int pmouseY = 0;
 
@@ -119,7 +117,7 @@ void HID_RegisterDevice(HWND hTarget, USHORT usage, USHORT usagePage = 1)
     hid[0].hwndTarget = hTarget;
     UINT uiNumDevices = 1;
 
-    BOOL bResult = ::RegisterRawInputDevices(hid, uiNumDevices, sizeof(RAWINPUTDEVICE));
+    ::RegisterRawInputDevices(hid, uiNumDevices, sizeof(RAWINPUTDEVICE));
     //printf("HID_RegisterDevice: HWND: 0x%p,  %d  %d\n", hTarget, bResult, ::GetLastError());
 }
 
@@ -132,7 +130,7 @@ void HID_UnregisterDevice(USHORT usage)
     hid.hwndTarget = nullptr;
     UINT uiNumDevices = 1;
 
-    BOOL bResult = ::RegisterRawInputDevices(&hid, 1, sizeof(RAWINPUTDEVICE));
+    ::RegisterRawInputDevices(&hid, uiNumDevices, sizeof(RAWINPUTDEVICE));
 }
 
 
@@ -181,7 +179,7 @@ void hide()
 
 void cursor()
 {
-    int count = ::ShowCursor(1);
+    ::ShowCursor(1);
 }
 
 // Show the cursor, if there is one
@@ -621,12 +619,12 @@ LRESULT HandleGestureMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     // Turn the physical screen location into local
     // window location
-    POINT ptPoint;
+    POINT ptPoint{};
     ptPoint.x = gi.ptsLocation.x;
     ptPoint.y = gi.ptsLocation.y;
     ::ScreenToClient(hWnd, &ptPoint);
     
-    GestureEvent ge;
+    GestureEvent ge{};
     ge.activity = gi.dwID;
     ge.x = ptPoint.x;
     ge.y = ptPoint.y;
@@ -981,7 +979,7 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     //    HandlePointerMessage(hWnd, msg, wParam, lParam);
     //}
     else if (msg == WM_ERASEBKGND) {
-        printf("WM_ERASEBKGND\n");
+        //printf("WM_ERASEBKGND\n");
         if (gPaintHandler != nullptr) {
             gPaintHandler(hWnd, msg, wParam, lParam);
         }
@@ -1057,12 +1055,14 @@ void run()
     }
 
     // Do a typical Windows message pump
-    MSG msg{};
-    LRESULT res{};
+
+    //LRESULT res{};
 
     showAppWindow();
 
     while (true) {
+        MSG msg{};
+
         // we use peekmessage, so we don't stall on a GetMessage
         // should probably throw a wait here
         // WaitForSingleObject
@@ -1076,8 +1076,8 @@ void run()
             }
 
             // Do regular Windows message dispatch
-            res = ::TranslateMessage(&msg);
-            res = ::DispatchMessageA(&msg);
+            ::TranslateMessage(&msg);
+            ::DispatchMessageA(&msg);
         }
         else {
             // Give the user application some control to do what
@@ -1102,37 +1102,26 @@ void run()
 // Declare some standard Window Kinds we'll be using
 User32WindowClass gAppWindowKind("appwindow", CS_GLOBALCLASS | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, MsgHandler);
 
-
-// do any initialization that needs to occur 
-// in the very beginning
-// The most interesting initialization at the moment
-// is the networking subsystem
-bool prolog()
+void setupDpi()
 {
-    // Initialize Windows networking
-    // BUGBUG - decide whether or not we care about WSAStartup failing
-    uint16_t version = MAKEWORD(2,2);
-    WSADATA lpWSAData;
-    int res = ::WSAStartup(version, &lpWSAData);
-
-    // Typography initialization
-    gFontHandler = std::make_shared<FontHandler>();
-    loadDefaultFonts();
-
     // Throughout the application, we want to know the true
     // physical dots per inch and screen resolution, so the
     // first thing to do is to let Windows know we are Dpi aware
     // set awareness based on monitor, and get change messages when it changes
-    //auto dpiContext = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
     auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
-    
-    DPI_AWARENESS_CONTEXT oldContext = ::SetThreadDpiAwarenessContext(dpiContext);
-    
+
+    // If Windows 10.0 or higher
+    ::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    //::SetThreadDpiAwarenessContext(dpiContext);
+    // else
+    //::SetProcessDPIAware();
+
+
     // based on logical inches
     systemDpi = ::GetDpiForSystem();
 
     // Get the screen size
-    auto dpiDpi = ::GetDpiFromDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+    //auto dpiDpi = ::GetDpiFromDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
     auto dpidisplayWidth = ::GetSystemMetricsForDpi(SM_CXSCREEN, systemDpi);
     auto dpidisplayHeight = ::GetSystemMetricsForDpi(SM_CYSCREEN, systemDpi);
 
@@ -1146,31 +1135,50 @@ bool prolog()
 
     // How big is the screen physically
     // DeviceCaps gives it in millimeters, so we convert to inches
-    auto screenWidthInches = ::GetDeviceCaps(dhdc, HORZSIZE)/25.4;
-    auto screenHeightInches = ::GetDeviceCaps(dhdc, VERTSIZE)/25.4;
+    auto screenWidthInches = ::GetDeviceCaps(dhdc, HORZSIZE) / 25.4;
+    auto screenHeightInches = ::GetDeviceCaps(dhdc, VERTSIZE) / 25.4;
 
     // pixel count horizontally and vertically
     auto pixelWidth = ::GetDeviceCaps(dhdc, LOGPIXELSX);
     auto pixelHeight = ::GetDeviceCaps(dhdc, LOGPIXELSY);
 
     // Calculate real pixel density
-    double screenHPpi = (double)dpidisplayWidth / screenWidthInches;
-    double screenVPpi = (double)dpidisplayHeight / screenHeightInches;
-    systemPpi = (unsigned int)screenVPpi;
+    //double screenHPpi = (double)dpidisplayWidth / screenWidthInches;
+    double screenPpi = (double)dpidisplayHeight / screenHeightInches;
+    systemPpi = (unsigned int)screenPpi;
 
+    DeleteDC(dhdc);
+}
 
+void setupNetworking()
+{
+    // Initialize Windows networking
+// BUGBUG - decide whether or not we care about WSAStartup failing
+    uint16_t version = MAKEWORD(2, 2);
+    WSADATA lpWSAData;
+    int res = ::WSAStartup(version, &lpWSAData);
+    if (res != 0)
+        printf("Error setting up networking: 0x%x\n", res);
+}
+
+// do any initialization that needs to occur 
+// in the very beginning
+// The most interesting initialization at the moment
+// is the networking subsystem
+bool prolog()
+{
+    setupNetworking();
+
+    setupDpi();
+
+    // Typography initialization
+    gFontHandler = std::make_shared<FontHandler>();
+    loadDefaultFonts();
 
     // set the canvas a default size to start
     // but don't show it
     setCanvasSize(320, 240);
-
     gAppWindow = gAppWindowKind.createWindow("Application Window", 320, 240);
-
-    // Get client area
-    RECT cRect;
-    ::GetClientRect(gAppWindow->getHandle(), &cRect);
-    clientLeft = cRect.left;
-    clientTop = cRect.top;
 
     return true;
 }

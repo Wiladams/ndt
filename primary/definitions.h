@@ -26,7 +26,7 @@
 #endif
 
 #ifdef _MSC_VER
-#define INLINE static __forceinline
+#define INLINE __forceinline
 #else
 #define INLINE static inline
 #endif

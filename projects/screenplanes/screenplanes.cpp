@@ -42,7 +42,7 @@ class ColorPlaneWindow : public Graphic
     // much faster.
     bool splitPlanes()
     {
-        PixelArray & src = ss->getCurrent();
+        auto & src = ss->getCurrent();
 
         for (int y = 0; y < src.height(); y++)
         {
@@ -95,20 +95,24 @@ void draw()
 
     // Get capture current screen
     ss->next();
-
-
-    _stats.draw(*gAppSurface);
 }
 
+void onComposed()
+{
+    _stats.draw(*gAppSurface);
+}
 
 void setup()
 {
     double windowScale = 1;
 
+    frameRate(10);
     createCanvas(displayWidth / 2, displayHeight, "screenplanes");
 
+    //createCanvas(displayWidth, displayHeight, "screenplanes");
     //fullscreen();
-    frameRate(20);
+
+
 
     ss = std::make_shared<ScreenSnapshot>(0, 0, captureWidth, captureHeight);
 
@@ -118,8 +122,6 @@ void setup()
     
     auto splitwin = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
     win->addChild(splitwin);
-
-    //win->moveBy(displayWidth / 2, 0);
 }
 
 void keyReleased(const KeyboardEvent& e)

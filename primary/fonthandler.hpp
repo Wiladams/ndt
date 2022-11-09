@@ -67,16 +67,12 @@ public:
     const std::vector<std::string>& familyNames() const { return fFamilyNames; }
 
     // query the font manager
-    BLFontFace queryFontFace(const char* fontname)
+    bool queryFontFace(const char* fontname, BLFontFace& face)
     {
         // set the found face as the current face
-        BLFontFace face;
+        auto bResult = fFontManager.queryFace(fontname, face);
 
-        BLResult err = fFontManager.queryFace(fontname, face);
-
-        //printf("FontHandler::queryFont(%s); fontMan.queryFace: 0x%x\n", fontname, err);
-
-        return face;
+        return bResult == BL_SUCCESS;
     }
 
 
@@ -162,7 +158,10 @@ public:
         // set the found face as the current face
 
         BLFontFace face;
-        face = queryFontFace(fontname);
+        bool success = queryFontFace(fontname, face);
+
+        if (!success)
+            return;
 
         if (face.isValid()) 
         {
@@ -180,7 +179,8 @@ public:
 
         // Get the fontface
         // if not found, return zero size
-        BLFontFace face = queryFontFace(familyname);
+        BLFontFace face;
+        queryFontFace(familyname, face);
         if (!face.isValid())
             return { 0,0 };
 

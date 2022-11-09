@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-using namespace bitbang;
+using namespace binops;
 
 void test_BITMASK()
 {

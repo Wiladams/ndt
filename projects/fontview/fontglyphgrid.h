@@ -90,7 +90,7 @@ struct FontGlyphGrid : public Graphic
 	{
 		double scrollSize = fFontSize;
 
-		printf("fontglyphgrid.wheel: %d\n", e.delta);
+		//printf("fontglyphgrid.wheel: %d\n", e.delta);
 		translateBoundsBy(0, (e.delta / 120.0) * scrollSize);
 	}
 };

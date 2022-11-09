@@ -54,9 +54,6 @@
     <ClInclude Include="LayeredWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="List.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="maths.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,16 +72,10 @@
     <ClInclude Include="pcap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="random.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Recorder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="screensnapshot.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Stack.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stopwatch.hpp">
@@ -138,22 +129,13 @@
     <ClInclude Include="GMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="slider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MotionConstraint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MVP3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="waveobjloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="perlin.h">
@@ -222,22 +204,13 @@
     <ClInclude Include="framestats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="appsurface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="user32surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="winminap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="winapcan.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="interpolator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderfid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="geometry.h">
@@ -248,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="blend2d\context.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pixelarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rangen.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

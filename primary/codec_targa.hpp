@@ -187,11 +187,11 @@ namespace targa {
             }
             else if (pixelDepth == 16) {
                 uint16_t src16 = ((databuff[1] << 8) | databuff[0]);
-                pix.setB((bitbang::BITSVALUE(src16, 0, 4) << 3));
-                pix.setG((bitbang::BITSVALUE(src16, 5, 9) << 3));
-                pix.setR((bitbang::BITSVALUE(src16, 10, 14) << 3));
+                pix.setB((binops::BITSVALUE(src16, 0, 4) << 3));
+                pix.setG((binops::BITSVALUE(src16, 5, 9) << 3));
+                pix.setR((binops::BITSVALUE(src16, 10, 14) << 3));
                 pix.setA(255);
-                if (bitbang::BITSVALUE(src16, 15, 15) >= 1) {
+                if (binops::BITSVALUE(src16, 15, 15) >= 1) {
                     pix.setA(0);  // 255
                 }
             }
@@ -317,13 +317,13 @@ namespace targa {
     */
     class LocIterator //: IEnumerator<Location>
     {
+        tgaHeader fHeader;
+
         int xSign, xStart, xEnd, xincr;
         int ySign, yStart, yEnd, yincr;
 
-        tgaHeader fHeader;
-
     public:
-        LocIterator(tgaHeader& header)
+        LocIterator(const tgaHeader& header)
             :fHeader(header)
         {
             // Start with left to right orientation
@@ -391,7 +391,7 @@ namespace targa {
     */
     class PixelsUncompressed //: IEnumerator<BLRgba32>
     {
-        TargaMeta& fMeta;
+        const TargaMeta& fMeta;
         int bytesPerPixel;
         uint8_t databuff[16];     // Maximum number of bytes per pixel
         int xStart, xEnd, xincr;
@@ -400,7 +400,7 @@ namespace targa {
         BLRgba32 pix;
 
     public:
-        PixelsUncompressed(BinStream& abs, TargaMeta& meta)
+        PixelsUncompressed(BinStream& abs, const TargaMeta& meta)
             : fMeta(meta),
             bs(abs)
         {
@@ -430,13 +430,13 @@ namespace targa {
 
         void reset() { xincr = -1; yincr = 0; }
 
-        BLRgba32 getCurrent() const { return pix; }
+        const BLRgba32 & getCurrent() const { return pix; }
     };
 
     // An enumerator of compressed pixels
     class PixelsCompressed //: IEnumerator<BLRgba32>
     {
-        TargaMeta& fMeta;
+        TargaMeta fMeta;
         int bytesPerPixel;
         uint8_t databuff[16];     // Maximum number of bytes per pixel
         BinStream& bs;
@@ -446,7 +446,7 @@ namespace targa {
 
 
     public:
-        PixelsCompressed(BinStream& abs, TargaMeta& meta)
+        PixelsCompressed(BinStream& abs, const TargaMeta& meta)
             : fMeta(meta),
             bs(abs)
         {
@@ -461,7 +461,7 @@ namespace targa {
                 // read packet type to see if it's RLE or RAW
                 int packet = bs.readOctet();
                 isRLE = (packet & 0x80) > 0; // isset(repCount, 7);
-                pixelCount = (int)bitbang::BITSVALUE(packet, 0, 6) + 1;
+                pixelCount = (int)binops::BITSVALUE(packet, 0, 6) + 1;
                 //printf("pixelCount: %d\n", pixelCount);
                 // Read at least one pixel value
                 size_t nRead = bs.readBytes(databuff, (size_t)bytesPerPixel);
@@ -480,7 +480,7 @@ namespace targa {
             return true;
         }
 
-        BLRgba32 getCurrent() const { return pix; }
+        const BLRgba32 & getCurrent() const { return pix; }
 
         void reset() {
             pixelCount = 0;
@@ -488,11 +488,11 @@ namespace targa {
     };
 
 
-    static BLImage* readBody(BinStream& bs, TargaMeta& meta)
+    static bool readBody(BinStream& bs, const TargaMeta& meta, BLImage &img)
     {
-        BLImage* lpb = new BLImage(meta.header.Width, meta.header.Height, BL_FORMAT_PRGB32);
+        blImageInitAs(&img, meta.header.Width, meta.header.Height, BL_FORMAT_PRGB32);
         BLImageData imageData;
-        lpb->getData(&imageData);
+        img.getData(&imageData);
 
         LocIterator li(meta.header);
 
@@ -505,9 +505,9 @@ namespace targa {
                     break;
                 }
 
-                BLRgba32 c = pi.getCurrent();
+                auto & c = pi.getCurrent();
                 //lpb->setPixel(loc.x, loc.y, c);
-                ((BLRgba32*)(imageData.pixelData))[(int)loc.y * lpb->width() + (int)loc.x] = c;
+                ((BLRgba32*)(imageData.pixelData))[(int)loc.y * img.width() + (int)loc.x] = c;
             }
         }
         else {
@@ -523,63 +523,60 @@ namespace targa {
 
                 BLRgba32 c = pi.getCurrent();
                 //lpb->setPixel(loc.x, loc.y, c);
-                size_t offset = (int)loc.y* lpb->width() + (int)loc.x;
+                size_t offset = (int)loc.y* img.width() + (int)loc.x;
                 //printf("loc: %d, %d  Offset: %d\n", loc.x, loc.y, offset);
 
                 ((BLRgba32*)(imageData.pixelData))[offset] = c;
             }
         }
 
-        return lpb;
+        return true;
     }
 
-    // read a targa image from a stream
-    static BLImage* readFromStream(BinStream& bs, TargaMeta& res)
+    static bool readMetaInformation(BinStream& bs, TargaMeta& meta)
     {
         // position 26 bytes from the end and try 
-        // to read the footer
+    // to read the footer
         bs.seek(bs.size() - footerSize);
-        bool success = readFooter(bs, res.footer);
+        bool isExtended = readFooter(bs, meta.footer);
 
         //time to read the header
         bs.seek(0);
-        success = readHeader(bs, res.header);
+        bool success = readHeader(bs, meta.header);
+
+        if (!success)
+            return false;
+    }
+
+    // read a targa image from a stream
+    static bool readFromStream(BinStream& bs, BLImage &img)
+    {
+        TargaMeta meta{};
+        bool success = readMetaInformation(bs, meta);
 
         if (!success) {
             //printf("targa::readFromStream(), failed to read header\n");
-            return nullptr;
+            return false;
         }
-
-        // Print some header information
-        //printf("targaHeader.ImageType: %d\n", res.header.ImageType);
-        //printf("targaHeader.BytesPerPixel: %d\n", res.header.BytesPerPixel);
-        //printf("targaHeader.Width: %d\n", res.header.Width);
-        //printf("targaHeader.Height: %d\n", res.header.Height);
 
         // We have the header, so we should be able
         // to read the body
-        BLImage* apb = readBody(bs, res);
+        success = readBody(bs, meta, img);
 
-        return apb;
+        return success;
     }
 
-
-    static BLImage* readFromFile(const char* filename, TargaMeta& meta)
+    static bool readFromFile(const char* filename, BLImage& img)
     {
         auto bs = FileStream(filename);
 
         if (!bs.isValid()) {
             printf("Could not map file: %s\n", filename);
-            return nullptr;
+            return false;
         }
 
-        if (!bs.isValid()) {
-            printf("BinaryStream not valid.\n");
-            return nullptr;
-        }
+        bool success = readFromStream(bs, img);
 
-        BLImage* abuff = readFromStream(bs, meta);
-
-        return abuff;
+        return success;
     }
 }   // end of targa namespace

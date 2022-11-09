@@ -81,23 +81,23 @@ public:
     void moveTo(int x, int y)
     {
         RECT wRect;
-        BOOL bResult = ::GetWindowRect(fHandle, &wRect);
+        ::GetWindowRect(fHandle, &wRect);
         //int cx = wRect.right - wRect.left;
         //int cy = wRect.bottom - wRect.top;
         int flags = SWP_NOOWNERZORDER | SWP_NOSIZE;
 
-        bResult = ::SetWindowPos(fHandle, (HWND)0, x, y, 0, 0, flags);
+        ::SetWindowPos(fHandle, (HWND)0, x, y, 0, 0, flags);
     }
 
     void setCanvasSize(long awidth, long aheight)
     {
         // Get current size of window
         RECT wRect;
-        BOOL bResult = GetWindowRect(fHandle, &wRect);
+        BOOL bResult = ::GetWindowRect(fHandle, &wRect);
 
         // Set the new size of the window based on the client area
         RECT cRect = {0,0,awidth,aheight};
-        bResult = AdjustWindowRect(&cRect, WS_OVERLAPPEDWINDOW, 1);
+        ::AdjustWindowRect(&cRect, WS_OVERLAPPEDWINDOW, 1);
 
         //HWND hWndInsertAfter = (HWND)-1;
         HWND hWndInsertAfter = NULL;
@@ -107,7 +107,7 @@ public:
         int cy = cRect.bottom-cRect.top;
         UINT uFlags = 0;
 
-        bResult = SetWindowPos(getHandle(), hWndInsertAfter,X,Y,cx,cy, uFlags);
+        ::SetWindowPos(getHandle(), hWndInsertAfter,X,Y,cx,cy, uFlags);
 
     }
 

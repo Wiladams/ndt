@@ -283,6 +283,7 @@ public:
 
         ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
         ctx.textSize(fontSize);
+        ctx.textFont("Consolas");
 
         for (int i = 0; i < nColors; i++)
         {

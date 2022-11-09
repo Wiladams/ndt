@@ -14,7 +14,7 @@ public:
 		fSource(src)
 	{}
 
-	virtual rtcolor value(double u, double v, const vec3& p) const
+	virtual rtcolor value(double u, double v, const vec3f& p) const
 	{
 		// get pixel from source
 		auto srcC = fSource->value(u, v, p);

@@ -39,9 +39,9 @@ void draw()
 
 void setup()
 {
-	createCanvas(1920, 1024);
+	//createCanvas(1920, 1024);
 	//layered();
-	//fullscreen();
+	fullscreen();
 
 	loadFontDirectory("c:\\Windows\\Fonts");
 

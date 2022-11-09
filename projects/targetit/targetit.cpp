@@ -118,7 +118,7 @@ void drawBullets(IGraphics &ctx)
 			// puch a hole in the overlay image
 			// use rect, because we can leverage the RECTMODE
 			//snappy->getCurrent().clearRect(b.fDestination.x, b.fDestination.y, cellHeight, cellHeight);
-			snappy->getCurrent().rect(b.fDestination.x, b.fDestination.y, cellHeight, cellHeight);
+			//snappy->getCurrent().rect(b.fDestination.x, b.fDestination.y, cellHeight, cellHeight);
 		}
 	}
 }
@@ -138,6 +138,7 @@ void drawScore(IGraphics &ctx)
 
 	ctx.noStroke();
 	ctx.fill(color(0, 220, 15));
+	ctx.textFont("Consolas");
 	ctx.textSize(36);
 	ctx.text("Bullets: ", 12, 58);
 	ctx.fill(color(220, 15, 15));
@@ -159,7 +160,7 @@ void draw()
 		// draw screen image
 		if (snappy != nullptr) {
 			//printf("CAPTURED");
-			BLImage & img = snappy->getCurrent().getImage();
+			BLImage & img = snappy->getImage();
 			image(img, 0, 0);
 		}
 	} else {
@@ -187,20 +188,27 @@ void draw()
 void setup()
 {
 	//createCanvas(600, 600);
-	createCanvas(displayWidth, displayHeight);
-	layered();
-	setCanvasPosition(0, 0);
+	//createCanvas(displayWidth, displayHeight);
+	//layered();
+	//setCanvasPosition(0, 0);
+	fullscreen();
+	//frameRate(60);
 
 	// Read the background image
 	backgroundImage.readFromFile("motherboard.jpg");
 
 	resetBoard();
-	
-	vec2f lowerCorner(0, height - 1);
-	vec2f upperCorner(width - 1, 0);
-	MaxTrace = Distance(lowerCorner, upperCorner);
 
-	frameRate(60);
+	// Read the screen
+	snappy = new ScreenSnapshot(0, 0, canvasWidth, canvasHeight);
+	snappy->next();
+
+
+	maths::vec2f lowerCorner(0, canvasHeight - 1);
+	maths::vec2f upperCorner(canvasWidth - 1, 0);
+	MaxTrace = maths::distance(lowerCorner, upperCorner);
+
+
 
 	joystick();
 	joyX = canvasWidth / 2;
@@ -214,11 +222,11 @@ void setup()
 	gBulletsRemaining = MaxBullets;
 
 	// Read the screen
-	snappy = new ScreenSnapshot(0, 0, canvasWidth, canvasHeight,0);
-	snappy->next();
+	/*
 	auto srf = snappy->getCurrent();
 	srf.rectMode(RECTMODE::CENTER);
 	srf.noStroke();
 	srf.fill(color(0, 0, 0, 0));
 	srf.blendMode(BL_COMP_OP_SRC_COPY);
+	*/
 }

@@ -145,7 +145,6 @@
   <ItemGroup>
     <ClInclude Include="appconfig.h" />
     <ClInclude Include="apphost.h" />
-    <ClInclude Include="appsurface.h" />
     <ClInclude Include="bezier.hpp" />
     <ClInclude Include="binops.h" />
     <ClInclude Include="binstream.hpp" />
@@ -181,27 +180,23 @@
     <ClInclude Include="joystick.h" />
     <ClInclude Include="LayeredWindow.hpp" />
     <ClInclude Include="layout.h" />
-    <ClInclude Include="List.hpp" />
     <ClInclude Include="maths.hpp" />
     <ClInclude Include="memutils.h" />
     <ClInclude Include="mmap.hpp" />
-    <ClInclude Include="model.h" />
     <ClInclude Include="MotionConstraint.h" />
-    <ClInclude Include="MVP3D.h" />
     <ClInclude Include="NativeWindow.hpp" />
     <ClInclude Include="Network.hpp" />
     <ClInclude Include="p5.hpp" />
     <ClInclude Include="pcap.hpp" />
     <ClInclude Include="perlin.h" />
+    <ClInclude Include="pixelarray.h" />
     <ClInclude Include="pubsub.h" />
-    <ClInclude Include="random.hpp" />
+    <ClInclude Include="rangen.h" />
     <ClInclude Include="Recorder.hpp" />
-    <ClInclude Include="renderfid.h" />
     <ClInclude Include="sampler.hpp" />
     <ClInclude Include="screensnapshot.hpp" />
     <ClInclude Include="secondtime.h" />
     <ClInclude Include="slider.h" />
-    <ClInclude Include="Stack.hpp" />
     <ClInclude Include="stopwatch.hpp" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="TcpClient.hpp" />
@@ -217,8 +212,6 @@
     <ClInclude Include="user32surface.h" />
     <ClInclude Include="VfwCameraDevice.hpp" />
     <ClInclude Include="VfwCaptureDevice.hpp" />
-    <ClInclude Include="waveobjloader.h" />
-    <ClInclude Include="winapcan.h" />
     <ClInclude Include="windowmgr.h" />
     <ClInclude Include="winminap.h" />
   </ItemGroup>

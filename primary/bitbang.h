@@ -6,7 +6,7 @@
 #include <cstdio>
 
 
-namespace bitbang {
+namespace binops {
 
 // Return various forms of pow(2,bitnum)
 // There are different ones, which allow the user to specify how
@@ -158,8 +158,8 @@ INLINE int GetAlignedByteCount(const int width, const int bitsperpixel, const in
 // so; 0x13 (0b0001.0011) ,4  == 1.1875
 INLINE double fixedToFloat(const uint64_t vint, const int scale)
 {
-    double whole = (double)bitbang::BITSVALUE(vint, scale, 63);
-    double frac = (double)bitbang::BITSVALUE(vint, 0, ((size_t)scale - 1));
+    double whole = (double)binops::BITSVALUE(vint, scale, 63);
+    double frac = (double)binops::BITSVALUE(vint, 0, ((size_t)scale - 1));
 
     return (whole + (frac / ((uint64_t)1 << scale)));
 }

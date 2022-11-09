@@ -278,24 +278,6 @@ public:
 
 	}
 
-	virtual void keyEvent(const KeyboardEvent& e) override
-	{
-		switch (e.activity)
-		{
-		case KEYPRESSED:
-			keyPressed(e);
-			break;
-
-		case KEYRELEASED:
-			keyReleased(e);
-			break;
-
-		case KEYTYPED:
-			keyTyped(e);
-			break;
-		}
-	}
-
 
 	void keyPressed(const KeyboardEvent& e) override
 	{

@@ -236,7 +236,7 @@ public:
 
 	virtual void keyTyped(const KeyboardEvent& e) override
 	{
-		printf("GraphicElement:keyTyped\n");
+		//printf("GraphicElement:keyTyped\n");
 
 		// do nothing
 	}

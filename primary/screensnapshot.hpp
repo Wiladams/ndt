@@ -44,7 +44,7 @@
 #include "Surface.h"
 #include "User32PixelMap.h"
 
-bool BLImageFromPixelArray(const PixelArray &arr, BLImage &img)
+bool BLImageFromPixelArray(const PixelAccessor &arr, BLImage &img)
 {
     BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.fData, (intptr_t)arr.stride(), nullptr, nullptr);
 
@@ -82,7 +82,7 @@ public:
     size_t width() { return fWidth; }
     size_t height() { return fHeight; }
 
-    PixelArray & getCurrent()
+    PixelAccessor & getCurrent()
     {
         return fPixelMap;
     }

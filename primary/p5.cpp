@@ -81,6 +81,7 @@ namespace p5 {
     int textCursorY = 0;
 
     // Keyboard globals
+    uint8_t keyStates[255]{};
     int keyCode = 0;
     int keyChar = 0;
 
@@ -1134,8 +1135,13 @@ void onLoop()
 // signal the frame
     if (p5::SWatch.millis() > p5::fNextMillis)
     {
+
+
         // WAA - Might also be interesting to get absolute keyboard, mouse, 
         // and joystick positions here.
+        // 
+        ::GetKeyboardState(p5::keyStates);
+
         //
         handleFrameTick(p5::SWatch.seconds());
         

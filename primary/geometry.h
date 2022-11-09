@@ -27,13 +27,15 @@ struct bbox3f
 };
 
 // Empty box constants
-constexpr auto invalidb2f = bbox2f{};
-constexpr auto invalidb3f = bbox3f{};
+//const bbox2f invalidb2f = bbox2f{};
+//const bbox3f invalidb3f = bbox3f{};
 
 //
 // Bounding box properties
 inline vec2f center(const bbox2f& a);
 inline vec2f size(const bbox2f& a);
+inline float width(const bbox2f& a);
+inline float height(const bbox2f& a);
 
 // Bounding box comparisons
 inline bool operator==(const bbox2f& a, const bbox2f& b);
@@ -78,6 +80,8 @@ namespace maths
 
 	inline vec2f center(const bbox2f& a) { return (a.min + a.max) / 2; }
 	inline vec2f size(const bbox2f& a) { return a.max - a.min; }
+	inline float width(const bbox2f &a) { return a.max.x - a.min.x; }
+	inline float height(const bbox2f& a) { return a.max.y - a.min.y; }
 
 	// Comparison
 	inline bool operator ==(const bbox2f& a, const bbox2f& b) { return a.min == b.min && a.max == b.max; }

@@ -40,61 +40,6 @@
 #include "bitbang.h"
 
 
-/*
-Routines to be found in here, typical of a shader
-language, or any other graphics library.
-In many cases, there's already something in standard
-math libraries, but here, the operation might apply to a vector
-of some type.
-
-
-clip            
-faceforward
-all                      
-firstbithigh
-any         
-cosh            
-firstbitlow
-asdouble    
-countbits       
-asfloat                
-fma
-asint       
-determinant     
-frac
-asuint      
-distance        
-frexp         
-dst             
-isinf
-ldexp                 
-lit                     
-log10
-log2        
-mad             
-modf            
-msad4
-mul         
-noise           
-normalize
-printf          
-rcp
-reversebits 
-round           
-rsqrt
-saturate               
-sincos      
-sinh            
-step            
-tex1D           
-tex2D
-tex3D       
-transpose       
-trunc
-
-*/
-
-
 //=================================
 // CONSTANT Declarations
 //=================================
@@ -105,11 +50,8 @@ namespace {
 }
 
 namespace maths {
-    //typedef double Float;
-
     // Math constants
     // Some useful constants
-
     constexpr auto Pi = 3.14159265358979323846;
     constexpr auto Pif = (float)Pi;
     constexpr auto PiOver2 = 1.57079632679489661923;
@@ -121,11 +63,11 @@ namespace maths {
 
     constexpr auto Sqrt2 = 1.41421356237309504880;
 
-    constexpr auto int_max = std::numeric_limits<int>::max();
-    constexpr auto int_min = std::numeric_limits<int>::min();
-    constexpr auto flt_max = std::numeric_limits<float>::max();
-    constexpr auto flt_min = std::numeric_limits<float>::min();
-    constexpr auto flt_eps = std::numeric_limits<float>::epsilon();
+    const auto int_max = std::numeric_limits<int>::max();
+    const auto int_min = std::numeric_limits<int>::min();
+    const auto flt_max = std::numeric_limits<float>::max();
+    const auto flt_min = std::numeric_limits<float>::min();
+    const auto flt_eps = std::numeric_limits<float>::epsilon();
 
 }   // namespace maths
 
@@ -200,7 +142,6 @@ namespace maths
 
 }
 
-
 // Some useful types
 // Vectors, matrices, etc
 // This vector stuff could all be done with clever usage of
@@ -208,13 +149,14 @@ namespace maths
 // just to make it explicit for the kinds of vectors we end up
 // using the most, and avoid the whole template thing.
 namespace maths {
-    struct vec2f {
-        float x = 0;
+    struct vec2f 
+    {
+        float x=0;
         float y = 0;
 
         inline float& operator[](int i);
         inline const float& operator[](int i) const;
-    };
+    } ;
 
     struct vec3f {
         float x = 0;
@@ -237,6 +179,7 @@ namespace maths {
 
     // Element access
     inline vec3f xyz(const vec4f& a);
+    inline vec2f xy(const vec4f& a);
 }
 
 
@@ -524,13 +467,13 @@ namespace maths
 
     struct vec4b
     {
-        byte x = 0;
-        byte y = 0;
-        byte z = 0;
-        byte w = 0;
+        uint8_t x = 0;
+        uint8_t y = 0;
+        uint8_t z = 0;
+        uint8_t w = 0;
 
-        inline byte& operator[](int i);
-        inline const byte& operator[](int i) const;
+        inline uint8_t & operator[](int i);
+        inline const uint8_t & operator[](int i) const;
     };
 
     inline vec3i xyz(const vec4i& a);
@@ -1117,6 +1060,7 @@ namespace maths
     inline const float& vec4f::operator[](int i)const { return (&x)[i]; }
 
     inline vec3f xyz(const vec4f& a) { return { a.x, a.y, a.z }; }
+    inline vec2f xy(const vec4f& a) { return { a.x, a.y}; }
 }
 
 //==========================
@@ -1526,8 +1470,8 @@ namespace maths
     inline const int& vec4i::operator[](int i) const { return (&x)[i]; }
 
     // Vector data types
-    inline byte& vec4b::operator[](int i) { return (&x)[i]; }
-    inline const byte& vec4b::operator[](int i) const { return (&x)[i]; }
+    inline uint8_t & vec4b::operator[](int i) { return (&x)[i]; }
+    inline const uint8_t& vec4b::operator[](int i) const { return (&x)[i]; }
 
     // Element access
     inline vec3i xyz(const vec4i& a) { return { a.x, a.y, a.z }; }
@@ -1917,6 +1861,11 @@ namespace maths
         auto y = vec3f{ b, sign + z.y * z.y * a, -z.y };
         return { x, y, z };
     }
+
+    // Matrix sequencing
+    inline int          size(const mat4f& a) { return 16; }
+    inline const float* begin(const mat4f& a) { return begin(a.x); }
+    inline const float* end(const mat4f& a) { return end(a.x); }
 
     // Matrix comparisons.
     inline bool operator==(const mat4f& a, const mat4f& b) {

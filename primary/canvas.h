@@ -2,7 +2,14 @@
 
 #include "blend2d.h"
 
-
+// GCanvas
+// Encapsulates a BLImage that it builds from external data
+// It then provides a BLContext interface to the same.
+//
+// set(), and get() to manipulate pixel values
+// Note:  Not sure this really needs to exist.  
+// A PixelAccessor can provide the pixel access capabilities
+//
 class GCanvas : public BLContext
 {
 	BLImage fImage;
@@ -40,9 +47,6 @@ public:
 	// cast to a BLImage
 	operator const BLImage& () { return fImage; }
 
-    //virtual void begin() {
-    //    begin(fImage);
-    //}
 
     void sync()
     {

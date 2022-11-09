@@ -81,13 +81,16 @@ private:
     }
 */
 public:
-    struct sockaddr *fAddress;
-    int fAddressLength;
+    struct sockaddr *fAddress=nullptr;
+    int fAddressLength=0;
 
     // Construct from traditional sockaddr and length
     IPAddress(const struct sockaddr *addr, const int addrLen)
     {
         fAddress = (struct sockaddr *)malloc(addrLen);
+        if (nullptr == fAddress)
+            return; 
+
         memcpy(fAddress, addr, addrLen);
         fAddressLength = addrLen;
     }

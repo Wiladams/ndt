@@ -546,7 +546,7 @@ public:
         // set the found face as the current face
         
         BLFontFace face;
-        face = gFontHandler->queryFontFace(fontname);
+        gFontHandler->queryFontFace(fontname, face);
         
         if (face.isValid()) {
             fFontFace = face;

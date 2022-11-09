@@ -206,32 +206,30 @@ public:
 
 class HorizontalLayout : public ILayoutGraphics
 {
+	// While doing layout, these tell us
+	// where the next coordinate should be
 	float xOffset = 0;
 	float yOffset = 0;
 
 	float maxX = 0;
 	float maxY = 0;
-	
+
 	// Imposed extent limits
-	int fCanvasWidth;
-	int fCanvasHeight;
+	float fCanvasExtent{};		// Maximum allowable width of row
 
 	// Gap between elements
-	float fHorizontalGap= 8;
+	float fHorizontalGap = 8;
 	float fVerticalGap = 8;
 
 
 public:
 	HorizontalLayout()
 	{
-		fCanvasWidth = 0;
-		fCanvasHeight = 0;
 	}
 
-	HorizontalLayout(int w, int h)
+	HorizontalLayout(float w)
+		:fCanvasExtent{w}
 	{
-		fCanvasWidth = w;
-		fCanvasHeight = h;
 	}
 
 	virtual void reset()
@@ -243,22 +241,29 @@ public:
 		maxY = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> win, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
 	{
-		maths::bbox2f winFrame = win->frame();
-		maths::vec2f sz = maths::size(win->frame());
-		float winWidth = sz.x;
-		float winHeight = sz.y;
+		// Move the graphic to the current specified location
+		gr->moveTo(xOffset, yOffset);
+		maths::expand(b, gr->frame());
 
-		float winX = maxX + fHorizontalGap;
-		float winY = maxY;
+		// Calculate next position
+		maxX = gr->frameX() + gr->frameWidth();
+		maxY = maths::max(maxY, gr->frameY() + gr->frameHeight());
 
-		// Move the graphic to the specified location
-		win->moveTo(winX, winY);
-		maths::expand(b, win->frame());
+		// Advance to the next column position
+		xOffset = maxX + fHorizontalGap;
 
-		maxX = (int)(winX + winWidth);
+		// Move to the next row if we've gone beyond
+		// the horizontal constraint
+		if (xOffset >= fCanvasExtent)
+		{
+			xOffset = 0;
+			yOffset = maxY + fVerticalGap;
 
+			maxX = xOffset;
+			maxY = yOffset;
+		}
 	}
 
 	// Perform layout starting from scratch

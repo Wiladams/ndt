@@ -67,7 +67,7 @@ void draw() {
     noFill();
 
     for (int ci = 0; ci < circleCnt; ci++) {
-        float time = float(frameCount) / 20;
+        float time = float(p5::getFrameCount()) / 20;
         float thetaC = map(ci, 0, circleCnt, 0, TAU);
         float scale = 300;
 

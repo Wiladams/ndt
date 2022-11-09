@@ -1,6 +1,4 @@
 #include "apphost.h"
-//#include "framestats.h"
-//#include "Recorder.hpp"
 
 #include <math.h>
 #include <stdio.h>
@@ -10,45 +8,21 @@
 
 #include "tinygl/GL/gl.h"
 #include "tinygl/zbuffer.h"
-#include "3dMath.h"
+//#include "3dMath.h"
+#include "maths.hpp"
+
 #include <stopwatch.hpp>
 
+using namespace maths;
 
 StopWatch wallclock{};
-//using namespace p5;
 
-
-//FrameStats _stats;
-//std::shared_ptr<Recorder> recorder;
 
 int winSizeX = 0;
 int winSizeY = 0;
 int frameCount = 0;
 
-void drawGL() {
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// glEnable(GL_TEXTURE_2D);
-	// glBindTexture(GL_TEXTURE_2D,tex);
-	// time_passed += 0.0166666;
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glPushMatrix();
-	glRotatef(frameCount, 0, 0, 1);
 
-	glBegin(GL_TRIANGLES);
-	glColor3f(0.2, 0.2, 1.0); // BLUE!
-	// glColor3f(1.0, 0.2, 0.2); //RED!
-	glVertex3f(-0.8, -0.8, 0.2);
-
-	glColor3f(0.2, 1.0, 0.2); // GREEN!
-	// glColor3f(1.0, 0.2, 0.2); //RED!
-	glVertex3f(0.8, -0.8, 0.2);
-
-	glColor3f(1.0, 0.2, 0.2); // RED!
-	glVertex3f(0, 1.2, 0.2);
-	glEnd();
-	glPopMatrix();
-}
 
 void drawGL2() {
 	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -56,10 +30,16 @@ void drawGL2() {
 	// Select and setup the projection matrix
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	mat4 m = perspective(65.0f, (GLfloat)canvasWidth / (GLfloat)canvasHeight, 1.0f, 100.0f);
-	glLoadMatrixf(m.d);
+	mat4f m = perspective_mat(65.0f, (GLfloat)canvasWidth / (GLfloat)canvasHeight, 1.0f, 100.0f);
+	glLoadMatrixf(begin(m));
+
+	//	inline mat4 perspective(f_ fov, f_ aspect, f_ nearest, f_ farthest)
+	//mat4 m = perspective(65.0f, (GLfloat)canvasWidth / (GLfloat)canvasHeight, 1.0f, 100.0f);
+	//glLoadMatrixf(m.d);
+	// OR...
 	// GLfloat  h = (GLfloat) winSizeY / (GLfloat) winSizeX;
 	// glFrustum( -1.0, 1.0, -h, h, 5.0, 60.0 );
+	
 	// Select and setup the modelview matrix
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -85,7 +65,6 @@ void onLoop()
 	frameCount++;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//drawGL();
 	drawGL2();
 
 	glDrawText((unsigned char*)"Hello World!\nFrom TinyGL", 0, 0, 0x00FFFFFF);

@@ -47,8 +47,6 @@ void setup()
 	//createCanvas(displayWidth, displayHeight, "fontview");
 	fullscreen();
 	
-	//loadFontDirectory("c:\\windows\\fonts");
-	//loadDefaultFonts();
 
 	face = gFontHandler->queryFontFace("Courier New");
 	//face = gFontHandler->queryFontFace("Cascadia Code");
