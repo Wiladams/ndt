@@ -7,6 +7,7 @@
 
 #include <bitset>
 
+
 namespace ndt {
 	// Represent a set of characters as a bitset
 	//
@@ -52,6 +53,9 @@ namespace ndt {
 		}
 	};
 
+	// There is an 'isgraph' function in the <ctype> file.
+	// This one here is specific to ASCII processing
+	// BUGBUG - maybe it should live with whatever needs it
 	static inline bool isGraph(int c)
 	{
 		return (c > 0x20) && (c < 0x7f);

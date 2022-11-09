@@ -48,7 +48,7 @@ void setup()
 	fullscreen();
 	
 
-	face = gFontHandler->queryFontFace("Courier New");
+	gFontHandler->queryFontFace("Courier New", face);
 	//face = gFontHandler->queryFontFace("Cascadia Code");
 
 	faceCons = std::make_shared<FontFaceConsole>(60, 40, "Cascadia Code");

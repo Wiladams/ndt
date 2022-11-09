@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphic.hpp"
-#include "calendar.hpp"
+#include "elements/calendar.hpp"
 
 /*
 	Draw a view of a month with the previous and next month's

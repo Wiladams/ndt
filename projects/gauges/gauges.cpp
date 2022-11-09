@@ -2,7 +2,7 @@
 #include "Recorder.hpp"
 
 #include "segmentgauge.h"
-#include "slider.h"
+#include "elements/slider.h"
 
 
 using namespace p5;

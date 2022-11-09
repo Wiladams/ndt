@@ -65,7 +65,7 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 		: Graphic(),
 		ScreenGrid<ScreenCell<char> >(cols, rows)
 	{
-		fFontFace = gFontHandler->queryFontFace(fontname);
+		gFontHandler->queryFontFace(fontname, fFontFace);
 		fFont.createFromFace(fFontFace, fontSize);
 
 		//BLFontMetrics metrics = fFont.metrics();

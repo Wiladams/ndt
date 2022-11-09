@@ -153,8 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\framestats.h" />
-    <ClInclude Include="..\..\primary\screensnapshot.hpp" />
     <ClInclude Include="..\primary\p5.hpp" />
   </ItemGroup>
   <ItemGroup>

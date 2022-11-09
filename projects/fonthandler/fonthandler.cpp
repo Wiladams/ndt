@@ -3,7 +3,7 @@
 void setup()
 {
 	BLFontFace face;
-	face = gFontHandler->queryFontFace("Tahoma");
+	gFontHandler->queryFontFace("Tahoma", face);
 
 	printf("isvalid: %d\n", face.isValid());
 }

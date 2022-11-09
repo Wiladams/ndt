@@ -3,7 +3,7 @@
 //  Read and display Tiny Vector Graphic files
 //
 #include "p5.hpp"
-#include "tinyvggraphic.h"
+#include "elements/tinyvggraphic.h"
 
 using namespace p5;
 using namespace tinyvg;

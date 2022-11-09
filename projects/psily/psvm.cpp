@@ -9,9 +9,9 @@
 #include <variant>
 
 #include "psvm.h"
-#include "textscan.h"
 #include "ps_base_operators.h"
 
+#include "elements/textscan.h"
 
 
 using std::shared_ptr;
@@ -392,7 +392,7 @@ std::shared_ptr<PSToken> PSScanner::nextToken()
 //
 
 PSVM::PSVM()
-	: fSurface(816, 1056)
+//	: fSurface(816, 1056)
 {
 	// seed random number generator with system time
 	fRandomGen.seed((unsigned int)(std::chrono::system_clock::now().time_since_epoch().count()));

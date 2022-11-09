@@ -3,7 +3,7 @@
 //
 #include "p5.hpp"
 #include "filestream.h"
-#include "tvgparse.h"
+#include "elements/tvgparse.h"
 
 using namespace p5;
 using namespace tinyvg;

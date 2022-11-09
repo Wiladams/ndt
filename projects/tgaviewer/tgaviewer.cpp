@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "codec_targa.hpp"
+#include "elements/codec_targa.hpp"
 
 using namespace p5;
 

@@ -8,7 +8,7 @@
     ESC - Exit
 */
 #include "p5.hpp"
-#include "framestats.h"
+#include "elements/framestats.h"
 
 using namespace p5;
 

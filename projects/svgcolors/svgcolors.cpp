@@ -1,5 +1,5 @@
 #include "p5.hpp"
-#include "slider.h"
+#include "elements/slider.h"
 
 #include <memory>
 

@@ -100,6 +100,7 @@ public:
 		ctx.fill(0);
 		ctx.textSize(fTabParam.h * .8);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+		ctx.textFont("Consolas");
 		ctx.text(fTabTitle.c_str(), titleX, titleY);
 
 

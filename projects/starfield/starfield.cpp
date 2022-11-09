@@ -18,8 +18,8 @@ static constexpr int MaxStars = 2400;
 //static const int MaxStars = 10;
 static const int bottomMargin = 160; 
 
-int centerX;
-int centerY;
+float centerX;
+float centerY;
 int posOffsetX = 0;
 int posOffsetY = 0;
 
@@ -66,12 +66,12 @@ void draw()
 		// get speed from joystick throttle
 		speed = map(je.z, 0, 1, 0, MaxSpeed);
 
-		centerX = (int)map(je.x, -1, 1, canvasWidth - 1, 0);
-		centerY = (int)map(je.y, -1, 1, 0, canvasHeight - bottomMargin);
+		centerX = map(je.x, -1, 1, canvasWidth - 1, 0);
+		centerY = map(je.y, -1, 1, 0, canvasHeight - bottomMargin);
 	} else {
 		// use keyboard/mouse navigation
-		int mx = (int)map(mouseX, 0, canvasWidth - 1, canvasWidth - 1, 0);
-		int my = (int)map(mouseY, canvasHeight - bottomMargin, canvasHeight, canvasHeight - bottomMargin, 0);
+		float mx = (int)map(mouseX, 0, canvasWidth - 1, canvasWidth - 1, 0);
+		float my = (int)map(mouseY, canvasHeight - bottomMargin, canvasHeight, canvasHeight - bottomMargin, 0);
 
 		// When you want to use the position for steering
 		// you'll want to center to track the mouse position

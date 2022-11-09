@@ -1,9 +1,10 @@
 #pragma once
 
 #include "graphic.hpp"
-#include "secondtime.h"
 #include "stopwatch.hpp"
 #include "colorsampler.h"
+
+#include "elements/secondtime.h"
 
 // A single straight line tick mark that
 // does some animation based on the progress

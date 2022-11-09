@@ -24,7 +24,7 @@
 */
 
 #include "p5.hpp"
-#include "screensnapshot.hpp"
+#include "elements/screensnapshot.hpp"
 #include <memory>
 
 using namespace p5;

@@ -50,6 +50,7 @@ public:
 		ctx.fill(0);
 		ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
 		ctx.textSize(12);
+		ctx.textFont("Consolas");
 		ctx.text(fTitle.c_str(), fTitleBar.x + fTitleBar.w / 2, 16);
 		ctx.flush();
 	}

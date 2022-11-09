@@ -1,9 +1,12 @@
 #include "p5.hpp"
-#include "screensnapshot.hpp"
 #include "canvas.h"
-#include "framestats.h"
 
-#include <cstdio>
+//#include <cstdio>
+
+#include "elements/screensnapshot.hpp"
+#include "elements/framestats.h"
+
+
 
 using namespace p5;
 

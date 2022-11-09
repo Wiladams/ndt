@@ -5,7 +5,7 @@
 // in this case.  It's realll mipmap which is interesting
 // the screen capture just makes for a quick and easy source
 // of 2D graphics data
-#include "screensnapshot.hpp"
+#include "elements/screensnapshot.hpp"
 
 using namespace p5;
 

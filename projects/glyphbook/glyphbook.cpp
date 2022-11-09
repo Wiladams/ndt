@@ -2,7 +2,8 @@
 
 #include "FontFaceIcon.h"
 #include "FontIconPage.h"
-#include "slider.h"
+#include "elements/slider.h"
+
 #include "fontsummary.hpp"
 
 using namespace p5;

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "p5.hpp"
-#include "calendar.hpp"
 #include "graphic.hpp"
+#include "elements/calendar.hpp"
 
 using namespace p5;
 

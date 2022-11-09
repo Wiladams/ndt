@@ -1,6 +1,6 @@
 #include "p5.hpp"
 #include "graphic.hpp"
-#include "tabbedview.h"
+#include "elements/tabbedview.h"
 
 #include <memory>
 

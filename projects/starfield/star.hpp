@@ -5,12 +5,12 @@
 
 
 struct Star {
-	double x;
-	double y;
-	double z;
-	double pz;
-	double fWidth;
-	double fHeight;
+	float x;
+	float y;
+	float z;
+	float pz;
+	float fWidth;
+	float fHeight;
 
 	Star()
 	{
@@ -22,12 +22,12 @@ struct Star {
 		fHeight = 0;
 	}
 
-	Star(const double w, const double h)
+	Star(const float w, const float h)
 	{
 		init(w, h);
 	}
 
-	void init(const double w, const double h)
+	void init(const float w, const float h)
 	{
 		fWidth = w;
 		fHeight = h;
@@ -54,14 +54,14 @@ struct Star {
 		//ctx->fill(color(255));
 		//ctx->noStroke();
 
-		auto sx = p5::map(x / z, 0, 1, 0, canvasWidth);
-		auto sy = p5::map(y / z, 0, 1, 0, canvasHeight);
+		auto sx = p5::map(x / z, 0, 1, 0, (float)canvasWidth);
+		auto sy = p5::map(y / z, 0, 1, 0, (float)canvasHeight);
 
-		auto r = p5::map(z, 0, canvasWidth, 8, 0);
+		auto r = p5::map(z, 0, (float)canvasWidth, 8, 0);
 		//ctx->ellipse(sx, sy, r, r);
 
-		auto px = p5::map(x / pz, 0, 1, 0, canvasWidth);
-		auto py = p5::map(y / pz, 0, 1, 0, canvasHeight);
+		auto px = p5::map(x / pz, 0, 1, 0, (float)canvasWidth);
+		auto py = p5::map(y / pz, 0, 1, 0, (float)canvasHeight);
 
 		pz = z;
 
