@@ -4,7 +4,6 @@
 #include "p5.hpp"
 #include "gwindow.h"
 
-
 #include <deque>
 #include <memory>
 
@@ -30,26 +29,7 @@ public:
 		setLayout(std::make_shared<IdentityLayout>());
 
 	}
-/*
-	// Maybe we want to do some special drawing
-	// around each window
-	virtual void drawChildren(IGraphics & ctx)
-	{
-		auto shadow = ctx.color(0x40);
 
-		// Here we draw each window
-		// along the way, we can display whatever
-		// chrome we want, or do any rendering effects
-
-		for (auto & g : fChildren)
-		{
-			//GUIStyle::drawDropShadow(ctx, g->frame(), 8, shadow);
-			
-			// Tell the window to draw itself into the context
-			g->draw(ctx);
-		}
-	}
-*/
 	// Handling Keyboard Events
 	// If there's anything special that a window manager
 	// wants to do with keyboard events, here is where 
@@ -64,21 +44,22 @@ public:
 	}
 
 
-
 	// Handling mouse events
 	void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("WindowManager.mouseEvent: %d\n", e.activity);
+		//printf("WindowManager.mouseEvent: (%d,%d) - %d\n", e.x, e.y, e.activity);
 		// Figure out which child the mouse pointer 
 		// is currently over
 		auto g = graphicAt(e.x, e.y);
 
 		if (g != nullptr) {
 			// If it's a sub-graphic, then continue down the chain
-			MouseEvent newEvent = e;
-			newEvent.x = (int)(e.x - g->frameX() );
+			MouseEvent newEvent(e);
+			newEvent.x = (int)(e.x - g->frameX());
 			newEvent.y = (int)(e.y - g->frameY());
 
+			g->mouseEvent(newEvent);
+		} else {
 			switch (e.activity) 
 			{
 			case MOUSEPRESSED:
@@ -94,11 +75,10 @@ public:
 				break;
 			}
 
-			g->mouseEvent(newEvent);
+	
 		}
 
 		// If we didn't land on anything, don't do anything
-
 	}
 
 

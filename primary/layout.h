@@ -281,8 +281,8 @@ public:
 	}
 };
 
-
-class VerticalLayout : public ILayoutGraphics
+// Single column, vertical layout
+class ColumnLayout : public ILayoutGraphics
 {
 	float xOffset = 0;
 	float yOffset = 0;
@@ -290,52 +290,31 @@ class VerticalLayout : public ILayoutGraphics
 	float maxX = 0;
 	float maxY = 0;
 
-	// Imposed extent limits
-	float fWidth;
-	float fHeight;
-
 	// Gap between elements
-	float fHorizontalGap = 8;
-	float fVerticalGap = 8;
+	float fGap = 8;
 
 
 public:
-	VerticalLayout()
-	{
-		fWidth = 0;
-		fHeight = 0;
-	}
-
-	VerticalLayout(float w, float h)
-	{
-		fWidth = w;
-		fHeight = h;
-	}
+	ColumnLayout(float gap=8)
+		:fGap(gap)
+	{}
 
 	virtual void reset()
 	{
 		xOffset = 0;
 		yOffset = 0;
-
-		maxX = 0;
-		maxY = 0;
 	}
 
 	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
 	{
-		maths::vec2f sz = maths::size(gr->frame());
-		float winWidth = sz.x;
-		float winHeight = sz.y;
+		// Move to next location
+		gr->moveTo(xOffset, yOffset);
 
-		float winX = maxX;
-		float winY = maxY+ fVerticalGap;
-
-		// Move the graphic to the specified location
-		gr->moveTo(winX, winY);
+		// expand the bounds to include the new frame
 		maths::expand(b, gr->frame());
 
-		maxY = (winY + winHeight);
-
+		// calculate where next position should be
+		yOffset = gr->frame().max.y + fGap;
 	}
 
 	// Perform layout starting from scratch

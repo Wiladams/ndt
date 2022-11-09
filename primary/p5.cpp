@@ -892,13 +892,6 @@ void handleKeyboardEvent(const KeyboardEvent& e)
 void handleMouseEvent(const MouseEvent& e)
 {
     //printf("p5::handleMouseEvent: %d (%d, %d)\n", e.activity, e.x, e.y);
-    // assign new mouse position
-    //p5::pmouseX = p5::mouseX;
-    //p5::pmouseY = p5::mouseY;
-    //p5::mouseX = e.x;
-    //p5::mouseY = e.y;
-    //p5::mouseIsPressed = e.lbutton || e.rbutton || e.mbutton;
-    //printf("  mouseX,Y: %d, %d\n", p5::mouseX, p5::mouseY);
     
     // If there is a window manager, let it have first crack
     // at the mouse event.

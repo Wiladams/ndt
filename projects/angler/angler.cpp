@@ -1,4 +1,5 @@
 #include "p5.hpp"
+
 #include "countdowntickclock.hpp"
 #include "Recorder.hpp"
 
@@ -6,7 +7,7 @@
 
 using namespace p5;
 
-float DURATION = 120*1;
+float DURATION = 30*1;
 std::shared_ptr<CountdownTickClock> indic=nullptr;
 std::shared_ptr<Recorder> recorder = nullptr;
 

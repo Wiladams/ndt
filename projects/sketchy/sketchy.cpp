@@ -1,130 +1,57 @@
-#include "apphost.h"
 
-#include "GraphicsDecoder.hpp"
-#include "GraphicsEncoder.hpp"
+#include "p5.hpp"
 #include "binstream.hpp"
-#include "blend2d.h"
 #include "gpath.h"
+
+#include "elements/tabbedview.h"
+
 #include "drawingtool.h"
-#include "tabbedview.h"
-#include "gview.h"
+#include "sketchpage.h"
+
+#include <memory>
 
 using namespace p5;
+using std::shared_ptr;
+using std::make_shared;
 
 
-uint8_t encBuff[1024*64];
-size_t encBuffLen = 1024 * 64;
-
-BinStream bs(encBuff, encBuffLen);
-//GraphicsEncoder enc(bs);
-
-
-//BinStream subrange = bs.range(0, bs.tell());
-//GraphicsDecoder dec(subrange, gAppSurface);
-//dec.run();
-
-GPath mainPath;
-std::shared_ptr<DrawingTool> currentTool = nullptr;
-
-BLRect appArea;
 Pixel appTabColor(245, 246, 247);
-Pixel appViewColor(203, 212, 228);
+Pixel appViewColor(200, 210, 226);
 
-BLRect canvasArea;
-BLRect canvasShadow;
-Pixel canvasColor(255,255,255);
-Pixel canvasShadowColor(187, 199, 215);
 
-// Tabs for the toolbar
-TabViewSet tabSet(800,100);
+shared_ptr<SketchPage> page = nullptr;
+shared_ptr<TabViewSet> tabSet = nullptr;
+shared_ptr<DrawingTool> currentTool = nullptr;
 
 void draw()
 {
-	background(appTabColor);
-
-	push();
-	tabSet.draw(gAppSurface);
-
-	// Draw App View
-	noStroke();
-	fill(appViewColor);
-	rect(appArea.x, appArea.y, appArea.w, appArea.h);
-
-	// Draw Canvas area
-	// put a drop shadow behind it
-	translate(appArea.x+8, appArea.y+8);
-	// Draw canvas shadow
-	fill(canvasShadowColor);
-	rect(canvasShadow.x, canvasShadow.y, canvasShadow.w, canvasShadow.h);
-
-	// draw actual canvas
-	noStroke();
-	fill(canvasColor);
-	rect(canvasArea.x, canvasArea.y, canvasArea.w, canvasArea.h);
-	
-
-
-	// Draw the current path
-	stroke(Pixel(0, 0, 0));
-	path(mainPath);
-
-	// Draw the current tool
-	currentTool->draw(gAppSurface);
-	pop();
+	background(appViewColor);
 }
 
 void setup()
 {
 	createCanvas(800, 600);
 
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(68, 0, 48, 16, 1), "View", appTabColor, appTabColor));
-	tabSet.addChild(std::make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(16, 0, 48, 16, 1), "Home", appTabColor, appTabColor));
+	auto mainWin = window(0, 0, canvasWidth, canvasHeight);
+	mainWin->setLayout(std::make_shared<ColumnLayout>());
+	mainWin->setBackgroundColor(appViewColor);
 
-	appArea.x = 0;
-	appArea.y = 96;
-	appArea.w = canvasWidth;
-	appArea.h = canvasHeight - appArea.y;
+	//currentTool = std::make_shared<StraightLineTool>();
+	//currentTool = make_shared<RectangleTool>();
+	currentTool = make_shared<PencilTool>();
 
-	canvasArea.x = 0;
-	canvasArea.y = 0;
-	canvasArea.w = 640;
-	canvasArea.h = 480;
+	// Tabs for the toolbar
+	tabSet = make_shared<TabViewSet>(800, 100);
 
-	canvasShadow.x = 8;
-	canvasShadow.y = 8;
-	canvasShadow.w = 640;
-	canvasShadow.h = 480;
+	tabSet->addChild(make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(68, 0, 48, 16, 1), "File", appTabColor, appTabColor));
+	tabSet->addChild(make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(68, 0, 48, 16, 1), "Home", appTabColor, appTabColor));
+	tabSet->addChild(make_shared<TabbedView>(BLRect(0, 4, (double)canvasWidth, 96), BLRoundRect(16, 0, 48, 16, 1), "View", appTabColor, appTabColor));
 
-	//currentTool = std::make_shared<StraightLineTool>(mainPath);
-	//currentTool = std::make_shared<RectangleTool>(mainPath);
-	currentTool = std::make_shared<PencilTool>(mainPath);
+	page = std::make_shared<SketchPage>(0,0,640,480);
+	page->setTool(currentTool);
 
+	mainWin->addChild(tabSet);
+	mainWin->addChild(page);
 }
 
-MouseEvent adjustMouse(const MouseEvent& e)
-{
-	MouseEvent newEvent(e);
-	newEvent.x -= appArea.x + 8;
-	newEvent.y -= appArea.y + 8;
 
-	return newEvent;
-}
-
-void mousePressed(const MouseEvent& e)
-{
-	// hand even to current tool
-	// we should only pass along mouse events
-	// that land on the canvas area
-	currentTool->mousePressed(adjustMouse(e));
-}
-
-void mouseMoved(const MouseEvent& e)
-{
-	//printf("mouseMoved: %d, %d\n", e.x, e.y);
-	currentTool->mouseMoved(adjustMouse(e));
-}
-
-void mouseReleased(const MouseEvent& e)
-{
-	currentTool->mouseReleased(adjustMouse(e));
-}

@@ -1,22 +1,21 @@
 #pragma once
 
-#include "p5.hpp"
+#include "Graphics.h"
 
-using namespace p5;
-
-class DrawingTool
+class DrawingTool : public IDrawable
 {
 protected:
-	BLPath &fFigure;
+	BLPath fFigure;		// The little piece we're drawing
 
 public:
-	DrawingTool(BLPath &fig)
-		:fFigure(fig)
-	{
+	DrawingTool() {}
 
+	virtual const BLPath& figure() const
+	{
+		return fFigure;
 	}
 
-	virtual void draw(std::shared_ptr<IGraphics> ctx) {}
+	virtual void draw(IGraphics &ctx) {}
 
 	virtual void mousePressed(const MouseEvent &e){}
 	virtual void mouseReleased(const MouseEvent& e) {}
@@ -32,45 +31,44 @@ class StraightLineTool : public DrawingTool
 
 
 public:
-	StraightLineTool(BLPath &fig)
-		:DrawingTool(fig),
+	StraightLineTool()
+		:DrawingTool(),
 		fStartDrag (),
 		fEndDrag()
 	{
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics &ctx) override
 	{
 		if (fIsDragging) {
-			ctx->stroke(Pixel(255, 0, 0));
-			ctx->line(fStartDrag.x, fStartDrag.y, fEndDrag.x, fEndDrag.y);
+			ctx.stroke(Pixel(255, 0, 0));
+			ctx.line(fStartDrag.x, fStartDrag.y, fEndDrag.x, fEndDrag.y);
 		}
 	}
 
-	void mousePressed(const MouseEvent& e)
+	void mousePressed(const MouseEvent& e) override
 	{
-		printf("lineTool - mousePressed: %d, %d\n", e.x, e.y);
-
-		fStartDrag = { (double)mouseX, (double)mouseY };
+		//printf("lineTool - mousePressed: %d, %d\n", e.x, e.y);
+		fStartDrag = { (double)e.x, (double)e.y };
+		fEndDrag = { (double)e.x, (double)e.y };
 		fIsDragging = true;
 	}
 
-	void mouseMoved(const MouseEvent& e)
+	void mouseMoved(const MouseEvent& e) override
 	{
-		printf("lineTool - mouseMoved: %d, %d\n", e.x, e.y);
+		//printf("lineTool - mouseMoved: %d, %d\n", e.x, e.y);
 
 		if (fIsDragging) {
-			fEndDrag = BLPoint((double)mouseX, mouseY);
+			fEndDrag = BLPoint((double)e.x, e.y);
 		}
 	}
 
-	void mouseReleased(const MouseEvent& e)
+	void mouseReleased(const MouseEvent& e) override
 	{
-		printf("lineTool - mouseReleased: %d, %d\n", e.x, e.y);
+		//printf("lineTool - mouseReleased: %d, %d\n", e.x, e.y);
+		fFigure.addLine(BLLine(fStartDrag.x, fStartDrag.y, fEndDrag.x, fEndDrag.y));
 
 		fIsDragging = false;
-
-		fFigure.addLine(BLLine(fStartDrag.x, fStartDrag.y, fEndDrag.x, fEndDrag.y));
 	}
 };
 
@@ -82,60 +80,65 @@ class RectangleTool : public DrawingTool
 
 
 public:
-	RectangleTool(BLPath &fig)
-		:DrawingTool(fig),
-		fStartDrag(),
-		fEndDrag()
+	RectangleTool()
+		:DrawingTool()
+		, fStartDrag{}
+		, fEndDrag{}
 	{
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx) override
 	{
-		if (fIsDragging) {
-			ctx->push();
-			ctx->stroke(Pixel(255, 0, 0));
-			ctx->noFill();
-			//ctx->fill(0, 0, 0, 1);
-			//ctx->blendMode(BL_COMP_OP_SRC_COPY);
-			double x = maths::Min(fStartDrag.x, fEndDrag.x);
-			double y = maths::Min(fStartDrag.y, fEndDrag.y);
-			double w = abs(fEndDrag.x - fStartDrag.x);
-			double h = abs(fEndDrag.y - fStartDrag.y);
+		if (fIsDragging) 
+		{
+			ctx.stroke(Pixel(255, 0, 0));
+			ctx.noFill();
 
-			ctx->rect(x, y, w, h);
-			ctx->pop();
+			
+			float x = maths::min((float)fStartDrag.x, (float)fEndDrag.x);
+			float y = maths::min((float)fStartDrag.y, (float)fEndDrag.y);
+			float w = maths::abs((float)fEndDrag.x - (float)fStartDrag.x);
+			float h = maths::abs((float)fEndDrag.y - (float)fStartDrag.y);
+
+			// The simplest thing to draw is an outline
+			// of the rectangle, as we're dragging around
+			ctx.rect(x, y, w, h);
 		}
 	}
 
-	void mousePressed(const MouseEvent& e)
+	void mousePressed(const MouseEvent& e) override
 	{
-		printf("lineTool - mousePressed: %d, %d\n", e.x, e.y);
+		//printf("lineTool - mousePressed: %d, %d\n", e.x, e.y);
+		fFigure.clear();
+		fFigure.moveTo(e.x, e.y);
 
-		fStartDrag = { (double)mouseX, (double)mouseY };
-		fEndDrag = { (double)mouseX, (double)mouseY };
+		fStartDrag = { (double)e.x, (double)e.y };
+		fEndDrag = { (double)e.x, (double)e.y };
 
 		fIsDragging = true;
 	}
 
-	void mouseMoved(const MouseEvent& e)
+	void mouseMoved(const MouseEvent& e) override
 	{
-		printf("lineTool - mouseMoved: %d, %d\n", e.x, e.y);
+		//printf("lineTool - mouseMoved: %d, %d\n", e.x, e.y);
 
 		if (fIsDragging) {
-			fEndDrag = BLPoint((double)mouseX, mouseY);
+			fEndDrag = BLPoint(e.x, e.y);
 		}
 	}
 
-	void mouseReleased(const MouseEvent& e)
+	void mouseReleased(const MouseEvent& e) override
 	{
-		printf("lineTool - mouseReleased: %d, %d\n", e.x, e.y);
+		//printf("lineTool - mouseReleased: %d, %d\n", e.x, e.y);
 
 		fIsDragging = false;
 
-		// should do whatever we're to do 
-		// with the canvas
-		// typically adding a piece of path
-		//mainPath.addLine(BLLine(fStartDrag.x, fStartDrag.y, fEndDrag.x, fEndDrag.y));
+		float x = maths::min((float)fStartDrag.x, (float)fEndDrag.x);
+		float y = maths::min((float)fStartDrag.y, (float)fEndDrag.y);
+		float w = maths::abs((float)fEndDrag.x - (float)fStartDrag.x);
+		float h = maths::abs((float)fEndDrag.y - (float)fStartDrag.y);
+		
+		fFigure.addRect(BLRect(x, y, w, h));
 	}
 };
 
@@ -143,23 +146,22 @@ public:
 class PencilTool : public DrawingTool
 {
 	bool fIsDragging = false;
-	GPath fPath;
+	BLPoint fStartDrag{};
+	BLPoint fEndDrag{};
 
 public:
-	PencilTool(BLPath &fig)
-		:DrawingTool(fig),
-		fPath()
+	PencilTool()
+		:DrawingTool()
 	{
 	}
 
-	void draw(std::shared_ptr<IGraphics> ctx)
+	void draw(IGraphics & ctx)
 	{
-		if (fIsDragging) {
-			ctx->push();
-			ctx->stroke(Pixel(255, 0, 0));
-			ctx->noFill();
-			ctx->path(fPath);
-			ctx->pop();
+		if (fIsDragging) 
+		{
+			ctx.stroke(Pixel(255, 0, 0));
+			ctx.noFill();
+			ctx.path(fFigure);
 		}
 	}
 
@@ -167,8 +169,8 @@ public:
 	{
 		//printf("PencilTool - mousePressed: %d, %d\n", e.x, e.y);
 
-		fPath.clear();
-		fPath.moveTo(e.x, e.y);
+		fFigure.clear();
+		fFigure.moveTo((double)e.x, (double)e.y);
 
 		fIsDragging = true;
 	}
@@ -178,7 +180,7 @@ public:
 		//printf("PencilTool - mouseMoved: %d, %d\n", e.x, e.y);
 
 		if (fIsDragging) {
-			fPath.lineTo(e.x, e.y);
+			fFigure.lineTo((double)e.x, (double)e.y);
 		}
 	}
 
@@ -187,6 +189,5 @@ public:
 		//printf("PencilTool - mouseReleased: %d, %d\n", e.x, e.y);
 
 		fIsDragging = false;
-		fFigure.addPath(fPath);
 	}
 };

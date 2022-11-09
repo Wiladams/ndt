@@ -130,6 +130,8 @@ public:
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
 
+		// First check to see if we're moving our window
+		// around, from dragging in the titleBar area
 		switch (e.activity)
 		{
 		case MOUSEPRESSED:
@@ -166,22 +168,32 @@ public:
 
 		}
 
-		// if we are here, the window itself did not 
-		// handle the event, so allow sub-graphics to deal with it
-		auto win = graphicAt((float)e.x, (float)e.y);
+		// if we are here, we're not moving around
+		// figure out if there was a graphic under the mouse
+		// and if there is, forward the event to that graphic
+		auto g = graphicAt((float)e.x, (float)e.y);
 
-		if (win != fActiveGraphic)
+		if (g != fActiveGraphic)
 		{
 			// tell the active graphic it's no longer
 		}
 
-		if (win != nullptr)
+		if (g != nullptr)
 		{
-			setActiveGraphic(win);
+			setActiveGraphic(g);
 
-			win->mouseEvent(e);
+			// right here, need to adjust the event to account
+			// for the frame of the underlying graphic
+			MouseEvent newEvent(e);
+			newEvent.x = (int)(e.x - g->frameX());
+			newEvent.y = (int)(e.y - g->frameY());
+
+			g->mouseEvent(newEvent);
 		}
 
+		// BUGBUG
+		// If there was no underlying graphic
+		// then give the window a chance to do something?
 	}
 
 	virtual void keyEvent(const KeyboardEvent& e) override

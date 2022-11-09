@@ -70,19 +70,19 @@ public:
 		// Stroke the overall outline
 		// Stroke this first, and allow the filling to
 		// cover some of the stroke
-		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		//ctx.blendMode(BL_COMP_OP_SRC_OVER);
 		ctx.stroke(0);
 		ctx.noFill();
 		ctx.path(fWholePath);
 
 		// Fill the overall background
-		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		//ctx.blendMode(BL_COMP_OP_SRC_OVER);
 		ctx.noStroke();
 		ctx.fill(fBackgroundColor);
 		ctx.path(fWholePath);
 
 		// Fill the tab area
-		ctx.blendMode(BL_COMP_OP_SRC_OVER);
+		//ctx.blendMode(BL_COMP_OP_SRC_OVER);
 		ctx.noStroke();
 		ctx.fill(fTabColor);
 		ctx.path(fTabPath);
@@ -105,9 +105,9 @@ public:
 
 
 		// check size of content area
-		ctx.stroke(255, 0, 0);
-		ctx.noFill();
-		ctx.rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
+		//ctx.stroke(255, 0, 0);
+		//ctx.noFill();
+		//ctx.rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
 
 	}
 };
