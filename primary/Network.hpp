@@ -38,11 +38,11 @@ inline int32_t ntohl(int32_t value) {return isLE() ? swapUInt32((uint32_t)value)
 /*
     This should live somewhere else, higher in the stack
 */
-struct BufferChunk {
-    bool fIOwnData;
-    size_t fSize;
+struct BufferChunk 
+{
     uint8_t * fData;
-
+    size_t fSize;
+    bool fIOwnData;
 
     BufferChunk(void *data, const size_t size)
         :fData((uint8_t *)data),
@@ -104,7 +104,7 @@ public:
     int toString(char *addressBuff, int addressBuffLen)
     {
         DWORD consumedLength = addressBuffLen;
-        int res = WSAAddressToStringA(fAddress, fAddressLength, nullptr,addressBuff, &consumedLength);
+        WSAAddressToStringA(fAddress, fAddressLength, nullptr,addressBuff, &consumedLength);
         
         return consumedLength;
     }
@@ -257,9 +257,8 @@ public:
 
     IPSocket accept()
     {
-        struct sockaddr clientAddr {};
-        int clientAddrLen=0;
-
+        //struct sockaddr clientAddr {};
+        //int clientAddrLen=0;
         //int res = ::accept(fSocket,&clientAddr,&clientAddrLen);
         int res = ::accept(fSocket,nullptr,nullptr);
 

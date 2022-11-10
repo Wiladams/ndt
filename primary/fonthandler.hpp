@@ -152,7 +152,7 @@ public:
 
     void textFont(const char* fontname, float sz, BLFontCore &font)
     {
-        auto err = blFontReset(&font);
+        blFontReset(&font);
 
         // query the font manager
         // set the found face as the current face

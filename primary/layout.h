@@ -51,7 +51,7 @@ class BinaryLayout : ILayoutGraphics
 	};
 
 	BinaryAlignment fAlign = BinaryAlignment::RIGHT;
-	float fGap = 0;
+	//float fGap = 0;
 
 public:
 	/*
@@ -71,7 +71,7 @@ public:
 	*/
 	BinaryLayout(BinaryAlignment align, double gap)
 		:fAlign(align)
-		,fGap(gap)
+		//,fGap(gap)
 	{
 	}
 
@@ -287,8 +287,8 @@ class ColumnLayout : public ILayoutGraphics
 	float xOffset = 0;
 	float yOffset = 0;
 
-	float maxX = 0;
-	float maxY = 0;
+	//float maxX = 0;
+	//float maxY = 0;
 
 	// Gap between elements
 	float fGap = 8;

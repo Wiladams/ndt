@@ -11,19 +11,19 @@ namespace binops {
 // Return various forms of pow(2,bitnum)
 // There are different ones, which allow the user to specify how
 // many bits they want
-INLINE uint8_t BIT8(size_t bitnum) {return (uint8_t)1 << bitnum; }
-INLINE uint16_t BIT16(size_t bitnum) {return (uint16_t)1 << bitnum; }
-INLINE uint32_t BIT32(size_t bitnum) {return (uint32_t)1 << bitnum; }
-INLINE uint64_t BIT64(size_t bitnum) {return (uint64_t)1 << bitnum; }
+static INLINE uint8_t BIT8(size_t bitnum) {return (uint8_t)1 << bitnum; }
+static INLINE uint16_t BIT16(size_t bitnum) {return (uint16_t)1 << bitnum; }
+static INLINE uint32_t BIT32(size_t bitnum) {return (uint32_t)1 << bitnum; }
+static INLINE uint64_t BIT64(size_t bitnum) {return (uint64_t)1 << bitnum; }
 
 // One general purpose which will default to BIT64
 //static inline uint64_t BIT(unsigned int bitnum) {return BIT64(bitnum);}
 
 // return true if the specified bit is set in the value
-INLINE bool isset(const uint64_t value, const size_t bitnum) {return (value & BIT64(bitnum)) > 0; }
+static INLINE bool isset(const uint64_t value, const size_t bitnum) {return (value & BIT64(bitnum)) > 0; }
 
 // set a specific bit within a value
-INLINE uint64_t setbit(const uint64_t value, const size_t bitnum) {return (value | BIT64(bitnum));}
+static INLINE uint64_t setbit(const uint64_t value, const size_t bitnum) {return (value | BIT64(bitnum));}
 
 // BITMASK64
 // A bitmask is an integer where all the bits from the 
@@ -44,21 +44,21 @@ INLINE uint64_t setbit(const uint64_t value, const size_t bitnum) {return (value
 //  mask <<= low;   // shift up to proper position
 //  return mask;
 
-INLINE uint64_t BITMASK64(const size_t low, const size_t high)
+static INLINE uint64_t BITMASK64(const size_t low, const size_t high)
 {
-    return ((((uint64_t)1 << (high-low)) << 1) - 1) << low;
+    return ((((uint64_t)1ULL << (high-low)) << 1) - 1) << low;
 }
 
-INLINE uint8_t BITMASK8(const size_t low, const size_t high) {return (uint8_t)BITMASK64(low, high);}
-INLINE uint16_t BITMASK16(const size_t low, const size_t high) {return (uint16_t)BITMASK64(low,high);}
-INLINE uint32_t BITMASK32(const size_t low, const size_t high) {return (uint32_t)BITMASK64(low, high);}
+static INLINE uint8_t BITMASK8(const size_t low, const size_t high) {return (uint8_t)BITMASK64(low, high);}
+static INLINE uint16_t BITMASK16(const size_t low, const size_t high) {return (uint16_t)BITMASK64(low,high);}
+static INLINE uint32_t BITMASK32(const size_t low, const size_t high) {return (uint32_t)BITMASK64(low, high);}
 
 //#define BITMASK BITMASK64
 
 
 // BITSVALUE
 // Retrieve a value from a lowbit highbit pair
-INLINE  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
+static INLINE  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
 {
     return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
 }
@@ -66,14 +66,14 @@ INLINE  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
 // Given a bit number, calculate which byte
 // it would be in, and which bit within that
 // byte.
-INLINE void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
+static INLINE void getbitbyteoffset(size_t bitnumber, size_t &byteoffset, size_t &bitoffset)
 {
     byteoffset = (int)(bitnumber / 8);
     bitoffset = bitnumber % 8;
 }
 
 
-INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t startbit, const size_t bitcount, bool bigendian = false)
+static INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t startbit, const size_t bitcount, bool bigendian = false)
 {
     // Sanity check
     if (nullptr == bytes)
@@ -110,22 +110,22 @@ INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t startbit, 
 
 
 // Determine at runtime if the CPU is little-endian (intel standard)
-INLINE bool isLE () {
+static INLINE bool isLE () {
     int i=1;
     return (int)*((unsigned char *)&i)==1;
 }
 
-INLINE bool isBE() {return !isLE();}
+static INLINE bool isBE() {return !isLE();}
 
 
 // swap 2 bytes (16-bit) around
-INLINE uint16_t swapUInt16(const uint16_t num)
+static INLINE uint16_t swapUInt16(const uint16_t num)
 {
     return (((num & 0x00ff) << 8) | ((num & 0xff00) >> 8));
 }
 
 // swap 4 bytes (32-bit) around
-INLINE uint32_t swapUInt32(const uint32_t num)
+static INLINE uint32_t swapUInt32(const uint32_t num)
 {
     uint32_t x = (num & 0x0000FFFF) << 16 | (num & 0xFFFF0000) >> 16;
     x = (x & 0x00FF00FF) << 8 | (x & 0xFF00FF00) >> 8;
@@ -134,7 +134,7 @@ INLINE uint32_t swapUInt32(const uint32_t num)
 }
 
 // swap 8 bytes (64-bit) around
-INLINE uint64_t swapUInt64(const uint64_t num)
+static INLINE uint64_t swapUInt64(const uint64_t num)
 {
     return  (num >> 56) |
           ((num<<40) & 0x00FF000000000000) |
@@ -146,7 +146,7 @@ INLINE uint64_t swapUInt64(const uint64_t num)
           (num << 56);
 }
 
-INLINE int GetAlignedByteCount(const int width, const int bitsperpixel, const int alignment)
+static INLINE int GetAlignedByteCount(const int width, const int bitsperpixel, const int alignment)
 {
     return (((width * (bitsperpixel / 8)) + (alignment - 1)) & ~(alignment - 1));
 }
@@ -156,7 +156,7 @@ INLINE int GetAlignedByteCount(const int width, const int bitsperpixel, const in
 // the 'scale' says where the decimal point is, starting from 
 // the least significant bit
 // so; 0x13 (0b0001.0011) ,4  == 1.1875
-INLINE double fixedToFloat(const uint64_t vint, const int scale)
+static INLINE double fixedToFloat(const uint64_t vint, const int scale)
 {
     double whole = (double)binops::BITSVALUE(vint, scale, 63);
     double frac = (double)binops::BITSVALUE(vint, 0, ((size_t)scale - 1));

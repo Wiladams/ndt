@@ -20,27 +20,19 @@
 #include "bitbang.h"
 #include "Graphics.h"
 #include "blend2d.h"
-#include "pixelarray.h"
+#include "pixelaccessor.h"
 #include "memutils.h"
 
-// Use this intrinsic for fast memory copies
-//#pragma intrinsic(__stosd)
 
-
-class User32PixelMap : public PixelBuffer<Pixel>
+class User32PixelMap : public PixelAccessor<Pixel>
 {
-    BITMAPINFO fBMInfo{0};              // retain bitmap info for  future usage
+    BITMAPINFO fBMInfo{ {0} };              // retain bitmap info for  future usage
     HBITMAP fDIBHandle = nullptr;       // Handle to the dibsection to be created
     HDC     fBitmapDC = nullptr;        // DeviceContext dib is selected into
 
     // A couple of constants
     static const int bitsPerPixel = 32;
     static const int alignment = 4;
-
-    INLINE int GetAlignedByteCount(const int width, const int bitsperpixel, const int alignment)
-    {
-        return (((width * (bitsperpixel / 8)) + (alignment - 1)) & ~(alignment - 1));
-    }
 
     User32PixelMap(const User32PixelMap& other) = delete;
 
@@ -56,6 +48,7 @@ public:
 
     virtual ~User32PixelMap()
     {
+        ;
         // and destroy it
         //::DeleteObject(fDIBHandle);
     }
@@ -63,7 +56,7 @@ public:
 
     bool init(int awidth, int aheight)
     {
-        size_t bytesPerRow = GetAlignedByteCount(awidth, bitsPerPixel, alignment);
+        size_t bytesPerRow = binops::GetAlignedByteCount(awidth, bitsPerPixel, alignment);
 
         fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
         fBMInfo.bmiHeader.biWidth = (LONG)awidth;
@@ -79,9 +72,9 @@ public:
         // storage for the context to draw into
         // BUGBUG - check for nullptr and fail if found
         uint8_t* pdata = nullptr;
-        fDIBHandle = ::CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS, (void **) & pdata, nullptr, 0);
+        fDIBHandle = ::CreateDIBSection(nullptr, &fBMInfo, DIB_RGB_COLORS, (void**)& pdata, nullptr, 0);
 
-        attach(pdata, awidth, aheight, bytesPerRow);
+        reset(pdata, awidth, aheight, bytesPerRow);
 
         // Create a GDI Device Context
         fBitmapDC = ::CreateCompatibleDC(nullptr);
@@ -107,42 +100,12 @@ public:
     BITMAPINFO & bitmapInfo() { return fBMInfo; }
     HDC bitmapDC() { return fBitmapDC; }
 
-
-    //uint8_t * data() { return fData; }
     size_t dataSize() { return fBMInfo.bmiHeader.biSizeImage; }
 
-    Pixel* pixelPointer(const size_t x, const size_t y)
+    void setAllPixels(const Pixel& c) override
     {
-        return (Pixel *)(&fData[(y * fStride) + (x * sizeof(Pixel))]);
-    }
-
-    // Retrieve a single pixel
-    // This one does no bounds checking, so the behavior is undefined
-    // if the coordinates are beyond the boundary
-    Pixel pixelGet(const int x, const int y) const
-    {
-        // BUGBUG - should use stride in calculation
-        size_t offset = (size_t)(y * width()) + (size_t)x;
-        return ((Pixel*)fData)[offset];
-    }
-
-
-    // Set a single pixel value
-    // Assume range checking has already occured
-    // Perform SRCCOPY operation on a pixel
-    void pixelCopy(const int x, const int y, const Pixel &c)
-    {
-        size_t offset = (size_t)(y * width()) + (size_t)x;
-        ((Pixel*)fData)[offset] = c;
-    }
-
-    // Set every pixel to a specified value
-    // we can use this fast intrinsic to fill
-    // the whole area
-    void setAllPixels(const Pixel &c)
-    {
-        size_t nPixels = width() * height();
-        ndt::memset_l((unsigned long*)fData, c.value, nPixels);
+        for (size_t row = 0; row < fHeight; row++)
+            ndt::memset_l((unsigned long*)fData, c.value, fWidth);
     }
     
  };

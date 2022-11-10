@@ -1,12 +1,8 @@
 #include "p5.hpp"
-//#include "apphost.h"
-//#include "maths.hpp"
-//#include "Surface.h"
-
 
 #include <memory>
 
-//Surface gSurface;
+
 using namespace p5;
 
 int max_distance;
@@ -33,31 +29,13 @@ void setup()
     max_distance = maths::distance(
         maths::vec2f{ (float)canvasWidth / 2.0f, 0 },
         maths::vec2f{ (float)canvasWidth, (float)canvasHeight });
-
-    layered();
-
-    //recorder = std::make_shared<Recorder>(gSurface, "dist2d-");
-
 }
 
-/*
-void createCanvas()
-{
-    createAppWindow(displayWidth, displayHeight, "distance2d");
-    gAppWindow->moveTo(0, 0);
-
-    gSurface.attachPixelArray(*gAppFrameBuffer);
-
-    layered();
-}
-*/
 
 void keyReleased(const KeyboardEvent& e)
 {
-    switch (e.keyCode) {
-    case 'R':	// toggle recording
-        //recorder->toggleRecording();
-        break;
+    switch (e.keyCode) 
+    {
 
     case VK_SPACE:
         gKindOfShape += 1;
@@ -70,9 +48,6 @@ void keyReleased(const KeyboardEvent& e)
         break;
     }
 }
-
-
-
 
 void draw() {
     if (isLayered())

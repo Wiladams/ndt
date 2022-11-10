@@ -17,7 +17,8 @@
 */
 
 #include "BLGraphics.h"
-#include "pixelarray.h"
+//#include "pixelarray.h"
+#include "pixelaccessor.h"
 
 #include <cstdio>
 
@@ -32,14 +33,14 @@ class Surface : public BLGraphics
 public:
     Surface() = default;
 
-    void attachPixelArray(PixelAccessor& pixmap, uint32_t threadCount = 0)
+    void attachPixelArray(PixelAccessor<Pixel>& pixmap, uint32_t threadCount = 0)
     {
         // Reset the BLImage so we can initialize it anew
         fImage.reset();
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
-        BLResult bResult = blImageInitAsFromData(&fImage, pixmap.width(), pixmap.height(), BL_FORMAT_PRGB32, pixmap.data(), (intptr_t)pixmap.stride(), nullptr, nullptr);
+        blImageInitAsFromData(&fImage, pixmap.width(), pixmap.height(), BL_FORMAT_PRGB32, pixmap.data(), (intptr_t)pixmap.stride(), nullptr, nullptr);
     
         fImage.getData(&fImageInfo);
 
@@ -50,7 +51,7 @@ public:
         createInfo.commandQueueLimit = 255;
         createInfo.threadCount = threadCount;
 
-        bResult = fCtx.begin(fImage, createInfo);
+        fCtx.begin(fImage, createInfo);
     }
 
 

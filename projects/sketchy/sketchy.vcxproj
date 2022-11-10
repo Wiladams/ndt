@@ -165,6 +165,7 @@
     <ClInclude Include="..\..\primary\gpath.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
+    <ClInclude Include="..\..\primary\pixelaccessor.h" />
     <ClInclude Include="..\..\primary\windowmgr.h" />
     <ClInclude Include="drawingtool.h" />
     <ClInclude Include="sketchpage.h" />

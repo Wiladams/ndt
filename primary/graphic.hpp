@@ -129,8 +129,8 @@ public:
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
 		// 
-		float tx = (float)e.x + fTranslation.x;
-		float ty = (float)e.y - fTranslation.y;
+		//float tx = (float)e.x + fTranslation.x;
+		//float ty = (float)e.y - fTranslation.y;
 
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);

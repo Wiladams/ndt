@@ -222,9 +222,6 @@
     <ClInclude Include="blend2d\context.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="pixelarray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rangen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
