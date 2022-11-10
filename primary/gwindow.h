@@ -8,6 +8,7 @@ class GWindow : public Graphic
 protected:
 	BLRect fClientArea;
 	BLPoint fLastMouse;
+	bool fIsMoveable;
 	bool fIsMoving;
 	Pixel fBackgroundColor;
 	BLRect fTitleBar;
@@ -25,11 +26,17 @@ public:
 		fTitleBar(2, 2, w, 32),
 		fTitleBarColor(0x7f, 0x7f, 0x7f, 200),
 		fBackgroundColor(245, 246, 247),
-		fLastMouse(0, 0),
-		fIsMoving(false)
+		fLastMouse(0, 0)
+		,fIsMoveable(true)
+		,fIsMoving(false)
 	{
 		fPixelMap.init(w, h);
 		fSurface.attachPixelArray(fPixelMap);
+	}
+
+	void setMoveable(const bool moveable)
+	{
+		fIsMoveable = moveable;
 	}
 
 	BLImage& getImage() { return fSurface.getImage(); }
@@ -109,14 +116,14 @@ public:
 
 	void setTitle(const char* title)
 	{
-		fTitle.clear();
-		fTitle.append(title);
+		setTitle(std::string(title));
 	}
 
 	void setTitle(const std::string& title)
 	{
 		fTitle.clear();
 		fTitle.append(title);
+		setMoveable(true);
 	}
 
 	bool inTitleBar(int x, int y)
@@ -126,6 +133,11 @@ public:
 			(y - fTitleBar.y <= fTitleBar.h));
 	}
 	
+	bool isMoving()
+	{
+		return fIsMoveable && fIsMoving;
+	}
+
 	void mouseEvent(const MouseEvent& e) override
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
@@ -135,7 +147,7 @@ public:
 		switch (e.activity)
 		{
 		case MOUSEPRESSED:
-			if (inTitleBar(e.x, e.y))
+			if (inTitleBar(e.x, e.y) && fIsMoveable)
 			{
 				fIsMoving = true;
 				fLastMouse = { (double)e.x, (double)e.y };
@@ -145,7 +157,7 @@ public:
 			break;
 
 		case MOUSERELEASED:
-			if (fIsMoving) {
+			if (isMoving()) {
 				fIsMoving = false;
 
 				return;
@@ -153,7 +165,7 @@ public:
 			break;
 
 		case MOUSEMOVED:
-			if (fIsMoving) {
+			if (isMoving()) {
 				// move
 				auto dx = (e.x - fLastMouse.x);
 				auto dy = (e.y - fLastMouse.y);

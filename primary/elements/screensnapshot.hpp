@@ -44,9 +44,9 @@
 #include "Surface.h"
 #include "User32PixelMap.h"
 
-bool BLImageFromPixelArray(const PixelAccessor &arr, BLImage &img)
+bool BLImageFromPixelArray(PixelAccessor<Pixel> &arr, BLImage &img)
 {
-    BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.fData, (intptr_t)arr.stride(), nullptr, nullptr);
+    BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.data(), (intptr_t)arr.stride(), nullptr, nullptr);
 
     return bResult == 0;
 }
@@ -70,6 +70,7 @@ public:
         ,fHeight(aheight)
     {
         fPixelMap.init(awidth, aheight);
+        BLImageFromPixelArray(fPixelMap, fImage);
 
         // create a device context for the display
         fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
@@ -82,15 +83,14 @@ public:
     size_t width() { return fWidth; }
     size_t height() { return fHeight; }
 
-    PixelAccessor & getCurrent()
-    {
-        return fPixelMap;
-    }
+    //PixelAccessor<Pixel> & getCurrent()
+    //{
+    //    return fPixelMap;
+    //}
 
     // return image directly
     BLImage& getImage()
     {
-        BLImageFromPixelArray(fPixelMap, fImage);
         return fImage;
     }
 

@@ -32,11 +32,10 @@ struct PixelAccessor
     constexpr const size_t width() const noexcept { return fWidth; }
     constexpr const size_t height() const noexcept { return fHeight; }
 
-
-    constexpr const ptrdiff_t stride() const noexcept { return fStride; }
-
     // Get a pointer to the raw data
-    uint8_t* data() { return fData; }
+    uint8_t* data() noexcept { return fData; }              // this one allows for editing
+    const uint8_t* data() const noexcept { return fData; }  // this one's not editable
+    constexpr const ptrdiff_t stride() const noexcept { return fStride; }
 
     // Get a pointer to the beginning of a row
     uint8_t* rowPointer(const size_t y)

@@ -92,7 +92,8 @@ public:
             fFamilyNames.push_back(std::string(ff.familyName().data()));
         }
         else {
-            printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
+            ;
+            //printf("FontHandler::loadFont Error: %s (0x%x)\n", filename, err);
         }
 
         return ff;
@@ -117,8 +118,11 @@ public:
         {
             if (dir_entry.is_regular_file())
             {
-                BLFontFace ff;
-                ff = loadFontFace(dir_entry.path().generic_string().c_str());
+                if (dir_entry.path().generic_string().ends_with(".ttf"))
+                {
+                    BLFontFace ff;
+                    ff = loadFontFace(dir_entry.path().generic_string().c_str());
+                }
             }
         }
     }

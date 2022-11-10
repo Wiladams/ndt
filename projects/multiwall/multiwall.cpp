@@ -1,7 +1,6 @@
 
 
 /*
-	Demonstration of instance sampling
 	Take a snapshot of the screen as the source
 	and replicate it multiple times across the screen
 
@@ -14,17 +13,15 @@
 	Using a Youtube window pegged to the left edge
 	of the monitor works well.
 
-	This is also a perfect place to check if multi
-	threading will make a significant performance
-	difference.
-
-	A work stealing strategy might work out where each
-	thread grabs a sub-section of the screen to pull
-	pixels from.
+	This might be a place where using a multi-threaded
+	BLContext might have some performance improvement.
 */
 
 #include "p5.hpp"
+
 #include "elements/screensnapshot.hpp"
+#include "elements/framestats.h"
+
 #include <memory>
 
 using namespace p5;
@@ -38,9 +35,11 @@ constexpr int maxRows = 32;
 int numCols = 1;
 int numRows = 1;
 
-const int FRAMERATE = 10;
+const int FRAMERATE = 15;
 
 std::shared_ptr<ScreenSnapshot> snapper = nullptr;
+
+FrameStats stats;
 
 void drawCells(IGraphics &ctx)
 {
@@ -69,6 +68,8 @@ void draw()
 	snapper->next();
 
 	drawCells(*gAppSurface);
+
+	stats.draw(*gAppSurface);
 }
 
 void keyReleased(const KeyboardEvent& e)
@@ -102,8 +103,9 @@ void keyReleased(const KeyboardEvent& e)
 
 void setup()
 {
-	createCanvas(captureWidth, captureHeight);
+	createCanvas(displayWidth/2, displayHeight);
 
-	snapper = std::make_shared<ScreenSnapshot>(40, 158, 640, 450);
+	snapper = std::make_shared<ScreenSnapshot>(0, 0, displayWidth/2, displayHeight);
+
 	frameRate(FRAMERATE);
 }
