@@ -469,10 +469,22 @@ namespace maths
 
     struct vec4b
     {
-        uint8_t x = 0;
-        uint8_t y = 0;
-        uint8_t z = 0;
-        uint8_t w = 0;
+        union {
+            struct {
+                uint8_t x;
+                uint8_t y;
+                uint8_t z;
+                uint8_t w;
+            };
+            struct {
+                uint8_t b;
+                uint8_t g;
+                uint8_t r;
+                uint8_t a;
+            };
+            uint32_t value=0;
+        };
+
 
         inline uint8_t & operator[](int i);
         inline const uint8_t & operator[](int i) const;

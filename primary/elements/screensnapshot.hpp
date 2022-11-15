@@ -53,7 +53,7 @@ bool BLImageFromPixelArray(PixelAccessor<Pixel> &arr, BLImage &img)
 
 class ScreenSnapper : public User32PixelMap
 {
-    HDC fSourceDC;
+    HDC fSourceDC=nullptr;
     int fOriginX = 0;
     int fOriginY = 0;
     BLImage fImage{};
@@ -61,11 +61,15 @@ class ScreenSnapper : public User32PixelMap
 public:
     ScreenSnapper()
     {
-        fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
     }
 
-    void reset(int x, int y, int w, int h)
+    void reset(int x, int y, int w, int h, HDC srcDC=nullptr)
     {
+        if (srcDC == nullptr)
+            fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
+        else
+            fSourceDC = srcDC;
+        
         fOriginX = x;
         fOriginY = y;
         init(w, h);

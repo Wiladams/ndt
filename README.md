@@ -202,6 +202,11 @@ Examples
 * Project: [tinyvgviewer](projects/tinyvgviewer)
 * Notes: parsing and displaying tinyvg graphic files
 
+### tinyrenderer
+<img src="docs/images/tinyrenderer.png" alt="tinyrenderer" width=240/></br>
+* Project: [tinyrenderer](projects/tinyrenderer)
+* Notes: software 3D renderer, OBJ model viewing
+
 ### touchy
 <img src="docs/images/touchy.png" alt="touchy" width=240/></br>
 * Project: [touchy](projects/touchy)

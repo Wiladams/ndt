@@ -60,7 +60,6 @@ char **gargv;
 
 
 User32Window * gAppWindow = nullptr;
-//std::shared_ptr<User32PixelMap> gAppFrameBuffer = nullptr;
 User32PixelMap gAppFrameBuffer;
 std::shared_ptr<FontHandler> gFontHandler = nullptr;
 

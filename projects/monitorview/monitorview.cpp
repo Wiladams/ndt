@@ -1,3 +1,8 @@
+//
+// monitorview
+// 
+// Target specific monitor to take a screen snapshot
+//
 #include "p5.hpp"
 #include "elements/screensnapshot.hpp"
 
@@ -9,11 +14,5 @@ ScreenSnapper snapper;
 
 void setup()
 {
-	BLVar style;
 
-	BLRgba32 c(255, 0, 0, 255);
-
-	blVarAssignRgba32(&style, c.value);
-
-	printf("isStyle: %d\n", style.isStyle());
 }

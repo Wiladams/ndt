@@ -1,3 +1,6 @@
+
+#include "Graphics.h"
+#include "pixelaccessor.h"
 #include "tgaimage.hpp"
 #include "algebra.hpp"
 
@@ -12,5 +15,5 @@ struct IShader {
     virtual bool fragment(const vec3 bar, TGAColor &color) = 0;
 };
 
-void triangle(const vec4 clip_verts[3], IShader &shader, TGAImage &image, std::vector<double> &zbuffer);
+void triangle(const vec4 clip_verts[3], IShader &shader, PixelAccessor<maths::vec4b>&image, std::vector<double> &zbuffer);
 

@@ -4,6 +4,9 @@
 #include "blend2d.h"
 #include "geometry.h"
 
+typedef BLRgba32 Pixel;
+//using Pixel = maths::vec4b;
+
 // Enumerations for all the commands
 // 
 enum  GRCOMMANDS {
@@ -149,8 +152,7 @@ enum class DRAWSTYLE : unsigned
 };
 
 
-typedef BLRgba32 Pixel;
-//using Pixel = maths::vec4b;
+
 
 /*
     IGraphics defines the essential interface for doing vector graphics

@@ -1,5 +1,7 @@
 #include <limits>
+
 #include "renderer_gl.hpp"
+#include "pixelaccessor.h"
 
 mat<4,4> ModelView;
 mat<4,4> Viewport;
@@ -28,7 +30,7 @@ vec3 barycentric(const vec2 tri[3], const vec2 P) {
     return ABC.invert_transpose() * embed<3>(P);
 }
 
-void triangle(const vec4 clip_verts[3], IShader &shader, TGAImage &image, std::vector<double> &zbuffer) {
+void triangle(const vec4 clip_verts[3], IShader &shader, PixelAccessor<maths::vec4b> &image, std::vector<double> &zbuffer) {
     vec4 pts[3]  = { Viewport*clip_verts[0],    Viewport*clip_verts[1],    Viewport*clip_verts[2]    };  // triangle screen coordinates before persp. division
     vec2 pts2[3] = { proj<2>(pts[0]/pts[0][3]), proj<2>(pts[1]/pts[1][3]), proj<2>(pts[2]/pts[2][3]) };  // triangle screen coordinates after  perps. division
 
@@ -51,7 +53,8 @@ void triangle(const vec4 clip_verts[3], IShader &shader, TGAImage &image, std::v
             TGAColor color;
             if (shader.fragment(bc_clip, color)) continue; // fragment shader can discard current fragment
             zbuffer[x+y*image.width()] = frag_depth;
-            image.set(x, y, color);
+            maths::vec4b c{ { color[0], color[1], color[2], 255 } };
+            image.setPixel(x, y, c);
         }
     }
 }

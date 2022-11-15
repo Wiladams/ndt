@@ -1,20 +1,11 @@
-#include "apphost.h"
+#pragma once
 
-#include <limits>
 #include "model.hpp"
 #include "renderer_gl.hpp"
+#include "algebra.hpp"
 
-constexpr int width  = 800; // output image size
-constexpr int height = 800;
-
-const vec3 light_dir(1,1,1); // light source
-const vec3       eye(1,1,3); // camera position
-const vec3    center(0,0,0); // camera direction
-const vec3        up(0,1,0); // camera up vector
-
-extern mat<4,4> ModelView; // "OpenGL" state matrices
-extern mat<4,4> Projection;
-
+extern mat<4, 4> ModelView; // "OpenGL" state matrices
+extern mat<4, 4> Projection;
 
 struct Shader : IShader {
     const Model& model;
@@ -58,36 +49,4 @@ struct Shader : IShader {
         return false; // the pixel is not discarded
     }
 };
-
-void onLoad() 
-{
-    if (2>gargc) {
-        std::cerr << "Usage: " << gargv[0] << " obj/model.obj" << std::endl;
-        
-        halt();
-
-        return;
-    }
-
-    createAppWindow(width, height,"tinyrenderer");
-    gAppFrameBuffer.setOrientation(PixelOrientation::BottomToTop);
-
-    lookat(eye, center, up);                            // build the ModelView matrix
-    viewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
-    projection((eye-center).norm());                    // build the Projection matrix
-    std::vector<double> zbuffer(width*height, std::numeric_limits<double>::max());
-
-    for (int m=1; m<gargc; m++) { // iterate through all input objects
-        Model model(gargv[m]);
-        Shader shader(model);
-        for (int i=0; i<model.nfaces(); i++) { // for every triangle
-            vec4 clip_vert[3]; // triangle coordinates (clip coordinates), written by VS, read by FS
-            for (int j : {0,1,2})
-                shader.vertex(i, j, clip_vert[j]); // call the vertex shader for each triangle vertex
-            triangle(clip_vert, shader, gAppFrameBuffer, zbuffer); // actual rasterization routine call
-        }
-    }
-
-    screenRefresh();
-}
 

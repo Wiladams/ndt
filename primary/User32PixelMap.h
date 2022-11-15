@@ -17,14 +17,13 @@
 #include <windows.h>
 #include <cstdio>
 
-#include "bitbang.h"
-#include "Graphics.h"
-#include "blend2d.h"
+
+#include "maths.hpp"
 #include "pixelaccessor.h"
 #include "memutils.h"
 
 
-class User32PixelMap : public PixelAccessor<Pixel>
+class User32PixelMap : public PixelAccessor<maths::vec4b>
 {
     BITMAPINFO fBMInfo{ {0} };              // retain bitmap info for  future usage
     HBITMAP fDIBHandle = nullptr;       // Handle to the dibsection to be created
@@ -101,7 +100,7 @@ public:
 
     size_t dataSize() { return fBMInfo.bmiHeader.biSizeImage; }
 
-    void setAllPixels(const Pixel& c) override
+    void setAllPixels(const maths::vec4b& c) override
     {
         for (size_t row = 0; row < fHeight; row++)
             ndt::memset_l((unsigned long*)fData, c.value, fWidth);
