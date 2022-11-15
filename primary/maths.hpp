@@ -151,8 +151,10 @@ namespace maths
 namespace maths {
     struct vec2f 
     {
+
         float x=0;
-        float y = 0;
+        float y=0;
+
 
         inline float& operator[](int i);
         inline const float& operator[](int i) const;

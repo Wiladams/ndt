@@ -189,6 +189,8 @@
     <ClInclude Include="p5.hpp" />
     <ClInclude Include="pcap.hpp" />
     <ClInclude Include="perlin.h" />
+    <ClInclude Include="pixelaccessor.h" />
+    <ClInclude Include="pixelarray.h" />
     <ClInclude Include="pubsub.h" />
     <ClInclude Include="rangen.h" />
     <ClInclude Include="Recorder.hpp" />

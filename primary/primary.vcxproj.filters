@@ -225,6 +225,12 @@
     <ClInclude Include="rangen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pixelaccessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pixelarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

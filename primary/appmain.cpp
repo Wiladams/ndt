@@ -60,7 +60,8 @@ char **gargv;
 
 
 User32Window * gAppWindow = nullptr;
-std::shared_ptr<User32PixelMap> gAppFrameBuffer = nullptr;
+//std::shared_ptr<User32PixelMap> gAppFrameBuffer = nullptr;
+User32PixelMap gAppFrameBuffer;
 std::shared_ptr<FontHandler> gFontHandler = nullptr;
 
 
@@ -72,6 +73,7 @@ int canvasWidth = 0;
 int canvasHeight = 0;
 uint8_t* canvasPixelData = nullptr;
 size_t canvasStride = 0;
+PixelArray canvasPixelArray;
 
 int displayWidth = 0;
 int displayHeight= 0;
@@ -81,17 +83,17 @@ unsigned int systemPpi = 192;   // starting pixel density
 
 // Mouse Globals
 bool mouseIsPressed = false;
-int mouseX = 0;
-int mouseY = 0;
-int mouseDelta = 0;
-int mouseHDelta = 0;
-int pmouseX = 0;
-int pmouseY = 0;
+float mouseX = 0;
+float mouseY = 0;
+float mouseDelta = 0;
+float mouseHDelta = 0;
+float pmouseX = 0;
+float pmouseY = 0;
 
 
 // Raw Mouse input
-int rawMouseX = 0;
-int rawMouseY = 0;
+float rawMouseX = 0;
+float rawMouseY = 0;
 
 // Joystick
 static Joystick gJoystick1(JOYSTICKID1);
@@ -144,11 +146,11 @@ void screenRefresh()
     //    printf("forceRedraw, NULL PTRs\n");
     //    return;
     //}
-    if ((gAppFrameBuffer == nullptr))
-    {
-        printf("forceRedraw, NULL PTRs\n");
-        return;
-    }
+    //if ((gAppFrameBuffer == nullptr))
+    //{
+    //    printf("forceRedraw, NULL PTRs\n");
+    //    return;
+    //}
 
     if (!gIsLayered) {
         // if we're not layered, then do a regular
@@ -157,8 +159,7 @@ void screenRefresh()
     }
     else {
         LayeredWindowInfo lw(canvasWidth, canvasHeight);
-        //lw.display(gAppWindow->getHandle(), gAppSurface->getDC());
-        lw.display(gAppWindow->getHandle(), gAppFrameBuffer->bitmapDC());
+        lw.display(gAppWindow->getHandle(), gAppFrameBuffer.bitmapDC());
 
     }
 }
@@ -521,7 +522,7 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int SrcWidth = canvasWidth;
     int SrcHeight = canvasHeight;
 
-    BITMAPINFO info = gAppFrameBuffer->bitmapInfo();
+    BITMAPINFO info = gAppFrameBuffer.bitmapInfo();
     
     // Make sure we sync all current drawing
     //gAppSurface->flush();
@@ -531,7 +532,7 @@ LRESULT HandlePaintMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         DestWidth,DestHeight,
         xSrc,ySrc,
         SrcWidth, SrcHeight,
-        gAppFrameBuffer->data(),&info,
+        gAppFrameBuffer.data(),&info,
         DIB_RGB_COLORS,
         SRCCOPY);
         
@@ -554,8 +555,8 @@ LRESULT HandleFileDropMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     // Find out where the drop occured
     POINT pt;
     ::DragQueryPoint(dropHandle, &pt);
-    e.x = pt.x;
-    e.y = pt.y;
+    e.x = (float)pt.x;
+    e.y = (float)pt.y;
 
     // First, find out how many files were dropped
     auto n = ::DragQueryFileA(dropHandle, 0xffffffff, nullptr, 0);
@@ -841,21 +842,23 @@ void setCanvasPosition(int x, int y)
 bool setCanvasSize(long aWidth, long aHeight)
 {
     // Create new drawing surface
-    if (gAppFrameBuffer != nullptr) {
+    //if (gAppFrameBuffer != nullptr) {
         // Delete old one if it exists
         //delete gAppSurface;
         //gAppSurface.reset();
-    }
+   // }
 
-    // BUGBUG - is state transferred?
-    gAppFrameBuffer = std::make_shared<User32PixelMap>(aWidth, aHeight);
+
+    //gAppFrameBuffer = std::make_shared<User32PixelMap>();
+    gAppFrameBuffer.init(aWidth, aHeight);
+
     //gAppSurface->textFont("Consolas");
 
     canvasWidth = aWidth;
     canvasHeight = aHeight;
 
-    canvasPixelData = gAppFrameBuffer->data();
-    canvasStride = gAppFrameBuffer->stride();
+    canvasPixelData = gAppFrameBuffer.data();
+    canvasStride = gAppFrameBuffer.stride();
 
     return true;
 }
@@ -935,8 +938,8 @@ LRESULT CALLBACK MsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             switch (raw->header.dwType) {
             case RIM_TYPEMOUSE: {
-                rawMouseX = raw->data.mouse.lLastX;
-                rawMouseY = raw->data.mouse.lLastY;
+                rawMouseX = (float)raw->data.mouse.lLastX;
+                rawMouseY = (float)raw->data.mouse.lLastY;
                 //mouseEvent();
                 //printf("RAWMOUSE: %d %d\n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
             }

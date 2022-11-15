@@ -12,9 +12,6 @@ using namespace tinyvg;
 struct VGCommandPath
 {
 	int fCommand;
-	
-	tvg_style_t fillStyle{};
-	tvg_style_t lineStyle{};
 
 	BLVar fFillStyle{};
 	BLVar fLineStyle{};
@@ -31,8 +28,8 @@ private:
 		case DrawingStyle::FlatColored:
 		{
 			BLRgba32 c = BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a);
-			//s.assign(c);
-			s.assign(c.value);
+			blVarAssignRgba32(&s, c.value);
+			//s = c; // does not work yet
 		}
 		break;
 
@@ -43,7 +40,7 @@ private:
 				BLGradient linear(BLLinearGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_1.x, tvgs.point_1.y));
 				linear.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				linear.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				//s.assign(linear);
+
 				s = linear;
 			}
 			else if (tvgs.kind == DrawingStyle::RadialGradient) {
@@ -54,7 +51,7 @@ private:
 				BLGradient radial(BLRadialGradientValues(tvgs.point_0.x, tvgs.point_0.y, tvgs.point_0.x, tvgs.point_0.y, r0));
 				radial.addStop(0, BLRgba32(tvgs.color_0.r, tvgs.color_0.g, tvgs.color_0.b, tvgs.color_0.a));
 				radial.addStop(1, BLRgba32(tvgs.color_1.r, tvgs.color_1.g, tvgs.color_1.b, tvgs.color_1.a));
-				//s.assign(radial);
+
 				s = radial;
 			}
 		}
@@ -149,9 +146,6 @@ public:
 		fCommand = cmd.command;
 		fLineWidth = cmd.lineWidth;
 
-		lineStyle = cmd.lineStyle;
-		fillStyle = cmd.fillStyle;
-
 		initStyle(fLineStyle, cmd.lineStyle);
 		initStyle(fFillStyle, cmd.fillStyle);
 
@@ -172,9 +166,8 @@ public:
 		case Commands::DrawLineStrip:
 		{
 			ctx.noFill();
-			ctx.stroke(lineStyle.color_0.r, lineStyle.color_0.g, lineStyle.color_0.b);
 
-			//ctx.stroke(fLineStyle);
+			ctx.stroke(fLineStyle);
 
 			ctx.strokeWeight(fLineWidth);
 			ctx.path(fPath);
@@ -186,8 +179,7 @@ public:
 		case Commands::FillRectangles:
 		{
 			ctx.noStroke();
-			ctx.fill(fillStyle.color_0.r, fillStyle.color_0.g, fillStyle.color_0.b);
-			//ctx.fill(fFillStyle);
+			ctx.fill(fFillStyle);
 			ctx.path(fPath);
 		}
 		break;
@@ -197,11 +189,11 @@ public:
 		case Commands::OutlineFillPolygon:
 		{
 
-			ctx.fill(fillStyle.color_0.r, fillStyle.color_0.g, fillStyle.color_0.b);
-			ctx.stroke(lineStyle.color_0.r, lineStyle.color_0.g, lineStyle.color_0.b);
+			//ctx.fill(fillStyle.color_0.r, fillStyle.color_0.g, fillStyle.color_0.b);
+			//ctx.stroke(lineStyle.color_0.r, lineStyle.color_0.g, lineStyle.color_0.b);
 
-			//ctx.fill(fFillStyle);
-			//ctx.stroke(fLineStyle);
+			ctx.fill(fFillStyle);
+			ctx.stroke(fLineStyle);
 			ctx.strokeWeight(fLineWidth);
 			ctx.path(fPath);
 		}

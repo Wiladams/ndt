@@ -281,6 +281,8 @@ public:
 
 	void keyPressed(const KeyboardEvent& e) override
 	{
+		printf("emspaceview::keyPressed\n");
+
 		switch (e.keyCode)
 		{
 		case VK_RIGHT:

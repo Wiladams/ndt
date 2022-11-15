@@ -29,7 +29,7 @@
     <ClInclude Include="..\..\primary\apphost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\sampler.hpp">
+    <ClInclude Include="..\..\primary\elements\screensnapshot.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

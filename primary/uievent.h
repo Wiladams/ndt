@@ -28,10 +28,13 @@ enum {
 struct MouseEvent {
     int id;
     int activity;
-    int x;
-    int y;
-    int delta;
+    float x;
+    float y;
+    float delta;
 
+    // This could easily be a bitset, and the original
+    // Windows version is in fact that
+    // So, what to create that will be easy, but not obscure
     // derived attributed
     bool control;
     bool shift;
@@ -71,6 +74,17 @@ struct TouchEvent {
     int id;
     int activity;
 
+    long x;
+    long y;
+    size_t w;
+    size_t h;
+
+    long rawX;
+    long rawY;
+    unsigned long rawWidth;
+    unsigned long rawHeight;
+
+
     bool isMoving;
     bool isUp;
     bool isDown;
@@ -78,16 +92,6 @@ struct TouchEvent {
     bool isHovering;
     bool isPalm;
     bool isPen;
-
-    long rawX;
-    long rawY;
-    unsigned long rawWidth;
-    unsigned long rawHeight;
-
-    long x;
-    long y;
-    size_t w;
-    size_t h;
 };
 
 enum {
@@ -130,8 +134,8 @@ struct PointerEvent {
 
 // File drop interactions
 struct FileDropEvent {
-    int x;
-    int y;
+    float x;
+    float y;
     std::vector<std::string> filenames;
 };
 

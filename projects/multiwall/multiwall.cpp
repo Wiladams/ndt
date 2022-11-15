@@ -37,7 +37,7 @@ int numRows = 1;
 
 const int FRAMERATE = 15;
 
-std::shared_ptr<ScreenSnapshot> snapper = nullptr;
+ScreenSnapper snapper;
 
 FrameStats stats;
 
@@ -46,7 +46,7 @@ void drawCells(IGraphics &ctx)
 	int cellWidth = canvasWidth / numCols;
 	int cellHeight = canvasHeight / numRows;
 
-	auto& img = snapper->getImage();
+	auto& img = snapper.getImage();
 	auto imgWidth = img.width();
 	auto imgHeight = img.height();
 
@@ -65,7 +65,7 @@ void drawCells(IGraphics &ctx)
 
 void draw()
 {
-	snapper->next();
+	snapper.next();
 
 	drawCells(*gAppSurface);
 
@@ -105,7 +105,7 @@ void setup()
 {
 	createCanvas(displayWidth/2, displayHeight);
 
-	snapper = std::make_shared<ScreenSnapshot>(0, 0, displayWidth/2, displayHeight);
+	snapper.reset(0, 0, displayWidth / 2, displayHeight);
 
 	frameRate(FRAMERATE);
 }

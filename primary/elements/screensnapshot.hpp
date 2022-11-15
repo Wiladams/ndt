@@ -51,6 +51,43 @@ bool BLImageFromPixelArray(PixelAccessor<Pixel> &arr, BLImage &img)
     return bResult == 0;
 }
 
+class ScreenSnapper : public User32PixelMap
+{
+    HDC fSourceDC;
+    int fOriginX = 0;
+    int fOriginY = 0;
+    BLImage fImage{};
+
+public:
+    ScreenSnapper()
+    {
+        fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
+    }
+
+    void reset(int x, int y, int w, int h)
+    {
+        fOriginX = x;
+        fOriginY = y;
+        init(w, h);
+        BLImageFromPixelArray(*this, fImage);
+    }
+
+    BLImage& getImage()
+    {
+        return fImage;
+    }
+
+    // take a snapshot
+    bool next()
+    {
+        auto bResult = BitBlt(bitmapDC(), 0, 0, width(), height(),
+            fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
+
+        return true;
+    }
+};
+
+/*
 class ScreenSnapshot
 {
     HDC fSourceDC;
@@ -83,11 +120,6 @@ public:
     size_t width() { return fWidth; }
     size_t height() { return fHeight; }
 
-    //PixelAccessor<Pixel> & getCurrent()
-    //{
-    //    return fPixelMap;
-    //}
-
     // return image directly
     BLImage& getImage()
     {
@@ -104,3 +136,4 @@ public:
     }
 
 };
+*/

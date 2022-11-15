@@ -3,7 +3,7 @@ using namespace p5;
 
 void setup()
 {
-	createCanvas(800, 600);
+	createCanvas(800, 600, "sinwave");
 }
 
 typedef float (*CFUNC)(float u);

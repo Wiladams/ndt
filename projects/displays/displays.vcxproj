@@ -147,6 +147,11 @@
     <ClCompile Include="..\..\primary\p5.cpp" />
     <ClCompile Include="displays.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\primary\apphost.h" />
+    <ClInclude Include="..\..\primary\elements\gmonitor.h" />
+    <ClInclude Include="displaydevice.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

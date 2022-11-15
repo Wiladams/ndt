@@ -7,7 +7,7 @@ class GWindow : public Graphic
 {
 protected:
 	BLRect fClientArea;
-	BLPoint fLastMouse;
+	maths::vec2f fLastMouse;
 	bool fIsMoveable;
 	bool fIsMoving;
 	Pixel fBackgroundColor;
@@ -21,12 +21,12 @@ protected:
 public:
 
 	GWindow(float x, float y, float w, float h)
-		: Graphic(x, y, w, h),
-		fClientArea(0, 0, w, h),
-		fTitleBar(2, 2, w, 32),
-		fTitleBarColor(0x7f, 0x7f, 0x7f, 200),
-		fBackgroundColor(245, 246, 247),
-		fLastMouse(0, 0)
+		: Graphic(x, y, w, h)
+		,fClientArea(0, 0, w, h)
+		,fTitleBar(2, 2, w, 32)
+		,fTitleBarColor(0x7f, 0x7f, 0x7f, 200)
+		,fBackgroundColor(245, 246, 247)
+		,fLastMouse{ 0, 0 }
 		,fIsMoveable(true)
 		,fIsMoving(false)
 	{
@@ -126,7 +126,7 @@ public:
 		setMoveable(true);
 	}
 
-	bool inTitleBar(int x, int y)
+	bool inTitleBar(float x, float y)
 	{
 		return ((x >= fTitleBar.x) && (y >= fTitleBar.y) &&
 			(x - fTitleBar.x <= fTitleBar.w) &&
@@ -150,7 +150,7 @@ public:
 			if (inTitleBar(e.x, e.y) && fIsMoveable)
 			{
 				fIsMoving = true;
-				fLastMouse = { (double)e.x, (double)e.y };
+				fLastMouse = { e.x, e.y };
 
 				return;
 			}
@@ -173,7 +173,7 @@ public:
 
 				moveBy(dx, dy);
 
-				fLastMouse = { (double)e.x-dx, (double)e.y-dy };
+				fLastMouse = { e.x-dx, e.y-dy };
 				return;
 			}
 			break;
@@ -183,7 +183,7 @@ public:
 		// if we are here, we're not moving around
 		// figure out if there was a graphic under the mouse
 		// and if there is, forward the event to that graphic
-		auto g = graphicAt((float)e.x, (float)e.y);
+		auto g = graphicAt(e.x, e.y);
 
 		if (g != fActiveGraphic)
 		{
@@ -197,8 +197,8 @@ public:
 			// right here, need to adjust the event to account
 			// for the frame of the underlying graphic
 			MouseEvent newEvent(e);
-			newEvent.x = (int)(e.x - g->frameX());
-			newEvent.y = (int)(e.y - g->frameY());
+			newEvent.x = (e.x - g->frameX());
+			newEvent.y = (e.y - g->frameY());
 
 			g->mouseEvent(newEvent);
 		}

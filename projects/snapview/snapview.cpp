@@ -1,29 +1,33 @@
+// Show a MIP Map of a screen capture
+// The screen capture itself is just a readily available
+// bitmap we can play with.
+// The real demonstration here is bitmap scaling as we 
+// draw iteratively smaller images a few times.
+
+
 #include "p5.hpp"
 
-// Show a MIP Map of a screen capture
-// There's nothing special about the screen capture
-// in this case.  It's realll mipmap which is interesting
-// the screen capture just makes for a quick and easy source
-// of 2D graphics data
 #include "elements/screensnapshot.hpp"
 
 using namespace p5;
 
-ScreenSnapshot *ss = nullptr;
+ScreenSnapper ss;
 
 
-void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
+
+void displayQuad(IGraphics &ctx, BLImage& src, const BLRectI& rect, int lvl=1)
 {
     // 1 full rectangle
-    scaleImage(src, 0, 0, src.width(), src.height(), rect.x, rect.y, rect.w, rect.h);
+    ctx.scaleImage(src, 0, 0, src.width(), src.height(), rect.x, rect.y, rect.w, rect.h);
 
+    // Progressively smaller rectangles
     int xoffset = src.width();
     int yoffset = 0;
     for (int iter = 1; iter <= lvl; iter++)
     {
         int yheight = src.height() / pow(2, iter);
         int xwidth = src.width() / pow(2, iter);
-        scaleImage(src, 0, 0, src.width(), src.height(), xoffset, yoffset, xwidth, yheight);
+        ctx.scaleImage(src, 0, 0, src.width(), src.height(), xoffset, yoffset, xwidth, yheight);
         
         xoffset += 0;
         yoffset += yheight;
@@ -32,21 +36,15 @@ void displayQuad(BLImage& src, const BLRectI& rect, int lvl=1)
 
 void draw()
 {
-    ss->next();
-    auto & src = ss->getImage();
-    displayQuad(src, { 0,0,src.width(), src.height() }, 8);
+    ss.next();
+    auto & src = ss.getImage();
+    displayQuad(*gAppSurface, src, { 0,0,src.width(), src.height() }, 8);
 }
 
-int T_SP = ' ';
-
-void keyTyped(const KeyboardEvent& event)
+void keyReleased(const KeyboardEvent &e)
 {
-    // if [Space] save file
-    if (keyCode == T_SP) {
-        BLImageCodec codec;
-        codec.findByName("BMP");
-        gAppSurface->getImage().writeToFile("screen.bmp", codec);
-    }
+    if (e.keyCode == VK_ESCAPE)
+        halt();
 }
 
 void setup()
@@ -54,5 +52,5 @@ void setup()
     createCanvas(displayWidth/2, displayHeight/2);
     frameRate(15);
 
-    ss = new ScreenSnapshot(0, 0, displayWidth/3, displayHeight/2);
+    ss.reset(0, 0, displayWidth/3, displayHeight/2);
 }

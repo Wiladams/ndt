@@ -443,7 +443,6 @@ namespace p5 {
     void loop() noexcept
     {
         gLooping = true;
-        //gTickTopic.start();
     }
 
     // turn looping off
@@ -452,7 +451,6 @@ namespace p5 {
     void noLoop() noexcept
     {
         gLooping = false;
-        //gTickTopic.pause();
     }
 
     // Clearing is a complete wipe, which will leave 
@@ -732,7 +730,7 @@ namespace p5 {
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
 
-        gAppSurface->attachPixelArray(*gAppFrameBuffer);
+        gAppSurface->attachPixelArray(gAppFrameBuffer);
     }
 
     void fullscreen() noexcept
@@ -1136,8 +1134,10 @@ void onLoop()
         ::GetKeyboardState(p5::keyStates);
 
         //
-        handleFrameTick(p5::SWatch.seconds());
-        
+        if (gLooping)
+        {
+            handleFrameTick(p5::SWatch.seconds());
+        }
 
 
         // catch up to next frame interval
@@ -1157,7 +1157,7 @@ void onLoad()
 
     // setup the drawing context
     gAppSurface = std::make_shared<Surface>();
-    gAppSurface->attachPixelArray(*gAppFrameBuffer);
+    gAppSurface->attachPixelArray(gAppFrameBuffer);
     gAppSurface->textFont("Consolas");
     
     // ppi and user units
@@ -1236,5 +1236,6 @@ void onLoad()
     // do drawing at least once in case
     // the user calls noLoop() within 
     // the setup() routine
+    handleFrameTick(p5::SWatch.seconds());
     screenRefresh();
 }

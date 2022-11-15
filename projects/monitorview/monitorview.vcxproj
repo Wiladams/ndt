@@ -21,34 +21,34 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e497afe9-0f5e-4afe-85c6-2d3816eb4727}</ProjectGuid>
-    <RootNamespace>fontview</RootNamespace>
+    <ProjectGuid>{a0038a6f-358a-4646-8c51-8d77c355243b}</ProjectGuid>
+    <RootNamespace>monitorview</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -145,24 +145,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
     <ClCompile Include="..\..\primary\p5.cpp" />
-    <ClCompile Include="fontview.cpp" />
+    <ClCompile Include="monitorview.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\apphost.h" />
-    <ClInclude Include="..\..\primary\blend2d\fontmanager.h" />
-    <ClInclude Include="..\..\primary\BLGraphics.h" />
-    <ClInclude Include="..\..\primary\fonthandler.hpp" />
-    <ClInclude Include="..\..\primary\graphic.hpp" />
-    <ClInclude Include="..\..\primary\Graphics.h" />
-    <ClInclude Include="..\..\primary\gwindow.h" />
-    <ClInclude Include="..\..\primary\layout.h" />
-    <ClInclude Include="..\..\primary\p5.hpp" />
-    <ClInclude Include="..\..\primary\windowmgr.h" />
-    <ClInclude Include="familyselector.h" />
-    <ClInclude Include="fontfaceconsole.hpp" />
-    <ClInclude Include="fontglyphgrid.h" />
-    <ClInclude Include="emspaceview.h" />
-    <ClInclude Include="gconsole.h" />
+    <ClInclude Include="..\..\primary\elements\gmonitor.h" />
+    <ClInclude Include="..\..\primary\elements\screensnapshot.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

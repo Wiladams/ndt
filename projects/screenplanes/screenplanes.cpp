@@ -1,7 +1,6 @@
 #include "p5.hpp"
 #include "canvas.h"
 
-//#include <cstdio>
 
 #include "elements/screensnapshot.hpp"
 #include "elements/framestats.h"
@@ -10,11 +9,6 @@
 
 using namespace p5;
 
-static const int captureWidth = 1280;
-static const int captureHeight = 1024;
-FrameStats _stats;
-
-std::shared_ptr<ScreenSnapshot> ss = nullptr;
 
 
 // Take a source image, and split it into 
@@ -25,7 +19,7 @@ class ColorPlaneWindow : public Graphic
     int cellHeight = 64;
     int margin = 4;
 
-    std::shared_ptr<ScreenSnapshot> fScreenSnapshot;
+    ScreenSnapper & fSnapper;
 
     GCanvas redSurface;
     GCanvas greenSurface;
@@ -34,7 +28,7 @@ class ColorPlaneWindow : public Graphic
 
 
     // convert an rgb pixel to a chroma value
-    inline uint8_t toGray(const Pixel& pix)
+    static INLINE uint8_t toGray(const Pixel& pix)
     {
         return (0.2125 * pix.r()) + (0.7154 * pix.g()) + (0.0721 * pix.b());
     }
@@ -45,12 +39,13 @@ class ColorPlaneWindow : public Graphic
     // much faster.
     bool splitPlanes()
     {
-        auto & src = ss->getCurrent();
-
-        for (int y = 0; y < src.height(); y++)
+        // read the pixel value for each location
+        // and create the r,g,b,and gray pixels
+        // from there.
+        for (int y = 0; y < fSnapper.height(); y++)
         {
-            Pixel* ptr = (Pixel*)src.rowPointer(y);
-            for (int x = 0; x < src.width(); x++)
+            Pixel* ptr = (Pixel*)fSnapper.rowPointer(y);
+            for (int x = 0; x < fSnapper.width(); x++)
             {
                 Pixel srcColor = ptr[x];
 
@@ -66,13 +61,13 @@ class ColorPlaneWindow : public Graphic
     }
 
 public:
-    ColorPlaneWindow(int w, int h, std::shared_ptr<ScreenSnapshot> ss)
-        :Graphic(0,0,w,h),
-        fScreenSnapshot(ss),
-        redSurface(ss->width(),ss->height()),
-        greenSurface(ss->width(), ss->height()),
-        blueSurface(ss->width(), ss->height()),
-        graySurface(ss->width(), ss->height())
+    ColorPlaneWindow(int w, int h, ScreenSnapper & ss)
+        :Graphic(0,0,w,h)
+        ,fSnapper(ss)
+        ,redSurface(ss.width(),ss.height())
+        ,greenSurface(ss.width(), ss.height())
+        ,blueSurface(ss.width(), ss.height())
+        ,graySurface(ss.width(), ss.height())
     {
         cellWidth = (w / 2) - (margin/2);
         cellHeight = (h / 2) - (margin/2);
@@ -91,13 +86,20 @@ public:
 };
 
 
+static const int captureWidth = 1280;
+static const int captureHeight = 1024;
+FrameStats _stats;
+
+
+ScreenSnapper ss;
+
 
 void draw()
 {
     clear();
 
-    // Get capture current screen
-    ss->next();
+    // capture current screen
+    ss.next();
 }
 
 void onComposed()
@@ -109,22 +111,18 @@ void setup()
 {
     double windowScale = 1;
 
-    frameRate(10);
+    frameRate(20);
     createCanvas(displayWidth / 2, displayHeight, "screenplanes");
-
-    //createCanvas(displayWidth, displayHeight, "screenplanes");
     //fullscreen();
 
-
-
-    ss = std::make_shared<ScreenSnapshot>(0, 0, captureWidth, captureHeight);
+    ss.reset(0, 0, captureWidth, captureHeight);
 
     // create a window to hold the split plane graphic
     auto win = window(0, 0, captureWidth* windowScale, captureHeight* windowScale);
     win->setTitle("Split Panes");
     
-    auto splitwin = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
-    win->addChild(splitwin);
+    auto colorpanes = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
+    win->addChild(colorpanes);
 }
 
 void keyReleased(const KeyboardEvent& e)

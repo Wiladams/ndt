@@ -1,7 +1,8 @@
 #include "p5.hpp"
 
-#include "guistyle.hpp"
 #include "fonthandler.hpp"
+#include "elements/guistyle.hpp"
+
 
 using namespace p5;
 

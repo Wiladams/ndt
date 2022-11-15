@@ -39,11 +39,13 @@ class User32PixelMap : public PixelAccessor<Pixel>
 public:
     User32PixelMap()
     {
-    }
+        // Create a GDI Device Context
+        fBitmapDC = ::CreateCompatibleDC(nullptr);
 
-    User32PixelMap(const long awidth, const long aheight)
-    {
-        init(awidth, aheight);
+        // Do some setup to the DC to make it suitable
+        // for drawing with GDI if we choose to do that
+        ::SetGraphicsMode(fBitmapDC, GM_ADVANCED);
+        ::SetBkMode(fBitmapDC, TRANSPARENT);        // for GDI text rendering
     }
 
     virtual ~User32PixelMap()
@@ -56,6 +58,9 @@ public:
 
     bool init(int awidth, int aheight)
     {
+        // Delete the old DIBSection if it exists
+        ::DeleteObject(fDIBHandle);
+
         size_t bytesPerRow = binops::GetAlignedByteCount(awidth, bitsPerPixel, alignment);
 
         fBMInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -76,17 +81,11 @@ public:
 
         reset(pdata, awidth, aheight, bytesPerRow);
 
-        // Create a GDI Device Context
-        fBitmapDC = ::CreateCompatibleDC(nullptr);
-
         // select the DIBSection into the memory context so we can 
         // peform GDI operations with it
         ::SelectObject(fBitmapDC, fDIBHandle);
 
-        // Do some setup to the DC to make it suitable
-        // for drawing with GDI if we choose to do that
-        ::SetGraphicsMode(fBitmapDC, GM_ADVANCED);
-        ::SetBkMode(fBitmapDC, TRANSPARENT);        // for GDI text rendering
+
 
         return true;
     }

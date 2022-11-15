@@ -86,20 +86,20 @@ APP_EXPORT extern char **gargv;
 
 
 APP_EXPORT extern User32Window * gAppWindow;
-APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
-
+//APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
+APP_EXPORT extern User32PixelMap gAppFrameBuffer;
 
 // Mouse Globals
 APP_EXPORT extern bool mouseIsPressed;
-APP_EXPORT extern int mouseX;
-APP_EXPORT extern int mouseY;
-APP_EXPORT extern int mouseDelta;
-APP_EXPORT extern int pmouseX;
-APP_EXPORT extern int pmouseY;
+APP_EXPORT extern float mouseX;
+APP_EXPORT extern float mouseY;
+APP_EXPORT extern float mouseDelta;
+APP_EXPORT extern float pmouseX;
+APP_EXPORT extern float pmouseY;
 
 // Raw Mouse input
-APP_EXPORT extern int rawMouseX;
-APP_EXPORT extern int rawMouseY;
+APP_EXPORT extern float rawMouseX;
+APP_EXPORT extern float rawMouseY;
 
 // Globals we expect the user to consume
 APP_EXPORT extern int displayWidth;
@@ -111,7 +111,6 @@ APP_EXPORT extern int canvasWidth;
 APP_EXPORT extern int canvasHeight;
 APP_EXPORT extern uint8_t *canvasPixelData;
 APP_EXPORT extern size_t canvasStride;
-
 
 
 

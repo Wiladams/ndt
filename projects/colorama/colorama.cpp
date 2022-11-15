@@ -29,7 +29,7 @@ void draw()
 			auto c = ndt::ColorRGBAFromWavelength(wl, gamma);
 			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
 
-			gAppFrameBuffer->setPixel(x, y, p);
+			gAppFrameBuffer.setPixel(x, y, p);
 		}
 	}
 }

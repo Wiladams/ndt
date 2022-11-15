@@ -1,15 +1,36 @@
+/*
+	Layout occurs with IGraphic objects.
+	The layout is given a set of graphics
+	and according to some constraint, lays the
+	graphics out consecutively based on that constraint.
+
+	This can be used to create horizontal, vertical, grid,
+	or whatever is required.
+
+	Note: Instead of hard coding a specific set kind
+	we should templatize so that any collection kind can 
+	be used.
+*/
 #pragma once
 
-#include "drawable.h"
+
+#include "graphic.hpp"
 #include "geometry.h"
 
 #include <deque>
 #include <memory>
+#include <functional>
 
 /*
-	given a set of graphics, perform
-	whatever layout operation we need to
+	GraphicCollectionHandler
+	Given a collection of graphics, perform an operation on them
+	while returning a bounds indicating the merged space they take up.
+
+	Most typically, we'll just this to perform layout, but it could really 
+	be used for anything related to a collection of grphics.
 */
+using GraphicCollectionHandler = std::function<maths::bbox2f (std::deque<std::shared_ptr<IGraphic> >& gs)>;
+
 struct ILayoutGraphics 
 {
 	virtual ~ILayoutGraphics() {}
@@ -18,6 +39,10 @@ struct ILayoutGraphics
 
 };
 
+// different kinds of layout handlers.
+// They are implemented as functors, which will 
+// do the layout, and return a boundary structure
+// indicating the extent of the graphics.
 struct IdentityLayout : public ILayoutGraphics
 {
 	virtual ~IdentityLayout() {};
@@ -36,6 +61,12 @@ struct IdentityLayout : public ILayoutGraphics
 		// return the expanded bounding box
 		return bounds;
 	}
+
+	maths::bbox2f operator()(std::deque<std::shared_ptr<IGraphic> >& gs)
+	{
+		return layout(gs);
+	}
+
 };
 
 class BinaryLayout : ILayoutGraphics

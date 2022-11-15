@@ -162,7 +162,6 @@
     <ClCompile Include="screenplanes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\screensnapper.h" />
     <ClInclude Include="..\..\primary\screensnapshot.hpp" />
     <ClInclude Include="..\..\primary\user32surface.h" />
   </ItemGroup>

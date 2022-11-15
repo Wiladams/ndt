@@ -149,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
-    <ClInclude Include="..\..\primary\sampler.hpp" />
+    <ClInclude Include="..\..\primary\elements\screensnapshot.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

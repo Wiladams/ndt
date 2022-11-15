@@ -132,12 +132,11 @@ void draw()
 {
     background(0xC0);
 
-    GFontSummary s("algerian");
+    //GFontSummary s("algerian");
     //GFontSummary s("d:\\Fonts\\Old Copperfield.ttf");
-    //GFontSummary s("c:\\Windows\\Fonts\\STENCIL.ttf");
     //GFontSummary s("c:\\Windows\\Fonts\\comic.ttf");
     //GFontSummary s("Bookman Old Style");
-    //GFontSummary s("Snap ITC");
+    GFontSummary s("Snap ITC");
     //GFontSummary s("Stencil");
 
     s.draw(*gAppSurface);
