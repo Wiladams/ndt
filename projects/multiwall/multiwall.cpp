@@ -35,7 +35,7 @@ constexpr int maxRows = 32;
 int numCols = 1;
 int numRows = 1;
 
-const int FRAMERATE = 15;
+const int FRAMERATE = 30;
 
 ScreenSnapper snapper;
 
@@ -103,7 +103,8 @@ void keyReleased(const KeyboardEvent& e)
 
 void setup()
 {
-	createCanvas(displayWidth/2, displayHeight);
+	//createCanvas(displayWidth/2, displayHeight, "multiwall", 0);
+	createCanvas(1920, 1080, "multiwall", 4);
 
 	snapper.reset(0, 0, displayWidth / 2, displayHeight);
 

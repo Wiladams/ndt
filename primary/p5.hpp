@@ -428,7 +428,7 @@ struct PVector {
 
 
 
-    void createCanvas(long aWidth, long aHeight, const char *title="p5 Application") noexcept;
+    void createCanvas(long aWidth, long aHeight, const char *title="p5 Application", const uint32_t threadCount=0) noexcept;
     void fullscreen() noexcept;
     bool isFullscreen() noexcept;
     //Surface * createSurface(long aWidth, long aHeight) noexcept;

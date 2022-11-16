@@ -33,7 +33,7 @@ class Surface : public BLGraphics
 public:
     Surface() = default;
 
-    void attachPixelArray(PixelAccessor<Pixel>& pixmap, uint32_t threadCount = 0)
+    void attachPixelArray(PixelArray& pixmap, uint32_t threadCount = 0)
     {
         // Reset the BLImage so we can initialize it anew
         fImage.reset();

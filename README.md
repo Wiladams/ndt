@@ -57,6 +57,11 @@ Examples
 * Project: [desktoplife](projects/desktoplife)
 * Notes: desktop, automata, rectangle drawing
 
+### displays
+<img src="docs/images/displays.png" alt="displays" width=240/></br>
+* Project: [displays](projects/displays)
+* Notes:per monitor snapshot, display mini-screen
+
 ### finalysis
 <img src="docs/images/finalysis.png" alt="finalysis" width=240/></br>
 * Project: [finalysis](projects/finalysis)
@@ -111,6 +116,11 @@ Examples
 <img src="docs/images/parimage.png" alt="parimage" width=240/></br>
 * Project: [parimage](projects/parimage)
 * Notes: pixel effects (masking, tinting)
+
+### portablegl
+<img src="docs/images/portablegl.png" alt="portablegl" width=240/></br>
+* Project: [portablegl](projects/portablegl)
+* Notes: portable GL, OpenGL 3.0 software renderer, framebuffer
 
 ### pubit
 <img src="docs/images/pubit.png" alt="pubit" width=240/></br>

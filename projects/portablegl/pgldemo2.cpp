@@ -172,8 +172,8 @@ void setupGL()
 
 void setup()
 {
-	p5::createCanvas(WIDTH, HEIGHT, "Texturing");
-	layered();
+	p5::createCanvas(WIDTH, HEIGHT, "portablegl");
+	//layered();
 
 	setupGL();
 

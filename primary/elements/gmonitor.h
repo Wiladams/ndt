@@ -12,29 +12,38 @@
 struct GMonitor : public GraphicElement
 {
 	HMONITOR fMonitorHandle = nullptr;
-	MONITORINFO fMonitorInfo;
+	MONITORINFOEXA fMonitorInfo{};
+
 	HDC fDC = nullptr;
 
 	GMonitor()
 		:fMonitorHandle(nullptr)
-		, fMonitorInfo{}
 		, fDC(nullptr)
 	{
 		;
 	}
 
-	bool reset(HMONITOR handle, HDC hdc)
+	bool reset(HMONITOR handle)
 	{
 		fMonitorHandle = handle;
-		fDC = hdc;
 
-		ZeroMemory(&fMonitorInfo, sizeof(fMonitorInfo));
+		// Get the monitor info
+		fMonitorInfo = { 0 };
 		fMonitorInfo.cbSize = sizeof(fMonitorInfo);
 
-		GetMonitorInfoA(fMonitorHandle, &fMonitorInfo);
+		auto bResult = ::GetMonitorInfoA(fMonitorHandle, &fMonitorInfo);
 
+		// If the call fails, we can't get monitor information
+		// for some reason, so just bail
+		if (0 == bResult)
+			return false;
+
+		// Preserve the boundary information
 		setFrame({ {(float)fMonitorInfo.rcMonitor.left,(float)fMonitorInfo.rcMonitor.top},{(float)fMonitorInfo.rcMonitor.right,(float)fMonitorInfo.rcMonitor.bottom} });
 		setBounds({ {0,0},{frameWidth(),frameHeight()} });
+
+		// Create a device context for the monitor
+		fDC = CreateDCA(NULL, fMonitorInfo.szDevice, NULL, NULL);
 
 		return true;
 	}
@@ -63,13 +72,18 @@ struct GMonitor : public GraphicElement
 	}
 
 	// Factory functions
-	static BOOL CALLBACK enumMon(HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM mons)
+	// Although hdc is passed in, and will allow you 
+	// to draw on the monitor, it only lasts as long as this
+	// callback, then it's released.
+	// So, if we want to capture an HDC for the monitor, we
+	// need to create it separately.
+	static BOOL CALLBACK enumMon(HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)
 	{
-		std::vector<std::shared_ptr<GMonitor>>* monitors = (std::vector<std::shared_ptr<GMonitor>>*)mons;
-		std::shared_ptr<GMonitor> mon = std::make_shared<GMonitor>();
-		mon->reset(hmon, hdc);
+		std::vector<GMonitor>* mons = (std::vector<GMonitor> *)param;
 
-		monitors->push_back(mon);
+		GMonitor newmon;
+		newmon.reset(hmon);
+		mons->push_back(newmon);
 
 		return TRUE;
 	}
@@ -77,13 +91,12 @@ struct GMonitor : public GraphicElement
 	// Generate a list of all the connected monitors
 	// return the bounding box of their extents
 	//
-	static maths::bbox2f monitors(std::vector<std::shared_ptr<GMonitor>>& mons)
+	static maths::bbox2f monitors(std::vector<GMonitor>& mons)
 	{
-		std::vector<HMONITOR> handles{};
 		HDC hdc = ::GetDC(NULL);
 		
 		// First create a list of monitor handles
-		auto bResult = EnumDisplayMonitors(hdc, NULL, enumMon, (LPARAM)(&handles));
+		auto bResult = EnumDisplayMonitors(hdc, NULL, enumMon, (LPARAM)(&mons));
 
 		// Some error, so return zero monitors
 		if (!bResult)
@@ -92,13 +105,9 @@ struct GMonitor : public GraphicElement
 		// accumulate the overall size in a bounding box
 		maths::bbox2f vbox{ {0,0},{0,0} };
 
-		for (auto& hmon : handles)
+		for (auto& monitor : mons)
 		{
-			std::shared_ptr<GMonitor> mon = std::make_shared<GMonitor>();
-			mon->reset(hmon);
-			mons.push_back(mon);
-
-			maths::expand(vbox, mon->frame());
+			maths::expand(vbox, monitor.frame());
 		}
 
 		return vbox;

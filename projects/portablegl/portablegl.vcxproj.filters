@@ -53,7 +53,7 @@
     <ClInclude Include="..\..\primary\p5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\pixelarray.h">
+    <ClInclude Include="..\..\primary\pixelaccessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -44,7 +44,7 @@
 #include "Surface.h"
 #include "User32PixelMap.h"
 
-bool BLImageFromPixelArray(PixelAccessor<Pixel> &arr, BLImage &img)
+bool BLImageFromPixelArray(PixelArray &arr, BLImage &img)
 {
     BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.data(), (intptr_t)arr.stride(), nullptr, nullptr);
 
@@ -87,7 +87,13 @@ public:
         auto bResult = BitBlt(bitmapDC(), 0, 0, width(), height(),
             fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
 
-        return true;
+        if (bResult == 0)
+        {
+            auto err = ::GetLastError();
+            printf("ScreenSnapper::next(), ERROR: 0x%x\n", err);
+        }
+
+        return (bResult != 0);
     }
 };
 

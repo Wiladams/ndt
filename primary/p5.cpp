@@ -724,13 +724,13 @@ namespace p5 {
 
     // Canvas management
 
-    void createCanvas(long aWidth, long aHeight, const char *title) noexcept
+    void createCanvas(long aWidth, long aHeight, const char *title, uint32_t threadCount) noexcept
     {
         createAppWindow(aWidth, aHeight, title);
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
 
-        gAppSurface->attachPixelArray(gAppFrameBuffer);
+        gAppSurface->attachPixelArray(gAppFrameBuffer, threadCount);
     }
 
     void fullscreen() noexcept
