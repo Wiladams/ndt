@@ -616,6 +616,21 @@ namespace maths
 }
 
 //=========================================
+//  DECLARATION vec4b
+//=========================================
+namespace maths
+{
+    inline int        size(const vec4b& a);
+    inline const uint8_t* begin(const vec4b& a);
+    inline const uint8_t* end(const vec4b& a);
+    inline uint8_t* begin(vec4b& a);
+    inline uint8_t* end(vec4b& a);
+    inline const uint8_t* data(const vec4b& a);
+    inline uint8_t* data(vec4b& a);
+
+}
+
+//=========================================
 //  DECLARATION vec4i
 //=========================================
 
@@ -1653,6 +1668,17 @@ namespace maths
     // Functions applied to vector elements
     inline vec3i abs(const vec3i& a) { return { abs(a.x), abs(a.y), abs(a.z) }; }
     inline void  swap(vec3i& a, vec3i& b) { std::swap(a, b); }
+
+    // Vector sequence operations.
+    inline int        size(const vec4b& a) { return 4; }
+    inline const uint8_t* begin(const vec4b& a) { return &a.x; }
+    inline const uint8_t* end(const vec4b& a) { return &a.x + 4; }
+    inline uint8_t* begin(vec4b& a) { return &a.x; }
+    inline uint8_t* end(vec4b& a) { return &a.x + 4; }
+    inline const uint8_t* data(const vec4b& a) { return &a.x; }
+    inline uint8_t* data(vec4b& a) { return &a.x; }
+
+
 
     // Vector sequence operations.
     inline int        size(const vec4i& a) { return 4; }

@@ -3,13 +3,15 @@
 #include <cassert>
 #include <iostream>
 
+#include "maths.hpp"
+
 template<int n> 
 struct vec 
 {
     double data[n]; // = { 0 };
 
     // If you allow a default constructor here
-    // we'll get errors 2440, related to struct initialization list
+    // we'll get errors 2440, related to struct initialization list in C++/20
     //vec() = default;
 
     double & operator[](const int i)       { assert(i>=0 && i<n); return data[i]; }
@@ -20,9 +22,15 @@ struct vec
 
 };
 
-template<int n> double operator*(const vec<n>& lhs, const vec<n>& rhs) {
+// dot product
+//template<int n> double operator*(const vec<n>& lhs, const vec<n>& rhs) {
+//    double ret = 0;
+//    for (int i=n; i--; ret+=lhs[i]*rhs[i]);
+//    return ret;
+//}
+template<int n> double dot(const vec<n>& lhs, const vec<n>& rhs) {
     double ret = 0;
-    for (int i=n; i--; ret+=lhs[i]*rhs[i]);
+    for (int i = n; i--; ret += lhs[i] * rhs[i]);
     return ret;
 }
 
@@ -82,7 +90,7 @@ struct vec<2>
     vec(double x, double y) : x(x), y(y) {}
     double& operator[](const int i)       { assert(i>=0 && i<2); return i ? y : x; }
     double  operator[](const int i) const { assert(i>=0 && i<2); return i ? y : x; }
-    double norm2() const { return *this * *this; }
+    double norm2() const { return dot(*this , *this); }
     double norm()  const { return std::sqrt(norm2()); }
     vec & normalize() { *this = (*this)/norm(); return *this; }
 
@@ -96,15 +104,16 @@ template<> struct vec<3> {
     vec(double x, double y, double z) : x(x), y(y), z(z) {}
     double& operator[](const int i)       { assert(i>=0 && i<3); return i ? (1==i ? y : z) : x; }
     double  operator[](const int i) const { assert(i>=0 && i<3); return i ? (1==i ? y : z) : x; }
-    double norm2() const { return *this * *this; }
+    double norm2() const { return dot(*this , *this); }
     double norm()  const { return std::sqrt(norm2()); }
     vec & normalize() { *this = (*this)/norm(); return *this; }
 };
 
-typedef vec<2> vec2;
-typedef vec<3> vec3;
-typedef vec<4> vec4;
-vec3 cross(const vec3 &v1, const vec3 &v2);
+
+typedef vec<2> vec2f;
+typedef vec<3> vec3f;
+typedef vec<4> vec4f;
+vec3f cross(const vec3f &v1, const vec3f &v2);
 
 template<int n> struct dt;
 
@@ -158,7 +167,7 @@ template<int nrows,int ncols> struct mat
 
     mat<nrows,ncols> invert_transpose() const {
         mat<nrows,ncols> ret = adjugate();
-        return ret/(ret[0]*rows[0]);
+        return ret/(dot(ret[0], rows[0]));
     }
 
     mat<nrows,ncols> invert() const {
@@ -172,16 +181,18 @@ template<int nrows,int ncols> struct mat
     }
 };
 
+using mat4f = mat<4, 4>;
+
 template<int nrows,int ncols> vec<nrows> operator*(const mat<nrows,ncols>& lhs, const vec<ncols>& rhs) {
     vec<nrows> ret;
-    for (int i=nrows; i--; ret[i]=lhs[i]*rhs);
+    for (int i=nrows; i--; ret[i]=dot(lhs[i], rhs));
     return ret;
 }
 
 template<int R1,int C1,int C2>mat<R1,C2> operator*(const mat<R1,C1>& lhs, const mat<C1,C2>& rhs) {
     mat<R1,C2> result;
     for (int i=R1; i--; )
-        for (int j=C2; j--; result[i][j]=lhs[i]*rhs.col(j));
+        for (int j=C2; j--; result[i][j]=dot(lhs[i],rhs.col(j)));
     return result;
 }
 

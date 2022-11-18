@@ -154,7 +154,6 @@
     <ClInclude Include="..\..\primary\apphost.h" />
     <ClInclude Include="..\..\primary\pixelaccessor.h" />
     <ClInclude Include="algebra.hpp" />
-    <ClInclude Include="easyshader.hpp" />
     <ClInclude Include="model.hpp" />
     <ClInclude Include="renderer_gl.hpp" />
     <ClInclude Include="tgaimage.hpp" />

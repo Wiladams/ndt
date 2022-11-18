@@ -30,7 +30,8 @@ struct IContainPixels
     constexpr const size_t height() const noexcept { return fHeight; }
     constexpr const ptrdiff_t stride() const noexcept { return fStride; }   // number of bytes to advence between rows
 
-    virtual uint8_t* rowPointer(const size_t y) = 0;
+    virtual uint8_t* rowPointer(const int y) = 0;
+    virtual const uint8_t* rowPointer(const int y) const = 0;
 };
 
 
@@ -81,7 +82,7 @@ struct PixelArray : public IContainPixels
     }
 
     // Get a pointer to the beginning of a row
-    uint8_t* rowPointer(const size_t y) override
+    uint8_t* rowPointer(const int y) override
     {
         if (fOrientation == PixelOrientation::TopToBottom)
             return (&fData[y * stride()]);
@@ -89,6 +90,16 @@ struct PixelArray : public IContainPixels
         // PixelOrientation::BottomToTop
         return(&fData[(height() - y - 1) * stride()]);
     }
+
+    const uint8_t* rowPointer(const int y) const override
+    {
+        if (fOrientation == PixelOrientation::TopToBottom)
+            return (&fData[y * stride()]);
+
+        // PixelOrientation::BottomToTop
+        return(&fData[(height() - y - 1) * stride()]);
+    }
+
 
 };
 
@@ -137,7 +148,12 @@ struct PixelAccessor : public PixelArray
 
 
     // Return a pointer to a specific pixel
-    TP* pixelPointer(const size_t x, const size_t y)
+    TP* pixelPointer(const int x, const int y)
+    {
+        return &((TP*)rowPointer(y))[x];
+    }
+    
+    const TP* pixelPointer(const int x, const int y) const
     {
         return &((TP*)rowPointer(y))[x];
     }
@@ -145,7 +161,7 @@ struct PixelAccessor : public PixelArray
     // Retrieve a single pixel
 // This one does no bounds checking, so the behavior is undefined
 // if the coordinates are beyond the boundary
-    TP getPixel(const int x, const int y)
+    virtual TP getPixel(const int x, const int y) const
     {
         return *pixelPointer(x, y);
     }
@@ -153,7 +169,7 @@ struct PixelAccessor : public PixelArray
     // Set a single pixel value
 // Assume range checking has already occured
 // Perform SRCCOPY operation on a pixel
-    void setPixel(const int x, const int y, const TP& c)
+    virtual void setPixel(const int x, const int y, const TP& c)
     {
         pixelPointer(x, y)[0] = c;
     }

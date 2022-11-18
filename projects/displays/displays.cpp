@@ -31,7 +31,6 @@ struct MonitorSnapshot : public GraphicElement
 	void draw(IGraphics& ctx)
 	{
 		fSnapper.next();
-		//image(snapper.getImage(), 0, 0);
 		
 		//scaleImage(fSnapper.getImage(), 0, 0, fSnapper.width(), fSnapper.height(),
 		//	0, 0, boundsWidth(), boundsHeight());

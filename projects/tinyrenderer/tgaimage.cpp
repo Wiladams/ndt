@@ -70,7 +70,7 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
         if (chunkheader<128) {
             chunkheader++;
             for (int i=0; i<chunkheader; i++) {
-                in.read(reinterpret_cast<char *>(colorbuffer.bgra), bpp);
+                in.read(reinterpret_cast<char *>(maths::data(colorbuffer.bgra)), bpp);
                 if (!in.good()) {
                     std::cerr << "an error occured while reading the header\n";
                     return false;
@@ -85,7 +85,7 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
             }
         } else {
             chunkheader -= 127;
-            in.read(reinterpret_cast<char *>(colorbuffer.bgra), bpp);
+            in.read(reinterpret_cast<char *>(maths::data(colorbuffer.bgra)), bpp);
             if (!in.good()) {
                 std::cerr << "an error occured while reading the header\n";
                 return false;

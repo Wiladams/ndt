@@ -2,8 +2,10 @@
 #include <cstdint>
 #include <fstream>
 #include <vector>
+#include "pixelaccessor.h"
+#include "maths.hpp"
 
-using FBPixel = std::uint8_t[4];
+using FBPixel = maths::vec4b;
 
 #pragma pack(push,1)
 struct TGAHeader {
@@ -36,7 +38,7 @@ struct TGAColor {
     std::uint8_t& operator[](const int i) { return bgra[i]; }
 };
 
-struct TGAImage 
+struct TGAImage : public PixelAccessor< maths::vec4b>
 {
     enum Format { GRAYSCALE=1, RGB=3, RGBA=4 };
     
@@ -52,7 +54,9 @@ public:
         , h(h)
         , bpp(bpp)
         , data(w* h* bpp, 0) 
-    {}
+    {
+        reset((uint8_t *)&data, w, h, w * bpp, PixelOrientation::BottomToTop);
+    }
 
     bool  read_tga_file(const std::string filename);
     bool write_tga_file(const std::string filename, const bool vflip=true, const bool rle=true) const;
@@ -60,16 +64,20 @@ public:
     void flip_vertically();
 
     // Get a pixel's value with some boundary checking
-    TGAColor get(const int x, const int y) const {
+    maths::vec4b getPixel(const int x, const int y) const override
+    {
         if (!data.size() || x < 0 || y < 0 || x >= w || y >= h)
             return {};
-        return TGAColor(data.data() + (x + y * w) * bpp, bpp);
+        TGAColor c(data.data() + (x + y * w) * bpp, bpp);
+
+        return c.bgra;
     }
 
     // Set a pixel's value with some boundary checking
-    void set(const int x, const int y, const TGAColor& c) {
+    void setPixel(const int x, const int y, const maths::vec4b & c) override
+    {
         if (!data.size() || x < 0 || y < 0 || x >= w || y >= h) return;
-        memcpy(data.data() + (x + y * w) * bpp, c.bgra, bpp);
+        memcpy(data.data() + (x + y * w) * bpp, maths::data(c), bpp);
     }
 
     int width() const {return w;}

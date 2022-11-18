@@ -53,8 +53,5 @@
     <ClInclude Include="..\..\primary\pixelaccessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="easyshader.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
