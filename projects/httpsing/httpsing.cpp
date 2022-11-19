@@ -34,12 +34,6 @@
 
 #include <sys/types.h>
 
-//#include <sys/socket.h>
-//#include <netdb.h>
-//#include <netinet/in.h>
-//#include <arpa/inet.h>
-//#include <unistd.h>
-
 
 #include "bearssl/bearssl.h"
 
@@ -83,7 +77,7 @@ host_connect(const char* host, const char* port)
 			inet_ntop(p->ai_family, addr, tmp, sizeof tmp);
 		}
 		else {
-			sprintf(tmp, "<unknown family: %d>",
+			sprintf_s(tmp, "<unknown family: %d>",
 				(int)sa->sa_family);
 		}
 		fprintf(stderr, "connecting to: %s\n", tmp);
@@ -118,7 +112,7 @@ sock_read(void* ctx, unsigned char* buf, size_t len)
 	for (;;) {
 		ptrdiff_t rlen;
 
-		rlen = read(*(int*)ctx, buf, len);
+		rlen = recv(*(int*)ctx, (char *)buf, len,0);
 		if (rlen <= 0) {
 			if (rlen < 0 && errno == EINTR) {
 				continue;
@@ -138,7 +132,7 @@ sock_write(void* ctx, const unsigned char* buf, size_t len)
 	for (;;) {
 		ptrdiff_t wlen;
 
-		wlen = write(*(int*)ctx, buf, len);
+		wlen = send(*(int*)ctx, (const char *)buf, len,0);
 		if (wlen <= 0) {
 			if (wlen < 0 && errno == EINTR) {
 				continue;
@@ -244,8 +238,7 @@ static const br_x509_trust_anchor TAs[2] = {
  * response, complete with header and contents, is received and written
  * on stdout.
  */
-int
-main(int argc, char* argv[])
+void onLoad()
 {
 	const char* host, * port, * path;
 	int fd;
@@ -258,13 +251,13 @@ main(int argc, char* argv[])
 	 * Parse command-line argument: host, port, and path. The path
 	 * is optional; if absent, "/" is used.
 	 */
-	if (argc < 3 || argc > 4) {
-		return EXIT_FAILURE;
+	if (gargc < 3 || gargc > 4) {
+		return ;
 	}
-	host = argv[1];
-	port = argv[2];
-	if (argc == 4) {
-		path = argv[3];
+	host = gargv[1];
+	port = gargv[2];
+	if (gargc == 4) {
+		path = gargv[3];
 	}
 	else {
 		path = "/";
@@ -280,7 +273,8 @@ main(int argc, char* argv[])
 	 */
 	fd = host_connect(host, port);
 	if (fd < 0) {
-		return EXIT_FAILURE;
+		printf("host_connect, FAIL\n");
+		return ;
 	}
 
 	/*
@@ -376,16 +370,15 @@ main(int argc, char* argv[])
 		err = br_ssl_engine_last_error(&sc.eng);
 		if (err == 0) {
 			fprintf(stderr, "closed.\n");
-			return EXIT_SUCCESS;
+			return; // EXIT_SUCCESS;
 		}
 		else {
 			fprintf(stderr, "SSL error %d\n", err);
-			return EXIT_FAILURE;
+			return ;
 		}
 	}
 	else {
-		fprintf(stderr,
-			"socket closed without proper SSL termination\n");
-		return EXIT_FAILURE;
+		fprintf(stderr,"socket closed without proper SSL termination\n");
+		return ;
 	}
 }

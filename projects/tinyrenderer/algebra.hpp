@@ -17,17 +17,12 @@ struct vec
     double & operator[](const int i)       { assert(i>=0 && i<n); return data[i]; }
     double   operator[](const int i) const { assert(i>=0 && i<n); return data[i]; }
     
-    double norm2() const { return *this * *this; }
-    double norm()  const { return std::sqrt(norm2()); }
+    //double norm2() const { return dot(*this, *this); }
+    //double norm()  const { return std::sqrt(norm2()); }
 
 };
 
-// dot product
-//template<int n> double operator*(const vec<n>& lhs, const vec<n>& rhs) {
-//    double ret = 0;
-//    for (int i=n; i--; ret+=lhs[i]*rhs[i]);
-//    return ret;
-//}
+
 template<int n> double dot(const vec<n>& lhs, const vec<n>& rhs) {
     double ret = 0;
     for (int i = n; i--; ret += lhs[i] * rhs[i]);
@@ -90,14 +85,17 @@ struct vec<2>
     vec(double x, double y) : x(x), y(y) {}
     double& operator[](const int i)       { assert(i>=0 && i<2); return i ? y : x; }
     double  operator[](const int i) const { assert(i>=0 && i<2); return i ? y : x; }
-    double norm2() const { return dot(*this , *this); }
-    double norm()  const { return std::sqrt(norm2()); }
-    vec & normalize() { *this = (*this)/norm(); return *this; }
-
-
+    
+    //double lengthSquared() const { return dot(*this, *this); }     // lengthSquared
+    //double length()  const { return std::sqrt(lengthSquared()); }     // length
+    //vec & normalize() { *this = (*this)/lengthSquared(); return *this; }
 };
 
-template<> struct vec<3> {
+
+
+template<> 
+struct vec<3> 
+{
     double x{}, y{}, z{};
 
     vec() = default;
@@ -110,14 +108,12 @@ template<> struct vec<3> {
 };
 
 
-typedef vec<2> vec2f;
-typedef vec<3> vec3f;
-typedef vec<4> vec4f;
-vec3f cross(const vec3f &v1, const vec3f &v2);
+
 
 template<int n> struct dt;
 
-template<int nrows,int ncols> struct mat 
+template<int nrows,int ncols> 
+struct mat 
 {
     vec<ncols> rows[nrows]= { {} };
 
@@ -182,6 +178,13 @@ template<int nrows,int ncols> struct mat
 };
 
 using mat4f = mat<4, 4>;
+using vec2f = vec<2>;
+//using vec2f = maths::vec2f;
+using vec3f = vec<3>;
+using vec4f = vec<4>;
+
+vec3f cross(const vec3f& v1, const vec3f& v2);
+
 
 template<int nrows,int ncols> vec<nrows> operator*(const mat<nrows,ncols>& lhs, const vec<ncols>& rhs) {
     vec<nrows> ret;

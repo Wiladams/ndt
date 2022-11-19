@@ -96,18 +96,18 @@ namespace maths
 	inline vec3f sample_hemisphere(const vec2f& ruv) {
 		auto z = ruv.y;
 		auto r = sqrt(clamp(1 - z * z, 0.0f, 1.0f));
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { r * cos(phi), r * sin(phi), z };
 	}
 	inline float sample_hemisphere_pdf(const vec3f& direction) {
-		return (direction.z <= 0) ? 0 : 1 / (2 * Pif);
+		return (direction.z <= 0) ? 0 : 1 / (2 *pif);
 	}
 
 	// Sample an hemispherical direction with uniform distribution.
 	inline vec3f sample_hemisphere(const vec3f& normal, const vec2f& ruv) {
 		auto z = ruv.y;
 		auto r = sqrt(clamp(1 - z * z, 0.0f, 1.0f));
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		auto local_direction = vec3f{ r * cos(phi), r * sin(phi), z };
 		return transform_direction(basis_fromz(normal), local_direction);
 	}
@@ -115,27 +115,27 @@ namespace maths
 
 	inline float sample_hemisphere_pdf(
 		const vec3f& normal, const vec3f& direction) {
-		return (dot(normal, direction) <= 0) ? 0 : 1 / (2 * Pif);
+		return (dot(normal, direction) <= 0) ? 0 : 1 / (2 * pif);
 	}
 
 	// Sample a spherical direction with uniform distribution.
 	inline vec3f sample_sphere(const vec2f& ruv) {
 		auto z = 2 * ruv.y - 1;
 		auto r = sqrt(clamp(1 - z * z, 0.0f, 1.0f));
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { r * cos(phi), r * sin(phi), z };
 	}
-	inline float sample_sphere_pdf(const vec3f& w) { return 1 / (4 * Pif); }
+	inline float sample_sphere_pdf(const vec3f& w) { return 1 / (4 * pif); }
 
 	// Sample an hemispherical direction with cosine distribution.
 	inline vec3f sample_hemisphere_cos(const vec2f& ruv) {
 		auto z = sqrt(ruv.y);
 		auto r = sqrt(1 - z * z);
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { r * cos(phi), r * sin(phi), z };
 	}
 	inline float sample_hemisphere_cos_pdf(const vec3f& direction) {
-		return (direction.z <= 0) ? 0 : direction.z / Pif;
+		return (direction.z <= 0) ? 0 : direction.z / pif;
 	}
 
 	// Sample an hemispherical direction with cosine distribution.
@@ -143,7 +143,7 @@ namespace maths
 	inline vec3f sample_hemisphere_cos(const vec3f& normal, const vec2f& ruv) {
 		auto z = sqrt(ruv.y);
 		auto r = sqrt(1 - z * z);
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		auto local_direction = vec3f{ r * cos(phi), r * sin(phi), z };
 		return transform_direction(basis_fromz(normal), local_direction);
 	}
@@ -152,21 +152,21 @@ namespace maths
 	inline float sample_hemisphere_cos_pdf(
 		const vec3f& normal, const vec3f& direction) {
 		auto cosw = dot(normal, direction);
-		return (cosw <= 0) ? 0 : cosw / Pif;
+		return (cosw <= 0) ? 0 : cosw / pif;
 	}
 
 	// Sample an hemispherical direction with cosine power distribution.
 	inline vec3f sample_hemisphere_cospower(float exponent, const vec2f& ruv) {
 		auto z = pow(ruv.y, 1 / (exponent + 1));
 		auto r = sqrt(1 - z * z);
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { r * cos(phi), r * sin(phi), z };
 	}
 	inline float sample_hemisphere_cospower_pdf(
 		float exponent, const vec3f& direction) {
 		return (direction.z <= 0)
 			? 0
-			: pow(direction.z, exponent) * (exponent + 1) / (2 * Pif);
+			: pow(direction.z, exponent) * (exponent + 1) / (2 * pif);
 	}
 
 	// Sample an hemispherical direction with cosine power distribution.
@@ -175,7 +175,7 @@ namespace maths
 		float exponent, const vec3f& normal, const vec2f& ruv) {
 		auto z = pow(ruv.y, 1 / (exponent + 1));
 		auto r = sqrt(1 - z * z);
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		auto local_direction = vec3f{ r * cos(phi), r * sin(phi), z };
 		return transform_direction(basis_fromz(normal), local_direction);
 	}
@@ -184,23 +184,23 @@ namespace maths
 	inline float sample_hemisphere_cospower_pdf(
 		float exponent, const vec3f& normal, const vec3f& direction) {
 		auto cosw = dot(normal, direction);
-		return (cosw <= 0) ? 0 : pow(cosw, exponent) * (exponent + 1) / (2 * Pif);
+		return (cosw <= 0) ? 0 : pow(cosw, exponent) * (exponent + 1) / (2 * pif);
 	}
 
 	// Sample a point uniformly on a disk.
 	inline vec2f sample_disk(const vec2f& ruv) {
 		auto r = sqrt(ruv.y);
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { cos(phi) * r, sin(phi) * r };
 	}
-	inline float sample_disk_pdf() { return 1 / Pif; }
+	inline float sample_disk_pdf() { return 1 / pif; }
 
 	// Sample a point uniformly on a cylinder, without caps.
 	inline vec3f sample_cylinder(const vec2f& ruv) {
-		auto phi = 2 * Pif * ruv.x;
+		auto phi = 2 * pif * ruv.x;
 		return { sin(phi), cos(phi), ruv.y * 2 - 1 };
 	}
-	inline float sample_cylinder_pdf(const vec3f& point) { return 1 / Pif; }
+	inline float sample_cylinder_pdf(const vec3f& point) { return 1 / pif; }
 
 	// Sample a point uniformly on a triangle returning the baricentric coordinates.
 	inline vec2f sample_triangle(const vec2f& ruv) {

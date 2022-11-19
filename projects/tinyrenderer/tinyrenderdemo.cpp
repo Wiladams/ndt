@@ -1,6 +1,8 @@
 #include "apphost.h"
 
 #include <limits>
+#include <future>
+
 #include "model.hpp"
 #include "renderer_gl.hpp"
 #include "Graphics.h"
@@ -13,8 +15,7 @@ const vec3f       eye(1,1,3); // camera position
 const vec3f    center(0,0,0); // camera direction
 const vec3f        up(0,1,0); // camera up vector
 
-extern mat4f ModelView; // "OpenGL" state matrices
-extern mat4f Projection;
+SceneRenderer Renderer{};
 
 
 struct Shader : IShader {
@@ -25,15 +26,15 @@ struct Shader : IShader {
     mat<3, 3> view_tri;    // triangle in view coordinates
 
     Shader(const Model& m) : model(m) {
-        uniform_l = proj<3>((ModelView * embed<4>(light_dir, 0.))).normalize(); // transform the light vector to view coordinates
+        uniform_l = proj<3>((Renderer.ModelView * embed<4>(light_dir, 0.))).normalize(); // transform the light vector to view coordinates
     }
 
     virtual void vertex(const int iface, const int nthvert, vec4f& gl_Position) {
         varying_uv.set_col(nthvert, model.uv(iface, nthvert));
-        varying_nrm.set_col(nthvert, proj<3>((ModelView).invert_transpose() * embed<4>(model.normal(iface, nthvert), 0.)));
-        gl_Position = ModelView * embed<4>(model.vert(iface, nthvert));
+        varying_nrm.set_col(nthvert, proj<3>((Renderer.ModelView).invert_transpose() * embed<4>(model.normal(iface, nthvert), 0.)));
+        gl_Position = Renderer.ModelView * embed<4>(model.vert(iface, nthvert));
         view_tri.set_col(nthvert, proj<3>(gl_Position));
-        gl_Position = Projection * gl_Position;
+        gl_Position = Renderer.Projection * gl_Position;
     }
 
     virtual bool fragment(const vec3f bar, maths::vec4b& gl_FragColor) override{
@@ -67,6 +68,8 @@ void drawHUD()
 
 void onLoad() 
 {
+
+
     if (2>gargc) {
         std::cerr << "Usage: " << gargv[0] << " obj/model.obj" << std::endl;
         
@@ -78,9 +81,10 @@ void onLoad()
     createAppWindow(width, height,"tinyrenderer");
     gAppFrameBuffer.setOrientation(PixelOrientation::BottomToTop);
 
-    lookat(eye, center, up);                            // build the ModelView matrix
-    viewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
-    projection((eye-center).norm());                    // build the Projection matrix
+    Renderer.setLookAt(eye, center, up);                            // build the ModelView matrix
+    Renderer.setViewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
+    //Renderer.setProjection((eye-center).norm());                    // build the Projection matrix
+    Renderer.setProjection((center- eye).norm());                    // build the Projection matrix
     std::vector<double> zbuffer(width*height, std::numeric_limits<double>::max());
 
     for (int m=1; m<gargc; m++) { // iterate through all input objects
@@ -90,7 +94,7 @@ void onLoad()
             vec4f clip_vert[3]; // triangle coordinates (clip coordinates), written by VS, read by FS
             for (int j : {0,1,2})
                 shader.vertex(i, j, clip_vert[j]); // call the vertex shader for each triangle vertex
-            triangle(clip_vert, shader, gAppFrameBuffer, zbuffer); // actual rasterization routine call
+            Renderer.triangle(clip_vert, shader, gAppFrameBuffer, zbuffer); // actual rasterization routine call
         }
     }
 

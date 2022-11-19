@@ -27,7 +27,7 @@ void draw()
 		for (int x = 0; x < canvasWidth - 1; x++) {
 			double wl = maths::map(x, 0, (double)canvasWidth - 1, 380, 780);
 			auto c = ndt::ColorRGBAFromWavelength(wl, gamma);
-			auto p = BLRgba32(c.r * 255, c.g * 255, c.b * 255, 255);
+			maths::vec4b p = { c.b * 255, c.g * 255, c.r * 255,   255 };
 
 			gAppFrameBuffer.setPixel(x, y, p);
 		}

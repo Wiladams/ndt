@@ -26,6 +26,7 @@
 #include <array>
 #include <iostream>
 #include <memory>
+#include <future>
 
 // Some function signatures
 // WinMSGObserver - Function signature for Win32 message handler
@@ -58,6 +59,7 @@ GestureEventTopic gGestureEventTopic;
 int gargc;
 char **gargv;
 
+unsigned int gSystemThreadCount=0;  // how many compute threads the system reports
 
 User32Window * gAppWindow = nullptr;
 User32PixelMap gAppFrameBuffer;
@@ -1169,6 +1171,9 @@ void setupNetworking()
 // is the networking subsystem
 bool prolog()
 {
+    gSystemThreadCount = std::thread::hardware_concurrency();
+
+
     setupNetworking();
 
     setupDpi();

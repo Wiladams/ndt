@@ -8,7 +8,7 @@
 
 #include "tinygl/GL/gl.h"
 #include "tinygl/zbuffer.h"
-//#include "3dMath.h"
+
 #include "maths.hpp"
 
 #include <stopwatch.hpp>

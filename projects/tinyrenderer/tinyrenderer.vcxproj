@@ -146,16 +146,18 @@
     <ClCompile Include="..\..\primary\appmain.cpp" />
     <ClCompile Include="algebra.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="renderer_gl.cpp" />
     <ClCompile Include="tgaimage.cpp" />
     <ClCompile Include="tinyrenderdemo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\apphost.h" />
+    <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\pixelaccessor.h" />
     <ClInclude Include="algebra.hpp" />
     <ClInclude Include="model.hpp" />
     <ClInclude Include="renderer_gl.hpp" />
+    <ClInclude Include="shader.hpp" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="tgaimage.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

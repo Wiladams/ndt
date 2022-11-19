@@ -3,22 +3,18 @@
 
 #include "algebra.hpp"
 #include "tgaimage.hpp"
+#include "texture.h"
 
-struct Texture
-{
-    static void load_texture(const std::string filename, const std::string suffix, TGAImage& img) 
-    {
-        size_t dot = filename.find_last_of(".");
-        if (dot == std::string::npos) return;
-        std::string texfile = filename.substr(0, dot) + suffix;
-        std::cerr << "texture file " << texfile << " loading " << (img.read_tga_file(texfile.c_str()) ? "ok" : "failed") << std::endl;
-    }
-};
 
+//
+// BUGBUG - Model should be replaceable by threed::shape_data (yocto_shape.h)
+//
 class Model {
-    std::vector<vec3f> verts{};     // array of vertices
-    std::vector<vec2f> tex_coord{}; // per-vertex array of tex coords
-    std::vector<vec3f> norms{};     // per-vertex array of normal vectors
+    std::vector<vec3f> positions{};     // array of vertices
+    std::vector<vec3f> normals{};     // per-vertex array of normal vectors
+    std::vector<vec2f> texcoords{}; // per-vertex array of tex coords
+
+
     std::vector<int> facet_vrt{};
     std::vector<int> facet_tex{};  // per-triangle indices in the above arrays
     std::vector<int> facet_nrm{};

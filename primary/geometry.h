@@ -27,8 +27,8 @@ struct bbox3f
 };
 
 // Empty box constants
-//const bbox2f invalidb2f = bbox2f{};
-//const bbox3f invalidb3f = bbox3f{};
+constexpr bbox2f invalidb2f = bbox2f{};
+constexpr bbox3f invalidb3f = bbox3f{};
 
 //
 // Bounding box properties

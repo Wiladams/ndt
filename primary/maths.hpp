@@ -45,6 +45,11 @@
 //=================================
 namespace {
     using byte = uint8_t;
+
+    using uchar = unsigned char;
+    using uint = unsigned int;
+    using ushort = uint16_t;
+
     using std::pair;
 
 }
@@ -52,8 +57,8 @@ namespace {
 namespace maths {
     // Math constants
     // Some useful constants
-    constexpr auto Pi = 3.14159265358979323846;
-    constexpr auto Pif = (float)Pi;
+    constexpr auto pi = 3.14159265358979323846;
+    constexpr auto pif = (float)pi;
     constexpr auto PiOver2 = 1.57079632679489661923;
     constexpr auto PiOver4 = 0.78539816339744830961;
     constexpr auto Pi2 = 6.28318530717958647693;
@@ -63,11 +68,11 @@ namespace maths {
 
     constexpr auto Sqrt2 = 1.41421356237309504880;
 
-    const auto int_max = std::numeric_limits<int>::max();
-    const auto int_min = std::numeric_limits<int>::min();
-    const auto flt_max = std::numeric_limits<float>::max();
-    const auto flt_min = std::numeric_limits<float>::min();
-    const auto flt_eps = std::numeric_limits<float>::epsilon();
+    constexpr auto int_max = std::numeric_limits<int>::max();
+    constexpr auto int_min = std::numeric_limits<int>::min();
+    constexpr auto flt_max = std::numeric_limits<float>::max();
+    constexpr auto flt_min = std::numeric_limits<float>::min();
+    constexpr auto flt_eps = std::numeric_limits<float>::epsilon();
 
 }   // namespace maths
 
@@ -170,10 +175,25 @@ namespace maths {
     };
 
     struct vec4f {
-        float x = 0;
-        float y = 0;
-        float z = 0;
-        float w = 0;
+        union {
+            struct {
+                float x;
+                float y;
+                float z;
+                float w;
+            };
+            struct {    // different from vec4b
+                float r;
+                float g;
+                float b;
+                float a;
+            };
+        };
+
+        //float x = 0;
+        //float y = 0;
+        //float z = 0;
+        //float w = 0;
 
         inline float& operator[](int i);
         inline const float& operator[](int i) const;
@@ -989,6 +1009,20 @@ namespace maths
     inline pair<vec3f, float> rotation_axisangle(const vec4f& quat);
     inline vec4f              rotation_quat(const vec3f& axis, float angle);
     inline vec4f              rotation_quat(const vec4f& axisangle);
+}
+
+
+//==================================
+// DECLARATION PYTHON-LIKE ITERATORS
+//==================================
+namespace maths {
+    // Python range. Construct an object that iterates over an integer sequence.
+    template <typename T>
+    constexpr auto range(T max);
+    template <typename T>
+    constexpr auto range(T min, T max);
+    template <typename T>
+    constexpr auto range(T min, T max, T step);
 }
 
 //==================================
@@ -2326,5 +2360,51 @@ namespace maths
     inline vec4f rotation_quat(const vec4f& axisangle) {
         return rotation_quat(
             vec3f{ axisangle.x, axisangle.y, axisangle.z }, axisangle.w);
+    }
+}
+
+namespace maths
+{
+    // Python `range()` equivalent. Construct an object to iterate over a sequence.
+    template <typename T>
+    constexpr auto range(T max) { return range((T)0, max); }
+
+    template <typename T>
+    constexpr auto range(T min, T max) {
+        struct range_iterator {
+            T    index;
+            void operator++() { ++index; }
+            bool operator!=(const range_iterator& other) const {
+                return index != other.index;
+            }
+            T operator*() const { return index; }
+        };
+        struct range_helper {
+            T              begin_ = 0, end_ = 0;
+            range_iterator begin() const { return { begin_ }; }
+            range_iterator end() const { return { end_ }; }
+        };
+        return range_helper{ min, max };
+    }
+
+    template <typename T>
+    constexpr auto range(T min, T max, T step) {
+        struct range_iterator {
+            T    index;
+            T    step;
+            void operator++() { index += step; }
+            bool operator!=(const range_iterator& other) const {
+                return index != other.index;
+            }
+            T operator*() const { return index; }
+        };
+        struct range_helper {
+            T              begin_ = 0, end_ = 0, step_ = 0;
+            range_iterator begin() const { return { begin_, step_ }; }
+            range_iterator end() const {
+                return { begin_ + ((end_ - begin_) / step_) * step_, step_ };
+            }
+        };
+        return range_helper{ min, max, step };
     }
 }

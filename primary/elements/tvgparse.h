@@ -27,13 +27,19 @@
 #include <vector>
 
 #include "binstream.hpp"
+#include "bitbang.h"
+#include "maths.hpp"
 
-
-namespace tinyvg
-{
-	// These couple of routines help facilitate bit banging, getting
-	// bit values out of integer values.  Using these means we don't
-	// have to create sketchy bitfield structures for everything
+// These couple of routines help facilitate bit banging, getting
+// bit values out of integer values.  
+// 
+// Using these means we don't
+// have to create sketchy bitfield structures for everything
+// The equivalent routines are in bitbang, so these don't need
+// to be used.
+//
+namespace tvgutil 
+{	
 	static inline uint64_t BITMASK64(const size_t low, const size_t high)
 	{
 		return ((((uint64_t)1 << (high - low)) << 1) - 1) << low;
@@ -42,6 +48,11 @@ namespace tinyvg
 	{
 		return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
 	}
+}
+
+namespace tinyvg
+{
+	using tvg_point = maths::vec2f;
 
 	// This enumeration corresponds to the top level
 	// commands from the tinyvg specification
@@ -143,10 +154,10 @@ namespace tinyvg
 		float a{};
 	};
 	
-	struct tvg_point {
-		float x{};
-		float y{};
-	};
+	//struct tvg_point {
+	//	float x{};
+	//	float y{};
+	//};
 
 	struct tvg_style_t
 	{
@@ -314,9 +325,9 @@ namespace tinyvg
 			// read coordinate range : u2
 			// WAA - need to sanity check all values
 			uint8_t bits = bs.readOctet();
-			header.fracscale = BITSVALUE(bits, 0, 3);
-			header.colorEncoding = BITSVALUE(bits, 4, 5);
-			header.coordinateRange = BITSVALUE(bits, 6, 7);
+			header.fracscale = binops::BITSVALUE(bits, 0, 3);
+			header.colorEncoding = binops::BITSVALUE(bits, 4, 5);
+			header.coordinateRange = binops::BITSVALUE(bits, 6, 7);
 
 			// read width
 			// read height
@@ -383,8 +394,8 @@ namespace tinyvg
 				return false;
 
 			uint8_t cmdBits = bs.readOctet();
-			cmd.command = BITSVALUE(cmdBits, 0, 5);
-			uint8_t primary_style_kind = BITSVALUE(cmdBits, 6, 7);
+			cmd.command = binops::BITSVALUE(cmdBits, 0, 5);
+			uint8_t primary_style_kind = binops::BITSVALUE(cmdBits, 6, 7);
 
 			switch (cmd.command)
 			{
@@ -756,8 +767,8 @@ namespace tinyvg
 		{
 			// segment count and style
 			uint32_t bits = bs.readOctet();
-			cmd.segment_count = BITSVALUE(bits, 0, 5) + 1;
-			int scondary_style_kind = BITSVALUE(bits, 6, 7);
+			cmd.segment_count = binops::BITSVALUE(bits, 0, 5) + 1;
+			int scondary_style_kind = binops::BITSVALUE(bits, 6, 7);
 
 
 			cmd.fillStyle = readStyle(primary_style_kind);
@@ -811,10 +822,10 @@ namespace tinyvg
 				{
 					// decode attributes from first byte
 					uint8_t insBits = bs.readOctet();
-					auto kind = BITSVALUE(insBits, 0, 2);
-					auto hasLineWidth = BITSVALUE(insBits, 4, 4);
-					uint8_t padding = BITSVALUE(insBits, 3, 3);	// always 0
-					uint8_t morepadding = BITSVALUE(insBits, 5, 7);	// always 0
+					auto kind = binops::BITSVALUE(insBits, 0, 2);
+					auto hasLineWidth = binops::BITSVALUE(insBits, 4, 4);
+					uint8_t padding = binops::BITSVALUE(insBits, 3, 3);	// always 0
+					uint8_t morepadding = binops::BITSVALUE(insBits, 5, 7);	// always 0
 
 					tvg_contour_command_t contourCmd(kind);
 					contourCmd.hasLineWidth = hasLineWidth;
@@ -876,9 +887,9 @@ namespace tinyvg
 				case ContourCommands::arcCircleTo :
 				{
 					uint8_t flags = bs.readOctet();
-					cmd.arcCircleTo.largeArc = BITSVALUE(flags, 0, 0);
-					cmd.arcCircleTo.sweep = !BITSVALUE(flags, 1, 1);
-					//int padding = BITSVALUE(flags, 2, 7);	// always 0
+					cmd.arcCircleTo.largeArc = binops::BITSVALUE(flags, 0, 0);
+					cmd.arcCircleTo.sweep = !binops::BITSVALUE(flags, 1, 1);
+					//int padding = binops::BITSVALUE(flags, 2, 7);	// always 0
 
 					cmd.arcCircleTo.radius = readUnit();
 					cmd.arcCircleTo.target = readPoint();
@@ -888,9 +899,9 @@ namespace tinyvg
 				case ContourCommands::arcEllipseTo :
 				{
 					uint8_t flags = bs.readOctet();
-					cmd.arcEllipseTo.sweep = !BITSVALUE(flags, 1, 1);	// 0 == anti-clockwise, 1 == clockwise
+					cmd.arcEllipseTo.sweep = !binops::BITSVALUE(flags, 1, 1);	// 0 == anti-clockwise, 1 == clockwise
 					cmd.arcEllipseTo.largeArc = ((flags & 1) != 0);
-					//int padding = BITSVALUE(flags, 2, 7);
+					//int padding = binops::BITSVALUE(flags, 2, 7);
 
 					cmd.arcEllipseTo.radiusxy = readPoint();
 					cmd.arcEllipseTo.rotation = readUnit();

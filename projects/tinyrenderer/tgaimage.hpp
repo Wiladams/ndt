@@ -42,33 +42,49 @@ struct TGAImage : public PixelAccessor< maths::vec4b>
 {
     enum Format { GRAYSCALE=1, RGB=3, RGBA=4 };
     
+    std::vector<std::uint8_t> vdata = {};
+    int bpp = 0;
     int w = 0;
     int h = 0;
-    int bpp = 0;
-    std::vector<std::uint8_t> data = {};
 
 public:
     TGAImage() = default;
     TGAImage(const int w, const int h, const int bpp) 
-        : w(w)
-        , h(h)
+        : vdata(w* h* bpp, 0)
         , bpp(bpp)
-        , data(w* h* bpp, 0) 
+        ,w(w)
+        , h(h)
     {
-        reset((uint8_t *)&data, w, h, w * bpp, PixelOrientation::BottomToTop);
+        reset((uint8_t *)&vdata, w, h, w * bpp, PixelOrientation::BottomToTop);
     }
 
     bool  read_tga_file(const std::string filename);
     bool write_tga_file(const std::string filename, const bool vflip=true, const bool rle=true) const;
-    void flip_horizontally();
-    void flip_vertically();
+    
+    void flip_horizontally() 
+    {
+        int half = w >> 1;
+        for (int i = 0; i < half; i++)
+            for (int j = 0; j < h; j++)
+                for (int b = 0; b < bpp; b++)
+                    std::swap(vdata[(i + j * w) * bpp + b], vdata[(w - 1 - i + j * w) * bpp + b]);
+    }
+
+    void flip_vertically() 
+    {
+        int half = h >> 1;
+        for (int i = 0; i < w; i++)
+            for (int j = 0; j < half; j++)
+                for (int b = 0; b < bpp; b++)
+                    std::swap(vdata[(i + j * w) * bpp + b], vdata[(i + (h - 1 - j) * w) * bpp + b]);
+    }
 
     // Get a pixel's value with some boundary checking
     maths::vec4b getPixel(const int x, const int y) const override
     {
-        if (!data.size() || x < 0 || y < 0 || x >= w || y >= h)
+        if (!vdata.size() || x < 0 || y < 0 || x >= w || y >= h)
             return {};
-        TGAColor c(data.data() + (x + y * w) * bpp, bpp);
+        TGAColor c(vdata.data() + (x + y * w) * bpp, bpp);
 
         return c.bgra;
     }
@@ -76,12 +92,12 @@ public:
     // Set a pixel's value with some boundary checking
     void setPixel(const int x, const int y, const maths::vec4b & c) override
     {
-        if (!data.size() || x < 0 || y < 0 || x >= w || y >= h) return;
-        memcpy(data.data() + (x + y * w) * bpp, maths::data(c), bpp);
+        if (!vdata.size() || x < 0 || y < 0 || x >= w || y >= h) return;
+        memcpy(vdata.data() + (x + y * w) * bpp, maths::data(c), bpp);
     }
 
-    int width() const {return w;}
-    int height() const {return h;}
+    size_t width() const noexcept {return w;}
+    size_t height() const noexcept {return h;}
 
 private:
     bool   load_rle_data(std::ifstream &in);

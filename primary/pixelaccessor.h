@@ -104,26 +104,6 @@ struct PixelArray : public IContainPixels
 };
 
 
-/*
-// BUGBUG - Is this level of abstraction going to be useful
-// for anything?
-template <typename TP>
-struct IReadPixels {
-    virtual TP getPixel(const int x, const int y) = 0;
-};
-
-template <typename TP>
-struct IWritePixels {
-    virtual void setPixel(const int x, const int y, const TP& c) = 0;
-};
-
-template <typename TP>
-struct IAccessPixels : public IReadPixels<TP>, public IWritePixels<TP>
-{
-
-};
-*/
-
 //
 // PixelAccessor<T>
 // This is a most generic pixel accessor.  It is a sub-class

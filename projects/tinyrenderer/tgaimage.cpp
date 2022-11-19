@@ -27,9 +27,9 @@ bool TGAImage::read_tga_file(const std::string filename) {
         return false;
     }
     size_t nbytes = bpp*w*h;
-    data = std::vector<std::uint8_t>(nbytes, 0);
+    vdata = std::vector<std::uint8_t>(nbytes, 0);
     if (3==header.datatypecode || 2==header.datatypecode) {
-        in.read(reinterpret_cast<char *>(data.data()), nbytes);
+        in.read(reinterpret_cast<char *>(vdata.data()), nbytes);
         if (!in.good()) {
             in.close();
             std::cerr << "an error occured while reading the data\n";
@@ -76,7 +76,7 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
                     return false;
                 }
                 for (int t=0; t<bpp; t++)
-                    data[currentbyte++] = colorbuffer.bgra[t];
+                    vdata[currentbyte++] = colorbuffer.bgra[t];
                 currentpixel++;
                 if (currentpixel>pixelcount) {
                     std::cerr << "Too many pixels read\n";
@@ -92,7 +92,7 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
             }
             for (int i=0; i<chunkheader; i++) {
                 for (int t=0; t<bpp; t++)
-                    data[currentbyte++] = colorbuffer.bgra[t];
+                    vdata[currentbyte++] = colorbuffer.bgra[t];
                 currentpixel++;
                 if (currentpixel>pixelcount) {
                     std::cerr << "Too many pixels read\n";
@@ -128,7 +128,7 @@ bool TGAImage::write_tga_file(const std::string filename, const bool vflip, cons
         return false;
     }
     if (!rle) {
-        out.write(reinterpret_cast<const char *>(data.data()), w*h*bpp);
+        out.write(reinterpret_cast<const char *>(vdata.data()), w*h*bpp);
         if (!out.good()) {
             std::cerr << "can't unload raw data\n";
             out.close();
@@ -174,7 +174,7 @@ bool TGAImage::unload_rle_data(std::ofstream &out) const {
         while (curpix+run_length<npixels && run_length<max_chunk_length) {
             bool succ_eq = true;
             for (int t=0; succ_eq && t<bpp; t++)
-                succ_eq = (data[curbyte+t]==data[curbyte+t+bpp]);
+                succ_eq = (vdata[curbyte+t]==vdata[curbyte+t+bpp]);
             curbyte += bpp;
             if (1==run_length)
                 raw = !succ_eq;
@@ -192,7 +192,7 @@ bool TGAImage::unload_rle_data(std::ofstream &out) const {
             std::cerr << "can't dump the tga file\n";
             return false;
         }
-        out.write(reinterpret_cast<const char *>(data.data()+chunkstart), (raw?run_length*bpp:bpp));
+        out.write(reinterpret_cast<const char *>(vdata.data()+chunkstart), (raw?run_length*bpp:bpp));
         if (!out.good()) {
             std::cerr << "can't dump the tga file\n";
             return false;
@@ -203,21 +203,7 @@ bool TGAImage::unload_rle_data(std::ofstream &out) const {
 
 
 
-void TGAImage::flip_horizontally() {
-    int half = w>>1;
-    for (int i=0; i<half; i++)
-        for (int j=0; j<h; j++)
-            for (int b=0; b<bpp; b++)
-                std::swap(data[(i+j*w)*bpp+b], data[(w-1-i+j*w)*bpp+b]);
-}
 
-void TGAImage::flip_vertically() {
-    int half = h>>1;
-    for (int i=0; i<w; i++)
-        for (int j=0; j<half; j++)
-            for (int b=0; b<bpp; b++)
-                std::swap(data[(i+j*w)*bpp+b], data[(i+(h-1-j)*w)*bpp+b]);
-}
 
 
 

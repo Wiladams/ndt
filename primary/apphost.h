@@ -83,7 +83,7 @@ typedef void (*PFNFLOAT1)(const float param);
 // Miscellaneous globals
 APP_EXPORT extern int gargc;
 APP_EXPORT extern char **gargv;
-
+APP_EXPORT extern unsigned int gSystemThreadCount;
 
 APP_EXPORT extern User32Window * gAppWindow;
 //APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
