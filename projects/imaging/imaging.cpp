@@ -1,5 +1,6 @@
 #include "p5.hpp"
 #include "coloring.h"
+#include "perlin.h"
 
 #include <functional>
 
@@ -22,6 +23,8 @@ static bool draw_proc_image(PixelAccessor<vec4b> &img, bool linear, Shader&& sha
     return true;
 }
 
+
+
 bool draw_ramp(PixelAccessor<maths::vec4b>& img, float scale, 
     const vec4f& color0, const vec4f& color1) 
 {
@@ -35,7 +38,7 @@ bool draw_ramp(PixelAccessor<maths::vec4b>& img, float scale,
 // draw grid image
 bool draw_grid(PixelAccessor<maths::vec4b>& img, float scale, const maths::vec4f& color0, const maths::vec4f& color1)
 {
-    return draw_proc_image(img, true, [=](maths::vec2f uv) {
+    return draw_proc_image(img, true, [=](vec2f uv) {
         uv *= 4 * scale;
     uv -= maths::vec2f{ (float)(int)uv.x, (float)(int)uv.y };
     auto thick = 0.01f / 2;
@@ -44,6 +47,38 @@ bool draw_grid(PixelAccessor<maths::vec4b>& img, float scale, const maths::vec4f
         (uv.x >= 0.5f - thick && uv.x <= 0.5f + thick) ||
         (uv.y >= 0.5f - thick && uv.y <= 0.5f + thick);
     return c ? color0 : color1; });
+}
+
+bool draw_checker(PixelAccessor<maths::vec4b>& img, float scale = 1,
+    const maths::vec4f& color0 = { 0.2f, 0.2f, 0.2f, 1.0f },
+    const maths::vec4f& color1 = { 0.5f, 0.5f, 0.5f, 1.0f })
+{
+    return draw_proc_image(img, true, [=](maths::vec2f uv) {
+        uv *= 4 * scale;
+    uv -= maths::vec2f{ (float)(int)uv.x, (float)(int)uv.y };
+    auto c = uv.x <= 0.5f != uv.y <= 0.5f;
+    return c ? color0 : color1;
+        });
+}
+
+
+bool draw_bumps(PixelAccessor<maths::vec4b>& img, float scale=1, 
+    const vec4f& color0= { 0.2f, 0.2f, 0.2f, 1.0f },
+    const vec4f& color1= { 0.5f, 0.5f, 0.5f, 1.0f }) 
+{
+    return draw_proc_image(img, true, [=](vec2f uv) {
+        uv *= 4 * scale;
+    uv -= vec2f{ (float)(int)uv.x, (float)(int)uv.y };
+    auto thick = 0.125f;
+    auto center = vec2f{
+        uv.x <= 0.5f ? 0.25f : 0.75f,
+        uv.y <= 0.5f ? 0.25f : 0.75f,
+    };
+    auto dist = clamp(length(uv - center), 0.0f, thick) / thick;
+    auto val = uv.x <= 0.5f != uv.y <= 0.5f ? (1 + maths::sqrt(1 - dist)) / 2
+        : (dist * dist) / 2;
+    return lerp(color0, color1, val);
+        });
 }
 
 bool draw_uvramp(PixelAccessor<maths::vec4b>& img, float scale) 
@@ -55,43 +90,47 @@ bool draw_uvramp(PixelAccessor<maths::vec4b>& img, float scale)
         });
 }
 
-// Make an image of multiple lights.
-bool draw_lights(PixelAccessor<maths::vec4b>& img, const vec3f& le, int nlights,
-    float langle, float lwidth, float lheight) {
-    //auto img = make_image(width, height, true);
-    for (auto j = 0; j < img.height() / 2; j++) {
-        auto theta = pif * ((j + 0.5f) / img.height());
-        theta = clamp(theta, 0.0f, pif / 2 - 0.00001f);
-        if (fabs(theta - langle) > lheight / 2) continue;
-        for (int i = 0; i < img.width(); i++) {
-            auto phi = 2 * pif * (float(i + 0.5f) / img.width());
-            auto inlight = false;
-            for (auto l : range(nlights)) {
-                auto lphi = 2 * pif * (l + 0.5f) / nlights;
-                inlight = inlight || fabs(phi - lphi) < lwidth / 2;
-            }
-            //img.pixels[j * width + i] = { le.x, le.y, le.z, 1 };
-            img.setPixel(i, j, float_to_byte({ le.x, le.y, le.z, 1 }));
-        }
-    }
-    return true;
+
+
+bool draw_turbulencemap(PixelAccessor<maths::vec4b>& img, float scale, const vec4f& noise, const vec4f& color0, const vec4f& color1) 
+{
+    return draw_proc_image(img, true, [=](vec2f uv) {
+        uv *= 8 * scale;
+    auto v = perlin_turbulence({ uv.x, uv.y, 0 }, noise.x, noise.y, (int)noise.z);
+    v = clamp(v, 0.0f, 1.0f);
+    return lerp(color0, color1, v);
+        });
+}
+
+bool draw_blackbodyramp(PixelAccessor<maths::vec4b>& img, float scale=1, float from=1000, float to=12000) 
+{
+    return draw_proc_image(img, true, [=](vec2f uv) {
+        uv *= scale;
+    uv -= vec2f{ (float)(int)uv.x, (float)(int)uv.y };
+    auto rgb = blackbody_to_rgb(maths::lerp(from, to, uv.x));
+    return vec4f{ rgb.x, rgb.y, rgb.z, 1 };
+        });
 }
 
 
 void setup()
 {
-	createCanvas(640,480, "imaging");
+	createCanvas(640,640, "imaging");
     //layered();
 
-    draw_grid(gAppFrameBuffer, 4, { 1,0,0,0.75f }, { 1,1,1,1 });
+    //draw_grid(gAppFrameBuffer, 4, { 1,0,0,0.75f }, { 1,1,1,1 });
+
+    draw_checker(gAppFrameBuffer, 4);
+
+    //draw_bumps(gAppFrameBuffer,8);
 
     //draw_ramp(gAppFrameBuffer, 2, { 0.0,0.0,1.0,1.0 }, { 0,1.0,0,1.0 });
 
     //draw_uvramp(gAppFrameBuffer, 2);
 
-    //draw_lights(gAppFrameBuffer, {0,1,1}, 1, maths::radians(30), 0.025, 0.025);
+    //draw_turbulencemap(gAppFrameBuffer, 4, { 1, 0.5, 8,1 }, { 0.0,0.0,0.0,1.0 }, { 1,1,1,1 });
+    
+    //draw_blackbodyramp(gAppFrameBuffer, 1, 100, 12000);
 }
 
-
-//draw_grid(gAppFrameBuffer, 8, { 1.0,0,0,1.0 }, { 0,1.0,0,1.0 });
 

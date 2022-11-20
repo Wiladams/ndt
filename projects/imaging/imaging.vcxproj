@@ -148,6 +148,7 @@
     <ClCompile Include="imaging.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\coloring.h" />
     <ClInclude Include="..\..\primary\pixelaccessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

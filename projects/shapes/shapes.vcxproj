@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\BLGraphics.h" />
+    <ClInclude Include="..\..\primary\definitions.h" />
     <ClInclude Include="..\..\primary\drawable.h" />
     <ClInclude Include="..\..\primary\gpath.h" />
     <ClInclude Include="..\..\primary\graphic.hpp" />

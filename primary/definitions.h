@@ -12,9 +12,9 @@
 //
 
 
-#include <intrin.h>
-#include <stdint.h>
-
+//#include <intrin.h>
+//#include <stdint.h>
+#include <cstddef>
 
 #if defined(_WIN32) || defined(_WIN64)
 #define NDT_IS_WINDOWS
