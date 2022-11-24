@@ -29,7 +29,7 @@ void draw()
 			auto c = ndt::ColorRGBAFromWavelength(wl, gamma);
 			maths::vec4b p = { c.b * 255, c.g * 255, c.r * 255,   255 };
 
-			gAppFrameBuffer.setPixel(x, y, p);
+			appFrameBuffer().setPixel(x, y, p);
 		}
 	}
 }

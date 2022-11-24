@@ -10,19 +10,10 @@ static VOIDROUTINE gPreloadHandler = nullptr;
 static VOIDROUTINE gSetupHandler = nullptr;
 static PFNDOUBLE1 gUpdateHandler = nullptr;
 
-static MouseEventHandler gMouseEventHandler = nullptr;
-static MouseEventHandler gMouseMovedHandler = nullptr;
-static MouseEventHandler gMouseClickedHandler = nullptr;
-static MouseEventHandler gMousePressedHandler = nullptr;
-static MouseEventHandler gMouseReleasedHandler = nullptr;
-static MouseEventHandler gMouseWheelHandler = nullptr;
-static MouseEventHandler gMouseHWheelHandler = nullptr;
-static MouseEventHandler gMouseDraggedHandler = nullptr;
+static KeyboardEventDispatch gKeyboardDispatch;
+static MouseEventDispatch gMouseDispatch;
 
-// Keyboard event handling
-static KeyEventHandler gKeyPressedHandler = nullptr;
-static KeyEventHandler gKeyReleasedHandler = nullptr;
-static KeyEventHandler gKeyTypedHandler = nullptr;
+
 
 // Joystick event handling
 static JoystickEventHandler gJoystickPressedHandler = nullptr;
@@ -58,42 +49,24 @@ static std::shared_ptr<WindowManager> gWindowManager;
 static VOIDROUTINE gDrawHandler = nullptr;
 static VOIDROUTINE gComposedHandler = nullptr;
 
-//float gFPS = 15;   // Frames per second
 //TickTopic gTickTopic;
 bool gLooping = true;
 bool gIsFullscreen = false;
 
-namespace p5 {
 
-    
+
+namespace p5 {
     int canvasWidth = 0;              // width of the canvas
     int canvasHeight = 0;             // height of the canvas
-
-    float fFrameRate = 15;
-    float fInterval = 1000;
-    float fNextMillis = 0;
-    size_t fDroppedFrames = 0;
-    uint64_t fFrameCount = 0;         // how many frames drawn so far
 
 
     int textLineSize = 16;
     int textCursorX = 0;
     int textCursorY = 0;
 
-    // Keyboard globals
-    uint8_t keyStates[255]{};
-    int keyCode = 0;
-    int keyChar = 0;
-
-    // Mouse Globals
- //   bool mouseIsPressed = false;
- //   int mouseX = 0;
- //   int mouseY = 0;
- //   int mouseDelta = 0;
- //   int pmouseX = 0;
- //   int pmouseY = 0;
 
     // Gesture Globals
+    // BUGBUG - these should go in the apphost.h
     long panX = 0;
     long panY = 0;
     long ppanX = 0;
@@ -113,7 +86,7 @@ namespace p5 {
     double gAppLastTime = 0;
     
     // Random number generator
-    maths::rng_state gRNGState{};
+    static maths::rng_state gRNGState{};
 
     
     void setFontDpiUnits(const int dpi, const float units)
@@ -133,7 +106,7 @@ namespace p5 {
     }
 
     // Window management
-    void addWindow(std::shared_ptr<GWindow> win)
+    void addWindow(std::shared_ptr<IGraphic> win)
     {
         if (nullptr != gWindowManager)
             gWindowManager->addChild(win);
@@ -158,16 +131,6 @@ namespace p5 {
             gWindowManager->moveToFront(win);
     }
 
-    double seconds() noexcept
-    {
-        return SWatch.seconds();
-    }
-
-    double millis() noexcept
-    {
-        // get millis from p5 stopwatch
-        return SWatch.millis();
-    }
 
     // Various modes
     void angleMode(const ANGLEMODE mode) noexcept
@@ -422,22 +385,7 @@ namespace p5 {
 
 
 
-    void frameRate(float newRate) noexcept
-    {
-        fFrameRate = newRate;
-        fInterval = 1000 / newRate;
-        fNextMillis = SWatch.millis() + fInterval;
-    }
 
-    float getFrameRate() noexcept
-    {
-        return fFrameRate;
-    }
-
-    size_t getFrameCount() noexcept
-    {
-        return fFrameCount;
-    }
 
     // turn looping on
     void loop() noexcept
@@ -730,13 +678,12 @@ namespace p5 {
 
         gWindowManager = std::make_shared<WindowManager>(aWidth, aHeight);
 
-        gAppSurface->attachPixelArray(gAppFrameBuffer, threadCount);
+        gAppSurface->attachPixelArray(appFrameBuffer(), threadCount);
     }
 
-    void fullscreen() noexcept
+    void fullscreen(const char* title, uint32_t threadCount) noexcept
     {
-
-        createCanvas(displayWidth, displayHeight);
+        createCanvas(displayWidth, displayHeight, title, threadCount);
         setCanvasPosition(0, 0);
         layered();
         gIsFullscreen = true;
@@ -832,18 +779,15 @@ void handleComposition()
     {
         gComposedHandler();
     }
+
+    gAppSurface->flush();
 }
 
 
-void handleFrameTick(const double secs)
+void handleFrameTick(const FrameCountEvent &fce)
 {
-    p5::fFrameCount += 1;
-
     // Do whatever drawing the application wants to do
     handleComposition();
-
-
-
 
     //gRecorder.saveFrame();
     
@@ -855,7 +799,7 @@ void handleFrameTick(const double secs)
 void handleKeyboardEvent(const KeyboardEvent& e)
 {
     //std::cout << "keyboardEvent: " << e.activity << "\n" ;
-    
+
     // If there's a window manager, let it have
     // a crack at the event.
     // Of course, it could just subscribe to keyboard events
@@ -863,6 +807,7 @@ void handleKeyboardEvent(const KeyboardEvent& e)
         gWindowManager->keyEvent(e);
     }
 
+    /*
     switch (e.activity) {
 
 
@@ -885,11 +830,13 @@ void handleKeyboardEvent(const KeyboardEvent& e)
         }
         break;
     }
+    */
+    gKeyboardDispatch(e);
 }
 
 void handleMouseEvent(const MouseEvent& e)
 {
-    //printf("p5::handleMouseEvent: %d (%d, %d)\n", e.activity, e.x, e.y);
+    //printf("p5::handleMouseEvent: %d (%3.0f, %3.0f)\n", e.activity, e.x, e.y);
     
     // If there is a window manager, let it have first crack
     // at the mouse event.
@@ -897,51 +844,8 @@ void handleMouseEvent(const MouseEvent& e)
         gWindowManager->mouseEvent(e);
     }
     
-    // If the user has implemented explicit mouse handling routines
-    // send the event there.
-    switch (e.activity) {
-
-
-    case MOUSEMOVED:
-
-        if (gMouseMovedHandler != nullptr) {
-            gMouseMovedHandler(e);
-        }
-
-        if (mouseIsPressed && gMouseDraggedHandler) {
-            gMouseDraggedHandler(e);
-        }
-        break;
-
-    case MOUSEPRESSED:
-        if (gMousePressedHandler != nullptr) {
-            gMousePressedHandler(e);
-        }
-        break;
-    case MOUSERELEASED:
-        if (gMouseReleasedHandler != nullptr) {
-            gMouseReleasedHandler(e);
-        }
-        if (gMouseClickedHandler != nullptr) {
-            gMouseClickedHandler(e);
-        }
-        break;
-
-    case MOUSEWHEEL:
-        //p5::mouseDelta = e.delta;
-        if (gMouseWheelHandler != nullptr) {
-            gMouseWheelHandler(e);
-        }
-        break;
-
-    case MOUSEHWHEEL:
-        //p5::mouseDelta = e.delta;
-        if (gMouseHWheelHandler != nullptr) {
-            gMouseHWheelHandler(e);
-        }
-        break;
-    }
-    
+    // Use dispatcher to call things
+    gMouseDispatch(e);
 
 }
 
@@ -1082,63 +986,35 @@ void handlePointerEvent(const PointerEvent& e)
 }
 
 
-static void p5keyboardSubscriber(const KeyboardEvent& e)
-{
-    handleKeyboardEvent(e);
-}
-
-static void p5mouseSubscriber(const MouseEvent& e)
-{
-    handleMouseEvent(e);
-}
-
-static void p5joystickSubscriber(const JoystickEvent& e)
-{
-    handleJoystickEvent(e);
-}
-
-static void p5touchSubscriber(const TouchEvent& e)
-{
-    handleTouchEvent(e);
-}
-
-static void p5gestureSubscriber(const GestureEvent& e)
-{
-    handleGestureEvent(e);
-}
-
-static void p5pointerSubscriber(const PointerEvent& e)
-{
-    handlePointerEvent(e);
-}
-
-static void p5filedroppedSubscriber(const FileDropEvent& e)
-{
-    handleFileDroppedEvent(e);
-}
 
 void onUnload()
-{}
+{
+    ;
+}
 
+//
+// onLoop()
+// This is called by the appmain, every time it goes through
+// the primary message loop, after Windows messages have been
+// processed.
+// Here we impose timing, so only if we're at a frame time
+// do we do anything, otherwise we just let the time slice go by.
+// 
+// Note:  It might be useful to introduce an optional 'timeSlice()' 
+// function, whereby the user's code could do something useful 
+// in this space, even though it's not specifically on the frame 
+// count.  
+//
 void onLoop()
 {
     // We'll wait here until it's time to 
-// signal the frame
+    // signal the frame
     if (p5::SWatch.millis() > p5::fNextMillis)
     {
-
-
-        // WAA - Might also be interesting to get absolute keyboard, mouse, 
-        // and joystick positions here.
-        // 
-        ::GetKeyboardState(p5::keyStates);
-
-        //
         if (gLooping)
         {
             handleFrameTick(p5::SWatch.seconds());
         }
-
 
         // catch up to next frame interval
         // this will possibly result in dropped
@@ -1151,13 +1027,20 @@ void onLoop()
     }
 }
 
+//
+// onLoad()
+// Called by the application framework.  At this point
+// an initial window has been setup, and this is our opportunity
+// to do whatever setup the p5 environment requires, such as 
+// loading in dynamic functions, such as mouse and keyboard routines.
+//
 void onLoad()
 {
-    p5::frameRate(15);
+    frameRate(15);
 
     // setup the drawing context
     gAppSurface = std::make_shared<Surface>();
-    gAppSurface->attachPixelArray(gAppFrameBuffer);
+    gAppSurface->attachPixelArray(appFrameBuffer());
     gAppSurface->textFont("Consolas");
     
     // ppi and user units
@@ -1166,13 +1049,14 @@ void onLoad()
     HMODULE hInst = ::GetModuleHandleA(NULL);
 
     // setup subscriptions
-    subscribe(p5mouseSubscriber);
-    subscribe(p5keyboardSubscriber);
-    subscribe(p5joystickSubscriber);
-    subscribe(p5filedroppedSubscriber);
-    subscribe(p5pointerSubscriber);
-    subscribe(p5touchSubscriber);
-    subscribe(p5gestureSubscriber);
+    subscribe(handleMouseEvent);
+    subscribe(handleKeyboardEvent);
+    subscribe(handleJoystickEvent);
+    subscribe(handleFileDroppedEvent);
+    subscribe(handlePointerEvent);
+    subscribe(handleTouchEvent);
+    subscribe(handleGestureEvent);
+    subscribe(handleFrameTick);
 
     // load the setup() function if user specified
     gPreloadHandler = (VOIDROUTINE)GetProcAddress(hInst, "preload");
@@ -1184,19 +1068,19 @@ void onLoad()
     gComposedHandler = (VOIDROUTINE)GetProcAddress(hInst, "onComposed");
 
     // Look for implementation of mouse events
-    //gMouseEventHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseEvent");
-    gMouseMovedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
-    gMouseClickedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
-    gMousePressedHandler = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
-    gMouseReleasedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
-    gMouseWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
-    gMouseHWheelHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseHWheel");
-    gMouseDraggedHandler = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
+    gMouseDispatch.mouseMoved = (MouseEventHandler)GetProcAddress(hInst, "mouseMoved");
+    gMouseDispatch.mouseClicked = (MouseEventHandler)GetProcAddress(hInst, "mouseClicked");
+    gMouseDispatch.mousePressed = (MouseEventHandler)GetProcAddress(hInst, "mousePressed");
+    gMouseDispatch.mouseReleased = (MouseEventHandler)GetProcAddress(hInst, "mouseReleased");
+    gMouseDispatch.mouseWheel = (MouseEventHandler)GetProcAddress(hInst, "mouseWheel");
+    gMouseDispatch.mouseHWheel = (MouseEventHandler)GetProcAddress(hInst, "mouseHWheel");
+    gMouseDispatch.mouseDragged = (MouseEventHandler)GetProcAddress(hInst, "mouseDragged");
+
 
     // Look for implementation of keyboard events
-    gKeyPressedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
-    gKeyReleasedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
-    gKeyTypedHandler = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
+    gKeyboardDispatch.keyPressed = (KeyEventHandler)GetProcAddress(hInst, "keyPressed");
+    gKeyboardDispatch.keyReleased = (KeyEventHandler)GetProcAddress(hInst, "keyReleased");
+    gKeyboardDispatch.keyTyped = (KeyEventHandler)GetProcAddress(hInst, "keyTyped");
 
     // Look for implementation of joystick events
     gJoystickPressedHandler = (JoystickEventHandler)GetProcAddress(hInst, "joyPressed");
@@ -1237,5 +1121,7 @@ void onLoad()
     // the user calls noLoop() within 
     // the setup() routine
     handleFrameTick(p5::SWatch.seconds());
+
+    // Refresh the screen at least once
     screenRefresh();
 }

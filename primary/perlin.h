@@ -21,7 +21,6 @@
 //
 // ========= PERLIN NOISE DECLARATION =============
 //
-
 namespace maths
 {
     // Compute the revised Perlin noise function with returned values in the range

@@ -15,41 +15,22 @@
 
     ss.next()
 
-    And finally to get a pixelbuffer that was captured
+    And finally, if you want to get the capture as a BLImage
+    you can use:
 
-    ss.getCurrent()
     ss.getImage()
+
+    But, the ScreenSnapper is itself a PixelArray/PixelAccessor, so you get
+    get at pixels and set pixels directly as well.
 
     References:
     https://www.codeproject.com/articles/5051/various-methods-for-capturing-the-screen
 */
 
-/*
-*   To use it as Texture
-    virtual rtcolor value(const double u, const double v, const vec3& p) const
-    {
-        auto pval = pixelValue(u,v,p);
-        return { (double)pval.r() / 255, (double)pval.g() / 255, (double)pval.b() / 255};
-    }
 
-    virtual BLRgba32 pixelValue(double u, double v, const vec3& p) const
-    {
-        int x = int(u * (fWidth - 1));
-        int y = int(v * (fHeight - 1));
-
-        return fSurface.get(x, y);
-    }
-*/
-
-#include "Surface.h"
+//#include "Surface.h"
 #include "User32PixelMap.h"
 
-bool BLImageFromPixelArray(PixelArray &arr, BLImage &img)
-{
-    BLResult bResult = blImageInitAsFromData(&img, arr.width(), arr.height(), BL_FORMAT_PRGB32, arr.data(), (intptr_t)arr.stride(), nullptr, nullptr);
-
-    return bResult == 0;
-}
 
 class ScreenSnapper : public User32PixelMap
 {
@@ -63,17 +44,34 @@ public:
     {
     }
 
+    void reset(maths::bbox2f box, HDC srcDC = nullptr)
+    {
+        auto bsz = maths::size(box);
+        reset((int)box.min.x, (int)box.min.y, (int)bsz.x, (int)bsz.y);
+    }
+
     void reset(int x, int y, int w, int h, HDC srcDC=nullptr)
     {
+        // First, delete current DC if it exists
+        // But really, we don't know whether this is
+        // the right thing to do.  Instead, the srcDC should
+        // be a unique_ptr, so we don't have to make
+        // the decision of its lifetime
+        // For now, we'll just leave it alone, as we don't expect
+        // this to be reset very frequently
+        //if (nullptr != fSourceDC)
+        //    ::DeleteDC(fSourceDC);
+
         if (srcDC == nullptr)
-            fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
+                fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
         else
-            fSourceDC = srcDC;
+                fSourceDC = srcDC;
         
         fOriginX = x;
         fOriginY = y;
         init(w, h);
-        BLImageFromPixelArray(*this, fImage);
+
+        BLResult bResult = blImageInitAsFromData(&fImage, (int)width(), (int)height(), BL_FORMAT_PRGB32, data(), (intptr_t)stride(), nullptr, nullptr);
     }
 
     BLImage& getImage()
@@ -84,7 +82,7 @@ public:
     // take a snapshot
     bool next()
     {
-        auto bResult = BitBlt(bitmapDC(), 0, 0, width(), height(),
+        auto bResult = BitBlt(bitmapDC(), 0, 0, (int)width(), (int)height(),
             fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
 
         if (bResult == 0)
@@ -97,53 +95,3 @@ public:
     }
 };
 
-/*
-class ScreenSnapshot
-{
-    HDC fSourceDC;
-    User32PixelMap fPixelMap{};
-    BLImage fImage{};
-
-    int fOriginX=0;
-    int fOriginY=0;
-    size_t fWidth=0;
-    size_t fHeight=0;
-
-public:
-    ScreenSnapshot(int x, int y, size_t awidth, size_t aheight)
-        : fOriginX(x)
-        ,fOriginY(y)
-        ,fWidth(awidth)
-        ,fHeight(aheight)
-    {
-        fPixelMap.init(awidth, aheight);
-        BLImageFromPixelArray(fPixelMap, fImage);
-
-        // create a device context for the display
-        fSourceDC = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
-    }
-
-    void reset() {
-        // do nothing
-    }
-
-    size_t width() { return fWidth; }
-    size_t height() { return fHeight; }
-
-    // return image directly
-    BLImage& getImage()
-    {
-        return fImage;
-    }
-
-    // take a snapshot
-    bool next()
-    {
-        auto bResult = BitBlt(fPixelMap.bitmapDC(), 0, 0, fPixelMap.width(), fPixelMap.height(),
-            fSourceDC, fOriginX, fOriginY, SRCCOPY | CAPTUREBLT);
-
-        return true;
-    }
-
-};
-*/

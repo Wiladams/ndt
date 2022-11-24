@@ -309,14 +309,14 @@ void draw()
 void mouseWheel(const MouseEvent& e)
 {
     //printf("wheel: %d\n", e.delta);
-    page->translateBoundsBy(0, (e.delta / 120.0f) * scrollSize);
+    page->translateBoundsBy(0, e.delta * scrollSize);
 }
 
 // Horizontal mouse wheel
 void mouseHWheel(const MouseEvent& e)
 {
-    //printf("wheel: %d\n", e.delta);
-    page->translateBoundsBy((e.delta / (120.0f)) * scrollSize, 0);
+    //printf("wheel: %3.2f\n", e.delta);
+    page->translateBoundsBy(e.delta * scrollSize, 0);
 }
 
 // Handling panning

@@ -2,7 +2,6 @@
 // Reference
 //  https://p5js.org/examples/math-graphing-2d-equations.html
 //
-
 #include "apphost.h"
 
 
@@ -25,7 +24,7 @@ void onLoop()
     float theta;
     float val;
 
-    int bw; //variable to store grayscale
+    byte bw; //variable to store grayscale
     int i;
     int j;
     int cols = canvasWidth;
@@ -37,14 +36,14 @@ void onLoop()
             r = maths::sqrt(x * x + y * y); // Convert cartesian to polar
             theta = maths::atan2(y, x); // Convert cartesian to polar
             // Compute 2D polar coordinate function
-            //val = maths::sin(n * maths::cos(r) + 5 * theta); // Results in a value between -1 and 1
-            val = maths::cos(r);                            // Another simple function
+            val = maths::sin(n * maths::cos(r) + 5 * theta); // Results in a value between -1 and 1
+            //val = maths::cos(r);                            // Another simple function
             //val = maths::sin(r);
             //val = maths::sin(theta);                        // Another simple function
-            bw = int(((val + 1) * 255) / 2);
+            bw = byte(((val + 1) * 255) / 2);
             int index = 4 * (i + j * canvasWidth);
 
-            gAppFrameBuffer.setPixel(i,j,Pixel(bw,bw,bw,255));
+            appFrameBuffer().setPixel(i, j, maths::vec4b{ bw, bw, bw, 255 });
 
             y += dy;
         }

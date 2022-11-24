@@ -213,9 +213,9 @@ struct FontGlyphGrid : public Graphic
 	{
 		double scrollSize = FontSize;
 
-		printf("fontglyphgrid.wheel: %d\n", e.delta);
-		fGridBody->translateBoundsBy(0, (e.delta / 120.0) * scrollSize);
-		fColumnHeading->translateBoundsBy(0, (e.delta / 120.0) * scrollSize);
+		printf("fontglyphgrid.wheel: %3.2f\n", e.delta);
+		fGridBody->translateBoundsBy(0, e.delta * scrollSize);
+		fColumnHeading->translateBoundsBy(0, e.delta * scrollSize);
 	}
 
 	void setFontFace(BLFontFace& face)

@@ -113,6 +113,9 @@ public:
 
     bool setTitle(const char* title)
     {
+        if (title == nullptr)
+            return false;
+
         BOOL res = ::SetWindowTextA(getHandle(), title);
         return res != 0;
     }

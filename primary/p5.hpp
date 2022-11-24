@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 /*
@@ -126,18 +124,7 @@ extern "C" {
     APP_EXPORT extern int textCursorX;
     APP_EXPORT extern int textCursorY;
 
-    // Keyboard Globals
-    APP_EXPORT extern uint8_t keyStates[];    // state of each key (1==pressed)
-    APP_EXPORT extern int keyCode;      // virtual keycode
-    APP_EXPORT extern int keyChar;      // actual character typed
 
-    // Mouse Globals
- //   APP_EXPORT extern bool mouseIsPressed;
- //   APP_EXPORT extern int mouseX;
- //   APP_EXPORT extern int mouseY;
- //   APP_EXPORT extern int mouseDelta;
- //   APP_EXPORT extern int pmouseX;
- //   APP_EXPORT extern int pmouseY;
 
     // Gesture Globals
     APP_EXPORT extern long panX;
@@ -255,7 +242,7 @@ struct PVector {
     void setUnitsPerInch(REAL units);
 
     // Windowing functions
-    void addWindow(std::shared_ptr<GWindow> win);
+    void addWindow(std::shared_ptr<IGraphic> win);
     std::shared_ptr<GWindow> window(int x, int y, int w, int h);
     void windowToFront(std::shared_ptr<GWindow> win);
     void windowLayout(std::shared_ptr<ILayoutGraphics>& layout);
@@ -277,9 +264,11 @@ struct PVector {
     // Runtime management
     void loop() noexcept;
     void noLoop() noexcept;
-    void frameRate(float newRate) noexcept;
-    float getFrameRate() noexcept;
-    size_t getFrameCount() noexcept;
+
+    //void frameRate(float newRate) noexcept;
+    //float frameRate() noexcept;
+
+
 
     // coordinate transform
     void push() noexcept;
@@ -429,7 +418,7 @@ struct PVector {
 
 
     void createCanvas(long aWidth, long aHeight, const char *title="p5 Application", const uint32_t threadCount=0) noexcept;
-    void fullscreen() noexcept;
+    void fullscreen(const char* title=nullptr, uint32_t threadCount=0) noexcept;
     bool isFullscreen() noexcept;
     //Surface * createSurface(long aWidth, long aHeight) noexcept;
 
@@ -442,9 +431,7 @@ struct PVector {
     float random(float low, float high) noexcept;
     float random(float high) noexcept;
 
-    // get fractions of seconds
-    double millis() noexcept;
-    double seconds() noexcept;
+
 
     // Math routines
     //

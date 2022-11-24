@@ -60,8 +60,8 @@ public:
 		setFrame(bounds());
 
 		printf("yearofmonths\n");
-		printf("  Frame: %3.2f,%3.2f  %3.2f,%3.2f\n", frame().x, frame().y, frame().w, frame().h);
-		printf("  Bound: %3.2f,%3.2f  %3.2f,%3.2f\n", bounds().x, bounds().y, bounds().w, bounds().h);
+		//printf("  Frame: %3.2f,%3.2f  %3.2f,%3.2f\n", frame().x, frame().y, frame().w, frame().h);
+		//printf("  Bound: %3.2f,%3.2f  %3.2f,%3.2f\n", bounds().x, bounds().y, bounds().w, bounds().h);
 
 
 		//setFrame({ 0,0,(double)cellSize.w * 3 + (edgeMargin * 4), (double)cellSize.h * 4 + (edgeMargin * 2) + (lineGap * 3) });
@@ -79,7 +79,7 @@ public:
 		ctx.textSize(18);
 		ctx.fill(0);
 		ctx.noStroke();
-		ctx.text(yearText, f.w / 2,18);
+		ctx.text(yearText, frameWidth() / 2,18);
 
 		//ctx->flush();
 	}

@@ -11,10 +11,8 @@
 // it as the first item to be included.
 //
 
-
-//#include <intrin.h>
-//#include <stdint.h>
-#include <cstddef>
+#include <cstdint>		// uint8_t
+#include <cstddef>		// nullptr_t, ptrdiff_t, size_t
 
 #if defined(_WIN32) || defined(_WIN64)
 #define NDT_IS_WINDOWS

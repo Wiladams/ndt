@@ -2,11 +2,11 @@
 
 #include "fonthandler.hpp"
 #include "elements/guistyle.hpp"
-
+#include "elements/textlabel.hpp"
 
 using namespace p5;
 
-
+/*
 class TextLabel : public GraphicElement
 {
     std::string fText;
@@ -67,6 +67,7 @@ public:
         return label;
     }
 };
+*/
 
 /*
 struct Button : public Graphic
@@ -105,10 +106,11 @@ void setup()
 	createCanvas(800, 800);
     //background(0xCD);
 
-    auto win = window(0, 0, 320, 240);
+    //auto win = window(0, 0, 320, 240);
     auto label = TextLabel::create("Text Label quit",10,10, 32);
 
-    win->addChild(label);
+    //win->addChild(label);
+    addWindow(label);
     //label->draw(*gAppSurface);
 
     //noLoop();

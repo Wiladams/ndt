@@ -1,6 +1,6 @@
 #pragma once
 
-#include "p5.hpp"
+#include "apphost.h"
 #include "secondtime.h"
 
 
@@ -26,7 +26,7 @@ public:
 
 	void drawSelf(IGraphics & ctx) override
 	{
-		fTime.setSeconds(p5::seconds());
+		fTime.setSeconds(seconds());
 
 		ctx.push();
 
@@ -44,13 +44,13 @@ public:
 		ctx.text(buff, 10, 44);
 		
 		// Frame rate
-		sprintf_s(buff, "frame count: %d", p5::getFrameCount());
+		sprintf_s(buff, "frame count: %zd", frameCount());
 		ctx.text(buff, 10, 68);
 
-		sprintf_s(buff, "expected fps: %f", p5::getFrameRate());
+		sprintf_s(buff, "expected fps: %f", getFrameRate());
 		ctx.text(buff, 10, 92);
 		
-		sprintf_s(buff, "actual fps: %3.2f", p5::getFrameCount() / p5::seconds());
+		sprintf_s(buff, "actual fps: %3.2f", frameCount() / seconds());
 		ctx.text(buff, 10, 116);
 
 		

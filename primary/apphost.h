@@ -50,7 +50,7 @@
 
 #define APP_EXTERN  extern
 
-
+#include "maths.hpp"
 #include "pubsub.h"
 #include "NativeWindow.hpp"
 #include "joystick.h"
@@ -86,8 +86,12 @@ APP_EXPORT extern char **gargv;
 APP_EXPORT extern unsigned int gSystemThreadCount;
 
 APP_EXPORT extern User32Window * gAppWindow;
-//APP_EXPORT extern std::shared_ptr<User32PixelMap> gAppFrameBuffer;
-APP_EXPORT extern User32PixelMap gAppFrameBuffer;
+//APP_EXPORT extern User32PixelMap gAppFrameBuffer;
+
+// Keyboard Globals
+APP_EXPORT extern uint8_t keyStates[];    // state of each key (1==pressed)
+APP_EXPORT extern int keyCode;      // virtual keycode
+APP_EXPORT extern int keyChar;      // actual character typed
 
 // Mouse Globals
 APP_EXPORT extern bool mouseIsPressed;
@@ -120,11 +124,20 @@ APP_EXPORT extern size_t canvasStride;
 // 
 // The control the lifetime of the environment, creation of primary window
 // and whether various parts of the IO system are present
+APP_EXPORT User32PixelMap& appFrameBuffer();
 
 APP_EXPORT void createAppWindow(long aWidth, long aHeight, const char* title);
 APP_EXPORT void windowOpacity(float o);	// set overall opacity of window
 APP_EXPORT void showAppWindow();
 APP_EXPORT void halt();
+
+APP_EXPORT void frameRate(float newRate) noexcept;
+APP_EXPORT float getFrameRate() noexcept;
+APP_EXPORT size_t frameCount() noexcept;
+
+// get fractions of seconds
+APP_EXPORT double millis() noexcept;
+APP_EXPORT double seconds() noexcept;
 
 APP_EXPORT void screenRefresh();
 
@@ -210,8 +223,10 @@ using FileDropEventTopic = Topic<FileDropEvent&>;
 using TouchEventTopic = Topic<TouchEvent&>;
 using PointerEventTopic = Topic<PointerEvent&>;
 using GestureEventTopic = Topic<GestureEvent&>;
+using FrameCountEventTopic = Topic<FrameCountEvent&>;
 
-APP_EXPORT void subscribe(SignalEventTopic::Subscriber s);
+
+APP_EXPORT void subscribeToSignal(SignalEventTopic::Subscriber s);
 APP_EXPORT void subscribe(MouseEventTopic::Subscriber s);
 APP_EXPORT void subscribe(KeyboardEventTopic::Subscriber s);
 APP_EXPORT void subscribe(JoystickEventTopic::Subscriber s);
@@ -219,7 +234,7 @@ APP_EXPORT void subscribe(FileDropEventTopic::Subscriber s);
 APP_EXPORT void subscribe(TouchEventTopic::Subscriber s);
 APP_EXPORT void subscribe(GestureEventTopic::Subscriber s);
 APP_EXPORT void subscribe(PointerEventTopic::Subscriber s);
-
+APP_EXPORT void subscribe(FrameCountEventTopic::Subscriber s);
 
 #endif	// apphost_h
 

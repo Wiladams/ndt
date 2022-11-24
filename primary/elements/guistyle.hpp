@@ -79,7 +79,7 @@ public:
 
         for (int i = 1; i <= maxOffset; i++)
         {
-            auto alpha = p5::map(i, 1.0f, (float)maxOffset, 20, 5);
+            auto alpha = p5::map((REAL)i, 1.0f, (REAL)maxOffset, 20, 5);
             shadow.setA((uint32_t)alpha);
             ctx.fill(shadow);
             //ctx.rect(r.x + i, r.y + i, r.w, r.h);

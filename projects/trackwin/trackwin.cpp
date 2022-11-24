@@ -90,7 +90,7 @@ struct MouseHooker
 		case WM_MOUSEWHEEL:
 		{
 			int delta = GET_WHEEL_DELTA_WPARAM(mhs->mouseData);
-			printf(" WHEEL: %d\n", delta/WHEEL_DELTA);
+			printf(" WHEEL: %3.2f\n", delta);
 
 			//e.activity = MOUSEWHEEL;
 			//e.delta = GET_WHEEL_DELTA_WPARAM(wParam);

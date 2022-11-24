@@ -4,11 +4,11 @@
 
 using namespace p5;
 
-double gRadius = 20.0;
-double gravity = 9.0;    // 9.0
-double mass = 2.0;       // 2.0
-double gDamping = 0.7;   // 0.7
-double gStiffness = 0.2; // 0.2
+float gRadius = 20.0;
+float gravity = 9.0;    // 9.0
+float mass = 2.0;       // 2.0
+float gDamping = 0.7;   // 0.7
+float gStiffness = 0.2; // 0.2
 
 /*
     A Spring2D is the essential data structure
@@ -20,23 +20,23 @@ double gStiffness = 0.2; // 0.2
     will determine how much it will move in which direction.
 */
 struct Spring2D {
-    double x;
-    double y;
-    double radius;
-    double vx;
-    double vy;
-    double mass;
-    double gravity;
-    double stiffness;
-    double damping;
-    BLRgba32 color;
+    float x{};
+    float y{};
+    float radius{};
+    float vx{};
+    float vy{};
+    float mass{};
+    float gravity{};
+    float stiffness{};
+    float damping{};
+    BLRgba32 color{};
 
     static const Spring2D empty;
 
-    Spring2D() {};
+    Spring2D() { ; };
 
 
-    Spring2D(int xpos, int ypos, double m, double g, BLRgba32 c)
+    Spring2D(float xpos, float ypos, float m, float g, const BLRgba32 &c)
     {
         x = xpos;   // The x- and y-coordinates
         y = ypos;
@@ -60,13 +60,14 @@ struct Spring2D {
                 (radius == rhs.radius));
     }
 
-    void update(int targetX, int targetY)
+    void update(float targetX, float targetY)
     {
         auto forceX = (targetX - x) * stiffness;
         auto ax = forceX / mass;
 
         vx = damping * (vx + ax);
         x = x + vx;
+
         auto forceY = (targetY - y) * stiffness;
         forceY = forceY + gravity;
         auto ay = forceY / mass;
@@ -74,7 +75,7 @@ struct Spring2D {
         y = y + vy;
     }
 
-    void display(double nx, double ny)
+    void display(float nx, float ny)
     {
         noStroke();
         fill(color);
@@ -104,7 +105,6 @@ void addSpring()
 {
     Spring2D aspring(canvasWidth / 2, canvasHeight / 2, mass, gravity, randomColor());
 
-
     springs.push_back(aspring);
 }
 
@@ -131,7 +131,7 @@ void reset()
 
 void setup()
 {
-    fullscreen();
+    fullscreen("simchain",4);
     frameRate(30);
 
     reset();
@@ -162,7 +162,6 @@ void draw()
     // Let the top spring follow the mouse
     headSpring.update(mouseX, mouseY);
     headSpring.display(mouseX, mouseY);
-
 
     // iterate through rest of springs
     Spring2D* currentSpring = &headSpring;

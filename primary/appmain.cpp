@@ -19,6 +19,7 @@
 #include "LayeredWindow.hpp"
 #include "joystick.h"
 #include "fonthandler.hpp"
+#include "stopwatch.hpp"
 
 #include <shellapi.h>   // for drag-drop support
 
@@ -54,12 +55,15 @@ FileDropEventTopic gFileDropEventTopic;
 TouchEventTopic gTouchEventTopic;
 PointerEventTopic gPointerEventTopic;
 GestureEventTopic gGestureEventTopic;
+FrameCountEventTopic gFrameCountEventTopic;
 
 // Miscellaneous globals
 int gargc;
 char **gargv;
 
 unsigned int gSystemThreadCount=0;  // how many compute threads the system reports
+
+static StopWatch gAppClock;
 
 User32Window * gAppWindow = nullptr;
 User32PixelMap gAppFrameBuffer;
@@ -81,6 +85,19 @@ int displayHeight= 0;
 unsigned int systemDpi = 96;    // 96 == px measurement
 unsigned int systemPpi = 192;   // starting pixel density
 
+// Stuff related to rate of displaying frames
+float fFrameRate = 15;
+float fInterval = 1000;
+float fNextMillis = 0;
+size_t fDroppedFrames = 0;
+uint64_t fFrameCount = 0;         // how many frames drawn so far
+
+
+// Keyboard globals
+// BUGBUG - these should go into the apphost.h
+uint8_t keyStates[255]{};
+int keyCode = 0;
+int keyChar = 0;
 
 // Mouse Globals
 bool mouseIsPressed = false;
@@ -99,6 +116,12 @@ float rawMouseY = 0;
 // Joystick
 static Joystick gJoystick1(JOYSTICKID1);
 static Joystick gJoystick2(JOYSTICKID2);
+
+
+User32PixelMap& appFrameBuffer()
+{
+    return gAppFrameBuffer;
+}
 
 //
 //    https://docs.microsoft.com/en-us/windows/desktop/inputdev/using-raw-input
@@ -138,20 +161,39 @@ void HID_UnregisterDevice(USHORT usage)
 
 
 // Controlling drawing
+void frameRate(float newRate) noexcept
+{
+    fFrameRate = newRate;
+    fInterval = 1000 / newRate;
+    fNextMillis = gAppClock.millis() + fInterval;
+}
+
+float getFrameRate() noexcept
+{
+    return fFrameRate;
+}
+
+size_t frameCount() noexcept
+{
+    return fFrameCount;
+}
+
+double seconds() noexcept
+{
+    return gAppClock.seconds();
+}
+
+double millis() noexcept
+{
+    // get millis from p5 stopwatch
+    return gAppClock.millis();
+}
+
+
 // This function is called at any time to display whatever is in the app 
 // window to the actual screen
 void screenRefresh()
 {
-
-    //if ((gAppSurface == nullptr)) {
-    //    printf("forceRedraw, NULL PTRs\n");
-    //    return;
-    //}
-    //if ((gAppFrameBuffer == nullptr))
-    //{
-    //    printf("forceRedraw, NULL PTRs\n");
-    //    return;
-    //}
 
     if (!gIsLayered) {
         // if we're not layered, then do a regular
@@ -159,16 +201,21 @@ void screenRefresh()
         InvalidateRect(gAppWindow->getHandle(), NULL, 1);
     }
     else {
+        // This is the workhorse of displaying directly
+        // to the screen.  Everything to be displayed
+        // must be in the FrameBuffer, even window chrome
         LayeredWindowInfo lw(canvasWidth, canvasHeight);
-        lw.display(gAppWindow->getHandle(), gAppFrameBuffer.bitmapDC());
-
+        lw.display(gAppWindow->getHandle(), appFrameBuffer().bitmapDC());
     }
 }
 
 
-/*
-    Environment
-*/
+//
+//    Environment
+//
+
+
+
 void show()
 {
     gAppWindow->show();
@@ -203,6 +250,10 @@ void noCursor()
 LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT res = 0;
+
+    keyCode = 0;
+    keyChar = 0;
+
     KeyboardEvent e;
     e.keyCode = (int)wParam;
     e.repeatCount =LOWORD(lParam);  // 0 - 15
@@ -210,22 +261,27 @@ LRESULT HandleKeyboardMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     e.isExtended = (lParam & 0x1000000) != 0;    // 24
     e.wasDown = (lParam & 0x40000000) != 0;    // 30
 
+    // Get the state of all keys on the keyboard
+    ::GetKeyboardState(keyStates);
+
 //printf("HandleKeyboardMessage: %04x\n", msg);
 
     switch(msg) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             e.activity = KEYPRESSED;
-
+            keyCode = e.keyCode;
             break;
         case WM_KEYUP:
         case WM_SYSKEYUP:
             e.activity = KEYRELEASED;
-
+            keyCode = e.keyCode;
             break;
+
         case WM_CHAR:
         case WM_SYSCHAR:
             e.activity = KEYTYPED;
+            keyChar = e.keyCode;
             break;
     }
     
@@ -245,11 +301,12 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     LRESULT res = 0;
     MouseEvent e{};
 
+    // Coordinates relative to upper left corner of the screen?
+    auto x = GET_X_LPARAM(lParam);
+    auto y = GET_Y_LPARAM(lParam);
 
-
-    e.x = GET_X_LPARAM(lParam);
-    e.y = GET_Y_LPARAM(lParam);
-
+    e.x = (float)x;
+    e.y = (float)y;
     e.control = (wParam & MK_CONTROL) != 0;
     e.shift = (wParam& MK_SHIFT) != 0;
     e.lbutton = (wParam & MK_LBUTTON) != 0;
@@ -263,6 +320,7 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_LBUTTONDBLCLK:
 	    case WM_MBUTTONDBLCLK:
 	    case WM_RBUTTONDBLCLK:
+            e.activity = MOUSEDOUBLECLICKED;
             break;
 
         case WM_MOUSEMOVE:
@@ -283,18 +341,40 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             e.activity = MOUSERELEASED;
             break;
         
-        case WM_MOUSEWHEEL:
+            // The mouse wheel messages report their location
+            // in screen coordinates, rather than window client
+            // area coordinates.  So, we have to translate, because
+            // we want everything to be in window client coordinates
+        case WM_MOUSEWHEEL: {
             e.activity = MOUSEWHEEL;
-            e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            e.delta = (float)GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+
+            POINT PT{};
+            PT.x = x;
+            PT.y = y;
+            ::ScreenToClient(hwnd, &PT);
+
+            e.x = (float)PT.x;
+            e.y = (float)PT.y;
+            }
             break;
         
-        case WM_MOUSEHWHEEL:
+        case WM_MOUSEHWHEEL: {
             e.activity = MOUSEHWHEEL;
-            e.delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            e.delta = (float)GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+
+            POINT PT{};
+            PT.x = x;
+            PT.y = y;
+            ::ScreenToClient(hwnd, &PT);
+
+            e.x = (float)PT.x;
+            e.y = (float)PT.y;
+        }
             break;
 
         default:
-            
+            return res;
         break;
     }
 
@@ -302,8 +382,6 @@ LRESULT HandleMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     mouseY = e.y;
     mouseDelta = e.delta;
     mouseIsPressed = isPressed;
-
-
 
     gMouseEventTopic.notify(e);
 
@@ -387,13 +465,14 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     int cbSize = sizeof(TOUCHINPUT);
 
     //printf("HandleTouchMessage 1.0: %d\n", cInputs);
-    PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
+    //PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
+    TOUCHINPUT pInputs[10];    // = new TOUCHINPUT[cInputs];
 
     // 0 == failure?
-    BOOL bResult = GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, cbSize);
+    BOOL bResult = ::GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, cbSize);
 
     if (bResult == 0) {
-        delete[] pInputs;
+        //delete[] pInputs;
         DWORD err = ::GetLastError();
         //printf("getTouchInputInfo, ERROR: %d %D\n", bResult, err);
 
@@ -409,10 +488,10 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // convert values to local TouchEvent structure
         e.id = ti.dwID;
-        e.rawX = ti.x;
-        e.rawY = ti.y;
+        e.rawX = (float)ti.x;
+        e.rawY = (float)ti.y;
 
-        POINT PT;
+        POINT PT{};
         PT.x = TOUCH_COORD_TO_PIXEL(ti.x);
         PT.y = TOUCH_COORD_TO_PIXEL(ti.y);
 
@@ -421,8 +500,8 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         auto bResult = ::ScreenToClient(hwnd, &PT);
 
         // Assign x,y the client area value of the touch point
-        e.x = PT.x;
-        e.y = PT.y;
+        e.x = (float)PT.x;
+        e.y = (float)PT.y;
 
 
         // Now, deal with masks
@@ -484,7 +563,7 @@ LRESULT HandleTouchMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         gTouchEventTopic.notify(e);
     }
-    delete[] pInputs;
+    //delete[] pInputs;
 
     if (!CloseTouchInputHandle((HTOUCHINPUT)lParam))
     {
@@ -732,6 +811,10 @@ void subscribe(GestureEventTopic::Subscriber s)
     gGestureEventTopic.subscribe(s);
 }
 
+void subscribe(FrameCountEventTopic::Subscriber s)
+{
+    gFrameCountEventTopic.subscribe(s);
+}
 
 
 // Controlling the runtime
@@ -842,15 +925,6 @@ void setCanvasPosition(int x, int y)
 
 bool setCanvasSize(long aWidth, long aHeight)
 {
-    // Create new drawing surface
-    //if (gAppFrameBuffer != nullptr) {
-        // Delete old one if it exists
-        //delete gAppSurface;
-        //gAppSurface.reset();
-   // }
-
-
-    //gAppFrameBuffer = std::make_shared<User32PixelMap>();
     gAppFrameBuffer.init(aWidth, aHeight);
 
     //gAppSurface->textFont("Consolas");
@@ -1042,7 +1116,6 @@ void registerHandlers()
     // onLoad()
     gOnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onLoad");
     gOnUnloadHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onUnload");
-
     gOnLoopHandler = (VOIDROUTINE)::GetProcAddress(hInst, "onLoop");
 }
 
@@ -1064,6 +1137,8 @@ void run()
 
     showAppWindow();
 
+    gAppClock.reset();
+
     while (true) {
         MSG msg{};
 
@@ -1084,6 +1159,36 @@ void run()
             ::DispatchMessageA(&msg);
         }
         else {
+
+            // Do frame timing event dispatch
+            // 
+            // 
+            // We'll wait here until it's time to 
+            // signal the frame
+            if (gAppClock.millis() > fNextMillis)
+            {
+                fFrameCount++;
+
+                FrameCountEvent fce{};
+                fce.frameCount = fFrameCount;
+                fce.seconds = gAppClock.seconds();
+
+                gFrameCountEventTopic.notify(fce);
+
+
+
+                // catch up to next frame interval
+                // this will possibly result in dropped
+                // frames, but it will ensure we keep up
+                // to speed with the wall clock
+                while (fNextMillis <= gAppClock.millis())
+                {
+                    fNextMillis += fInterval;
+                }
+            }
+
+
+
             // Give the user application some control to do what
             // it wants
             // call onLoop() if it exists
@@ -1115,7 +1220,7 @@ void setupDpi()
     auto dpiContext = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2;
 
     // If Windows 10.0 or higher
-    ::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    ::SetProcessDpiAwarenessContext(dpiContext);
     //::SetThreadDpiAwarenessContext(dpiContext);
     // else
     //::SetProcessDPIAware();
@@ -1154,9 +1259,10 @@ void setupDpi()
     DeleteDC(dhdc);
 }
 
+// Initialize Windows networking
 void setupNetworking()
 {
-    // Initialize Windows networking
+    
 // BUGBUG - decide whether or not we care about WSAStartup failing
     uint16_t version = MAKEWORD(2, 2);
     WSADATA lpWSAData;
@@ -1171,8 +1277,8 @@ void setupNetworking()
 // is the networking subsystem
 bool prolog()
 {
+    // get count of system threads to use later
     gSystemThreadCount = std::thread::hardware_concurrency();
-
 
     setupNetworking();
 

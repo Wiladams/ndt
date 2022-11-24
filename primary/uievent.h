@@ -18,11 +18,12 @@ enum {
 
     // These are based on application semantics
     MOUSECLICKED,
+    MOUSEDOUBLECLICKED,
     MOUSEDRAGGED,
 
     MOUSEENTERED,
     MOUSEHOVER,         // like move, when we don't have focus
-    MOUSELEFT           // exited boundary
+    MOUSEEXITED           // exited boundary
 };
 
 struct MouseEvent {
@@ -74,13 +75,13 @@ struct TouchEvent {
     int id;
     int activity;
 
-    long x;
-    long y;
+    float x;
+    float y;
     size_t w;
     size_t h;
 
-    long rawX;
-    long rawY;
+    float rawX;
+    float rawY;
     unsigned long rawWidth;
     unsigned long rawHeight;
 
@@ -153,9 +154,9 @@ struct JoystickEvent {
     int buttons;			// Bitfield of buttons being pressed
     int numButtonsPressed;	// total number of buttons currently pressed
     int flags;
-    int POV;				// Value of hat switch
+    int POV;				// Value of hat switch, degrees
 
-    // Axes values, return -1.0..1.0
+    // Axes values, return [-1..1]
     float x;
     float y;
     float z;
@@ -163,3 +164,93 @@ struct JoystickEvent {
     float u;
     float v;
 };
+
+struct FrameCountEvent
+{
+    double seconds;
+    size_t frameCount;
+};
+
+
+// A kind of mini pub-sub for specific events
+
+struct KeyboardEventDispatch
+{
+    std::function<void(const KeyboardEvent& e)> keyPressed = nullptr;
+    std::function<void(const KeyboardEvent& e)> keyReleased = nullptr;
+    std::function<void(const KeyboardEvent& e)> keyTyped = nullptr;
+
+    void operator()(const KeyboardEvent& e)
+    {
+
+        switch (e.activity)
+        {
+        case KEYPRESSED:
+            if (keyPressed != nullptr)
+                keyPressed(e);
+            break;
+
+        case KEYRELEASED:
+            if (keyReleased != nullptr)
+                keyReleased(e);
+            break;
+
+        case KEYTYPED:
+            if (keyTyped != nullptr)
+                keyTyped(e);
+            break;
+        }
+
+    }
+};
+
+// A functor for dispatching mouse events
+struct MouseEventDispatch
+{
+    std::function<void(const MouseEvent& e)> mousePressed = nullptr;
+    std::function<void(const MouseEvent& e)> mouseReleased = nullptr;
+    std::function<void(const MouseEvent& e)> mouseClicked = nullptr;
+    std::function<void(const MouseEvent& e)> mouseDragged = nullptr;
+    std::function<void(const MouseEvent& e)> mouseMoved = nullptr;
+    std::function<void(const MouseEvent& e)> mouseWheel = nullptr;
+    std::function<void(const MouseEvent& e)> mouseHWheel = nullptr;
+
+    void operator()(const MouseEvent& e)
+    {
+        switch (e.activity)
+        {
+        case MOUSEDRAGGED:
+            if (mouseDragged != nullptr)
+                mouseDragged(e);
+            break;
+
+        case MOUSEPRESSED:
+            if (mousePressed != nullptr)
+                mousePressed(e);
+            break;
+
+        case MOUSEMOVED:
+            if (mouseMoved != nullptr)
+                mouseMoved(e);
+            break;
+
+        case MOUSERELEASED:
+            if (mouseReleased != nullptr)
+                mouseReleased(e);
+            break;
+
+        case MOUSEWHEEL:
+            if (mouseWheel != nullptr)
+                mouseWheel(e);
+            break;
+
+        case MOUSEHWHEEL:
+            if (mouseHWheel != nullptr)
+                mouseHWheel(e);
+            break;
+        }
+
+    }
+};
+
+

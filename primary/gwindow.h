@@ -3,18 +3,37 @@
 #include "graphic.hpp"
 #include "Surface.h"
 
+//
+// GWindow
+// Things that differentiate a GWindow from 
+// an ordinary Graphic
+// Has-A Backing Buffer
+// Has-A Title Bar
+// Can - Move based on mouse commands in title bar
+// 
+// GWindow is kind of heavy weight, and assumes you're going to do
+// a lot of drawing, and you might want to retain it, rather than
+// having to draw from scratch each time.  So, you draw into the 
+// backing store, and that get's blt'd into the context at the right
+// time.
+//
+
 class GWindow : public Graphic
 {
 protected:
 	BLRect fClientArea;
-	maths::vec2f fLastMouse;
-	bool fIsMoveable;
-	bool fIsMoving;
-	Pixel fBackgroundColor;
+
+	// If window has a title bar
 	BLRect fTitleBar;
 	Pixel fTitleBarColor;
 	std::string fTitle;
 
+	// Window movement
+	maths::vec2f fLastMouse;
+	bool fIsMoveable;
+	bool fIsMoving;
+
+	Pixel fBackgroundColor;
 	User32PixelMap fPixelMap;
 	Surface fSurface;
 
@@ -114,15 +133,16 @@ public:
 		compose(ctx);
 	}
 
-	void setTitle(const char* title)
-	{
-		setTitle(std::string(title));
-	}
 
 	void setTitle(const std::string& title)
 	{
 		fTitle.clear();
 		fTitle.append(title);
+
+		// adjust the client area accordingly
+		fClientArea.y = fTitleBar.x + fTitleBar.h;
+		fClientArea.h -= fClientArea.y;
+
 		setMoveable(true);
 	}
 
@@ -142,6 +162,7 @@ public:
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
 
+
 		// First check to see if we're moving our window
 		// around, from dragging in the titleBar area
 		switch (e.activity)
@@ -152,7 +173,7 @@ public:
 				fIsMoving = true;
 				fLastMouse = { e.x, e.y };
 
-				return;
+				return ;
 			}
 			break;
 
@@ -160,7 +181,7 @@ public:
 			if (isMoving()) {
 				fIsMoving = false;
 
-				return;
+				return ;
 			}
 			break;
 
@@ -174,7 +195,7 @@ public:
 				moveBy(dx, dy);
 
 				fLastMouse = { e.x-dx, e.y-dy };
-				return;
+				return ;
 			}
 			break;
 
@@ -206,6 +227,7 @@ public:
 		// BUGBUG
 		// If there was no underlying graphic
 		// then give the window a chance to do something?
+
 	}
 
 	virtual void keyEvent(const KeyboardEvent& e) override

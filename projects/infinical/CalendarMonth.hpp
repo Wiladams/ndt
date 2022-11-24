@@ -35,7 +35,7 @@ public:
 		fBackgroundColor(bkg)
 	{
 		auto size = preferredSize();
-		setBounds({ 0, 0, (double)size.w, (double)size.h });
+		setBounds({ 0, 0, (float)size.w, (float)size.h });
 		fFrame = { x, y, size.w, size.h };
 		//sprintf_s(fTitle, 64, "%s  %d", Calendar::MonthsLong[fMonth].c_str(), year);
 		sprintf_s(fTitle, 64, "%s", Calendar::MonthsLong[fMonth].c_str());

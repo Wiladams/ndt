@@ -3,7 +3,6 @@
 
 #include "blend2d.h"
 #include "definitions.h"
-//#include "blend2d/fontmanager.h"
 #include "maths.hpp"
 
 #include <filesystem>

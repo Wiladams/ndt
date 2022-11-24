@@ -31,8 +31,91 @@
 */
 using GraphicCollectionHandler = std::function<maths::bbox2f (std::deque<std::shared_ptr<IGraphic> >& gs)>;
 
+
 struct ILayoutGraphics 
 {
+	enum class LayoutAlignment : unsigned
+	{
+		NONE
+		, CENTER
+		, NEAREST
+		, FARTHEST
+	};
+
+	enum class LayoutPlacement : unsigned
+	{
+		CENTER
+		,TOP
+		,RIGHT
+		,BOTTOM
+		,LEFT
+	};
+
+	// Given two frames, a primary, and a secondary, return 
+	// a bbox that could be used to adjust the secondary frame
+	// to achieve the desired alignment
+	static maths::bbox2f alignFrame(const maths::bbox2f& pFrame, const maths::bbox2f& sFrame, 
+		LayoutAlignment halign = LayoutAlignment::NEAREST,
+		LayoutAlignment valign = LayoutAlignment::NEAREST)
+	{
+		maths::bbox2f aframe = sFrame;
+		maths::vec2f dxy{};
+
+		switch (halign) {
+			case LayoutAlignment::CENTER: {
+				dxy = maths::center(pFrame) - maths::center(sFrame);
+				aframe.min.x += dxy.x;
+				aframe.max.x += dxy.x;
+			}
+			break;
+
+			case LayoutAlignment::NEAREST: {
+				// BUGBUG - should clamp vertical
+				dxy = pFrame.min - sFrame.min;
+				aframe.min.x += dxy.x;
+				aframe.max.x += dxy.x;
+			}
+			break;
+
+			case LayoutAlignment::FARTHEST: {
+				dxy = pFrame.max - sFrame.max;
+				aframe.min.x += dxy.x;
+				aframe.max.x += dxy.x;
+			}
+			break;
+
+
+		};
+
+		switch(valign){
+			case LayoutAlignment::CENTER: {
+				dxy = maths::center(pFrame) - maths::center(sFrame);
+				aframe.min.y += dxy.y;
+				aframe.max.y += dxy.y;
+			}
+			break;
+
+			case LayoutAlignment::NEAREST: {
+				// BUGBUG - should clamp to pFrame minimum?
+				dxy = pFrame.min - sFrame.min;
+				aframe.min.y += dxy.y;
+				aframe.max.y += dxy.y;
+			}
+			break;
+
+			case LayoutAlignment::FARTHEST: {
+				// BUGBUG - should clamp pFrame maximum?
+				dxy = pFrame.max - sFrame.max;
+				aframe.min.y += dxy.y;
+				aframe.max.y += dxy.y;
+			}
+			break;
+		}
+
+		return aframe;
+	}
+
+
 	virtual ~ILayoutGraphics() {}
 
 	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs) = 0;
@@ -69,53 +152,32 @@ struct IdentityLayout : public ILayoutGraphics
 
 };
 
-class BinaryLayout : ILayoutGraphics
+struct BinaryLayout : ILayoutGraphics
 {
+public:
 
-	enum class BinaryAlignment : unsigned
-	{
-		CENTER,
-		TOP,
-		RIGHT,
-		BOTTOM,
-		LEFT
-	};
 
-	BinaryAlignment fAlign = BinaryAlignment::RIGHT;
-	//float fGap = 0;
+private:
+	LayoutPlacement fAlign = LayoutPlacement::CENTER;
+	float fGap = 0;
 
 public:
-	/*
-	BinaryLayout(std::shared_ptr<IGraphic> primary, 
-		std::shared_ptr<IGraphic> secondary,
-		BinaryAlignment align, 
-		double gap)
-		: fAlign(align)
-	{
-		std::deque<std::shared_ptr<IGraphic> > gs{
-			primary,
-			secondary
-		};
-
-		//layout(gs);
-	}
-	*/
-	BinaryLayout(BinaryAlignment align, double gap)
+	BinaryLayout(const LayoutPlacement align= LayoutPlacement::CENTER, const float gap=0)
 		:fAlign(align)
-		//,fGap(gap)
+		,fGap(gap)
 	{
 	}
 
-	virtual ~BinaryLayout() {}
+	virtual ~BinaryLayout() { ; }
 
 	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
 	{
-		maths::bbox2f bounds{};
+		maths::bbox2f bds{};
 
 		// There must be at least two graphics in the vector
 		// only the first two will be part of the layout
 		if (gs.size() < 2)
-			return bounds;
+			return bds;
 
 		auto & primary = gs[0];
 		maths::bbox2f pFrame = primary->frame();
@@ -123,7 +185,7 @@ public:
 		maths::bbox2f sFrame = secondary->frame();
 
 		switch (fAlign) {
-		case BinaryAlignment::CENTER: {
+		case LayoutPlacement::CENTER: {
 			// use center of primary to be center of secondary
 			auto pCenter = maths::center(pFrame);
 			auto sCenter = maths::center(sFrame);
@@ -135,22 +197,22 @@ public:
 		}
 			break;
 
-		case BinaryAlignment::TOP:
+		case LayoutPlacement::TOP:
 			break;
 
-		case BinaryAlignment::RIGHT:
+		case LayoutPlacement::RIGHT:
 			break;
 
-		case BinaryAlignment::BOTTOM:
+		case LayoutPlacement::BOTTOM:
 			break;
 
-		case BinaryAlignment::LEFT:
+		case LayoutPlacement::LEFT:
 			break;
 		}
 
 		secondary->moveTo(sFrame.min.x, sFrame.min.y);
 
-		return bounds;
+		return bds;
 	}
 };
 
@@ -313,21 +375,23 @@ public:
 };
 
 // Single column, vertical layout
+// Also known as VerticalLayout
 class ColumnLayout : public ILayoutGraphics
 {
 	float xOffset = 0;
 	float yOffset = 0;
 
-	//float maxX = 0;
-	//float maxY = 0;
-
+	float fHExtent = 0;
+	LayoutAlignment fHAlign;	// horizontal alignment within column
 	// Gap between elements
 	float fGap = 8;
 
 
 public:
-	ColumnLayout(float gap=8)
-		:fGap(gap)
+	ColumnLayout(const float hExtent, const LayoutAlignment halign=LayoutAlignment::NEAREST , const float gap=8)
+		:fHExtent(hExtent)
+		,fHAlign(halign)
+		,fGap(gap)
 	{}
 
 	virtual void reset()
@@ -338,8 +402,14 @@ public:
 
 	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
 	{
+		// calculate box based on hextent, graphic size, and current position
+		maths::bbox2f box = { {xOffset,yOffset},{xOffset + fHExtent,gr->frameHeight()} };
+		maths::bbox2f aframe = ILayoutGraphics::alignFrame(box, gr->frame(), 
+			fHAlign, ILayoutGraphics::LayoutAlignment::NEAREST);
+
 		// Move to next location
-		gr->moveTo(xOffset, yOffset);
+		gr->moveTo(aframe.min);
+		//gr->moveTo(xOffset, yOffset);
 
 		// expand the bounds to include the new frame
 		maths::expand(b, gr->frame());

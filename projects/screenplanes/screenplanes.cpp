@@ -112,7 +112,7 @@ void setup()
     double windowScale = 1;
 
     frameRate(20);
-    createCanvas(displayWidth / 2, displayHeight, "screenplanes");
+    createCanvas(displayWidth / 2, displayHeight, "screenplanes",4);
     //fullscreen();
 
     ss.reset(0, 0, captureWidth, captureHeight);

@@ -1,5 +1,6 @@
 #include "p5.hpp"
-#include "svgbuilder.hpp"
+#include "elements/svgbuilder.hpp"
+
 #include "svgdocument.h"
 
 using namespace p5;

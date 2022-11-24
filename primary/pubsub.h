@@ -40,12 +40,11 @@ public:
 	using Subscriber = std::function<void(const T m)>;
 
 private:
-	std::shared_ptr<std::deque<Subscriber> > fSubscribers;
+	std::deque<Subscriber> fSubscribers{};
 
 public:
 	Topic<T>()
 	{
-		fSubscribers = std::make_shared< std::deque<Subscriber> >();
 	}
 
 	Topic<T>(const Topic<T>& other)
@@ -58,7 +57,7 @@ public:
 	// Notify subscribers that an event has occured
 	virtual void notify(const T m)
 	{
-		for (auto & it : *fSubscribers) {
+		for (auto & it : fSubscribers) {
 			//it(*this, m);
 			it(m);
 		}
@@ -67,7 +66,7 @@ public:
 	// Add a subscriber to the list of subscribers
 	virtual void subscribe(Subscriber s)
 	{
-		fSubscribers->push_back(s);
+		fSubscribers.push_back(s);
 	}
 
 	// Remove a subscriber from the list of subscribers

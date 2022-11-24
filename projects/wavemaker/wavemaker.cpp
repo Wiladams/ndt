@@ -21,8 +21,8 @@ void draw()
     for (int x = 0; x <= canvasWidth - 1; x += 30) {
         for (int y = 0; y <= canvasHeight; y += 30) {
             //starting point of each circle depends on mouse position
-            double xAngle = map(mouseX, 0, canvasWidth-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
-            double yAngle = map(mouseY, 0, canvasHeight-1, (-4.0 * maths::Pi), (4.0 * maths::Pi), true);
+            double xAngle = map(mouseX, 0, canvasWidth-1, (-4.0 * maths::pi), (4.0 * maths::pi), true);
+            double yAngle = map(mouseY, 0, canvasHeight-1, (-4.0 * maths::pi), (4.0 * maths::pi), true);
             
             //printf("xAngle: %f  yAngle: %f\n", xAngle, yAngle);
 
@@ -30,8 +30,8 @@ void draw()
             double angle = (xAngle * ((double)x / (double)canvasWidth)) + (yAngle * ((double)y / (double)canvasHeight));
 
             //each particle moves in a circle
-            double myX = ((double)x + 20.0 * cos((2.0 * maths::Pi * t) + angle));
-            double myY = ((double)y + 20.0 * sin((2.0 * maths::Pi * t) + angle));
+            double myX = ((double)x + 20.0 * cos((2.0 * maths::pi * t) + angle));
+            double myY = ((double)y + 20.0 * sin((2.0 * maths::pi * t) + angle));
 
             circle(myX, myY, gRadius); //draw particle
         }
@@ -51,7 +51,8 @@ void keyReleased(const KeyboardEvent& event)
 
 void setup()
 {
-    createCanvas(600, 600);
+    frameRate(30);
+    createCanvas(600, 600,"wavemaker",4);
     
     // Do the following if you want full screen
     //createCanvas(displayWidth, displayHeight);    

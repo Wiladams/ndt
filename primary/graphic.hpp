@@ -11,6 +11,9 @@
 //	A Graphic is something that has a preferred
 //	size, a boundary, and a frame.
 //
+//  A Graphic can also choose to handle user input from
+//  various devices.
+// 
 //	PreferredSize - How big the graphic would like to be
 //	bounds - How big the graphic actually is
 //	frame - The location, within the bounds of the parent frame
@@ -22,8 +25,10 @@ struct IGraphic : public IDrawable
 
 	virtual bool contains(float x, float y)
 	{
-		return (x >= frame().min.x) && (y >= frame().min.y) &&
+		bool res = (x >= frame().min.x) && (y >= frame().min.y) &&
 			(x < frame().max.x) && (y < frame().max.y);
+
+		return res;
 	}
 
 	// Dealing with  boundary coordinates
@@ -62,22 +67,23 @@ struct IGraphic : public IDrawable
 	virtual void mouseExited(const MouseEvent& e) = 0;
 
 	virtual void mouseEvent(const MouseEvent& e) = 0;
-	virtual void mouseMoved(const MouseEvent& e) = 0;
-	virtual void mouseDragged(const MouseEvent& e) = 0;
-	virtual void mousePressed(const MouseEvent& e) = 0;
-	virtual void mouseReleased(const MouseEvent& e) = 0;
-	virtual void mouseWheel(const MouseEvent& e) = 0;
-	virtual void mouseHWheel(const MouseEvent& e) = 0;
+	//virtual bool mouseMoved(const MouseEvent& e) = 0;
+	//virtual bool mouseDragged(const MouseEvent& e) = 0;
+	//virtual bool mousePressed(const MouseEvent& e) = 0;
+	//virtual bool mouseReleased(const MouseEvent& e) = 0;
+	//virtual bool mouseWheel(const MouseEvent& e) = 0;
+	//virtual bool mouseHWheel(const MouseEvent& e) = 0;
 
 	// Keyboard events
 	virtual void keyEvent(const KeyboardEvent& e) = 0;
-	virtual void keyPressed(const KeyboardEvent& e) = 0;
-	virtual void keyReleased(const KeyboardEvent& e) = 0;
-	virtual void keyTyped(const KeyboardEvent& e) = 0;
+	//virtual bool keyPressed(const KeyboardEvent& e) = 0;
+	//virtual bool keyReleased(const KeyboardEvent& e) = 0;
+	//virtual bool keyTyped(const KeyboardEvent& e) = 0;
 
 	// File dropping
 	virtual void fileDrop(const FileDropEvent& e) = 0;
 };
+
 
 
 //
@@ -86,18 +92,20 @@ struct IGraphic : public IDrawable
 // A graphic that has a frame specified in the parent's
 // coordinate space, and has an internal bounds.
 // It can be moved.
-class GraphicElement : public IGraphic
+struct GraphicElement : public IGraphic
 {
 protected:
-	BLMatrix2D fTransform{};  // Internal transformation matrix
 	maths::vec2f fTranslation{};
 	maths::bbox2f fBounds{};
 	maths::bbox2f fFrame{};
 
+	KeyboardEventDispatch fKeyboardDispatch;
+	MouseEventDispatch fMouseDispatch;
+
 public:
+
 	GraphicElement()
 	{
-		fTransform = BLMatrix2D::makeIdentity();
 	}
 
 	GraphicElement(const maths::bbox2f& f)
@@ -105,7 +113,6 @@ public:
 	{
 		auto sz = maths::size(f);
 		fBounds = { {0,0},{sz.x,sz.y} };
-		fTransform = BLMatrix2D::makeIdentity();
 	}
 
 	GraphicElement(float x, float y, float w, float h)
@@ -113,6 +120,9 @@ public:
 	{}
 
 	virtual ~GraphicElement() {}
+
+	KeyboardEventDispatch & keyboardDispatch() { return fKeyboardDispatch; }
+	MouseEventDispatch& mouseDispatch() { return fMouseDispatch; }
 
 	const maths::bbox2f& bounds() const override {return fBounds;}
 	void setBounds(const maths::bbox2f& b) { fBounds = b; }
@@ -128,8 +138,6 @@ public:
 		fFrame.max += dxy;
 	}
 
-
-
 	// Changes the coordinate system of the bounds
 	void translateBoundsTo(float x, float y)
 	{
@@ -142,17 +150,12 @@ public:
 		fTranslation += {x, y};
 	}
 
-	void setTransform(BLMatrix2D& m) { fTransform = m; }
-	BLMatrix2D& getTransform() { return fTransform; }
-
 	virtual void drawBackground(IGraphics& ctx)
 	{
-		//ctx->flush();
 	}
 
 	virtual void drawForeground(IGraphics& ctx)
 	{
-		//ctx->flush();
 	}
 
 	virtual void drawSelf(IGraphics& ctx)
@@ -193,57 +196,14 @@ public:
 
 	}
 
-	// Handling mouse events
-	// The event location is already specified 
-	// relative to our frame.
-	// we need to apply local bounds transform
-	// before doing anything else with it.
 	virtual void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("GraphicElement.mouseEvent: %d\n", e.activity);
+		printf("GraphicElement:mouseEvent: %d\n", e.activity);
 
-		// translate according to the transformation
-		//auto pt = fTransform.mapPoint(e.x, e.y);
-		// 
-		float tx = e.x + fTranslation.x;
-		float ty = e.y - fTranslation.y;
-
-		MouseEvent newEvent(e);
-		newEvent.x = tx;
-		newEvent.y = ty;
-
-
-		// If the mouse event didn't land on a child
-		// then do our own processing
-		switch (e.activity) 
-		{
-			case MOUSEDRAGGED:
-				mouseDragged(newEvent);
-				break;
-
-			case MOUSEPRESSED:
-				mousePressed(newEvent);
-				break;
-
-			case MOUSEMOVED:
-				mouseMoved(newEvent);
-				break;
-
-			case MOUSERELEASED:
-				mouseReleased(newEvent);
-				break;
-
-			case MOUSEWHEEL:
-				mouseWheel(newEvent);
-				break;
-
-			case MOUSEHWHEEL:
-				mouseHWheel(newEvent);
-				break;
-		}
+		fMouseDispatch(e);
 	}
 
-	virtual void mouseEntered(const MouseEvent& e) override 
+	virtual void mouseEntered(const MouseEvent& e) override
 	{
 		printf("GraphicElement::mouseEntered()\n"); 
 	}
@@ -253,76 +213,14 @@ public:
 		printf("GraphicElement::mouseExited()\n");
 	}
 
-	virtual void mouseMoved(const MouseEvent& e) override
-	{
-		// do nothing
-	}
-
-	virtual void mouseDragged(const MouseEvent& e) override
-	{
-		// do nothing
-	}
-
-	virtual void mousePressed(const MouseEvent& e) override
-	{
-		// do nothing
-		//printf("Graphic::mousePressed\n");
-	}
-
-	virtual void mouseReleased(const MouseEvent& e) override
-	{
-		//printf("GraphicElement::mouseReleased()\n");
-		// do nothing
-	}
-
-	virtual void mouseWheel(const MouseEvent& e) override
-	{
-		//printf("Graphic.mouseWheel\n");
-		// do nothing
-	}
-
-	virtual void mouseHWheel(const MouseEvent& e) override
-	{
-		//printf("Graphic.mouseHWheel\n");
-		// do nothing
-	}
-
+	//
+	// Keyboard Event handling
+	//
 	virtual void keyEvent(const KeyboardEvent& e) override
 	{
-		switch (e.activity)
-		{
-		case KEYPRESSED:
-			keyPressed(e);
-			break;
-
-		case KEYRELEASED:
-			keyReleased(e);
-			break;
-
-		case KEYTYPED:
-			keyTyped(e);
-			break;
-		}
-	}
-
-	virtual void keyPressed(const KeyboardEvent& e) override
-	{
-		//printf("GraphicElement:keyPressed\n");
-		// do nothing
-	}
-
-	virtual void keyReleased(const KeyboardEvent& e) override
-	{
-		//printf("GraphicElement:keyReleased\n");
-
-		// do nothing
-	}
-
-	virtual void keyTyped(const KeyboardEvent& e) override
-	{
-		//printf("GraphicElement:keyTyped\n");
-
-		// do nothing
+		printf("GraphicElement:keyEvent\n");
+		
+		fKeyboardDispatch(e);
 	}
 
 	// fileDrop
@@ -332,35 +230,14 @@ public:
 	{
 		//printf("Graphic.fileDrop\n");
 		// do nothing
+
 	}
 
 };
 
 #include "layout.h"
 
-// A structure that holds a group of graphics
-// Arrangement can be applied
-struct GraphicGroup
-{
-	std::deque<std::shared_ptr<IGraphic> > fChildren{};
-
-	// Add a child to our set of children
-// If we're using layout, automatically set
-// the bounds to include the child's frame
-	// Whatever is doing the 'addChild()' should decide 
-	// whether layout should also be called right then or later
-	void addChild(std::shared_ptr<IGraphic> child)
-	{
-		fChildren.push_back(child);
-		//arrange();
-	}
-
-	virtual void arrange(GraphicCollectionHandler arranger)
-	{
-		arranger(fChildren);
-	}
-
-};
+/*
 
 struct DepthFirstGraphicFinder
 {
@@ -390,13 +267,12 @@ struct DepthFirstGraphicFinder
 	}
 
 };
-
+*/
 class Graphic : public GraphicElement
 {
 protected:
 	std::deque<std::shared_ptr<IGraphic> > fChildren{};
 	std::shared_ptr<ILayoutGraphics> fLayout{};
-	GraphicCollectionHandler fLayoutHandler{};
 	std::shared_ptr<IGraphic> fActiveGraphic{};
 	
 public:
@@ -404,20 +280,18 @@ public:
 		:Graphic(0.0, 0, 0, 0)
 	{}
 
+	Graphic(const maths::bbox2f &gframe)
+		:GraphicElement(gframe)
+	{}
 
 	Graphic(const float x, const float y, const float w, const float h)
 		:GraphicElement(x, y, w, h)
 	{
 	}
 
-	void setLayoutHandler(GraphicCollectionHandler handler)
+	void setLayout(std::shared_ptr<ILayoutGraphics> layit)
 	{
-
-	}
-
-	void setLayout(std::shared_ptr<ILayoutGraphics> layout)
-	{
-		fLayout = layout;
+		fLayout = layit;
 	}
 
 	virtual void layout()
@@ -454,6 +328,8 @@ public:
 				//printf("GraphicAt() - contains null reference\n");
 			}
 		}
+
+		//printf("Graphic::graphicAt(NULL)\n");
 
 		return nullptr;
 	}
@@ -493,19 +369,66 @@ public:
 		drawChildren(ctx);
 	}
 
+	/*
+	virtual bool keyEvent(const KeyboardEvent& e) override
+	{
+		printf("Graphic:keyEvent\n");
+		bool handled = false;
+
+		switch (e.activity)
+		{
+		case KEYPRESSED:
+			handled = keyPressed(e);
+			break;
+
+		case KEYRELEASED:
+			handled = keyReleased(e);
+			break;
+
+		case KEYTYPED:
+			handled = keyTyped(e);
+			break;
+		}
+
+		return handled;
+	}
+
+	virtual bool keyPressed(const KeyboardEvent& e) override
+	{
+		printf("Graphic:keyPressed\n");
+		// do nothing
+		return false;
+	}
+
+	virtual bool keyReleased(const KeyboardEvent& e) override
+	{
+		printf("Graphic:keyReleased\n");
+
+		// do nothing
+		return false;
+	}
+
+	virtual bool keyTyped(const KeyboardEvent& e) override
+	{
+		printf("Graphic:keyTyped\n");
+
+		// do nothing
+		return false;
+	}
+	//*/
+
 	// Handling mouse events
 	void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("Graphic.mouseEvent: %d\n", e.activity);
+		printf("Graphic.mouseEvent: %d\n", e.activity);
 
+
+/*
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
 		// 
 		int tx = e.x + fTranslation.x;
 		int ty = e.y - fTranslation.y;
-
-		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << " modified: " << pt.x << ", " << pt.y << std::endl;
-		//std::cout << "graphic.mouseEvent original: " << e.x << ", " << e.y << std::endl;
 
 		// Figure out which child the mouse pointer 
 		// is currently over
@@ -523,37 +446,38 @@ public:
 			newEvent.x = (tx - g->frame().min.x);
 			newEvent.y = (ty - g->frame().min.y);
 
-			g->mouseEvent(newEvent);
+			handled = g->mouseEvent(newEvent);
 		}
 		else {
 			// If the mouse event didn't land on a child
 			// then do our own processing
 			switch (e.activity) {
 			case MOUSEDRAGGED:
-				mouseDragged(e);
+				handled = mouseDragged(e);
 				break;
 
 			case MOUSEPRESSED:
-				mousePressed(e);
+				handled = mousePressed(e);
 				break;
 
 			case MOUSEMOVED:
-				mouseMoved(e);
+				handled = mouseMoved(e);
 				break;
 
 			case MOUSERELEASED:
-				mouseReleased(e);
+				handled = mouseReleased(e);
 				break;
 
 			case MOUSEWHEEL:
-				mouseWheel(e);
+				handled = mouseWheel(e);
 				break;
 
 			case MOUSEHWHEEL:
-				mouseHWheel(e);
+				handled = mouseHWheel(e);
 				break;
 			}
 		}
+		*/
 
 	}
 

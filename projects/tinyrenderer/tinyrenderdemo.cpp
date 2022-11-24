@@ -79,11 +79,10 @@ void onLoad()
     }
 
     createAppWindow(width, height,"tinyrenderer");
-    gAppFrameBuffer.setOrientation(PixelOrientation::BottomToTop);
+    appFrameBuffer().setOrientation(PixelOrientation::BottomToTop);
 
     Renderer.setLookAt(eye, center, up);                            // build the ModelView matrix
     Renderer.setViewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
-    //Renderer.setProjection((eye-center).norm());                    // build the Projection matrix
     Renderer.setProjection((center- eye).norm());                    // build the Projection matrix
     std::vector<double> zbuffer(width*height, std::numeric_limits<double>::max());
 
@@ -94,7 +93,7 @@ void onLoad()
             vec4f clip_vert[3]; // triangle coordinates (clip coordinates), written by VS, read by FS
             for (int j : {0,1,2})
                 shader.vertex(i, j, clip_vert[j]); // call the vertex shader for each triangle vertex
-            Renderer.triangle(clip_vert, shader, gAppFrameBuffer, zbuffer); // actual rasterization routine call
+            Renderer.triangle(clip_vert, shader, appFrameBuffer(), zbuffer); // actual rasterization routine call
         }
     }
 

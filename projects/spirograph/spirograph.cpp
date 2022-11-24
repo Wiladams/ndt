@@ -3,13 +3,13 @@
 using namespace p5;
 
 static const int NUMSINES = 20; // how many of these things can we do at once?
-double sines[NUMSINES]; // an array to hold all the current angles
-double rad; // an initial radius value for the central sine
+float sines[NUMSINES]; // an array to hold all the current angles
+float rad; // an initial radius value for the central sine
 int i; // a counter variable
     
 // play with these to get a sense of what's going on:
-double fund = 0.005; // the speed of the central sine
-double ratio = 1; // what multiplier for speed is each additional sine?
+float fund = 0.005f; // the speed of the central sine
+float ratio = 1; // what multiplier for speed is each additional sine?
 int galpha = 50; // how opaque is the tracing system
     
 bool trace = false; // are we tracing?
@@ -72,17 +72,15 @@ void keyTyped(const KeyboardEvent& event)
 }
 
 
-
-
 void setup()
     {
-        createCanvas(710, 400);
+        createCanvas(710, 400, "spirograph");
         frameRate(60);
 
         rad = canvasHeight / 4.0; // compute radius for central circle
         background(204); // clear the screen
 
         for (int i = 0; i < NUMSINES; i++) {
-            sines[i] = maths::Pi; // start EVERYBODY facing NORTH
+            sines[i] = maths::pi; // start EVERYBODY facing NORTH
         }
     }

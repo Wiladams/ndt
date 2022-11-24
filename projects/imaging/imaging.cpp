@@ -7,9 +7,6 @@
 using namespace p5;
 using namespace maths;
 
-
-
-
 template <typename Shader>
 static bool draw_proc_image(PixelAccessor<vec4b> &img, bool linear, Shader&& shader) 
 {
@@ -91,6 +88,15 @@ bool draw_uvramp(PixelAccessor<maths::vec4b>& img, float scale)
 }
 
 
+bool draw_noisemap(PixelAccessor<maths::vec4b>& img, float scale,
+    const vec4f& color0, const vec4f& color1) {
+    return draw_proc_image(img, true, [=](vec2f uv) {
+        uv *= 8 * scale;
+    auto v = perlin_noise(vec3f{ uv.x, uv.y, 0 });
+    v = clamp(v, 0.0f, 1.0f);
+    return lerp(color0, color1, v);
+        });
+}
 
 bool draw_turbulencemap(PixelAccessor<maths::vec4b>& img, float scale, const vec4f& noise, const vec4f& color0, const vec4f& color1) 
 {
@@ -112,25 +118,39 @@ bool draw_blackbodyramp(PixelAccessor<maths::vec4b>& img, float scale=1, float f
         });
 }
 
+void draw()
+{
+    draw_checker(appFrameBuffer(), 1);
+
+    draw_proc_image(appFrameBuffer(), true, 
+        [=](vec2f uv) {
+            uv *= 8 * 1;
+            auto v = perlin_noise(vec3f{ uv.x, uv.y, 0 });
+            v = clamp(v, 0.0f, 1.0f);
+            return lerp(maths::vec4f{ 0,0,0,0 }, maths::vec4f{ 1,1,1,1 }, v);
+        });
+}
 
 void setup()
 {
-	createCanvas(640,640, "imaging");
+	createCanvas(800,800, "imaging");
     //layered();
 
-    //draw_grid(gAppFrameBuffer, 4, { 1,0,0,0.75f }, { 1,1,1,1 });
+    //draw_grid(appFrameBuffer(), 4, { 1,0,0,0.75f }, { 1,1,1,1 });
 
-    draw_checker(gAppFrameBuffer, 4);
+    //draw_checker(appFrameBuffer(), 4);
 
-    //draw_bumps(gAppFrameBuffer,8);
+    //draw_bumps(appFrameBuffer(),8);
 
-    //draw_ramp(gAppFrameBuffer, 2, { 0.0,0.0,1.0,1.0 }, { 0,1.0,0,1.0 });
+    //draw_ramp(appFrameBuffer(), 2, { 0.0,0.0,1.0,1.0 }, { 0,1.0,0,1.0 });
 
-    //draw_uvramp(gAppFrameBuffer, 2);
+    //draw_uvramp(appFrameBuffer(), 2);
 
-    //draw_turbulencemap(gAppFrameBuffer, 4, { 1, 0.5, 8,1 }, { 0.0,0.0,0.0,1.0 }, { 1,1,1,1 });
+    //draw_noisemap(appFrameBuffer(), 2, { 0.0,0.0,0.0,1.0 }, { 1,1,1,1 });
+
+    //draw_turbulencemap(appFrameBuffer(), 4, { 1, 0.5, 8,1 }, { 0.0,0.0,0.0,1.0 }, { 1,1,1,1 });
     
-    //draw_blackbodyramp(gAppFrameBuffer, 1, 100, 12000);
+    //draw_blackbodyramp(appFrameBuffer(), 1, 100, 12000);
 }
 
 

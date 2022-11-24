@@ -20,7 +20,7 @@
 class WindowManager : public Graphic
 {
 protected:
-	std::shared_ptr<IGraphic> fHoverGraphic{};
+
 
 public:
 	WindowManager(float w, float h)
@@ -28,29 +28,7 @@ public:
 	{
 		setLayout(std::make_shared<IdentityLayout>());
 
-	}
-
-	void setActiveGraphic(std::shared_ptr<IGraphic> g) override
-	{
-		// if the activegraphic is already the same as the
-		// one we're trying to set, don't do anything
-		if (fActiveGraphic == g)
-			return;
-
-
-		if (fActiveGraphic != nullptr)
-		{
-			MouseEvent e{};
-			fActiveGraphic->mouseExited(e);
-		}
-
-		fActiveGraphic = g;
-
-		if (fActiveGraphic != nullptr)
-		{
-			MouseEvent e{};
-			fActiveGraphic->mouseEntered(e);
-		}
+		// Setup for mousedispatcher
 	}
 
 	// Handling Keyboard Events
@@ -63,9 +41,12 @@ public:
 	void keyEvent(const KeyboardEvent& e) override
 	{
 		if (fActiveGraphic != nullptr)
-			fActiveGraphic->keyEvent(e);
-	}
+		{
+			printf("WindoManager:keyEvent\n");
+			return fActiveGraphic->keyEvent(e);
+		}
 
+	}
 
 	// Handling mouse events
 	// There's a lot to be done here
@@ -75,91 +56,144 @@ public:
 	// 4) Pass events along to the active window
 	void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("WindowManager.mouseEvent: (%d,%d) - %d\n", e.x, e.y, e.activity);
-		
-		// First
+		printf("WindowManager.mouseEvent: (%3.0f,%3.0f) - %d\n", e.x, e.y, e.activity);
+
+		/*
+		// The action to take depends on which kind of mouse event it is
+		// So, defer to specific activity functions
+		switch (e.activity) {
+		case MOUSEDRAGGED:
+			handled = mouseDragged(e);
+			break;
+
+		case MOUSEPRESSED:
+			handled = mousePressed(e);
+			break;
+
+		case MOUSEMOVED:
+			handled = mouseMoved(e);
+			break;
+
+		case MOUSERELEASED:
+		case MOUSEWHEEL:
+		case MOUSEHWHEEL:
+			if (fActiveGraphic != nullptr) {
+				MouseEvent activeEvent(e);
+				activeEvent.x = (e.x - fActiveGraphic->frameX());
+				activeEvent.y = (e.y - fActiveGraphic->frameY());
+				handled = fActiveGraphic->mouseEvent(activeEvent);
+			}
+			break;
+		}
+		*/
+
+	}
+	/*
+	bool mouseMoved(const MouseEvent& e) override
+	{
+		bool handled = false;
+
 		// Figure out which child the mouse pointer 
-		// is currently over
-		fHoverGraphic = graphicAt(e.x, e.y);
+		// is currently over, if any
+		auto hover = graphicAt(e.x, e.y);
 
-		// If the graphic is not null
-		// then we need to figure out whether
-		// it's the same as the currently active graphic
-		// or a new graphic
-		// and take appropriate actions
-		if (fHoverGraphic != nullptr)
+		if (fActiveGraphic != nullptr)
 		{
-			// First item of business is to adjust the location
-			// of the event to take account of the graphic's frame
-			MouseEvent newEvent(e);
-			newEvent.x = (e.x - fHoverGraphic->frameX());
-			newEvent.y = (e.y - fHoverGraphic->frameY());
+			MouseEvent activeEvent(e);
+			activeEvent.x = (e.x - fActiveGraphic->frameX());
+			activeEvent.y = (e.y - fActiveGraphic->frameY());
 
-			// If the graphic is the same as the currently active graphic
-			// just forward the event, without changing anyting
-			if (fHoverGraphic == fActiveGraphic)
+			if (fActiveGraphic == hover)
 			{
-				fHoverGraphic->mouseEvent(newEvent);
+				handled = fActiveGraphic->mouseEvent(activeEvent);
+				return handled;
+			}
+
+			// Movement between graphics
+			// mouse exited for the active graphic
+			fActiveGraphic->mouseExited(e);
+		}
+
+		if (hover != nullptr)
+		{
+			// We're not mouse down, so we don't change the active graphic
+			// but we do let the hovered graphic receive the event
+			// BUGBUG - If we want the active graphic to also receive these
+			// events, we would send them here.
+			// BUGBUG - mouseEntered should also happen here, but we would
+			// need to track the last hover to do that
+			MouseEvent hoverEvent(e);
+			hoverEvent.x = (e.x - hover->frameX());
+			hoverEvent.y = (e.y - hover->frameY());
+			handled = hover->mouseEvent(hoverEvent);
+		}
+
+		return handled;
+	}
+
+	bool mousePressed(const MouseEvent& e) override
+	{
+		bool handled = false;
+
+		// Figure out which child the mouse pointer 
+		// is currently over, if any
+		auto hover = graphicAt(e.x, e.y);
+
+		if (fActiveGraphic != nullptr)
+		{
+			// Active and hover are the same
+			// so just send the event to the active graphic
+			// and be done.
+			if (fActiveGraphic == hover)
+			{
+				MouseEvent activeEvent(e);
+				activeEvent.x = (e.x - fActiveGraphic->frameX());
+				activeEvent.y = (e.y - fActiveGraphic->frameY());
+				handled = fActiveGraphic->mouseEvent(activeEvent);
+				return handled;
+			}
+
+			if (hover == nullptr)
+			{
+				fActiveGraphic->mouseExited(e);
+
+				fActiveGraphic = nullptr;
+
+				return true;
 			}
 			else {
-				// The graphic is not the same as the active graphic
-				// tell the existing active graphic the mouse has exited
-				
-				// If the mouse event is a mousePressed(), then 
-				// bring the graphic forward and make it the active graphic
-				// and pass event along
-				if (e.activity == MOUSEPRESSED)
-				{
-					moveToFront(fHoverGraphic);
-					setActiveGraphic(fHoverGraphic);
-
-					// Send it the mouse event?
-					fHoverGraphic->mouseEvent(newEvent);
-				}
+				fActiveGraphic->mouseExited(e);
 			}
-		}
-		else {
-			// In this case, things are happening in the open window space
-			// so, deactivate active graphic if there event is a mousePressed
-			// otherwise, just do nothing
-			if (e.activity == MOUSEPRESSED)
-				setActiveGraphic(nullptr);
+
 		}
 
-	}
+		// If hover is different than active graphic
+		// Tell active graphic mouseExited
+		if (hover != nullptr)
+		{
+			// Tell hover mouse Entered
+			hover->mouseEntered(e);
 
-	/*
-	void mousePressed(const MouseEvent& e) override
-	{
-		// Figure out which window is being 
-		// clicked
-		auto win = graphicAt(e.x, e.y);
-		//auto oldGraphic = fActiveGraphic;
+			// Send mouse activity to hover
+			MouseEvent hoverEvent(e);
+			hoverEvent.x = (e.x - hover->frameX());
+			hoverEvent.y = (e.y - hover->frameY());
+			handled = hover->mouseEvent(hoverEvent);
 
-		// if not clicked on a view, then simply return
-		if (nullptr == win) {
-			// BUGBUG - before moving on, the currently active
-			// graphic should be told it is no longer the
-			// focus
-			fActiveGraphic = nullptr;
-			return;
+			// Make hover active
+			fActiveGraphic = hover;
+
+			// bring it to the front
+			moveToFront(hover);
 		}
 
-		// deactivate old active window
-
-		// Activate new active window
-		setActiveGraphic(win);
-
-		// bring it to the front
-		moveToFront(win);
-		//win->mousePressed(e);
+		return handled;
 	}
 	*/
-
 	void fileDrop(const FileDropEvent& e) override
 	{
-		auto win = graphicAt(e.x, e.y);
-		if (win != nullptr)
-			win->fileDrop(e);
+		auto g = graphicAt(e.x, e.y);
+		if (g != nullptr)
+			g->fileDrop(e);
 	}
 };

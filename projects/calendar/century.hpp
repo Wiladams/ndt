@@ -16,7 +16,7 @@ public:
 	Century(int baseYear) :
 		Graphic()
 	{
-		setLayout(std::make_shared < VerticalLayout>());
+		setLayout(std::make_shared < ColumnLayout>(100));
 
 		// Add decades to the graphic
 		for (int year = baseYear; year < (baseYear + 100); year += 10) {

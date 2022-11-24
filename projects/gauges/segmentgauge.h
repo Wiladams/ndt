@@ -110,9 +110,9 @@ struct SegmentGauge : public Graphic
 
 	void drawBackground(IGraphics & ctx) override
 	{
-		ctx.stroke(127);
-		ctx.noFill();
-		ctx.rect(0, 0, boundsWidth(), boundsHeight());
+		//ctx.stroke(127);
+		//ctx.noFill();
+		//ctx.rect(0, 0, boundsWidth(), boundsHeight());
 	}
 
 	void drawForeground(IGraphics &ctx) override

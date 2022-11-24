@@ -29,7 +29,9 @@ void keyReleased(const KeyboardEvent& e)
 
 void setup()
 {
-	createCanvas(displayWidth / 2, displayHeight);
+	frameRate(30);
+	
+	createCanvas(displayWidth / 2, displayHeight, "screenview", 4);
 
 	snapper.reset(displayWidth / 2, 0, displayWidth / 2, displayHeight);
 }
