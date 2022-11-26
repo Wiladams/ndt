@@ -1,167 +1,104 @@
 #pragma once
 
 #include "drawable.h"
+#include "layout.h"
 
 #include <memory>
 #include <vector>
 #include <deque>
 
-//
-// IGraphic
-//	A Graphic is something that has a preferred
-//	size, a boundary, and a frame.
-//
-//  A Graphic can also choose to handle user input from
-//  various devices.
-// 
-//	PreferredSize - How big the graphic would like to be
-//	bounds - How big the graphic actually is
-//	frame - The location, within the bounds of the parent frame
-//
 
-struct IGraphic : public IDrawable
+
+struct GraphicGroup : public GraphicElement
 {
-	virtual ~IGraphic() {};
+	std::shared_ptr<ILayoutGraphics> fLayout{};
+	std::shared_ptr<GraphicElement> fActiveGraphic{};
+	std::deque<std::shared_ptr<GraphicElement> > fChildren{};
 
-	virtual bool contains(float x, float y)
-	{
-		bool res = (x >= frame().min.x) && (y >= frame().min.y) &&
-			(x < frame().max.x) && (y < frame().max.y);
-
-		return res;
-	}
-
-	// Dealing with  boundary coordinates
-	virtual const maths::bbox2f& bounds() const = 0;
-	float boundsX() const { return bounds().min.x; }
-	float boundsY() const { return bounds().min.y; }
-	float boundsWidth() const { return bounds().max.x - bounds().min.x; }
-	float boundsHeight() const { return bounds().max.y - bounds().min.y; }
-
-	//  Dealing with frame coordinates
-	virtual const maths::bbox2f& frame() const = 0;
-	float frameX() const { return frame().min.x; }
-	float frameY() const { return frame().min.y; }
-	float frameWidth() const { return frame().max.x - frame().min.x; }
-	float frameHeight() const { return frame().max.y - frame().min.y; }
-
-	virtual void moveTo(const maths::vec2f&) = 0;
-
-	virtual void moveTo(const float nx, const float ny)
-	{
-		moveTo({ nx,ny });
-	}
-
-	void moveBy(const maths::vec2f& dxy)
-	{
-		moveTo(frame().min + dxy);
-	}
-
-	void moveBy(const float dx, const float dy)
-	{
-		return moveBy({ dx,dy });
-	}
-
-	// Mouse events
-	virtual void mouseEntered(const MouseEvent& e) = 0;
-	virtual void mouseExited(const MouseEvent& e) = 0;
-
-	virtual void mouseEvent(const MouseEvent& e) = 0;
-	//virtual bool mouseMoved(const MouseEvent& e) = 0;
-	//virtual bool mouseDragged(const MouseEvent& e) = 0;
-	//virtual bool mousePressed(const MouseEvent& e) = 0;
-	//virtual bool mouseReleased(const MouseEvent& e) = 0;
-	//virtual bool mouseWheel(const MouseEvent& e) = 0;
-	//virtual bool mouseHWheel(const MouseEvent& e) = 0;
-
-	// Keyboard events
-	virtual void keyEvent(const KeyboardEvent& e) = 0;
-	//virtual bool keyPressed(const KeyboardEvent& e) = 0;
-	//virtual bool keyReleased(const KeyboardEvent& e) = 0;
-	//virtual bool keyTyped(const KeyboardEvent& e) = 0;
-
-	// File dropping
-	virtual void fileDrop(const FileDropEvent& e) = 0;
-};
-
-
-
-//
-// GraphicElement
-// 
-// A graphic that has a frame specified in the parent's
-// coordinate space, and has an internal bounds.
-// It can be moved.
-struct GraphicElement : public IGraphic
-{
-protected:
-	maths::vec2f fTranslation{};
-	maths::bbox2f fBounds{};
-	maths::bbox2f fFrame{};
-
-	KeyboardEventDispatch fKeyboardDispatch;
-	MouseEventDispatch fMouseDispatch;
-
-public:
-
-	GraphicElement()
-	{
-	}
-
-	GraphicElement(const maths::bbox2f& f)
-		:fFrame(f)
-	{
-		auto sz = maths::size(f);
-		fBounds = { {0,0},{sz.x,sz.y} };
-	}
-
-	GraphicElement(float x, float y, float w, float h)
-		:GraphicElement(maths::bbox2f{ {x,y},{x + w,y + h} })
+	GraphicGroup(const maths::bbox2f& aframe)
+		:GraphicElement(aframe)
 	{}
 
-	virtual ~GraphicElement() {}
-
-	KeyboardEventDispatch & keyboardDispatch() { return fKeyboardDispatch; }
-	MouseEventDispatch& mouseDispatch() { return fMouseDispatch; }
-
-	const maths::bbox2f& bounds() const override {return fBounds;}
-	void setBounds(const maths::bbox2f& b) { fBounds = b; }
-
-	const maths::bbox2f& frame() const override { return fFrame; }
-	void setFrame(const maths::bbox2f& frame) {fFrame = frame;}
-
-	// Moves the frame
-	void moveTo(const maths::vec2f &xy) override
+	void setLayout(std::shared_ptr<ILayoutGraphics> layit)
 	{
-		auto dxy = xy - frame().min;
-		fFrame.min += dxy;
-		fFrame.max += dxy;
+		fLayout = layit;
 	}
 
-	// Changes the coordinate system of the bounds
-	void translateBoundsTo(float x, float y)
+	virtual void layout()
 	{
-		fTranslation = { x,y };
+		if (nullptr != fLayout) {
+			auto b = fLayout->layout(fChildren);
+			setBounds(b);
+		}
 	}
 
-	// Changes the coordinate system of the bounds
-	void translateBoundsBy(float x, float y)
+	// Find the topmost window at a given position
+	virtual std::shared_ptr<GraphicElement> graphicAt(float x, float y)
 	{
-		fTranslation += {x, y};
+		// traverse through windows in reverse order
+		// return when one of them contains the mouse point
+		std::deque<std::shared_ptr<GraphicElement> >::reverse_iterator rit = fChildren.rbegin();
+		for (rit = fChildren.rbegin(); rit != fChildren.rend(); ++rit)
+		{
+			if ((*rit) != nullptr)
+			{
+				if ((*rit)->contains(x, y))
+					return *rit;
+			}
+			else {
+				//printf("GraphicAt() - contains null reference\n");
+			}
+		}
+
+		//printf("Graphic::graphicAt(NULL)\n");
+
+		return nullptr;
 	}
 
-	virtual void drawBackground(IGraphics& ctx)
+	maths::bbox2f culateExtent()
 	{
+		fFrame = {};
+		for (auto& child : fChildren)
+		{
+			maths::expand(fFrame, child->frame());
+		}
+
+		return fFrame;
 	}
 
-	virtual void drawForeground(IGraphics& ctx)
+	// Add a child to our set of children
+	// If we're using layout, automatically set
+	// the bounds to include the child's frame
+	void addChild(std::shared_ptr<GraphicElement> child)
 	{
+		fChildren.push_back(child);
+		layout();
 	}
 
-	virtual void drawSelf(IGraphics& ctx)
+	// Move a specific graphic to the front visually
+	void moveToFront(std::shared_ptr<GraphicElement> g)
 	{
-		// this one sub-classes should implement
-		// if they like
+		std::deque<std::shared_ptr<GraphicElement> >::iterator it = fChildren.begin();
+		for (it = fChildren.begin(); it != fChildren.end(); ++it)
+		{
+			if (*it == g) {
+				fChildren.erase(it);
+				fChildren.push_back(g);
+				break;
+			}
+		}
+	}
+
+	virtual void drawChildren(IGraphics& ctx)
+	{
+		for (auto& g : fChildren)
+		{
+			// BUGBUG - really there shouldn't be any nullptr graphics
+			if (nullptr == g)
+				continue;
+
+			g->draw(ctx);
+		}
 	}
 
 	void draw(IGraphics& ctx) override
@@ -176,98 +113,24 @@ public:
 		// a clip for our frame.
 		// Once the clip is set, we want to transform our
 		// coordinate sytem to have 0,0 be at the upper left corner.
-		ctx.clip(frame());
-
-
-		// BUGBUG - maybe perform arbitrary transform?
-		//auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-		//ctx.translate(pt.x, pt.y);
-		ctx.translate(frameX(), frameY());
+		//ctx.clip(frame());
 
 		// Apply user specified transform
-		ctx.translate(fTranslation.x, fTranslation.y);
 
-		drawBackground(ctx);
-		drawSelf(ctx);
-		drawForeground(ctx);
+		drawChildren(ctx);
 
-		ctx.noClip();
+		//ctx.noClip();
 		ctx.pop();
 
 	}
 
-	virtual void mouseEvent(const MouseEvent& e) override
-	{
-		printf("GraphicElement:mouseEvent: %d\n", e.activity);
-
-		fMouseDispatch(e);
-	}
-
-	virtual void mouseEntered(const MouseEvent& e) override
-	{
-		printf("GraphicElement::mouseEntered()\n"); 
-	}
-
-	virtual void mouseExited(const MouseEvent& e) override 
-	{
-		printf("GraphicElement::mouseExited()\n");
-	}
-
-	//
-	// Keyboard Event handling
-	//
-	virtual void keyEvent(const KeyboardEvent& e) override
-	{
-		printf("GraphicElement:keyEvent\n");
-		
-		fKeyboardDispatch(e);
-	}
-
-	// fileDrop
-	// Handling the case where a file was dropped atop
-	// the graphic.
-	virtual void fileDrop(const FileDropEvent& e) override
-	{
-		//printf("Graphic.fileDrop\n");
-		// do nothing
-
-	}
-
 };
 
-#include "layout.h"
+
+
+
 
 /*
-
-struct DepthFirstGraphicFinder
-{
-	std::shared_ptr<IGraphic> findAt(std::deque<std::shared_ptr<IGraphic> > gs, float x, float y)
-	{
-		// traverse through windows in reverse order
-		// return when one of them contains the mouse point
-		std::deque<std::shared_ptr<IGraphic> >::reverse_iterator rit = gs.rbegin();
-		for (rit = gs.rbegin(); rit != gs.rend(); ++rit)
-		{
-			if ((*rit) != nullptr)
-			{
-				if ((*rit)->contains(x, y))
-					return *rit;
-			}
-			else {
-				//printf("DepthFirstGraphicFinder::findAt() - contains null reference\n");
-			}
-		}
-
-		return nullptr;
-	}
-
-	std::shared_ptr<IGraphic> operator()(std::deque<std::shared_ptr<IGraphic> > gs, float x, float y)
-	{
-		return findAt(gs, x, y);
-	}
-
-};
-*/
 class Graphic : public GraphicElement
 {
 protected:
@@ -311,65 +174,11 @@ public:
 		layout();
 	}
 	
-	// Find the topmost window at a given position
-	virtual std::shared_ptr<IGraphic> graphicAt(float x, float y)
-	{
-		// traverse through windows in reverse order
-		// return when one of them contains the mouse point
-		std::deque<std::shared_ptr<IGraphic> >::reverse_iterator rit = fChildren.rbegin();
-		for (rit = fChildren.rbegin(); rit != fChildren.rend(); ++rit)
-		{
-			if ((*rit) != nullptr)
-			{
-				if ((*rit)->contains(x, y))
-					return *rit;
-			}
-			else {
-				//printf("GraphicAt() - contains null reference\n");
-			}
-		}
 
-		//printf("Graphic::graphicAt(NULL)\n");
 
-		return nullptr;
-	}
 
-	virtual void setActiveGraphic(std::shared_ptr<IGraphic> g)
-	{
-		fActiveGraphic = g;
-	}
 
-	void moveToFront(std::shared_ptr<IGraphic> g)
-	{
-		std::deque<std::shared_ptr<IGraphic> >::iterator it = fChildren.begin();
-		for (it = fChildren.begin(); it != fChildren.end(); ++it)
-		{
-			if (*it == g) {
-				fChildren.erase(it);
-				fChildren.push_back(g);
-				break;
-			}
-		}
-	}
-
-	virtual void drawChildren(IGraphics & ctx)
-	{
-		for (auto & g : fChildren)
-		{
-			// BUGBUG - really there shouldn't be any nullptr graphics
-			if (nullptr == g)
-				continue;
-
-			g->draw(ctx);
-		}
-	}
-
-	void drawSelf(IGraphics& ctx) override
-	{
-		drawChildren(ctx);
-	}
-
-	/*
+	
 	virtual bool keyEvent(const KeyboardEvent& e) override
 	{
 		printf("Graphic:keyEvent\n");
@@ -415,7 +224,7 @@ public:
 		// do nothing
 		return false;
 	}
-	//*/
+	
 
 	// Handling mouse events
 	void mouseEvent(const MouseEvent& e) override
@@ -423,7 +232,7 @@ public:
 		printf("Graphic.mouseEvent: %d\n", e.activity);
 
 
-/*
+
 		// translate according to the transformation
 		//auto pt = fTransform.mapPoint(e.x, e.y);
 		// 
@@ -477,8 +286,9 @@ public:
 				break;
 			}
 		}
-		*/
+		
 
 	}
 
 };
+*/

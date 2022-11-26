@@ -26,8 +26,6 @@
 
 using namespace p5;
 
-//static const int captureWidth = 1280;
-//static const int captureHeight = 1080;
 
 constexpr int maxCols = 32;
 constexpr int maxRows = 32;

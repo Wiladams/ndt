@@ -308,7 +308,7 @@ public:
         BLResult bResult = fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         if (bResult != BL_SUCCESS)
         {
-            //std::cout << "BLGraphics.flush(), ERROR: " << bResult << std::endl;
+            printf("BLGraphics.flush(), ERROR: %d\n", bResult);
         }
 
         resetCommandCount();

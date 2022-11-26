@@ -28,7 +28,6 @@
 */
 
 
-//#include "Surface.h"
 #include "User32PixelMap.h"
 
 

@@ -3,33 +3,44 @@
 // 
 // Target specific monitor to take a screen snapshot
 //
-#include "p5.hpp"
+#include "studio.hpp"
 #include "elements/screensnapshot.hpp"
 #include "elements/gmonitor.h"
 
 #include <memory>
 
-using namespace p5;
-
 ScreenSnapper snapper;
 
-void draw()
+struct MonitorView : public GraphicElement
 {
-	auto success = snapper.next();
+	DisplayMonitor & fMonitor;
+	ScreenSnapper fSnapper;
 
-	//image(snapper.getImage(), 0, 0);
-	scaleImage(snapper.getImage(), 0, 0, snapper.getImage().width(), snapper.getImage().height(),
-		0, 0, canvasWidth, canvasHeight);
-}
+	MonitorView(DisplayMonitor& mon, maths::bbox2f aframe)
+		:GraphicElement(aframe)
+		,fMonitor {mon	}
+	{
+		fSnapper.reset(mon.frame(), mon.getDC());
+		setBounds(maths::bbox2f{ {0,0},{frameWidth(),frameHeight()} });
+	}
+
+	void draw(IGraphics& ctx) override
+	{
+		fSnapper.next();
+		ctx.scaleImage(fSnapper.getImage(), 0, 0, fSnapper.width(), fSnapper.height(), 0, 0, frameWidth(), frameHeight());
+	}
+};
+
+
 
 void setup()
 {
-	createCanvas(800, 600, "monitorview", 4);
+	//createCanvas(800, 600, "monitorview", 4);
 
 	// Get monitor we want to capture
 	// 
-	std::vector<GMonitor> mons{};
-	auto bbox = GMonitor::monitors(mons);
+	std::vector<DisplayMonitor> mons{};
+	auto bbox = DisplayMonitor::monitors(mons);
 
 	printf("VBox: %3.0f,%3.0f  %3.0f,%3.0f\n", bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y);
 
@@ -37,8 +48,5 @@ void setup()
 	int numMons = mons.size();
 	auto& myMon = mons[1];
 
-	//snapper.reset(myMon.frameX(), myMon.frameY(), 800, 600, myMon.getMonitorDC());
-	snapper.reset(0, 0, myMon.frameWidth(), myMon.frameHeight(), myMon.getMonitorDC());
 
-	//noLoop();
 }

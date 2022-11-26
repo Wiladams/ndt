@@ -29,6 +29,7 @@ enum {
 struct MouseEvent {
     int id;
     int activity;
+    int button;     // Which button(s) action
     float x;
     float y;
     float delta;

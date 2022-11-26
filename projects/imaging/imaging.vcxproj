@@ -144,12 +144,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
-    <ClCompile Include="..\..\primary\p5.cpp" />
+    <ClCompile Include="..\..\primary\studio.cpp" />
     <ClCompile Include="imaging.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\coloring.h" />
     <ClInclude Include="..\..\primary\pixelaccessor.h" />
+    <ClInclude Include="..\..\primary\studio.hpp" />
+    <ClInclude Include="..\..\primary\uievent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

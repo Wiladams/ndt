@@ -29,7 +29,7 @@
 	Most typically, we'll just this to perform layout, but it could really 
 	be used for anything related to a collection of grphics.
 */
-using GraphicCollectionHandler = std::function<maths::bbox2f (std::deque<std::shared_ptr<IGraphic> >& gs)>;
+using GraphicCollectionHandler = std::function<maths::bbox2f (std::deque<std::shared_ptr<GraphicElement> >& gs)>;
 
 
 struct ILayoutGraphics 
@@ -118,7 +118,7 @@ struct ILayoutGraphics
 
 	virtual ~ILayoutGraphics() {}
 
-	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs) = 0;
+	virtual maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> >& gs) = 0;
 
 };
 
@@ -130,7 +130,7 @@ struct IdentityLayout : public ILayoutGraphics
 {
 	virtual ~IdentityLayout() {};
 
-	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		maths::bbox2f bounds;
 
@@ -145,7 +145,7 @@ struct IdentityLayout : public ILayoutGraphics
 		return bounds;
 	}
 
-	maths::bbox2f operator()(std::deque<std::shared_ptr<IGraphic> >& gs)
+	maths::bbox2f operator()(std::deque<std::shared_ptr<GraphicElement> >& gs)
 	{
 		return layout(gs);
 	}
@@ -170,7 +170,7 @@ public:
 
 	virtual ~BinaryLayout() { ; }
 
-	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		maths::bbox2f bds{};
 
@@ -249,7 +249,7 @@ public:
 		wY = topMargin;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
 	{
 		// Move the graphic to the next position
 		gr->moveTo(wX, wY);
@@ -268,7 +268,7 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
 		maths::bbox2f b{};
@@ -334,7 +334,7 @@ public:
 		maxY = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
 	{
 		// Move the graphic to the current specified location
 		gr->moveTo(xOffset, yOffset);
@@ -360,12 +360,12 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
 		maths::bbox2f b{};
 
-		for (std::shared_ptr<IGraphic> g : gs)
+		for (auto & g : gs)
 		{
 			addGraphic(g, b);
 		}
@@ -400,7 +400,7 @@ public:
 		yOffset = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<IGraphic> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
 	{
 		// calculate box based on hextent, graphic size, and current position
 		maths::bbox2f box = { {xOffset,yOffset},{xOffset + fHExtent,gr->frameHeight()} };
@@ -419,13 +419,13 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> > &gs) override
+	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
 
 		maths::bbox2f b{};
 
-		for (std::shared_ptr<IGraphic> g : gs)
+		for (auto & g : gs)
 		{
 			addGraphic(g, b);
 		}

@@ -2,6 +2,8 @@
 
 #include "apphost.h"
 #include "graphic.hpp"
+#include "rangen.h"
+
 
 namespace shapes {
 	static maths::rng_state gRNGState{};
@@ -83,8 +85,9 @@ namespace shapes {
 		void draw(IGraphics& ctx) override
 		{
 			ctx.fill(fColor);
-			ctx.circle(fCenter.x, fCenter.y, fRadius);
-			//ctx.rect(fCenter.x, fCenter.y, fRadius, fRadius);
+			ctx.noStroke();
+			//ctx.circle(fCenter.x, fCenter.y, fRadius);
+			ctx.rect(fCenter.x-fRadius, fCenter.y-fRadius, fRadius*2, fRadius*2);
 		}
 	};
 }

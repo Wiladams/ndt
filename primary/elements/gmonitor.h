@@ -9,18 +9,21 @@
 // References
 // https://learn.microsoft.com/en-us/windows/win32/gdi/using-multiple-monitors-as-independent-displays
 //
-struct GMonitor : public GraphicElement
+struct DisplayMonitor
 {
 	HMONITOR fMonitorHandle = nullptr;
-	MONITORINFOEXA fMonitorInfo{};
+	HDC fDC = nullptr;					// Device context representing display monitor
+	DEVMODEA   defaultMode{};
 
-	HDC fDC = nullptr;
+	maths::bbox2f fFrame{};
+	std::string fDeviceName{};
+	
 
-	GMonitor()
-		:fMonitorHandle(nullptr)
-		, fDC(nullptr)
+
+	DisplayMonitor(HMONITOR hmon)
+		: fMonitorHandle{ hmon }
 	{
-		;
+		reset(hmon);
 	}
 
 	bool reset(HMONITOR handle)
@@ -28,10 +31,11 @@ struct GMonitor : public GraphicElement
 		fMonitorHandle = handle;
 
 		// Get the monitor info
-		fMonitorInfo = { 0 };
-		fMonitorInfo.cbSize = sizeof(fMonitorInfo);
+		MONITORINFOEXA mInfo{};
+		mInfo = { 0 };
+		mInfo.cbSize = sizeof(mInfo);
 
-		auto bResult = ::GetMonitorInfoA(fMonitorHandle, &fMonitorInfo);
+		auto bResult = ::GetMonitorInfoA(fMonitorHandle, &mInfo);
 
 		// If the call fails, we can't get monitor information
 		// for some reason, so just bail
@@ -39,79 +43,39 @@ struct GMonitor : public GraphicElement
 			return false;
 
 		// Preserve the boundary information
-		setFrame({ {(float)fMonitorInfo.rcMonitor.left,(float)fMonitorInfo.rcMonitor.top},{(float)fMonitorInfo.rcMonitor.right,(float)fMonitorInfo.rcMonitor.bottom} });
-		setBounds({ {0,0},{frameWidth(),frameHeight()} });
+		fFrame = maths::bbox2f{ {(float)mInfo.rcMonitor.left,(float)mInfo.rcMonitor.top},{(float)mInfo.rcMonitor.right,(float)mInfo.rcMonitor.bottom} };
 
 		// Create a device context for the monitor
-		fDC = CreateDCA(NULL, fMonitorInfo.szDevice, NULL, NULL);
+		fDeviceName = mInfo.szDevice;
+
+		// Get device mode information
+		ZeroMemory(&defaultMode, sizeof(DEVMODEA));
+		defaultMode.dmSize = sizeof(DEVMODEA);
+		if (!EnumDisplaySettingsA(fDeviceName.c_str(), ENUM_REGISTRY_SETTINGS, &defaultMode))
+		{
+			OutputDebugString(L"Store default failed\n");
+			return false;
+		}
 
 		return true;
 	}
 
-	HDC getMonitorDC() { return fDC; }
-
-	void draw(IGraphics& ctx) override
+	bool readDeviceInfo()
 	{
-		// draw a simple rectangle
-		// positioning it properly in the canvas
-		ctx.fill(0x2F);
-		ctx.stroke(255);
-		ctx.strokeWeight(6);
-		ctx.rect(frameX(), frameY(), frameWidth(), frameHeight());
+
 	}
 
-	void print()
+	// This is the GDI DeviceContext
+	// associated with the monitor
+	HDC getDC()
 	{
-		//maths::bbox2f monbox{ {fMonitorInfo.rcMonitor.left,fMonitorInfo.rcMonitor.top},{fMonitorInfo.rcMonitor.right,fMonitorInfo.rcMonitor.bottom} };
-		auto szmonbox = maths::size(frame());
+		if (fDC == NULL)
+			fDC = CreateDCA(NULL, fDeviceName.c_str(), NULL, NULL);
 
-		printf("============  MONITOR ==================\n");
-		printf("RC Monitor: (%3.0f %3.0f %3.0f %3.0f)\n", frameX(), frameY(), frameWidth(), frameHeight());
-		printf("RC Work: %d %d %d %d\n", fMonitorInfo.rcWork.left, fMonitorInfo.rcWork.top, fMonitorInfo.rcWork.right, fMonitorInfo.rcWork.bottom);
-		printf("Flags: 0x%X\n", fMonitorInfo.dwFlags);
+		return fDC;
 	}
 
-	// Factory functions
-	// Although hdc is passed in, and will allow you 
-	// to draw on the monitor, it only lasts as long as this
-	// callback, then it's released.
-	// So, if we want to capture an HDC for the monitor, we
-	// need to create it separately.
-	static BOOL CALLBACK enumMon(HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)
-	{
-		std::vector<GMonitor>* mons = (std::vector<GMonitor> *)param;
-
-		GMonitor newmon;
-		newmon.reset(hmon);
-		mons->push_back(newmon);
-
-		return TRUE;
-	}
-
-	// Generate a list of all the connected monitors
-	// return the bounding box of their extents
-	//
-	static maths::bbox2f monitors(std::vector<GMonitor>& mons)
-	{
-		HDC hdc = ::GetDC(NULL);
-		
-		// First create a list of monitor handles
-		auto bResult = EnumDisplayMonitors(hdc, NULL, enumMon, (LPARAM)(&mons));
-
-		// Some error, so return zero monitors
-		if (!bResult)
-			return { {0,0},{0,0} };
-
-		// accumulate the overall size in a bounding box
-		maths::bbox2f vbox{ {0,0},{0,0} };
-
-		for (auto& monitor : mons)
-		{
-			maths::expand(vbox, monitor.frame());
-		}
-
-		return vbox;
-	}
+	const maths::bbox2f& frame() const { return fFrame; }
 
 	static size_t numberOfMonitors()
 	{
@@ -133,8 +97,49 @@ struct GMonitor : public GraphicElement
 
 		return { {x,y},{x + dx,y + dy} };
 	}
+
+	// Factory functions
+// Although hdc is passed in, and will allow you 
+// to draw on the monitor, it only lasts as long as this
+// callback, then it's released.
+// So, if we want to capture an HDC for the monitor, we
+// need to create it separately.
+	static BOOL CALLBACK enumMon(HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)
+	{
+		std::vector<DisplayMonitor>* mons = (std::vector<DisplayMonitor> *)param;
+
+		DisplayMonitor newmon(hmon);
+		mons->push_back(newmon);
+
+		return TRUE;
+	}
+
+	// Generate a list of all the connected monitors
+	// return the bounding box of their extents
+	//
+	static maths::bbox2f monitors(std::vector<DisplayMonitor>& mons)
+	{
+		HDC hdc = ::GetDC(NULL);
+
+		// First create a list of monitor handles
+		auto bResult = EnumDisplayMonitors(hdc, NULL, enumMon, (LPARAM)(&mons));
+
+		// Some error, so return zero monitors
+		if (!bResult)
+			return maths::invalidb2f;
+
+		// accumulate the overall size in a bounding box
+		maths::bbox2f vbox = virtualDisplayBox();
+
+		return vbox;
+	}
+
 };
 
+
+
+
+*/
 /*
 // https://learn.microsoft.com/en-us/windows/win32/gdi/enumeration-and-display-control?source=recommendations
 void DetachDisplay()

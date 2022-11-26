@@ -1,10 +1,10 @@
-#include "p5.hpp"
+#include "studio.hpp"
 #include "coloring.h"
 #include "perlin.h"
 
 #include <functional>
 
-using namespace p5;
+
 using namespace maths;
 
 template <typename Shader>
@@ -118,24 +118,22 @@ bool draw_blackbodyramp(PixelAccessor<maths::vec4b>& img, float scale=1, float f
         });
 }
 
-void draw()
+struct WIN : public GraphicElement
 {
-    draw_checker(appFrameBuffer(), 1);
+    WIN(const maths::bbox2f& box)
+        :GraphicElement(box)
+    {}
 
-    draw_proc_image(appFrameBuffer(), true, 
-        [=](vec2f uv) {
-            uv *= 8 * 1;
-            auto v = perlin_noise(vec3f{ uv.x, uv.y, 0 });
-            v = clamp(v, 0.0f, 1.0f);
-            return lerp(maths::vec4f{ 0,0,0,0 }, maths::vec4f{ 1,1,1,1 }, v);
-        });
-}
+    void draw(IGraphics& ctx)
+    {
+        ctx.noStroke();
+        ctx.fill(0, 255, 255);
+        ctx.rect(frameX(), frameY(), frameWidth(), frameHeight());
+    }
+};
 
 void setup()
 {
-	createCanvas(800,800, "imaging");
-    //layered();
-
     //draw_grid(appFrameBuffer(), 4, { 1,0,0,0.75f }, { 1,1,1,1 });
 
     //draw_checker(appFrameBuffer(), 4);
@@ -151,6 +149,27 @@ void setup()
     //draw_turbulencemap(appFrameBuffer(), 4, { 1, 0.5, 8,1 }, { 0.0,0.0,0.0,1.0 }, { 1,1,1,1 });
     
     //draw_blackbodyramp(appFrameBuffer(), 1, 100, 12000);
+
+    auto win1 = std::make_shared<WIN>(maths::bbox2f{ {20, 20}, {340, 260} });
+    //agraphic->setDrawingRoutine([agraphic](IGraphics& ctx) {
+    //    ctx.noStroke();
+    //    ctx.fill(255, 0, 255);
+    //    ctx.rect(agraphic->frameX(), agraphic->frameY(), agraphic->boundsWidth(), agraphic->boundsHeight());
+    //    });
+
+    auto win2 = std::make_shared<WIN>(maths::bbox2f{ {360, 100}, {680, 340} });
+    //win2->setDrawingRoutine([win2](IGraphics& ctx) {
+    //    ctx.noStroke();
+    //ctx.fill(255, 255, 0);
+    //ctx.rect(win2->frameX(), win2->frameY(), win2->boundsWidth(), win2->boundsHeight());
+    //    });
+
+    setDesktopDrawing([](IGraphics& ctx) {
+        draw_noisemap(appFrameBuffer(), 2, { 0.0,0.0,0.0,1 }, { 1,1,1,1 });
+        });
+
+    addGraphic(win1);
+    addGraphic(win2);
 }
 
 

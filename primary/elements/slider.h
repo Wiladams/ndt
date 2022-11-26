@@ -29,7 +29,7 @@ struct SliderThumb : public GraphicElement
     static const int thumbRadius = 4;
     static const int thumbThickness = 24;
 
-    double fRadius;
+    float fRadius;
     Pixel thumbColor{};
 
     SliderThumb(float x, float y, float w, float h)
@@ -37,13 +37,15 @@ struct SliderThumb : public GraphicElement
     {
         thumbColor = Pixel(0xc2, 0xc3, 0xc9);
 
-        fRadius = thumbRadius;
+        fRadius = maths::max(w,h)/2.0f;
     }
 
     
     SliderThumb(const BLRect& f)
         : SliderThumb(f.x, f.y, f.w, f.h)
-    {}
+    {
+        fRadius = maths::max((float)f.w, (float)f.h) / 2.0f;
+    }
     
 
     // a lozinger rounded rect
@@ -57,7 +59,7 @@ struct SliderThumb : public GraphicElement
         float cx = frameX() + frameWidth() / 2;
         float cy = frameY() + frameHeight() / 2;
         ctx.ellipseMode(ELLIPSEMODE::CENTER);
-        ctx.circle(cx, cy, frameWidth()/2);
+        ctx.circle(cx, cy, fRadius);
     }
 };
 
@@ -71,7 +73,7 @@ constexpr int SLIDER_HORIZONTAL = 2;
 //
 
 
-class Slider : public Graphic, public Topic<float>
+class Slider : public GraphicElement, public Topic<float>
 {
     static constexpr float trackThickness = 8.0f;
 
@@ -88,12 +90,11 @@ class Slider : public Graphic, public Topic<float>
 
 public:
     Slider(const BLRect &f, const maths::vec2f &pos, std::shared_ptr<GraphicElement> thumb)
-        :Graphic(f.x, f.y, f.w, f.h)
+        :GraphicElement(f.x, f.y, f.w, f.h)
         ,fDragging(false)
         ,fThumb(thumb)
 
     {
-        //addChild(thumb);
         setPosition(pos.x, pos.y);
     }
 
@@ -145,25 +146,29 @@ public:
         }
     }
 
-    void mousePressed(const MouseEvent& e) override
+    void mouseEvent(const MouseEvent& e) override
     {
-        fDragging = true;
-        fLastLocation = {float(e.x), float(e.y) };
-    }
+        switch (e.activity)
+        {
+        case MOUSEPRESSED:
+            fDragging = true;
+            fLastLocation = { float(e.x), float(e.y) };
+            break;
 
-    void mouseReleased(const MouseEvent& e) override
-    {
-        fDragging = false;
-    }
+        case MOUSERELEASED:
+            fDragging = false;
+            break;
 
-    void mouseMoved(const MouseEvent& e) override
-    {
-        if (fDragging) {
-            maths::vec2f change{ e.x - fLastLocation.x, e.y - fLastLocation.y };
-            changeThumbLocation(change);
+        case MOUSEMOVED:
+            if (fDragging) {
+                maths::vec2f change{ e.x - fLastLocation.x, e.y - fLastLocation.y };
+                changeThumbLocation(change);
+            }
+            fLastLocation = { float(e.x), float(e.y) };
+            break;
         }
-        fLastLocation = { float(e.x), float(e.y) };
     }
+
 
     void drawBackground(IGraphics& ctx) override
     {
@@ -215,7 +220,7 @@ public:
         fThumb->draw(ctx);
     }
 
-    static std::shared_ptr<Slider> create(const maths::vec2f& startPoint, const maths::vec2f& endPoint, const maths::vec2f & startPos = { 0,0 }, std::shared_ptr<Graphic> thumb = nullptr)
+    static std::shared_ptr<Slider> create(const maths::vec2f& startPoint, const maths::vec2f& endPoint, const maths::vec2f & startPos = { 0,0 }, std::shared_ptr<GraphicElement> thumb = nullptr)
     {
         auto dx = maths::abs((endPoint.x - startPoint.x));
         auto dy = maths::abs((endPoint.y - startPoint.y));

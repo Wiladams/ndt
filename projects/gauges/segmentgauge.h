@@ -38,7 +38,7 @@ struct SegmentTick : public IDrawable
 };
 
 
-struct SegmentGauge : public Graphic
+struct SegmentGauge : public GraphicElement
 {
 	static void getPreferredSize(int& x, int& y) { x = 300; y = 300; }
 
@@ -58,7 +58,7 @@ struct SegmentGauge : public Graphic
 
 
 	SegmentGauge(const BLRect &f, float thickness)
-		:Graphic(f.x, f.y, f.w, f.h)
+		:GraphicElement(f.x, f.y, f.w, f.h)
 	{
 		fThickness = thickness;
 		fCx = float(f.w / 2.0f);

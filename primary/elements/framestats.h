@@ -1,8 +1,8 @@
 #pragma once
 
 #include "apphost.h"
+#include "graphic.hpp"
 #include "secondtime.h"
-
 
 class FrameStats : public GraphicElement
 {

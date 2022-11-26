@@ -18,10 +18,10 @@
     <ClCompile Include="..\..\primary\appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\primary\p5.cpp">
+    <ClCompile Include="monitorview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="monitorview.cpp">
+    <ClCompile Include="..\..\primary\studio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,6 +30,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\primary\elements\gmonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\studio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

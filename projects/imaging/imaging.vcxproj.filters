@@ -18,10 +18,10 @@
     <ClCompile Include="..\..\primary\appmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\primary\p5.cpp">
+    <ClCompile Include="imaging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imaging.cpp">
+    <ClCompile Include="..\..\primary\studio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,6 +30,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\primary\coloring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\studio.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\uievent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
