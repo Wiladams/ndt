@@ -197,7 +197,7 @@ public:
         font.shape(gb);
         font.getTextMetrics(gb, tm);
 
-        float cx = tm.boundingBox.x1 - tm.boundingBox.x0;
+        float cx = (float)(tm.boundingBox.x1 - tm.boundingBox.x0);
         float cy = font.size();
 
         return { cx, cy };

@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\primary\elements\gmonitor.h" />
+    <ClInclude Include="..\..\primary\elements\displayview.hpp" />
     <ClInclude Include="..\..\primary\elements\screensnapshot.hpp" />
     <ClInclude Include="..\..\primary\studio.hpp" />
   </ItemGroup>

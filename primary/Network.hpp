@@ -82,10 +82,10 @@ private:
 */
 public:
     struct sockaddr *fAddress=nullptr;
-    int fAddressLength=0;
+    size_t fAddressLength=0;
 
     // Construct from traditional sockaddr and length
-    IPAddress(const struct sockaddr *addr, const int addrLen)
+    IPAddress(const struct sockaddr *addr, const size_t addrLen)
     {
         fAddress = (struct sockaddr *)malloc(addrLen);
         if (nullptr == fAddress)
@@ -104,7 +104,7 @@ public:
     int toString(char *addressBuff, int addressBuffLen)
     {
         DWORD consumedLength = addressBuffLen;
-        WSAAddressToStringA(fAddress, fAddressLength, nullptr,addressBuff, &consumedLength);
+        WSAAddressToStringA(fAddress, (DWORD)fAddressLength, nullptr,addressBuff, &consumedLength);
         
         return consumedLength;
     }
@@ -130,7 +130,7 @@ public:
     const char * getName() const {return fHostName;}
 
     // addAddress
-    bool addAddress(const struct sockaddr *addr, const int addrlen)
+    bool addAddress(const struct sockaddr *addr, const size_t addrlen)
     {
         fAddresses.push_back(new IPAddress(addr, addrlen));
         
@@ -321,7 +321,7 @@ public:
 
     int sendChunk(BufferChunk &chunk, int flags=0)
     {
-        return this->send((char *)chunk.fData, chunk.fSize, flags);
+        return this->send((char *)chunk.fData, (int)chunk.fSize, flags);
     }
 
     // receive a chunk of memmory
@@ -333,7 +333,7 @@ public:
 
     int receiveChunk(BufferChunk &chunk, int flags = 0)
     {
-        int retCode = ::recv(fSocket, (char *)chunk.fData, chunk.fSize, flags);
+        int retCode = ::recv(fSocket, (char *)chunk.fData, (int)chunk.fSize, flags);
         return retCode;
     }
 };

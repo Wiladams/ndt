@@ -138,8 +138,6 @@ struct DisplayMonitor
 
 
 
-
-*/
 /*
 // https://learn.microsoft.com/en-us/windows/win32/gdi/enumeration-and-display-control?source=recommendations
 void DetachDisplay()

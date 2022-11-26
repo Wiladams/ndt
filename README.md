@@ -107,6 +107,11 @@ Examples
 * Project: [lsystem](projects/lsystem)
 * Notes: lindemeyer system, whole desktop transparency
 
+### monitorview
+<img src="docs/images/monitorview.png" alt="monitorview" width=240/></br>
+* Project: [monitorview](projects/monitorview)
+* Notes: display monitor capture, bitmap scaling
+
 ### multiwall
 <img src="docs/images/multiwall.png" alt="multiwall" width=240/></br>
 * Project: [multiwall](projects/multiwall)

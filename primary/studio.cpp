@@ -49,7 +49,7 @@ static void drawBackground()
 		if (isLayered())
 			gAppSurface->clear();
 		else
-			gAppSurface->background(Pixel(255, 255, 0, 255));
+			gAppSurface->background(Pixel(225, 225, 225, 255));
 		
 		// Need to flush if we're doing multi-threaded
 		gAppSurface->flush();
@@ -120,7 +120,7 @@ void onLoad()
 
 	frameRate(15);
 
-	createAppWindow(displayWidth/2, displayHeight/2, "studio");
+	createAppWindow(1920, 1080, "studio");
 	setCanvasPosition(0, 0);
 	//layered();
 	
