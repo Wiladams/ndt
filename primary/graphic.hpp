@@ -89,7 +89,7 @@ struct GraphicGroup : public GraphicElement
 		}
 	}
 
-	virtual void drawChildren(IGraphics& ctx)
+	virtual void drawSelf(IGraphics& ctx)
 	{
 		for (auto& g : fChildren)
 		{
@@ -100,7 +100,7 @@ struct GraphicGroup : public GraphicElement
 			g->draw(ctx);
 		}
 	}
-
+	/*
 	void draw(IGraphics& ctx) override
 	{
 		// Start by saving the context state
@@ -123,7 +123,7 @@ struct GraphicGroup : public GraphicElement
 		ctx.pop();
 
 	}
-
+	*/
 };
 
 

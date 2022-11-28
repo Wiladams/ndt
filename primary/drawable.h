@@ -19,9 +19,11 @@ using DrawRoutine = std::function<void (IGraphics& ctx)>;
 struct IDrawable
 {
 	DrawRoutine fDrawingRoutine{};
-	std::string fName{};
+
 
 	virtual ~IDrawable() {}
+
+
 
 	virtual void draw(IGraphics & ctx) = 0;
 
@@ -38,12 +40,16 @@ struct IDrawable
 struct GraphicElement : public IDrawable
 {
 protected:
+	bool fIsMoveable=false;
+
 	maths::vec2f fTranslation{};
 	maths::bbox2f fBounds{};
 	maths::bbox2f fFrame{};
+	
+	std::string fName{};
 
 	KeyboardEventDispatch fKeyboardDispatch;
-	MouseEventDispatch fMouseDispatch;
+	std::function<void(GraphicElement & g, const MouseEvent& e)> fMouseDispatch{};
 
 public:
 
@@ -64,8 +70,19 @@ public:
 
 	virtual ~GraphicElement() {}
 
+	const std::string& name() const { return fName; }
+	void setName(const std::string name) { fName = name; }
+
+	const bool isMoveable() const { return fIsMoveable; }
+	void setMoveable(bool canMove) { fIsMoveable = canMove; }
+
 	KeyboardEventDispatch& keyboardDispatch() { return fKeyboardDispatch; }
-	MouseEventDispatch& mouseDispatch() { return fMouseDispatch; }
+	
+	// Handling mouse dispatch
+	auto & mouseDispatch() { return fMouseDispatch; }
+	void setMouseDispatch(std::function<void(GraphicElement &g, const MouseEvent& e)> dispatcher) { fMouseDispatch = dispatcher; }
+
+
 
 	virtual bool contains(float x, float y)
 	{
@@ -165,19 +182,20 @@ public:
 
 	virtual void mouseEvent(const MouseEvent& e)
 	{
-		printf("GraphicElement:mouseEvent: %d\n", e.activity);
+		//printf("GraphicElement:mouseEvent: %d\n", e.activity);
 
-		fMouseDispatch(e);
+		if (fMouseDispatch != nullptr)
+			fMouseDispatch(*this, e);
 	}
 
 	virtual void mouseEntered(const MouseEvent& e)
 	{
-		printf("GraphicElement::mouseEntered()\n");
+		//printf("GraphicElement::mouseEntered()\n");
 	}
 
 	virtual void mouseExited(const MouseEvent& e)
 	{
-		printf("GraphicElement::mouseExited()\n");
+		//printf("GraphicElement::mouseExited()\n");
 	}
 
 	//
@@ -185,7 +203,7 @@ public:
 	//
 	virtual void keyEvent(const KeyboardEvent& e)
 	{
-		printf("GraphicElement:keyEvent\n");
+		//printf("GraphicElement:keyEvent\n");
 
 		fKeyboardDispatch(e);
 	}

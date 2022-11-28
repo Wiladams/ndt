@@ -9,25 +9,65 @@
 
 #include <memory>
 
-/*
-	auto vsize = maths::size(vbox);
-	aspect = vsize.x / vsize.y;
 
-
-	float desiredWidth = 1920;
-	float desiredHeight = desiredWidth * (1.0f / aspect);
-
-	createCanvas((int)desiredWidth, (int)desiredHeight, "displays", 6);
-	frameRate(30);
-
-	// Figure out the monitors
-	// and create a MonitorSnapshot for each
-	xscale = desiredWidth / vsize.x;
-	yscale = desiredHeight / vsize.y;
-*/
 
 
 std::vector<DisplayMonitor> mons{};
+
+
+struct GraphicMover
+{
+	// Window movement
+	maths::vec2f fLastMouse{};
+	bool fIsMoving = false;
+
+	GraphicMover()
+	{
+		;
+	}
+
+	void operator()(GraphicElement &g, const MouseEvent& e)
+	{
+		// First check to see if we're moving our window
+// around, from dragging in the titleBar area
+		switch (e.activity)
+		{
+		case MOUSEPRESSED:
+			fIsMoving = true;
+			fLastMouse = { e.x, e.y };
+
+			return;
+
+			break;
+
+		case MOUSERELEASED:
+			if (fIsMoving)
+				fIsMoving = false;
+			break;
+
+		case MOUSEMOVED:
+			if (fIsMoving) {
+				// move
+				auto dx = (e.x - fLastMouse.x);
+				auto dy = (e.y - fLastMouse.y);
+				//printf("GWindow.mouseEvent(moved): %3.2f %3.2f\n", dx, dy);
+
+				g.moveBy(dx, dy);
+
+				fLastMouse = { e.x, e.y };
+				return;
+			}
+			break;
+		}
+
+
+	}
+};
+
+
+constexpr float desiredWidth = 640;		// default width we want windows to be
+										// their height is calculated to maintin aspect ratio
+GraphicMover mover;
 
 void setup()
 {
@@ -40,8 +80,13 @@ void setup()
 	float yoffset = 100;
 	for (auto& mon : mons)
 	{
-		auto snap = std::make_shared<DisplayView>(mon, maths::bbox2f{ {xoffset,yoffset},{xoffset+640,xoffset+480} });
-		// Assign a UIbehavior to the graphic so it can move around
+		auto sz = maths::size(mon.frame());
+
+		float xScale = desiredWidth / sz.x;
+		float desiredHeight = sz.y * xScale;
+
+		auto snap = std::make_shared<DisplayView>(mon, maths::bbox2f{ {xoffset,yoffset},{xoffset+desiredWidth,xoffset+desiredHeight} });
+		snap->setMouseDispatch(mover);
 
 		addGraphic(snap);
 

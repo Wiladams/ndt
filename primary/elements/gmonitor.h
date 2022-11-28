@@ -60,11 +60,6 @@ struct DisplayMonitor
 		return true;
 	}
 
-	bool readDeviceInfo()
-	{
-
-	}
-
 	// This is the GDI DeviceContext
 	// associated with the monitor
 	HDC getDC()
@@ -122,7 +117,14 @@ struct DisplayMonitor
 		HDC hdc = ::GetDC(NULL);
 
 		// First create a list of monitor handles
-		auto bResult = EnumDisplayMonitors(hdc, NULL, enumMon, (LPARAM)(&mons));
+		auto bResult = EnumDisplayMonitors(hdc, NULL, [](HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)->BOOL {
+			std::vector<DisplayMonitor>* mons = (std::vector<DisplayMonitor> *)param;
+
+			DisplayMonitor newmon(hmon);
+			mons->push_back(newmon);
+
+			return TRUE;
+			}, (LPARAM)(&mons));
 
 		// Some error, so return zero monitors
 		if (!bResult)

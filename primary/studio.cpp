@@ -94,6 +94,7 @@ void setupDynamicRoutines()
 	HMODULE hInst = ::GetModuleHandleA(NULL);
 
 	gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
+	
 }
 
 void setupSubscriptions()
@@ -126,7 +127,7 @@ void onLoad()
 	
 	// Create the surface we'll be using for drawing
 	gAppSurface = std::make_unique<Surface>();
-	gAppSurface->attachPixelArray(appFrameBuffer(), 2);
+	gAppSurface->attachPixelArray(appFrameBuffer(), 1);
 	gAppSurface->textFont("Consolas");
 
 

@@ -18,7 +18,7 @@
 // time.
 //
 
-class GWindow : public Graphic
+class GWindow : public GraphicGroup
 {
 protected:
 	BLRect fClientArea;
@@ -40,7 +40,7 @@ protected:
 public:
 
 	GWindow(float x, float y, float w, float h)
-		: Graphic(x, y, w, h)
+		: GraphicGroup(x, y, w, h)
 		,fClientArea(0, 0, w, h)
 		,fTitleBar(2, 2, w, 32)
 		,fTitleBarColor(0x7f, 0x7f, 0x7f, 200)
@@ -161,7 +161,6 @@ public:
 	void mouseEvent(const MouseEvent& e) override
 	{
 		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
-
 
 		// First check to see if we're moving our window
 		// around, from dragging in the titleBar area
