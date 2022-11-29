@@ -99,17 +99,7 @@ struct DisplayMonitor
 // callback, then it's released.
 // So, if we want to capture an HDC for the monitor, we
 // need to create it separately.
-	/*
-	static BOOL CALLBACK enumMon(HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)
-	{
-		std::vector<DisplayMonitor>* mons = (std::vector<DisplayMonitor> *)param;
 
-		DisplayMonitor newmon(hmon);
-		mons->push_back(newmon);
-
-		return TRUE;
-	}
-	*/
 
 	// Generate a list of all the connected monitors
 	// return the bounding box of their extents
@@ -122,7 +112,10 @@ struct DisplayMonitor
 		// BUGBUG - we can use a lambda here on 64-bit
 		// there is an issue between __stdcall (CALLBACK) and __cdecl, but on 64-bit
 		// apparently, this is not a problem.
-		auto bResult = EnumDisplayMonitors(hdc, NULL, [](HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)->BOOL {
+		// Additionally, using a '+' lambda, to generate an actual function stored in the binary
+		// https://vorbrodt.blog/2019/03/24/c-style-callbacks-and-lambda-functions/
+
+		auto bResult = EnumDisplayMonitors(hdc, NULL, +[](HMONITOR hmon, HDC hdc, LPRECT clipRect, LPARAM param)->BOOL {
 			std::vector<DisplayMonitor>* mons = (std::vector<DisplayMonitor> *)param;
 
 			DisplayMonitor newmon(hmon);

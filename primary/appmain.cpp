@@ -165,7 +165,7 @@ void frameRate(float newRate) noexcept
 {
     fFrameRate = newRate;
     fInterval = 1000 / newRate;
-    fNextMillis = gAppClock.millis() + fInterval;
+    fNextMillis = (float)gAppClock.millis() + fInterval;
 }
 
 float getFrameRate() noexcept

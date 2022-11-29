@@ -21,7 +21,7 @@ static VOIDROUTINE gSetupHandler = nullptr;
 //
 void addGraphic(std::shared_ptr<GraphicElement> g)
 {
-	gGroup->addChild(g);
+	gGroup->addGraphic(g);
 }
 
 void setDesktopDrawing(std::function<void(IGraphics& ctx)> func)

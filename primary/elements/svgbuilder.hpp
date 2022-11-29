@@ -2,6 +2,7 @@
 
 
 #include "blend2d.h"
+#include "elements/textscan.h"
 
 #include <vector>
 
@@ -13,7 +14,7 @@
 // Working in conjuction with some context, you can build
 // figures, with stroke and fill commands
 //
-namespace alib
+namespace svg
 {
     //
      // A path should have commands and vertices

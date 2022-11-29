@@ -260,7 +260,7 @@ public:
         //struct sockaddr clientAddr {};
         //int clientAddrLen=0;
         //int res = ::accept(fSocket,&clientAddr,&clientAddrLen);
-        int res = ::accept(fSocket,nullptr,nullptr);
+        SOCKET res = ::accept(fSocket,nullptr,nullptr);
 
         if (res == INVALID_SOCKET) {
             fLastError = WSAGetLastError();

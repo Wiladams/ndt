@@ -239,6 +239,14 @@ struct ImagePuzzle : ElementGrid
 	void drawBackground(IGraphics& ctx) override
 	{
 		ctx.push();
+
+		// Draw a thick green border just so we can see it
+		ctx.noFill();
+		ctx.strokeWeight(4);
+		ctx.stroke(0, 255, 0);
+		ctx.rect(boundsX(), boundsY(), boundsWidth(), boundsHeight());
+
+		// Draw horizontal and vertial column divider lines
 		ctx.stroke(0);
 		ctx.strokeWeight(1);
 		for (int row = 1; row < fNumRows; row++)
@@ -340,7 +348,7 @@ void setup()
 	snapper.reset(0, 0, displayWidth / 2, displayHeight);
 	snapper.next();
 
-	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::bbox2f{ {0,0},{(float)displayWidth/2,(float)displayHeight} }, 2, 2);
+	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::bbox2f{ {0,0},{(float)displayWidth/2,(float)displayHeight} }, 3, 2);
 
 	addGraphic(puzzle);
 
