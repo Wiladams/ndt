@@ -251,64 +251,62 @@ namespace svg
         // Turn a set of commands and numbers
         // into a blPath
         //
-
-
-        void parseCommands(const std::vector<ndt::Contour>& commands)
+        void parseCommands(const std::vector<ndt::PathSegment>& commands)
         {
             for (auto& cmd : commands)
             {
                 switch (cmd.fCommand)
                 {
-                case ndt::ContourKind::MoveTo:
+                case ndt::SegmentKind::MoveTo:
                     moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
                     break;
-                case ndt::ContourKind::MoveBy:
+                case ndt::SegmentKind::MoveBy:
                     moveBy(cmd.fNumbers[0], cmd.fNumbers[1]);
                     break;
 
-                case ndt::ContourKind::LineTo:
+                case ndt::SegmentKind::LineTo:
                     lineTo(cmd.fNumbers[0], cmd.fNumbers[1]);
                     break;
-                case ndt::ContourKind::LineBy:
+                case ndt::SegmentKind::LineBy:
                     lineBy(cmd.fNumbers[0], cmd.fNumbers[1]);
                     break;
 
-                case ndt::ContourKind::HLineTo:
+                case ndt::SegmentKind::HLineTo:
                     hLineTo(cmd.fNumbers[0]);
                     break;
-                case ndt::ContourKind::HLineBy:
+                case ndt::SegmentKind::HLineBy:
                     hLineBy(cmd.fNumbers[0]);
                     break;
 
-                case ndt::ContourKind::VLineTo:
+                case ndt::SegmentKind::VLineTo:
                     vLineTo(cmd.fNumbers[0]);
                     break;
-                case ndt::ContourKind::VLineBy:
+                case ndt::SegmentKind::VLineBy:
                     vLineBy(cmd.fNumbers[0]);
                     break;
 
-                case ndt::ContourKind::CubicTo:
+                case ndt::SegmentKind::CubicTo:
                     cubicTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3], cmd.fNumbers[4], cmd.fNumbers[5]);
                     break;
-                case ndt::ContourKind::CubicBy:
+                case ndt::SegmentKind::CubicBy:
                     break;
 
-                case ndt::ContourKind::QuadTo:
+                case ndt::SegmentKind::QuadTo:
                     quadTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);
                     break;
-                case ndt::ContourKind::QuadBy:
+                case ndt::SegmentKind::QuadBy:
                     break;
 
                 // Elliptic arc
-                case ndt::ContourKind::ArcTo:
+                case ndt::SegmentKind::ArcTo:
                     arcTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3], cmd.fNumbers[4], cmd.fNumbers[5], cmd.fNumbers[6]);
                     break;
-                case ndt::ContourKind::ArcBy:
+                case ndt::SegmentKind::ArcBy:
                     break;
 
 
-                case ndt::ContourKind::CloseTo:
-                case ndt::ContourKind::CloseBy:
+                case ndt::SegmentKind::CloseTo:
+                case ndt::SegmentKind::CloseBy:
                     close();
                     break;
 
@@ -324,20 +322,21 @@ namespace svg
             return;
         }
 
-        static bool createPathFromCommands(const std::string& subject, BLPath& apath)
-        {
-            std::vector<ndt::Contour> commands{};
 
-            ndt::tokenizeContour(subject, commands);
-
-            SVGPathParser builder{};
-            std::vector<BLPath> figures{};
-
-            builder.parseCommands(commands);
-            apath = builder.getPath();
-
-            return true;
-        }
     };
 
+    static bool blPathFromCommands(const std::string& subject, BLPath& apath)
+    {
+        std::vector<ndt::PathSegment> commands{};
+
+        ndt::tokenizePathSegment(subject, commands);
+
+        SVGPathParser builder{};
+        //std::vector<BLPath> figures{};
+
+        builder.parseCommands(commands);
+        apath = builder.getPath();
+
+        return true;
+    }
 }

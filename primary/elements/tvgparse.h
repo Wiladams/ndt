@@ -26,29 +26,11 @@
 #include <memory>
 #include <vector>
 
-#include "binstream.hpp"
+//#include "binstream.hpp"
+#include "bstream.h"
 #include "bitbang.h"
 #include "maths.hpp"
 
-// These couple of routines help facilitate bit banging, getting
-// bit values out of integer values.  
-// 
-// Using these means we don't
-// have to create sketchy bitfield structures for everything
-// The equivalent routines are in bitbang, so these don't need
-// to be used.
-//
-namespace tvgutil 
-{	
-	static inline uint64_t BITMASK64(const size_t low, const size_t high)
-	{
-		return ((((uint64_t)1 << (high - low)) << 1) - 1) << low;
-	}
-	static inline  uint64_t BITSVALUE(uint64_t src, size_t lowbit, size_t highbit)
-	{
-		return ((src & BITMASK64(lowbit, highbit)) >> lowbit);
-	}
-}
 
 namespace tinyvg
 {
@@ -154,10 +136,6 @@ namespace tinyvg
 		float a{};
 	};
 	
-	//struct tvg_point {
-	//	float x{};
-	//	float y{};
-	//};
 
 	struct tvg_style_t
 	{

@@ -3,14 +3,11 @@
 #include "graphic.hpp"
 #include "svgparser.h"
 
-#include <vector>
-
-struct SVGPathViewer : public GraphicElement
+struct ShapeViewer : public GraphicElement
 {
     BLPath fPath{};
 
-
-    SVGPathViewer(const std::string& subject, const char* nm)
+    ShapeViewer(const std::string& subject, const char* nm)
         :GraphicElement({ 0,0,1920,1080 })
     {
         setName(nm);
@@ -18,8 +15,7 @@ struct SVGPathViewer : public GraphicElement
         svg::blPathFromCommands(subject, fPath);
     }
 
-
-    SVGPathViewer(const std::string& subject, std::string &name)
+    ShapeViewer(const std::string& subject, std::string& name)
         : GraphicElement({ 0,0,1920,1080 })
     {
         setName(name);

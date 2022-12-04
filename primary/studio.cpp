@@ -104,13 +104,17 @@ void setupSubscriptions()
 
 void fullscreen(const char* title, uint32_t threadCount) noexcept
 {
-	//createCanvas(displayWidth, displayHeight, title, threadCount);
 	createAppWindow(displayWidth, displayHeight, "studio");
 	gAppSurface->attachPixelArray(appFrameBuffer(), threadCount);
 
 	setCanvasPosition(0, 0);
 	layered();
 	//gIsFullscreen = true;
+}
+
+std::shared_ptr<GraphicElement> hoverGraphic()
+{
+	return gDesktopBehavior->hoverGraphic();
 }
 
 void onLoad()

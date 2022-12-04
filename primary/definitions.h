@@ -11,7 +11,7 @@
 // it as the first item to be included.
 //
 
-#include <cstdint>		// uint8_t
+#include <cstdint>		// uint8_t, etc
 #include <cstddef>		// nullptr_t, ptrdiff_t, size_t
 
 #if defined(_WIN32) || defined(_WIN64)

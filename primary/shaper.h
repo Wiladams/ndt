@@ -24,7 +24,7 @@ namespace ndt
     // Q - quadTo       (Q, q, T, t)
     // A - ellipticArc  (A, a)
     // Z - close        (Z, z)
-    enum class ContourKind : uint8_t
+    enum class SegmentKind : uint8_t
     {
         INVALID = 0
         , MoveTo = 'M'
@@ -45,33 +45,34 @@ namespace ndt
         , CloseBy = 'z'
     };
 
-    struct Contour
+    //
+    // A Path is comprised of a number of PathSegment structures
+    // Each PathSegment begins with a SegmentKind, followed by a series
+    // of numbers appropriate for that segment kind. 
+    //
+    struct PathSegment
     {
-        //SegmentKind fCommand{SegmentKind::INVALID};
-        ContourKind fCommand{ ContourKind::INVALID };
+        SegmentKind fCommand{ SegmentKind::INVALID };
         std::vector<float> fNumbers{};
 
-        Contour() { ; }
-        Contour(const Contour& other)
+        PathSegment() { ; }
+        PathSegment(const PathSegment& other)
             :fCommand(other.fCommand)
             , fNumbers(other.fNumbers)
         {}
     };
 
-    // Take the 'd' attribute of a SVG path command and turn it into 
-// a collection of commands and their associated numbers.
-// This is not very robust, and will fall apart based on simple errors
-// but it will work for common conformant cases.
-// 
-// Much smaller and faster than using regular expressions.
-// 
-// The most challenging part is parsing float numbers.  We rely on
-// sscanf to do that work.
-// 
-// Here we're just tokenizing the string, not creating any geometry.
-// This token set can be consumed by something else to create path objects
-//
-    void tokenizeContour(std::string_view subject, std::vector<Contour>& commands)
+    //
+    // tokenizePathSegment
+    // Given a string, representing a series of path segments, turn the string
+    // into a vector of those path segments.
+    // 
+    // This gives us a structure that can then be turned into other forms, such 
+    // as graphic objects.
+    // 
+    // The syntax of the commands is that of the SVG path object 'd' attribute
+    //
+    static void tokenizePathSegment(std::string_view subject, std::vector<PathSegment>& commands)
     {
         ndt::charset whitespaceChars(",\t\n\f\r ");
         ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");
@@ -79,18 +80,18 @@ namespace ndt
 
         // use binstream do do the parsing
         //BinStream bs(subject.data(), subject.size(), 0);
-        DataCursor dc = ndt::make_cursor(subject.data(), subject.size());
-        
+        DataCursor dc = ndt::make_cursor_size(subject.data(), subject.size());
+
         // create a little buffer to be used for numbers
         int numoffset = 0;
         char numbuff[64]{ 0 };
 
-        //while (!bs.isEOF())
         while (!ndt::isEOF(dc))
         {
-            // ignore whitespace
+
             auto c = ndt::get_u8(dc);
 
+            // ignore whitespace
             while (whitespaceChars[c] && !isEOF(dc))
                 c = get_u8(dc);
 
@@ -101,8 +102,8 @@ namespace ndt
                 switch (c) {
                 default:
                     //printf("CMD: %c\n", c);
-                    ndt::Contour cmd;
-                    cmd.fCommand = ndt::ContourKind(c);
+                    ndt::PathSegment cmd;
+                    cmd.fCommand = ndt::SegmentKind(c);
                     commands.push_back(cmd);
                 }
 
@@ -138,6 +139,8 @@ namespace ndt
             }
         }
     }
+
+
 
 
 }

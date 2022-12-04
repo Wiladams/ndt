@@ -16,6 +16,11 @@ struct DesktopBehavior
 {
 	GraphicGroup& fGroup;
 	std::shared_ptr<GraphicElement> fSelectedGraphic{};
+	
+	std::shared_ptr<GraphicElement> fHoverGraphic{};
+	std::shared_ptr<GraphicElement> fHoverGraphic{};
+
+
 	bool fIsDragging = false;
 
 	DesktopBehavior(GraphicGroup& group)
@@ -28,6 +33,9 @@ struct DesktopBehavior
 		subscribe([this](const MouseEvent& e) {mouseEvent(e); });
 		subscribe([this](const KeyboardEvent& e) {keyboardEvent(e); });
 	}
+
+	auto selectedGraphic() { return fSelectedGraphic; }
+	auto hoverGraphic() { return fHoverGraphic; }
 
 	void keyboardEvent(const KeyboardEvent& e)
 	{
@@ -49,13 +57,13 @@ struct DesktopBehavior
 		//printf("DesktopBehavior::mouseEvent (%3.0f,%3.0f)\n", e.x,e.y);
 		//printf("                            (%3.0f,%3.0f)\n", localEvent.x, localEvent.y);
 
-		auto hovered = fGroup.graphicAt(localEvent.x, localEvent.y);
+		fHoverGraphic = fGroup.graphicAt(localEvent.x, localEvent.y);
 
 		switch (e.activity)
 		{
 		case MOUSEPRESSED:
 			fIsDragging = true;
-			fSelectedGraphic = hovered;
+			fSelectedGraphic = fHoverGraphic;
 			if (fSelectedGraphic != nullptr)
 			{
 				fGroup.moveToFront(fSelectedGraphic);
@@ -80,8 +88,8 @@ struct DesktopBehavior
 					fSelectedGraphic->mouseEvent(localEvent);
 			}
 			else {
-				if (hovered)
-					hovered->mouseEvent(localEvent);
+				if (fHoverGraphic)
+					fHoverGraphic->mouseEvent(localEvent);
 			}
 			break;
 

@@ -2,8 +2,7 @@
 
 #include "definitions.h"
 
-#include <math.h>
-#include <cstdio>
+//#include <math.h>
 
 //
 // Some of the routines here are inspired by the bit twiddling hacks
@@ -88,7 +87,7 @@ static INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t sta
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);
             bool bitval = isset(bytes[byteoffset], bitoffset);
-//printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
+
 		    if (bitval) {
 			    value = setbit(value, i);
             }
@@ -99,7 +98,7 @@ static INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t sta
             size_t bitoffset=0;
             getbitbyteoffset(startbit+i, byteoffset, bitoffset);
             bool bitval = isset(bytes[byteoffset], bitoffset);
-//printf("byte, bit: %Id, %Id, %d\n", byteoffset, bitoffset, bitval);
+
             if (bitval) {
                 value = setbit(value, i);
             }
@@ -156,4 +155,4 @@ static INLINE double fixedToFloat(const uint64_t vint, const int scale) noexcept
     return (whole + (frac / ((uint64_t)1 << scale)));
 }
 
-}; // namespace ndt
+}; // namespace binops
