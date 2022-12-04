@@ -18,7 +18,7 @@ struct DesktopBehavior
 	std::shared_ptr<GraphicElement> fSelectedGraphic{};
 	
 	std::shared_ptr<GraphicElement> fHoverGraphic{};
-	std::shared_ptr<GraphicElement> fHoverGraphic{};
+	std::shared_ptr<GraphicElement> fHoverGraphicLast{};
 
 
 	bool fIsDragging = false;

@@ -98,7 +98,7 @@ public:
 	{
 		//printf("MonthDay: (%d) %d\n", fMonth, fCalendar.dayCodeForMonth(fMonth));
 		ctx.push();
-		ctx.translate(frame().min.x, frame().min.y);
+		ctx.translate(frame().x, frame().y);
 
 		// Draw Calendar rectangle
 		ctx.noStroke();

@@ -37,7 +37,7 @@ public:
 			}
 		}
 
-		setFrame({ {0,0},{cellSize.x * 3 + (edgeMargin * 4), cellSize.y * 4 + (edgeMargin * 2) + (lineGap * 3)} });
+		setFrame({ 0,0,cellSize.x * 3 + (edgeMargin * 4), cellSize.y * 4 + (edgeMargin * 2) + (lineGap * 3) });
 		//setBounds(frame());
 	}
 };

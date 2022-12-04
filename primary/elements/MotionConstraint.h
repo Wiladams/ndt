@@ -26,16 +26,16 @@ public:
     // Given a subject, which is already within a certain range
     // try to apply a change to the position, represented
     // by the 'change' parameter
-    maths::vec2f tryChange(const maths::bbox2f &subject, const maths::vec2f&change)
+    maths::vec2f tryChange(const maths::rectf &subject, const maths::vec2f&change)
     {
         //printf("tryChange: ", change.dx, change.dy)
-        float x = maths::clamp(float(subject.min.x + change.x), fminX, fmaxX);
-        float y = maths::clamp((float)(subject.min.y + change.y), fminY, fmaxY);
+        float x = maths::clamp(float(subject.x + change.x), fminX, fmaxX);
+        float y = maths::clamp((float)(subject.y + change.y), fminY, fmaxY);
 
         //printf("tryChange, 2.0: %f %f\n", x, y);
 
-        float dx = x - subject.min.x;
-        float dy = y - subject.min.y;
+        float dx = x - subject.x;
+        float dy = y - subject.y;
 
         return { dx,dy };
     }
@@ -43,10 +43,10 @@ public:
     //
     // Calculate a position of a point within
     // the context of our constrained range
-    maths::vec2f calcPosition(const maths::bbox2f&fr)
+    maths::vec2f calcPosition(const maths::rectf&fr)
     {
-        float xpos = maths::clamp(maths::map(float(fr.min.x), fminX, fmaxX, 0.0f, 1.0f), 0.0f,1.0f);
-        float ypos = maths::clamp(maths::map(float(fr.min.y), fminY, fmaxY, 0.0f, 1.0f), 0.0f,1.0f);
+        float xpos = maths::clamp(maths::map(float(fr.x), fminX, fmaxX, 0.0f, 1.0f), 0.0f,1.0f);
+        float ypos = maths::clamp(maths::map(float(fr.y), fminY, fmaxY, 0.0f, 1.0f), 0.0f,1.0f);
 
         return { xpos, ypos };
     }

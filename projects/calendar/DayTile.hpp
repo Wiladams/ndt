@@ -141,7 +141,7 @@ ctx->text(buff, 32, 24);
 
 		// Clip for the hourly grid
 		ctx.push();
-		ctx.clip({ {0, 72}, {boundsWidth(), boundsHeight() - 72} });
+		ctx.clip({ 0, 72, boundsWidth(), boundsHeight() });
 		ctx.translate(0, 72);
 
 		drawHourGrid(ctx);
