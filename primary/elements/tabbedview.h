@@ -7,7 +7,7 @@
 #include <string>
 
 
-class TabbedView : public Graphic 
+class TabbedView : public GraphicGroup
 {
 	static constexpr int ContentMargin = 4;
 
@@ -27,7 +27,7 @@ class TabbedView : public Graphic
 
 public:
 	TabbedView(const BLRect& f, const BLRoundRect &tParam, const std::string& title, const Pixel& tColor = { 245, 246, 247 }, const Pixel& bColor = { 245, 246, 247 })
-		: Graphic(f.x,f.y,f.w,f.h),
+		: GraphicGroup(f.x,f.y,f.w,f.h),
 		fTabParam(tParam),
 		fTabColor(tColor),
 		fTabTitle(title),
@@ -110,31 +110,75 @@ public:
 		//ctx.rect(fContentArea.x, fContentArea.y, fContentArea.w, fContentArea.h);
 
 	}
+
+	void mouseEvent(const MouseEvent& e) override
+	{
+		printf("TabbedView::mouseEvent [%d] %3.0f, %3.0f\n", e.activity, e.x, e.y);
+	}
 };
 
-class TabViewSet : public Graphic 
+class TabViewSet : public GraphicGroup 
 {
+	std::shared_ptr<GraphicElement> fSelectedGraphic{ nullptr };
+	bool fIsDragging{ false };
+
 public:
 	TabViewSet(const float w, const float h)
-		:Graphic(0, 0, w, h)
+		:GraphicGroup(0, 0, w, h)
 	{}
 
-	void mouseReleased(const MouseEvent& e) override
+	void mouseEvent(const MouseEvent& e) override
 	{
-		// Figure out which window is being 
-		// clicked
-		auto g = graphicAt(e.x, e.y);
+		printf("TabViewSet::mouseEvent - [%d] %3.0f,%3.0f\n", e.activity, e.x, e.y);
 
-		// if not clicked on a view, then simply return
-		if (nullptr == g) {
-			//fActiveGraphic = nullptr;
-			return;
+		MouseEvent lev(e);
+		lev.x = e.x - frameX();
+		lev.y = e.y - frameY();
+
+		auto hovered = graphicAt(lev.x, lev.y);
+
+		switch (e.activity)
+		{
+		case MOUSEPRESSED:
+			fIsDragging = true;
+			fSelectedGraphic = hovered;
+			if (fSelectedGraphic != nullptr)
+			{
+				moveToFront(fSelectedGraphic);
+				fSelectedGraphic->mouseEvent(lev);
+			}
+			break;
+
+		case MOUSERELEASED:
+			fIsDragging = false;
+			if (fSelectedGraphic != nullptr)
+			{
+				fSelectedGraphic->mouseEvent(lev);
+			}
+			break;
+
+		case MOUSEMOVED:
+			// If dragging, keep sending to the original 
+			// graphic, even if we're beyond its bounds
+			if (fIsDragging)
+			{
+				if (fSelectedGraphic != nullptr)
+					fSelectedGraphic->mouseEvent(lev);
+			}
+			else {
+				if (hovered)
+					hovered->mouseEvent(lev);
+			}
+			break;
+
+		default:
+			if (fSelectedGraphic != nullptr)
+				fSelectedGraphic->mouseEvent(lev);
+			break;
 		}
 
-		// bring it to the front
-		moveToFront(g);
-		g->mousePressed(e);
 	}
+
 
 	// Factory method to create a set
 	static std::shared_ptr<TabViewSet> create(const float w, const float h)

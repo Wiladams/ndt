@@ -72,7 +72,7 @@ void setup()
 // Create an initial font summary to go in the window
 	summaryWin = window(200, 200, 1024, 768);
 	summaryPage = std::make_shared<FontSummary>(0, 0, 1024, 768, "Consolas");
-	summaryWin->addChild(summaryPage);
+	summaryWin->addGraphic(summaryPage);
 
 
 	// Create window that's going to hold the font icons
@@ -92,7 +92,7 @@ void setup()
 		{ float(iconWin->frameWidth() - 20), float(iconWin->frameHeight() - 8)});
 	sldr->subscribe(onSlide);
 
-	iconWin->addChild(page);
-	iconWin->addChild(sldr);
+	iconWin->addGraphic(page);
+	iconWin->addGraphic(sldr);
 
 }

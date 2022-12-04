@@ -15,7 +15,7 @@ struct DisplayMonitor
 	HDC fDC = nullptr;					// Device context representing display monitor
 	DEVMODEA   defaultMode{};
 
-	maths::bbox2f fFrame{};
+	maths::rectf fFrame{};
 	std::string fDeviceName{};
 	
 
@@ -43,7 +43,10 @@ struct DisplayMonitor
 			return false;
 
 		// Preserve the boundary information
-		fFrame = maths::bbox2f{ {(float)mInfo.rcMonitor.left,(float)mInfo.rcMonitor.top},{(float)mInfo.rcMonitor.right,(float)mInfo.rcMonitor.bottom} };
+		fFrame = maths::rectf{ 
+			(float)mInfo.rcMonitor.left,(float)mInfo.rcMonitor.top,
+			(float)mInfo.rcMonitor.right- (float)mInfo.rcMonitor.left,
+			(float)mInfo.rcMonitor.bottom- (float)mInfo.rcMonitor.top};
 
 		// Create a device context for the monitor
 		fDeviceName = mInfo.szDevice;
@@ -70,7 +73,7 @@ struct DisplayMonitor
 		return fDC;
 	}
 
-	const maths::bbox2f& frame() const { return fFrame; }
+	const maths::rectf& frame() const { return fFrame; }
 
 	static size_t numberOfMonitors()
 	{
@@ -83,14 +86,14 @@ struct DisplayMonitor
 	// This will return the extent of the virtual display for 
 	// the current desktop session. 
 	//
-	static maths::bbox2f virtualDisplayBox()
+	static maths::rectf virtualDisplayBox()
 	{
 		float x = (float)GetSystemMetrics(SM_XVIRTUALSCREEN);
 		float y = (float)GetSystemMetrics(SM_YVIRTUALSCREEN);
 		float dx = (float)GetSystemMetrics(SM_CXVIRTUALSCREEN);
 		float dy = (float)GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-		return { {x,y},{x + dx,y + dy} };
+		return { x,y,dx,dy };
 	}
 
 	// Factory functions
@@ -104,7 +107,7 @@ struct DisplayMonitor
 	// Generate a list of all the connected monitors
 	// return the bounding box of their extents
 	//
-	static maths::bbox2f monitors(std::vector<DisplayMonitor>& mons)
+	static maths::rectf monitors(std::vector<DisplayMonitor>& mons)
 	{
 		HDC hdc = ::GetDC(NULL);
 
@@ -126,10 +129,12 @@ struct DisplayMonitor
 
 		// Some error, so return zero monitors
 		if (!bResult)
-			return maths::invalidb2f;
+		{
+			return {0};
+		}
 
 		// accumulate the overall size in a bounding box
-		maths::bbox2f vbox = virtualDisplayBox();
+		maths::rectf vbox = virtualDisplayBox();
 
 		return vbox;
 	}

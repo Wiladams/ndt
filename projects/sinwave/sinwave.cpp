@@ -23,7 +23,7 @@ void draw()
 	// Cosine curve
 	double lastcosy = map(cos(0), -1, 1, maxy - 1, 0);
 	for (int x = (int)lastx+1; x <= maxx; x++) {
-		double angx = map(x, minx, maxx, 0, frequency*2 * maths::Pi);
+		double angx = map(x, minx, maxx, 0, frequency*2 * maths::pi);
 
 		double cosx = cos(angx);
 		double cosy = map(cosx, -1, 1, (double)maxy - 1, 0);

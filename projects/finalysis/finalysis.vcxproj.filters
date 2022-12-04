@@ -35,5 +35,8 @@
     <ClInclude Include="filehisto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\bstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

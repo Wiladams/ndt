@@ -226,12 +226,12 @@ void setup()
 	// For the color schemes
 	// https://flatuicolors.com/palette/us
 	// 
-	tabSet->addChild(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
-	tabSet->addChild(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
-	tabSet->addChild(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
-	tabSet->addChild(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
+	tabSet->addGraphic(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(16, 0, 96, 24, 8), "Tab 1", Pixel(178, 190, 195)));
+	tabSet->addGraphic(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(64, 0, 96, 24, 10), "Tab 2", Pixel(255, 118, 117)));
+	tabSet->addGraphic(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(220, 0, 96, 24, 10), "Tab 3", Pixel(0, 184, 148), Pixel(127, 127, 163)));
+	tabSet->addGraphic(std::make_shared<TabbedView>(BLRect(0, 0, (double)canvasWidth - 16, 260), BLRoundRect(310, 0, 96, 24, 10), "Tab 4", Pixel(9, 132, 227)));
 
 	auto tabWin = window(0,300,canvasWidth - 16, 260);
-	tabWin->addChild(tabSet);
-	addWindow(tabWin);
+	tabWin->addGraphic(tabSet);
+	addGraphic(tabWin);
 }

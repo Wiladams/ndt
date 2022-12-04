@@ -133,7 +133,7 @@ void onLoad()
 
 	// Create the container that will hold all the graphics
 	// that appear on the desktop
-	gGroup = std::make_shared<GraphicGroup>(maths::bbox2f{ {0,0},{(float)canvasWidth, (float)canvasHeight} });
+	gGroup = std::make_shared<GraphicGroup>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
 	
 	// Create the behavior that will control UI actions in the 
 	// desktop

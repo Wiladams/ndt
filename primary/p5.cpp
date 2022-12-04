@@ -106,16 +106,16 @@ namespace p5 {
     }
 
     // Window management
-    void addWindow(std::shared_ptr<IGraphic> win)
+    void addGraphic(std::shared_ptr<GraphicElement> win)
     {
         if (nullptr != gWindowManager)
-            gWindowManager->addChild(win);
+            gWindowManager->addGraphic(win);
     }
 
     std::shared_ptr<GWindow> window(const int x, const int y, const int w, const int h)
     {
         std::shared_ptr<GWindow> win = std::make_shared<GWindow>(x, y, w, h);
-        addWindow(win);
+        addGraphic(win);
 
         return win;
     }
@@ -445,7 +445,7 @@ namespace p5 {
     // Clipping
     void clip(float x, float y, float w, float h) noexcept
     {
-        gAppSurface->clip({ {x,y},{x+w,y+h} });
+        gAppSurface->clip({ x,y,w,h });
     }
 
     void noClip() noexcept
@@ -992,6 +992,7 @@ void onUnload()
     ;
 }
 
+/*
 //
 // onLoop()
 // This is called by the appmain, every time it goes through
@@ -1026,6 +1027,7 @@ void onLoop()
         }
     }
 }
+*/
 
 //
 // onLoad()
@@ -1120,7 +1122,7 @@ void onLoad()
     // do drawing at least once in case
     // the user calls noLoop() within 
     // the setup() routine
-    handleFrameTick(p5::SWatch.seconds());
+    handleFrameTick(FrameCountEvent());
 
     // Refresh the screen at least once
     screenRefresh();

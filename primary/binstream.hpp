@@ -14,9 +14,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "bstream.h"
+
 // Define this here instead of using MIN to
 // reduce dependencies
 #define BINMIN(a,b) (((a)<(b))?(a):(b))
+
 
 // These unions help with writing float and double values
 typedef union {
@@ -41,6 +44,7 @@ class IWriteBinary
     virtual bool writeOctet(const uint8_t octet) = 0;
 };
 
+
 // 
 // BinStream
 // reads and writes to a chunk of memory
@@ -51,7 +55,7 @@ class BinStream : public IReadBinary, public IWriteBinary
     uint8_t* fdata{};
     size_t fsize{};
     size_t fcursor{};
-    bool fbigend{};
+    bool fbigend{false};
 
 protected:
     BinStream() 

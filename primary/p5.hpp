@@ -114,7 +114,7 @@ namespace p5 {
 extern "C" {
 #endif
     // Constants available in the p5 namespace
-    APP_EXPORT extern int frameCount;
+    //APP_EXPORT extern int frameCount;
     APP_EXPORT extern int droppedFrames;
 
     APP_EXPORT extern uint8_t* pixels;    // a pointer to the canvas pixels
@@ -242,7 +242,7 @@ struct PVector {
     void setUnitsPerInch(REAL units);
 
     // Windowing functions
-    void addWindow(std::shared_ptr<IGraphic> win);
+    void addGraphic(std::shared_ptr<GraphicElement> win);
     std::shared_ptr<GWindow> window(int x, int y, int w, int h);
     void windowToFront(std::shared_ptr<GWindow> win);
     void windowLayout(std::shared_ptr<ILayoutGraphics>& layout);

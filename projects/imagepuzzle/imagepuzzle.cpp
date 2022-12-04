@@ -173,7 +173,7 @@ struct ImagePuzzle : ElementGrid
 
 				auto piece = std::make_shared<ImagePuzzlePiece>(img, imgbox, pbox, id);
 
-				addChild(piece);
+				addGraphic(piece);
 
 				pieces.push_back(piece);
 
@@ -348,7 +348,7 @@ void setup()
 	snapper.reset(0, 0, displayWidth / 2, displayHeight);
 	snapper.next();
 
-	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::bbox2f{ {0,0},{(float)displayWidth/2,(float)displayHeight} }, 3, 2);
+	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::bbox2f{ {0,0},{(float)displayWidth/2,(float)displayHeight} }, 8, 8);
 
 	addGraphic(puzzle);
 

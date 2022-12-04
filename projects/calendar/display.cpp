@@ -38,24 +38,24 @@ void setup()
 	auto dtWindow = window(0, 0, ps.x, ps.y);
 	auto dt = std::make_shared<DayTile>();
 	//dt->setDate(2022, 9, 5);
-	dtWindow->addChild(dt);
+	dtWindow->addGraphic(dt);
 	
 
 	// Setup year of months window
 	auto yom = std::make_shared<YearOfMonths>();
 	auto yomWin = window(0, 0, yom->frameWidth(), yom->frameHeight());
-	yomWin->addChild(yom);
+	yomWin->addGraphic(yom);
 	
 	
 	// Setup perpetual calendar
 	auto pc = std::make_shared<SlidingMonth>(2022, 9, 240, 240);
 	auto pcWin = window(0, 0, pc->frameWidth(), pc->frameHeight());
-	pcWin->addChild(pc);
+	pcWin->addGraphic(pc);
 	
 	// Setup a decade
 	auto dc = std::make_shared<Decade>(2020);
 	auto dcWin = window(0, 0, dc->frameWidth(), dc->frameHeight());
-	dcWin->addChild(dc);
+	dcWin->addGraphic(dc);
 
 	// Setup a century 
 	//auto cen = std::make_shared<Century>(2000);

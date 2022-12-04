@@ -1,22 +1,27 @@
 #pragma once
 
-#include "p5.hpp"
-
-#include "filestream.h"
 #include "coloring.h"
 #include "graphic.hpp"
+#include "mmap.hpp"
 
 #include <memory>
 
 using namespace p5;
 
-class FileHistogram : public Graphic
+class Histogram : public GraphicGroup
+{
+	size_t fDatagram[256];
+	size_t fBiggest;
+	size_t fSize;
+};
+
+class FileHistogram : public GraphicGroup
 {
 	size_t histogram[256];
 	size_t biggest;
 	size_t size;
 
-	void createHistogram(BinStream& bs)
+	void createHistogram(ndt::DataCursor &cur)
 	{
 		memset(histogram, 0, sizeof(histogram));
 		biggest = 0;
@@ -24,10 +29,10 @@ class FileHistogram : public Graphic
 		// populate the histogram
 		size = 0;
 
-		while (!bs.isEOF()) 
+		while (!ndt::isEOF(cur)) 
 		{
 			size++;
-			uint8_t c = bs.readOctet();
+			uint8_t c = ndt::get_u8(cur);
 			histogram[c] += 1;
 		}
 
@@ -44,10 +49,10 @@ class FileHistogram : public Graphic
 
 public:
 
-	FileHistogram(BinStream& bs)
-		:Graphic(0,0,256,256)
+	FileHistogram(ndt::DataCursor &cur)
+		:GraphicGroup(0,0,256,256)
 	{
-		createHistogram(bs);
+		createHistogram(cur);
 	}
 
 	void draw(IGraphics & ctx)
@@ -72,17 +77,19 @@ public:
 
 	static std::shared_ptr<FileHistogram> fromFile(std::string filename)
 	{
-		FileStream fStream(filename.c_str());
-		if (!fStream.isValid())
-			return nullptr;
+		auto fmap = ndt::mmap::create_shared(filename);
+		if (fmap == nullptr || !fmap->isValid())
+			return std::shared_ptr<FileHistogram>{};
 
-		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(fStream);
+		auto cur = fmap->createCursor();
+		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(cur);
+
 		return res;
 	}
 
-	static std::shared_ptr<FileHistogram> fromStream(BinStream &bs)
+	static std::shared_ptr<FileHistogram> fromStream(ndt::DataCursor &cur)
 	{
-		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(bs);
+		std::shared_ptr<FileHistogram> res = std::make_shared<FileHistogram>(cur);
 		return res;
 	}
 };

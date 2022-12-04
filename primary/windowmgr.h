@@ -17,14 +17,15 @@
 	Sends UI events to correct window
 */
 
-class WindowManager : public Graphic
+class WindowManager : public GraphicGroup
 {
 protected:
-
+	bool fIsDragging{ false };
+	std::shared_ptr<GraphicElement> fSelectedGraphic{ nullptr };
 
 public:
 	WindowManager(float w, float h)
-		:Graphic(0,0,w,h)
+		:GraphicGroup(0,0,w,h)
 	{
 		setLayout(std::make_shared<IdentityLayout>());
 
@@ -42,7 +43,7 @@ public:
 	{
 		if (fActiveGraphic != nullptr)
 		{
-			printf("WindoManager:keyEvent\n");
+			//printf("WindoManager:keyEvent\n");
 			return fActiveGraphic->keyEvent(e);
 		}
 
@@ -56,36 +57,58 @@ public:
 	// 4) Pass events along to the active window
 	void mouseEvent(const MouseEvent& e) override
 	{
-		printf("WindowManager.mouseEvent: (%3.0f,%3.0f) - %d\n", e.x, e.y, e.activity);
+		//printf("WindowManager.mouseEvent: (%3.0f,%3.0f) - %d\n", e.x, e.y, e.activity);
 
-		/*
-		// The action to take depends on which kind of mouse event it is
-		// So, defer to specific activity functions
-		switch (e.activity) {
-		case MOUSEDRAGGED:
-			handled = mouseDragged(e);
-			break;
+		// Mouse events are given in the coordinate space of the 
+		// parent frame, so we want to convert to our local coordinate
+		// space before doing anything else.
+		// First subtract off the frame origin
+		MouseEvent localEvent(e);
+		localEvent.x = e.x - frameX();
+		localEvent.y = e.y - frameY();
 
+		auto hovered = graphicAt(localEvent.x, localEvent.y);
+
+
+		switch (e.activity)
+		{
 		case MOUSEPRESSED:
-			handled = mousePressed(e);
-			break;
-
-		case MOUSEMOVED:
-			handled = mouseMoved(e);
+			fIsDragging = true;
+			fSelectedGraphic = hovered;
+			if (fSelectedGraphic != nullptr)
+			{
+				moveToFront(fSelectedGraphic);
+				fSelectedGraphic->mouseEvent(localEvent);
+			}
 			break;
 
 		case MOUSERELEASED:
-		case MOUSEWHEEL:
-		case MOUSEHWHEEL:
-			if (fActiveGraphic != nullptr) {
-				MouseEvent activeEvent(e);
-				activeEvent.x = (e.x - fActiveGraphic->frameX());
-				activeEvent.y = (e.y - fActiveGraphic->frameY());
-				handled = fActiveGraphic->mouseEvent(activeEvent);
+			fIsDragging = false;
+			if (fSelectedGraphic != nullptr)
+			{
+				fSelectedGraphic->mouseEvent(localEvent);
 			}
 			break;
+
+		case MOUSEMOVED:
+			// If dragging, keep sending to the original 
+			// graphic, even if we're beyond its bounds
+			if (fIsDragging)
+			{
+				if (fSelectedGraphic != nullptr)
+					fSelectedGraphic->mouseEvent(localEvent);
+			}
+			else {
+				if (hovered)
+					hovered->mouseEvent(localEvent);
+			}
+			break;
+
+		default:
+			if (fSelectedGraphic != nullptr)
+				fSelectedGraphic->mouseEvent(localEvent);
+			break;
 		}
-		*/
 
 	}
 	/*

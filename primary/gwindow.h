@@ -21,7 +21,7 @@
 class GWindow : public GraphicGroup
 {
 protected:
-	BLRect fClientArea;
+	maths::bbox2f fClientArea;
 
 	// If window has a title bar
 	BLRect fTitleBar;
@@ -33,6 +33,7 @@ protected:
 	bool fIsMoveable;
 	bool fIsMoving;
 
+	// For drawing and composing
 	Pixel fBackgroundColor;
 	User32PixelMap fPixelMap;
 	Surface fSurface;
@@ -41,7 +42,7 @@ public:
 
 	GWindow(float x, float y, float w, float h)
 		: GraphicGroup(x, y, w, h)
-		,fClientArea(0, 0, w, h)
+		, fClientArea({ {0, 0}, {w, h} })
 		,fTitleBar(2, 2, w, 32)
 		,fTitleBarColor(0x7f, 0x7f, 0x7f, 200)
 		,fBackgroundColor(245, 246, 247)
@@ -93,12 +94,14 @@ public:
 		ctx.clear();
 
 		if (fBackgroundColor.value == 0) {
-			ctx.clearRect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
+			auto sz = maths::size(fClientArea);
+			ctx.clearRect(fClientArea.min.x, fClientArea.min.y, sz.x, sz.y);
 		} else {
 			// Fill in background
+			auto sz = maths::size(fClientArea);
 			ctx.noStroke();
 			ctx.fill(fBackgroundColor);
-			ctx.rect(fClientArea.x, fClientArea.y, fClientArea.w, fClientArea.h);
+			ctx.rect(fClientArea.min.x, fClientArea.min.y, sz.x, sz.y);
 		}
 
 		ctx.pop();
@@ -120,13 +123,12 @@ public:
 	{
 		fSurface.flush();
 
-		ctx.image(fSurface.getImage(), (int)fFrame.min.x, (int)fFrame.min.y);
+		ctx.image(fSurface.getImage(), (int)frameX(), (int)frameY());
 	}
 
 	void draw(IGraphics & ctx) override
 	{
 		drawBackground(fSurface);
-		drawChildren(fSurface);
 		drawSelf(fSurface);
 		drawForeground(fSurface);
 
@@ -140,8 +142,8 @@ public:
 		fTitle.append(title);
 
 		// adjust the client area accordingly
-		fClientArea.y = fTitleBar.x + fTitleBar.h;
-		fClientArea.h -= fClientArea.y;
+		//fClientArea.min.y = fTitleBar.x + fTitleBar.h;
+		//fClientArea.min.h -= fClientArea.y;
 
 		setMoveable(true);
 	}
@@ -160,17 +162,25 @@ public:
 
 	void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("GWindow.mouseEvent: %d (%d,%d)\n", e.activity, e.x, e.y);
+		//printf("GWindow.mouseEvent: %d (%3.0f,%3.0f)\n", e.activity, e.x, e.y);
+
+		// Mouse events are given in the coordinate space of the 
+// parent frame, so we want to convert to our local coordinate
+// space before doing anything else.
+// First subtract off the frame origin
+		MouseEvent lev(e);
+		lev.x = e.x - frameX();
+		lev.y = e.y - frameY();
 
 		// First check to see if we're moving our window
 		// around, from dragging in the titleBar area
-		switch (e.activity)
+		switch (lev.activity)
 		{
 		case MOUSEPRESSED:
-			if (inTitleBar(e.x, e.y) && fIsMoveable)
+			if (inTitleBar(lev.x, lev.y) && fIsMoveable)
 			{
 				fIsMoving = true;
-				fLastMouse = { e.x, e.y };
+				fLastMouse = { lev.x, lev.y };
 
 				return ;
 			}
@@ -187,13 +197,13 @@ public:
 		case MOUSEMOVED:
 			if (isMoving()) {
 				// move
-				auto dx = (e.x - fLastMouse.x);
-				auto dy = (e.y - fLastMouse.y);
+				auto dx = (lev.x - fLastMouse.x);
+				auto dy = (lev.y - fLastMouse.y);
 				//printf("GWindow.mouseEvent(moved): %3.2f %3.2f\n", dx, dy);
 
 				moveBy(dx, dy);
 
-				fLastMouse = { e.x-dx, e.y-dy };
+				fLastMouse = { lev.x-dx, lev.y-dy };
 				return ;
 			}
 			break;
@@ -203,7 +213,7 @@ public:
 		// if we are here, we're not moving around
 		// figure out if there was a graphic under the mouse
 		// and if there is, forward the event to that graphic
-		auto g = graphicAt(e.x, e.y);
+		auto g = graphicAt(lev.x, lev.y);
 
 		if (g != fActiveGraphic)
 		{
@@ -212,20 +222,10 @@ public:
 
 		if (g != nullptr)
 		{
-			setActiveGraphic(g);
+			fActiveGraphic = g;
 
-			// right here, need to adjust the event to account
-			// for the frame of the underlying graphic
-			MouseEvent newEvent(e);
-			newEvent.x = (e.x - g->frameX());
-			newEvent.y = (e.y - g->frameY());
-
-			g->mouseEvent(newEvent);
+			g->mouseEvent(lev);
 		}
-
-		// BUGBUG
-		// If there was no underlying graphic
-		// then give the window a chance to do something?
 
 	}
 

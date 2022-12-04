@@ -21,10 +21,37 @@
     <ClInclude Include="..\..\primary\tinyxml2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\elements\svgbuilder.hpp">
+    <ClInclude Include="..\..\primary\elements\textscan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\elements\textscan.h">
+    <ClInclude Include="teststates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svgpathviewer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\apphost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanosvg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\svgparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\shaper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\binops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\binstream.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\bitbang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\bstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -43,8 +43,8 @@ struct DesktopBehavior
 		// space before doing anything else.
 		// First subtract off the frame origin
 		MouseEvent localEvent(e);
-		localEvent.x = e.x - fGroup.frame().min.x;
-		localEvent.y = e.y - fGroup.frame().min.y;
+		localEvent.x = e.x - fGroup.frame().x;
+		localEvent.y = e.y - fGroup.frame().y;
 
 		//printf("DesktopBehavior::mouseEvent (%3.0f,%3.0f)\n", e.x,e.y);
 		//printf("                            (%3.0f,%3.0f)\n", localEvent.x, localEvent.y);

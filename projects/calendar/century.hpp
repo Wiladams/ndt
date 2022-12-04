@@ -8,19 +8,19 @@
 //
 // Display 100 years at a time
 //
-class Century : public Graphic
+class Century : public GraphicGroup
 {
 	//int fBaseYear=2000;
 
 public:
 	Century(int baseYear) :
-		Graphic()
+		GraphicGroup()
 	{
 		setLayout(std::make_shared < ColumnLayout>(100));
 
 		// Add decades to the graphic
 		for (int year = baseYear; year < (baseYear + 100); year += 10) {
-			addChild(std::make_shared<Decade>(year));
+			addGraphic(std::make_shared<Decade>(year));
 		}
 
 		setFrame(bounds());

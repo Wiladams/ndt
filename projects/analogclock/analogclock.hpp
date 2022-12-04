@@ -90,7 +90,7 @@ public:
 
         // delay before flight takeoff, 
         // 10 to 40 seconds
-        fFlightTime = p5::seconds() + p5::random(4, 30);
+        fFlightTime = seconds() + p5::random(4, 30);
 
         // flight duration 
         // from 10 to 40 seconds
@@ -139,9 +139,9 @@ public:
 
         // If the current time is beyond our intended time
         // then we're no longer in flight
-        if (p5::seconds() > fFlightTime) 
+        if (seconds() > fFlightTime) 
         {
-            if (p5::seconds() < (fFlightTime + fFlightDuration))
+            if (seconds() < (fFlightTime + fFlightDuration))
             {
                 fInFlight = true;
             }
@@ -363,7 +363,7 @@ public:
             }
         } else {
             // otherwise, see if it's time to fly away
-            if ((fFlightTime > 0) && (p5::seconds() > fFlightTime)) {
+            if ((fFlightTime > 0) && (seconds() > fFlightTime)) {
                 autoMove();
             }
         }

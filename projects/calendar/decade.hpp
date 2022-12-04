@@ -7,7 +7,7 @@
 //
 //	Display 10 years at a time
 //
-class Decade : public Graphic
+class Decade : public GraphicGroup
 {
 	int fBaseYear = 2022;
 
@@ -21,7 +21,7 @@ public:
 		// Add children to the graphic
 		for (int year = baseYear; year < baseYear + 10; year++)
 		{
-			addChild(std::make_shared<YearOfMonths>(year));
+			addGraphic(std::make_shared<YearOfMonths>(year));
 		}
 
 		auto & b = bounds();

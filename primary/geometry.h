@@ -2,12 +2,50 @@
 
 #include "maths.hpp"
 
+
+//=======================================
+// DECLARATION RECTANGLE
+//=======================================
+namespace maths
+{
+struct rectf
+{
+	float x;
+	float y;
+	float w;
+	float h;
+};
+
+inline void moveTo(rectf& r, float x, float y);
+inline void moveBy(rectf& r, float dx, float dy);
+
+inline vec2f center(const rectf& r);
+inline float width(const rectf& r);
+inline float height(const rectf& r);
+inline float right(const rectf& a);
+inline float bottom(const rectf& a);
+inline vec2f size(const rectf& r);
+inline bool contains(const rectf& a, const vec2f& pt);
+
+inline rectf merge(const rectf& a, const vec2f& b);
+inline rectf merge(const rectf& a, const rectf& b);
+
+inline void expand(rectf& a, const vec2f& b);
+inline void expand(rectf& a, const rectf& b);
+
+inline rectf intersection(const rectf& a, const rectf& b);
+}
+
+
+
 //=========================================
 // DECLARATION AXIS ALIGNED BOUNDING BOX
 //=========================================
 
 namespace maths
 {
+
+
 struct bbox2f 
 {
 	vec2f min = { flt_max, flt_max };
@@ -66,6 +104,59 @@ inline void expand(bbox3f& a, const bbox3f& b);
 
 }
 
+
+//=========================================
+// IMPLEMENTATION RECTANGLE
+//=========================================
+namespace maths
+{
+	inline void moveTo(rectf& r, float x, float y) { r.x = x; r.y = y; }
+	inline void moveTo(rectf& a, const vec2f& xy) { a.x = xy.x; a.y = xy.y; }
+	inline void moveBy(rectf& r, float dx, float dy) { r.x += dx; r.y += dy; }
+	inline void moveBy(rectf& a, vec2f dxy) { a.x += dxy.x; a.y += dxy.y; }
+
+	inline vec2f center(const rectf& r) { return { r.x + r.w / 2,r.y + r.h / 2 }; }
+	inline float width(const rectf& r) { return r.w; }
+	inline float height(const rectf& r) { return r.h; }
+	inline float left(const rectf& a) { return a.x; }
+	inline float top(const rectf& a) { return a.y; }
+	inline float right(const rectf& a) { return a.x + a.w; }
+	inline float bottom(const rectf& a) { return a.y + a.h; }
+	inline vec2f lefttop(const rectf& a) { return { a.x,a.y }; }
+	inline vec2f rightbottom(const rectf& a) { return { a.x + a.w,a.y + a.h }; }
+
+	inline vec2f size(const rectf& r) { return { r.w,r.h }; }
+	inline bool contains(const rectf& a, const vec2f &pt) {
+		return (pt.x >= a.x) && (pt.y >= a.y) &&
+			(pt.x < a.x + a.w) && (pt.y < a.y + a.h);
+	}
+
+	inline rectf merge(const rectf& a, const vec2f& b) {
+		return { min(a.x, b.x), min(a.y, b.y), max(a.x + a.w,b.x), max(a.y + a.h, b.y) };
+	}
+
+	inline rectf merge(const rectf& a, const rectf& b) {
+		return { min(a.x, b.x), min(a.y, b.y), max(a.x + a.w, b.x + b.w), max(a.y + a.h,b.y + b.h) };
+	}
+
+	inline void expand(rectf& a, const vec2f& b) { a = merge(a, b); }
+	inline void expand(rectf& a, const rectf& b) { a = merge(a, b); }
+
+	inline rectf intersection(const rectf& ar, const rectf& br)
+	{
+		float x = ar.x > br.x ? ar.x : br.x;
+		float y = ar.y > br.y ? ar.y : br.y;
+		float r = (right(ar) < right(br) ? right(ar) : right(br));
+		float b = (bottom(ar) < bottom(br) ? bottom(ar) : bottom(br));
+
+		float w = (r - x) > 0 ? (r - x) : 0;
+		float h = (b - y) > 0 ? (b - y) : 0;
+
+		return rectf{ x,y,w,h };
+	}
+
+
+}
 
 //=================================================
 // IMPLEMENTATION	- AXIS aligned bounding boxes

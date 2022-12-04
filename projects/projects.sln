@@ -5,7 +5,6 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B597E143-AF83-47B2-B3D3-676453D317A6}"
 	ProjectSection(SolutionItems) = preProject
-		..\primary\grmath.h = ..\primary\grmath.h
 		..\testy\test_grmath.cpp = ..\testy\test_grmath.cpp
 	EndProjectSection
 EndProject
@@ -185,6 +184,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagepuzzle", "imagepuzzle\imagepuzzle.vcxproj", "{92F9CEEA-24B4-4799-9BB6-04B2D278F88B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "desktops", "desktops\desktops.vcxproj", "{ED1222F7-5368-4EBE-8839-AF87E077137D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cjwasm", "cjwasm\cjwasm.vcxproj", "{191CAFDE-8081-479A-BE44-9296A6C89C16}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testy", "testy\testy.vcxproj", "{9050527B-0EB8-48A6-A5B1-2A7173057A7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -874,6 +877,22 @@ Global
 		{ED1222F7-5368-4EBE-8839-AF87E077137D}.Release|x64.Build.0 = Release|x64
 		{ED1222F7-5368-4EBE-8839-AF87E077137D}.Release|x86.ActiveCfg = Release|Win32
 		{ED1222F7-5368-4EBE-8839-AF87E077137D}.Release|x86.Build.0 = Release|Win32
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Debug|x64.ActiveCfg = Debug|x64
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Debug|x64.Build.0 = Debug|x64
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Debug|x86.ActiveCfg = Debug|Win32
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Debug|x86.Build.0 = Debug|Win32
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Release|x64.ActiveCfg = Release|x64
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Release|x64.Build.0 = Release|x64
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Release|x86.ActiveCfg = Release|Win32
+		{191CAFDE-8081-479A-BE44-9296A6C89C16}.Release|x86.Build.0 = Release|Win32
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Debug|x64.ActiveCfg = Debug|x64
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Debug|x64.Build.0 = Debug|x64
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Debug|x86.ActiveCfg = Debug|Win32
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Debug|x86.Build.0 = Debug|Win32
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Release|x64.ActiveCfg = Release|x64
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Release|x64.Build.0 = Release|x64
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Release|x86.ActiveCfg = Release|Win32
+		{9050527B-0EB8-48A6-A5B1-2A7173057A7F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

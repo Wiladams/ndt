@@ -9,7 +9,7 @@ struct LineEntry {
     size_t lineHeight;
 };
 
-class FontSummary : public Graphic 
+class FontSummary : public GraphicGroup 
 {
     static maths::vec2f getPrefferedSize()
     {
@@ -21,7 +21,7 @@ class FontSummary : public Graphic
 public:
 
     FontSummary(int x, int y, int w, int h, const char* family)
-        :Graphic(x,y,w,h)
+        :GraphicGroup(x,y,w,h)
     {
         //auto psize = FontSummary::getPrefferedSize();
 

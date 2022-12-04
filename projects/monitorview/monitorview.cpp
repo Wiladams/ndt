@@ -85,7 +85,7 @@ void setup()
 		float xScale = desiredWidth / sz.x;
 		float desiredHeight = sz.y * xScale;
 
-		auto snap = std::make_shared<DisplayView>(mon, maths::bbox2f{ {xoffset,yoffset},{xoffset+desiredWidth,xoffset+desiredHeight} });
+		auto snap = std::make_shared<DisplayView>(mon, maths::rectf{ xoffset,yoffset,desiredWidth,desiredHeight });
 		snap->setMouseDispatch(mover);
 
 		addGraphic(snap);

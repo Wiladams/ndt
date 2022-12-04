@@ -202,7 +202,7 @@ void setup()
     auto win = window(0, 0, 640, 480);
     win->setBackgroundColor(Pixel(0, 0, 0,10));
 
-    win->addChild(page);
+    win->addGraphic(page);
 }
 
 void draw()

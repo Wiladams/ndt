@@ -17,7 +17,9 @@ class GPath : public BLPath
 public:
 	bool contains(float x, float y)
 	{
-		return hitTest({ x,y }, BL_FILL_RULE_NON_ZERO) != 0;
+		auto result = hitTest({ x,y }, BL_FILL_RULE_EVEN_ODD) == BL_HIT_TEST_IN;
+
+		return result;
 	}
 
 	// In this case, all parameters are relative to the last

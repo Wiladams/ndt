@@ -3,7 +3,7 @@
 #include "MonthTile.hpp"
 #include <memory>
 
-class YearOfMonths : public Graphic
+class YearOfMonths : public GraphicGroup
 {
 	static const int numColumns = 3;
 	static const int numRows = 4;
@@ -24,7 +24,7 @@ public:
 		// Setup 12 monthly tiles for this calendar
 		for (int month = 1; month <= 12; month++) {
 			auto mon = std::make_shared<CalendarMonthTile>(2022, month, xoffset, yoffset);
-			addChild(mon);
+			addGraphic(mon);
 
 			if (month % 3 > 0) {
 				// continue advancing

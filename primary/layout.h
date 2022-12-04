@@ -54,62 +54,57 @@ struct ILayoutGraphics
 	// Given two frames, a primary, and a secondary, return 
 	// a bbox that could be used to adjust the secondary frame
 	// to achieve the desired alignment
-	static maths::bbox2f alignFrame(const maths::bbox2f& pFrame, const maths::bbox2f& sFrame, 
+	static maths::rectf alignFrame(const maths::rectf& pFrame, const maths::rectf& sFrame, 
 		LayoutAlignment halign = LayoutAlignment::NEAREST,
 		LayoutAlignment valign = LayoutAlignment::NEAREST)
 	{
-		maths::bbox2f aframe = sFrame;
+		maths::rectf aframe = sFrame;
 		maths::vec2f dxy{};
 
 		switch (halign) {
 			case LayoutAlignment::CENTER: {
 				dxy = maths::center(pFrame) - maths::center(sFrame);
-				aframe.min.x += dxy.x;
-				aframe.max.x += dxy.x;
+				maths::moveBy(aframe, dxy.x, 0);
 			}
 			break;
 
 			case LayoutAlignment::NEAREST: {
-				// BUGBUG - should clamp vertical
-				dxy = pFrame.min - sFrame.min;
-				aframe.min.x += dxy.x;
-				aframe.max.x += dxy.x;
+				float dx = maths::left(pFrame) - maths::left(sFrame);
+				aframe.x += dx;
 			}
 			break;
 
 			case LayoutAlignment::FARTHEST: {
-				dxy = pFrame.max - sFrame.max;
-				aframe.min.x += dxy.x;
-				aframe.max.x += dxy.x;
+				float dx = maths::right(pFrame) - maths::right(sFrame);
+				aframe.x += dx;
 			}
 			break;
 
-
+			default:	// do nothing
+				;
 		};
 
 		switch(valign){
 			case LayoutAlignment::CENTER: {
 				dxy = maths::center(pFrame) - maths::center(sFrame);
-				aframe.min.y += dxy.y;
-				aframe.max.y += dxy.y;
+				maths::moveBy(aframe, 0, dxy.y);
 			}
 			break;
 
 			case LayoutAlignment::NEAREST: {
-				// BUGBUG - should clamp to pFrame minimum?
-				dxy = pFrame.min - sFrame.min;
-				aframe.min.y += dxy.y;
-				aframe.max.y += dxy.y;
+				float dy = maths::top(pFrame) - maths::top(sFrame);
+				aframe.y += dy;
 			}
 			break;
 
 			case LayoutAlignment::FARTHEST: {
-				// BUGBUG - should clamp pFrame maximum?
-				dxy = pFrame.max - sFrame.max;
-				aframe.min.y += dxy.y;
-				aframe.max.y += dxy.y;
+				float dy = maths::bottom(pFrame) - maths::bottom(sFrame);
+				aframe.y += dy;
 			}
 			break;
+
+			default:	// do nothing
+				;
 		}
 
 		return aframe;
@@ -118,7 +113,7 @@ struct ILayoutGraphics
 
 	virtual ~ILayoutGraphics() {}
 
-	virtual maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> >& gs) = 0;
+	virtual maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> >& gs) = 0;
 
 };
 
@@ -130,9 +125,9 @@ struct IdentityLayout : public ILayoutGraphics
 {
 	virtual ~IdentityLayout() {};
 
-	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
+	maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
-		maths::bbox2f bounds;
+		maths::rectf bounds;
 
 		// traverse the graphics
 		// expand bounding box to include their frames, without alternation
@@ -145,7 +140,7 @@ struct IdentityLayout : public ILayoutGraphics
 		return bounds;
 	}
 
-	maths::bbox2f operator()(std::deque<std::shared_ptr<GraphicElement> >& gs)
+	maths::rectf operator()(std::deque<std::shared_ptr<GraphicElement> >& gs)
 	{
 		return layout(gs);
 	}
@@ -170,9 +165,9 @@ public:
 
 	virtual ~BinaryLayout() { ; }
 
-	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
+	maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
-		maths::bbox2f bds{};
+		maths::rectf bds{};
 
 		// There must be at least two graphics in the vector
 		// only the first two will be part of the layout
@@ -180,9 +175,9 @@ public:
 			return bds;
 
 		auto & primary = gs[0];
-		maths::bbox2f pFrame = primary->frame();
+		maths::rectf pFrame = primary->frame();
 		auto & secondary = gs[1];
-		maths::bbox2f sFrame = secondary->frame();
+		maths::rectf sFrame = secondary->frame();
 
 		switch (fAlign) {
 		case LayoutPlacement::CENTER: {
@@ -192,8 +187,7 @@ public:
 
 			auto dxy = sCenter - pCenter;
 
-			sFrame.min += dxy;
-			sFrame.max += dxy;
+			maths::moveBy(sFrame, dxy);
 		}
 			break;
 
@@ -210,7 +204,7 @@ public:
 			break;
 		}
 
-		secondary->moveTo(sFrame.min.x, sFrame.min.y);
+		secondary->moveTo(sFrame.x, sFrame.y);
 
 		return bds;
 	}
@@ -249,7 +243,7 @@ public:
 		wY = topMargin;
 	}
 
-	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::rectf&b)
 	{
 		// Move the graphic to the next position
 		gr->moveTo(wX, wY);
@@ -268,10 +262,10 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
+	maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
-		maths::bbox2f b{};
+		maths::rectf b{};
 
 		for (auto & g : gs)	// std::shared_ptr<IGraphic> g
 		{
@@ -334,7 +328,7 @@ public:
 		maxY = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::rectf&b)
 	{
 		// Move the graphic to the current specified location
 		gr->moveTo(xOffset, yOffset);
@@ -360,10 +354,10 @@ public:
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
+	maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
-		maths::bbox2f b{};
+		maths::rectf b{};
 
 		for (auto & g : gs)
 		{
@@ -400,30 +394,30 @@ public:
 		yOffset = 0;
 	}
 
-	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::bbox2f &b)
+	virtual void addGraphic(std::shared_ptr<GraphicElement> gr, maths::rectf&b)
 	{
 		// calculate box based on hextent, graphic size, and current position
-		maths::bbox2f box = { {xOffset,yOffset},{xOffset + fHExtent,gr->frameHeight()} };
-		maths::bbox2f aframe = ILayoutGraphics::alignFrame(box, gr->frame(), 
+		maths::rectf box = { xOffset,yOffset,fHExtent,gr->frameHeight()};
+		maths::rectf aframe = ILayoutGraphics::alignFrame(box, gr->frame(),
 			fHAlign, ILayoutGraphics::LayoutAlignment::NEAREST);
 
 		// Move to next location
-		gr->moveTo(aframe.min);
+		gr->moveTo(aframe.x,aframe.y);
 		//gr->moveTo(xOffset, yOffset);
 
 		// expand the bounds to include the new frame
 		maths::expand(b, gr->frame());
 
 		// calculate where next position should be
-		yOffset = gr->frame().max.y + fGap;
+		yOffset = maths::right(gr->frame()) + fGap;
 	}
 
 	// Perform layout starting from scratch
-	maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
+	maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> > &gs) override
 	{
 		reset();
 
-		maths::bbox2f b{};
+		maths::rectf b{};
 
 		for (auto & g : gs)
 		{

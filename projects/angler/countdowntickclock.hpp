@@ -95,7 +95,7 @@ struct ProgressiveTickMark : public IDrawable
     }
 };
 
-struct CountdownTickClock : public Graphic
+struct CountdownTickClock : public GraphicElement
 {
     static void getPreferredSize(int& x, int& y) { x = 300; y = 300; }
 
@@ -113,7 +113,7 @@ struct CountdownTickClock : public Graphic
     StopWatch fClock;
 
     CountdownTickClock(double dur)
-        : Graphic(0, 0, 300, 300)
+        : GraphicElement(0, 0, 300, 300)
     {
         fDuration = dur;
 

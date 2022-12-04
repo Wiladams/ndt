@@ -17,7 +17,7 @@ struct VerticalGridLayout : public ILayoutGraphics
 		fBoundaryWidth = sz.x;
 	}
 
-	virtual maths::bbox2f layout(std::deque<std::shared_ptr<IGraphic> >& gs)
+	virtual maths::bbox2f layout(std::deque<std::shared_ptr<GraphicElement> >& gs)
 	{
 		float xoffset = columnGap;
 		float yoffset = columnGap;
@@ -45,10 +45,10 @@ struct VerticalGridLayout : public ILayoutGraphics
 };
 
 // We'll publish face names
-struct FontIconPage : public Graphic, public Topic<std::string &>
+struct FontIconPage : public GraphicGroup, public Topic<std::string &>
 {
 	FontIconPage(float x, float y, float w, float h)
-		:Graphic(x,y,w,h)
+		:GraphicGroup(x,y,w,h)
 	{
 		auto layout = std::make_shared<VerticalGridLayout>(frame());
 		setLayout(layout);
@@ -62,7 +62,7 @@ struct FontIconPage : public Graphic, public Topic<std::string &>
 			auto icon = std::make_shared<FontFaceIcon>(name.c_str());
 			icon->subscribe(*this);
 
-			addChild(icon);
+			addGraphic(icon);
 		}
 	}
 

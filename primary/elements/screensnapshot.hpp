@@ -43,10 +43,10 @@ public:
     {
     }
 
-    void reset(maths::bbox2f box, HDC srcDC = nullptr)
+    void reset(maths::rectf box, HDC srcDC = nullptr)
     {
         auto bsz = maths::size(box);
-        reset((int)box.min.x, (int)box.min.y, (int)bsz.x, (int)bsz.y);
+        reset((int)box.x, (int)box.y, (int)maths::width(box), (int)maths::height(box));
     }
 
     void reset(int x, int y, int w, int h, HDC srcDC=nullptr)

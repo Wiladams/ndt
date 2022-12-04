@@ -43,8 +43,8 @@ protected:
 	bool fIsMoveable=false;
 
 	maths::vec2f fTranslation{};
-	maths::bbox2f fBounds{};
-	maths::bbox2f fFrame{};
+	maths::rectf fBounds{};
+	maths::rectf fFrame{};
 	
 	std::string fName{};
 
@@ -57,21 +57,20 @@ public:
 	{
 	}
 
-	GraphicElement(const maths::bbox2f& f)
+	GraphicElement(const maths::rectf& f)
 		:fFrame(f)
 	{
-		auto sz = maths::size(f);
-		fBounds = { {0,0},{sz.x,sz.y} };
+		fBounds = { 0,0,f.w, f.h };
 	}
 
 	GraphicElement(float x, float y, float w, float h)
-		:GraphicElement(maths::bbox2f{ {x,y},{x + w,y + h} })
+		:GraphicElement(maths::rectf{ x,y,w,h} )
 	{}
 
 	virtual ~GraphicElement() {}
 
 	const std::string& name() const { return fName; }
-	void setName(const std::string name) { fName = name; }
+	void setName(const std::string &name) { fName = name; }
 
 	const bool isMoveable() const { return fIsMoveable; }
 	void setMoveable(bool canMove) { fIsMoveable = canMove; }
@@ -86,38 +85,33 @@ public:
 
 	virtual bool contains(float x, float y)
 	{
-		bool res = (x >= frame().min.x) && (y >= frame().min.y) &&
-			(x < frame().max.x) && (y < frame().max.y);
-
-		return res;
+		return maths::contains(frame(), maths::vec2f{ x,y });
 	}
 
 	// Dealing with our internal boundary
-	void setBounds(const maths::bbox2f& b) { fBounds = b; }
-	const maths::bbox2f& bounds() const { return fBounds; }
-	float boundsX() const { return bounds().min.x; }
-	float boundsY() const { return bounds().min.y; }
-	float boundsWidth() const { return bounds().max.x - bounds().min.x; }
-	float boundsHeight() const { return bounds().max.y - bounds().min.y; }
+	void setBounds(const maths::rectf& b) { fBounds = b; }
+	const maths::rectf& bounds() const { return fBounds; }
+	float boundsX() const { return bounds().x; }
+	float boundsY() const { return bounds().y; }
+	float boundsWidth() const { return bounds().w; }
+	float boundsHeight() const { return bounds().h; }
 
 	// Dealing with our external frame
-	void setFrame(const maths::bbox2f& frame) { fFrame = frame; }
-	const maths::bbox2f& frame() const { return fFrame; }
-	float frameX() const { return fFrame.min.x; }
-	float frameY() const { return fFrame.min.y; }
-	float frameWidth() const { return fFrame.max.x - fFrame.min.x; }
-	float frameHeight() const { return fFrame.max.y - fFrame.min.y; }
+	void setFrame(const maths::rectf& frame) { fFrame = frame; }
+	const maths::rectf& frame() const { return fFrame; }
+	float frameX() const { return fFrame.x; }
+	float frameY() const { return fFrame.y; }
+	float frameWidth() const { return fFrame.w; }
+	float frameHeight() const { return fFrame.h; }
 
 
 	// Moves the frame
 	virtual void moveTo(const maths::vec2f& xy)
 	{
-		auto dxy = xy - frame().min;
-		fFrame.min += dxy;
-		fFrame.max += dxy;
+		maths::moveTo(fFrame, xy.x, xy.y);
 	}
 	void moveTo(const float nx, const float ny) { moveTo({ nx,ny }); }
-	void moveBy(const maths::vec2f& dxy) { moveTo(frame().min + dxy); }
+	void moveBy(const maths::vec2f& dxy) { moveTo(frame().x + dxy.x, frame().y+dxy.y); }
 	void moveBy(const float dx, const float dy) { return moveBy({ dx,dy }); }
 
 	// Changes the coordinate system of the bounds

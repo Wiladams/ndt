@@ -15,7 +15,17 @@ struct GraphicGroup : public GraphicElement
 	std::shared_ptr<GraphicElement> fActiveGraphic{};
 	std::deque<std::shared_ptr<GraphicElement> > fChildren{};
 
-	GraphicGroup(const maths::bbox2f& aframe)
+	GraphicGroup()
+		:GraphicElement()
+	{;}
+	
+	GraphicGroup(float x, float y, float w, float h)
+		:GraphicElement(x,y,w,h)
+	{
+		;
+	}
+
+	GraphicGroup(const maths::rectf& aframe)
 		:GraphicElement(aframe)
 	{}
 
@@ -55,7 +65,7 @@ struct GraphicGroup : public GraphicElement
 		return nullptr;
 	}
 
-	maths::bbox2f culateExtent()
+	maths::rectf calculateExtent()
 	{
 		fFrame = {};
 		for (auto& child : fChildren)
@@ -91,6 +101,7 @@ struct GraphicGroup : public GraphicElement
 
 	virtual void drawSelf(IGraphics& ctx)
 	{
+		// draw the child graphics
 		for (auto& g : fChildren)
 		{
 			// BUGBUG - really there shouldn't be any nullptr graphics
@@ -100,30 +111,7 @@ struct GraphicGroup : public GraphicElement
 			g->draw(ctx);
 		}
 	}
-	/*
-	void draw(IGraphics& ctx) override
-	{
-		// Start by saving the context state
-		// so we're free to mess around with it
-		// while we're drawing ourself.
-		ctx.push();
 
-		// Before we do anything else, and while we're still
-		// in the coordinate system of our parent, we want to setup 
-		// a clip for our frame.
-		// Once the clip is set, we want to transform our
-		// coordinate sytem to have 0,0 be at the upper left corner.
-		//ctx.clip(frame());
-
-		// Apply user specified transform
-
-		drawChildren(ctx);
-
-		//ctx.noClip();
-		ctx.pop();
-
-	}
-	*/
 };
 
 

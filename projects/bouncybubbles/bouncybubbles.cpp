@@ -5,7 +5,7 @@
 
 using namespace p5;
 
-constexpr int numBalls = 133;
+constexpr int numBalls = 1024;
 float spring = 0.03f;        //0.05
 float gravity = 2.03f;       // 0.03
 float friction = -0.9f;      // -0.9
@@ -28,8 +28,6 @@ struct Ball {
     
     Pixel fColor;
 
-    
-    
     Ball() = default;
 
     // Construct a ball with northing more

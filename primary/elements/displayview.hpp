@@ -9,12 +9,12 @@ struct DisplayView : public GraphicElement
 	DisplayMonitor& fMonitor;
 	ScreenSnapper fSnapper;
 
-	DisplayView(DisplayMonitor& mon, const maths::bbox2f& aframe)
+	DisplayView(DisplayMonitor& mon, const maths::rectf& aframe)
 		:GraphicElement(aframe)
 		, fMonitor{ mon }
 	{
 		fSnapper.reset(mon.frame(), mon.getDC());
-		setBounds(maths::bbox2f{ {0,0},{frameWidth(),frameHeight()} });
+		setBounds(maths::rectf{ 0,0,frameWidth(),frameHeight() });
 	}
 
 	void draw(IGraphics& ctx) override

@@ -66,6 +66,7 @@
 #include "blend2d.h"
 #include "bitbang.h"
 #include "filestream.h"
+#include "bstream.h"
 
 #include <memory>
 
@@ -568,7 +569,7 @@ namespace targa {
 
     static bool readFromFile(const char* filename, BLImage& img)
     {
-        auto bs = FileStream(filename);
+        auto bs = ndt::FileStream(filename);
 
         if (!bs.isValid()) {
             printf("Could not map file: %s\n", filename);

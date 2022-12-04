@@ -20,7 +20,7 @@ StopWatch wallclock{};
 
 int winSizeX = 0;
 int winSizeY = 0;
-int frameCount = 0;
+int fCount = 0;
 
 
 
@@ -62,7 +62,7 @@ void drawGL2() {
 
 void onLoop()
 {
-	frameCount++;
+	fCount++;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawGL2();

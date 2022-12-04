@@ -7,7 +7,7 @@ BLImage img{};
 
 void setup()
 {
-	FileStream bs("shuttle.tga");
+	ndt::FileStream bs("shuttle.tga");
 
 	targa::TargaMeta meta{};
 
@@ -28,7 +28,7 @@ void setup()
 	}
 
 	createCanvas(meta.header.Width, meta.header.Height);
-	//layered();
+
 }
 
 void draw()

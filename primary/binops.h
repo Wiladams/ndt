@@ -118,8 +118,8 @@ namespace ndt {
     static INLINE uint64_t lshift64(uint64_t a, unsigned int nbits) { return a << nbits; }
     static INLINE uint64_t rshift64(uint64_t a, unsigned int nbits) { return a >> nbits; }
     static INLINE int64_t arshift16(int64_t a, unsigned int nbits) { return a >> nbits; }
-    static INLINE uint64_t rol32(uint64_t a, unsigned int n) { return ((a << n) | (a >> (64 - n))); }
-    static INLINE uint64_t ror32(uint64_t a, unsigned int n) { return ((a << (64 - n)) | (a >> n)); }
+    static INLINE uint64_t rol64(uint64_t a, unsigned int n) { return ((a << n) | (a >> (64 - n))); }
+    static INLINE uint64_t ror64(uint64_t a, unsigned int n) { return ((a << (64 - n)) | (a >> n)); }
     //static INLINE uint64_t bswap64(uint64_t a) {return _byteswap_uint64(a);}
     static INLINE uint64_t bswap64(uint64_t v) {
         return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) |

@@ -160,6 +160,7 @@
     <ClInclude Include="blend2d.h" />
     <ClInclude Include="blend2d\context.h" />
     <ClInclude Include="BLGraphics.h" />
+    <ClInclude Include="bstream.h" />
     <ClInclude Include="canvas.h" />
     <ClInclude Include="codec_targa.hpp" />
     <ClInclude Include="coloring.h" />
