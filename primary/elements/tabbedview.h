@@ -33,28 +33,28 @@ public:
 		fTabTitle(title),
 		fBackgroundColor(bColor)
 	{
-		maths::bbox2f b = bounds();
+		auto b = bounds();
 		maths::vec2f bsz = maths::size(b);
 
 		// Create the tab that sits on top
-		fTabPath.moveTo(b.min.x + fTabParam.x, b.min.y + fTabParam.h);
+		fTabPath.moveTo(b.x + fTabParam.x, b.y + fTabParam.h);
 		fTabPath.cubicBy(fTabParam.rx, 0, 0, -fTabParam.h, fTabParam.rx, 0);
 		fTabPath.lineBy(fTabParam.w, 0);
 		fTabPath.cubicBy(fTabParam.rx, 0, 0, fTabParam.h, fTabParam.rx, 0);
 		fTabPath.close();
-		fTabContentArea = { b.min.x + fTabParam.x + fTabParam.rx * 2, b.min.y + 2, fTabParam.w, fTabParam.h - 4};
+		fTabContentArea = { b.x + fTabParam.x + fTabParam.rx * 2, b.y + 2, fTabParam.w, fTabParam.h - 4};
 		
 		// Create the path including the tab
-		fWholePath.moveTo(b.min.x, b.min.y + fTabParam.h);
+		fWholePath.moveTo(b.x, b.y + fTabParam.h);
 		fWholePath.lineBy(fTabParam.x, 0);
 		fWholePath.cubicBy(fTabParam.rx, 0, 0, -fTabParam.h, fTabParam.rx, 0);
 		fWholePath.lineBy(fTabParam.w, 0);
 		fWholePath.cubicBy(fTabParam.rx, 0,  0, fTabParam.h, fTabParam.rx, 0);
-		fWholePath.lineTo(b.max.x, fTabParam.h);
-		fWholePath.lineTo(b.max.x, fTabParam.h + bsz.y - fTabParam.h);
-		fWholePath.lineTo(b.min.x, fTabParam.h + bsz.y - fTabParam.h);
+		fWholePath.lineTo(right(b), fTabParam.h);
+		fWholePath.lineTo(right(b), fTabParam.h + bsz.y - fTabParam.h);
+		fWholePath.lineTo(b.x, fTabParam.h + bsz.y - fTabParam.h);
 		fWholePath.close();
-		fContentArea = { b.min.x + ContentMargin, b.min.y + fTabParam.h + ContentMargin, bsz.x - ContentMargin * 2, bsz.y - fTabParam.h - ContentMargin * 2};
+		fContentArea = { b.x + ContentMargin, b.y + fTabParam.h + ContentMargin, bsz.x - ContentMargin * 2, bsz.y - fTabParam.h - ContentMargin * 2};
 	}
 
 	virtual bool contains(float x, float y) override

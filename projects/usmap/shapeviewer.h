@@ -37,7 +37,7 @@ struct ShapeViewer : public GraphicElement
 
     void mouseEvent(const MouseEvent& e) override
     {
-        printf("SVGPathViewer::mouseEvent: %3.0f, %3.0f  [%s]\n", e.x, e.y, name().c_str());
+        //printf("ShapeViewer::mouseEvent: %3.0f, %3.0f  [%s]\n", e.x, e.y, name().c_str());
     }
 
     void draw(IGraphics& ctx) override

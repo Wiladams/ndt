@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\primary\elements\tabbedview.h" />
     <ClInclude Include="..\..\primary\gpath.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
+    <ClInclude Include="..\..\primary\layout.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\pixelaccessor.h" />
     <ClInclude Include="..\..\primary\windowmgr.h" />

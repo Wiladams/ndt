@@ -148,6 +148,7 @@
     <ClCompile Include="usmap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\desktopmanager.h" />
     <ClInclude Include="..\..\primary\studio.hpp" />
     <ClInclude Include="..\..\primary\Surface.h" />
     <ClInclude Include="shapeviewer.h" />
