@@ -7,10 +7,13 @@
 using std::shared_ptr;
 using std::unique_ptr;
 
+typedef void (*DRAWROUTINE)(IGraphics& ctx);
+
 static unique_ptr<Surface> gAppSurface{};
 static shared_ptr<GraphicGroup> gGroup{};
 static unique_ptr<DesktopBehavior> gDesktopBehavior{};
 static std::function<void(IGraphics& ctx) > gDesktopDrawer{};
+static DRAWROUTINE gdrawForeground{};
 static std::function<void(IGraphics& ctx, std::shared_ptr<GraphicGroup> gs) > gWindowDrawer{};
 
 static VOIDROUTINE gSetupHandler = nullptr;
@@ -78,6 +81,12 @@ static void frameTick(const FrameCountEvent& fce)
 
 	drawChildren();
 
+	if (gdrawForeground != nullptr)
+	{
+		gdrawForeground(*gAppSurface);
+		gAppSurface->flush();
+	}
+
 	// ensure drawing gets to the actual screen
 	screenRefresh();
 }
@@ -94,7 +103,7 @@ void setupDynamicRoutines()
 	HMODULE hInst = ::GetModuleHandleA(NULL);
 
 	gSetupHandler = (VOIDROUTINE)GetProcAddress(hInst, "setup");
-	
+	gdrawForeground = (DRAWROUTINE)GetProcAddress(hInst, "drawForeground");
 }
 
 void setupSubscriptions()

@@ -209,9 +209,9 @@ void testStates()
 void testParse()
 {
     string c1{ "M 10 10" };
-    std::vector<PathSegment> commands{};
+    std::vector<PathSegment> segments{};
 
-    tokenizePathSegment(c1, commands);
+    tokenizePath(c1, segments);
 }
 
 void setup()

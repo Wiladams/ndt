@@ -8,7 +8,7 @@
 extern "C" {
 #endif
     APP_EXPORT void setup();
-
+    APP_EXPORT void drawForeground(IGraphics &ctx);
 #ifdef __cplusplus
 }
 #endif

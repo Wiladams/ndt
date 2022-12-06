@@ -8,6 +8,12 @@ using namespace svg;
 using namespace ndt;
 using std::string;
 
+
+//static Pixel randomColor(int alpha)
+//{
+//    return Pixel(random(0, 255), random(0, 255), random(0, 255), alpha);
+//}
+
 struct InfoGraphic : public GraphicElement
 {
     bool fIsVisible{ false };
@@ -29,16 +35,23 @@ struct InfoGraphic : public GraphicElement
 
         ctx.push();
 
+        // Draw a framing rectangle
         ctx.stroke(0);
         ctx.fill(225, 225, 255, 127);
-        ctx.rect(boundsX(), boundsY(), boundsWidth(), boundsHeight());
+        ctx.rect(boundsX(), boundsY(), boundsWidth(), boundsHeight(),6,6);
+        
+        // Draw a dividing line
+        ctx.strokeWeight(4);
+        ctx.stroke(0x66);
+        ctx.line(left(bounds()) + 10, 26, right(bounds()) - 10, 26);
 
+        // Draw the text and other interesting information
         ctx.noStroke();
         ctx.fill(0);
         ctx.textFont("Consolas");
         ctx.textSize(24);
-        ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::CENTER);
-        ctx.text(fInfo.c_str(), boundsWidth() / 2, boundsHeight() / 2);
+        ctx.textAlign(ALIGNMENT::CENTER, ALIGNMENT::BASELINE);
+        ctx.text(fInfo.c_str(), boundsWidth() / 2, 24);
         ctx.pop();
     }
 };
@@ -113,6 +126,12 @@ void createStates()
 
 std::shared_ptr<InfoGraphic> gInfoGraphic{};
 
+void drawForeground(IGraphics& ctx)
+{
+    if (gInfoGraphic != nullptr)
+        gInfoGraphic->draw(ctx);
+}
+
 //
 // mouseEvent
 // Use this function to subscribe to app level mouse events.
@@ -142,5 +161,5 @@ void setup()
     createStates();
 
     gInfoGraphic = std::make_shared<InfoGraphic>(maths::rectf{ 0,0,200,200 });
-    addGraphic(gInfoGraphic);
+    //addGraphic(gInfoGraphic);
 }

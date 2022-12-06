@@ -38,5 +38,11 @@
     <ClInclude Include="..\..\primary\elements\slider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\coloring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\sampler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

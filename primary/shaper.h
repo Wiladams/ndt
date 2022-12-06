@@ -56,6 +56,7 @@ namespace ndt
         std::vector<float> fNumbers{};
 
         PathSegment() { ; }
+        PathSegment(SegmentKind aKind) :fCommand(aKind) { ; }
         PathSegment(const PathSegment& other)
             :fCommand(other.fCommand)
             , fNumbers(other.fNumbers)
@@ -63,7 +64,7 @@ namespace ndt
     };
 
     //
-    // tokenizePathSegment
+    // tokenizePath
     // Given a string, representing a series of path segments, turn the string
     // into a vector of those path segments.
     // 
@@ -72,7 +73,7 @@ namespace ndt
     // 
     // The syntax of the commands is that of the SVG path object 'd' attribute
     //
-    static void tokenizePathSegment(std::string_view subject, std::vector<PathSegment>& commands)
+    static void tokenizePath(std::string_view subject, std::vector<PathSegment>& commands)
     {
         ndt::charset whitespaceChars(",\t\n\f\r ");
         ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");
@@ -102,7 +103,7 @@ namespace ndt
                 switch (c) {
                 default:
                     //printf("CMD: %c\n", c);
-                    ndt::PathSegment cmd;
+                    ndt::PathSegment cmd{};
                     cmd.fCommand = ndt::SegmentKind(c);
                     commands.push_back(cmd);
                 }
