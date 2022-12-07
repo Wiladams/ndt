@@ -40,6 +40,7 @@ struct GraphicGroup : public GraphicElement
 			auto b = fLayout->layout(fChildren);
 			setBounds(b);
 		}
+
 	}
 
 	// Find the topmost window at a given position
@@ -67,13 +68,14 @@ struct GraphicGroup : public GraphicElement
 
 	maths::rectf calculateExtent()
 	{
-		fFrame = {};
+		maths::rectf ext{};
+
 		for (auto& child : fChildren)
 		{
-			maths::expand(fFrame, child->frame());
+			maths::expand(ext, child->frame());
 		}
 
-		return fFrame;
+		return ext;
 	}
 
 	// Add a child to our set of children

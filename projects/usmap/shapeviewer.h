@@ -6,21 +6,14 @@
 struct ShapeViewer : public GraphicElement
 {
     BLPath fPath{};
+    BLVar fStyle;
 
-    ShapeViewer(const std::string& subject, const char* nm)
+    ShapeViewer(const char * subject, size_t subjectLength, const char* nm)
         :GraphicElement({ 0,0,1920,1080 })
     {
         setName(nm);
-
-        svg::blPathFromCommands(subject, fPath);
-    }
-
-    ShapeViewer(const std::string& subject, std::string& name)
-        : GraphicElement({ 0,0,1920,1080 })
-    {
-        setName(name);
-
-        svg::blPathFromCommands(subject, fPath);
+        blVarAssignRgba32(&fStyle, BLRgba32(127, 127, 127, 255).value);
+        svg::blPathFromCommands(subject, subjectLength, fPath);
     }
 
     // x,y are given in the coordinate space
@@ -40,13 +33,19 @@ struct ShapeViewer : public GraphicElement
         //printf("ShapeViewer::mouseEvent: %3.0f, %3.0f  [%s]\n", e.x, e.y, name().c_str());
     }
 
+    void setStyle(const BLVar& s)
+    {
+        fStyle.assign(s);
+    }
+
     void draw(IGraphics& ctx) override
     {
         ctx.push();
 
         ctx.stroke(0);
-        ctx.fill(127);
+        //ctx.fill(127);
         //ctx.noFill();
+        ctx.fill(fStyle);
         ctx.path(fPath);
 
         ctx.pop();

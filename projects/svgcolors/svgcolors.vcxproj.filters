@@ -44,5 +44,8 @@
     <ClInclude Include="..\..\primary\sampler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="svgcolorpage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

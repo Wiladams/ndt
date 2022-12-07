@@ -9,7 +9,7 @@ struct SVGPathViewer : public GraphicElement
 {
     BLPath fPath{};
 
-
+    /*
     SVGPathViewer(const std::string& subject, const char* nm)
         :GraphicElement({ 0,0,1920,1080 })
     {
@@ -17,14 +17,14 @@ struct SVGPathViewer : public GraphicElement
 
         svg::blPathFromCommands(subject, fPath);
     }
+    */
 
-
-    SVGPathViewer(const std::string& subject, std::string &name)
+    SVGPathViewer(const char * subject, size_t subjectLength, const char * name)
         : GraphicElement({ 0,0,1920,1080 })
     {
         setName(name);
 
-        svg::blPathFromCommands(subject, fPath);
+        svg::blPathFromCommands(subject, subjectLength, fPath);
     }
 
     // x,y are given in the coordinate space

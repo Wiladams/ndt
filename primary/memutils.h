@@ -34,7 +34,8 @@ namespace ndt
 	// Used to rapidly copy 32 bit values 
 	static void memset_l(void* adr, int32_t val, size_t count) 
 	{
-		int32_t i, n, v;
+		int32_t v;
+		size_t i, n;
 		uint32_t* p;
 		p = static_cast<uint32_t *>(adr);
 		v = val;

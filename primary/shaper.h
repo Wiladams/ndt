@@ -73,7 +73,7 @@ namespace ndt
     // 
     // The syntax of the commands is that of the SVG path object 'd' attribute
     //
-    static void tokenizePath(std::string_view subject, std::vector<PathSegment>& commands)
+    static void tokenizePath(const char * subject, size_t subjectLength, std::vector<PathSegment>& commands)
     {
         ndt::charset whitespaceChars(",\t\n\f\r ");
         ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");
@@ -81,7 +81,7 @@ namespace ndt
 
         // use binstream do do the parsing
         //BinStream bs(subject.data(), subject.size(), 0);
-        DataCursor dc = ndt::make_cursor_size(subject.data(), subject.size());
+        DataCursor dc = ndt::make_cursor_size(subject, subjectLength);
 
         // create a little buffer to be used for numbers
         int numoffset = 0;

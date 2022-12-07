@@ -227,6 +227,11 @@ Examples
 * Project: [touchy](projects/touchy)
 * Notes: demonstrate using multi-point touch interface
 
+### usmap
+<img src="docs/images/usmap.png" alt="usmap" width=240/></br>
+* Project: [usmap](projects/usmap)
+* Notes: SVG path, interactive graphics, hovering
+
 ### WaltzOfTheCircles
 <img src="docs/images/WaltzOfTheCircles.png" alt="WaltzOfTheCircles" width=240/></br>
 * Project: [WaltzOfTheCircles](projects/WaltzOfTheCircles)
