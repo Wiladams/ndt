@@ -76,7 +76,7 @@ namespace ndt
 
             return true;
         }
-
+		DataChunk getChunk() { return make_chunk_size(fData, fSize); }
         DataCursor createCursor() 
         {
             return make_cursor_size(data(), size());

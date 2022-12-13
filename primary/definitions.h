@@ -14,10 +14,21 @@
 #include <cstdint>		// uint8_t, etc
 #include <cstddef>		// nullptr_t, ptrdiff_t, size_t
 
-#if defined(_WIN32) || defined(_WIN64)
-#define NDT_IS_WINDOWS
-#define EXPORT		__declspec(dllexport)
+
+#ifdef WHISPER_SHARED
+#    ifdef _WIN32
+#        ifdef APP_BUILD
+#            define APP_API __declspec(dllexport)
+#        else
+#            define APP_API __declspec(dllimport)
+#        endif
+#    else
+#        define APP_API __attribute__ ((visibility ("default")))
+#    endif
+#else
+#    define APP_API
 #endif
+
 
 #if defined(_MSC_VER)
 #define NDT_IS_MSVC

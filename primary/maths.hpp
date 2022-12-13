@@ -32,7 +32,7 @@
 */
 
 
-#include <stdint.h>
+#include <cstdint>
 #include <stdlib.h>
 #include <cmath>
 #include <limits>
@@ -44,7 +44,7 @@
 // CONSTANT Declarations
 //=================================
 namespace {
-    using byte = uint8_t;
+    //using byte = uint8_t;
 
     using uchar = unsigned char;
     using uint = unsigned int;
@@ -183,17 +183,15 @@ namespace maths {
                 float w;
             };
             struct {    // different from vec4b
-                float r;
-                float g;
                 float b;
+                float g;
+                float r;
                 float a;
             };
+
         };
 
-        //float x = 0;
-        //float y = 0;
-        //float z = 0;
-        //float w = 0;
+
 
         inline float& operator[](int i);
         inline const float& operator[](int i) const;
@@ -497,9 +495,9 @@ namespace maths
                 uint8_t w;
             };
             struct {
-                uint8_t r;
-                uint8_t g;
                 uint8_t b;
+                uint8_t g;
+                uint8_t r;
                 uint8_t a;
             };
             uint32_t value=0;
@@ -511,6 +509,7 @@ namespace maths
     };
 
     inline vec3i xyz(const vec4i& a);
+
 }
 
 //=========================================

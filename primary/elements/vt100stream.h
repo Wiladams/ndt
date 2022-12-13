@@ -3,18 +3,7 @@
 #include "binstream.hpp"
 #include <cctype>
 
-/*
-void displayStream()
-{
-	FileStream strm("n4-wendy.ans");
-	VT100Stream tstrm(strm);
 
-	while (tstrm.next())
-	{
-		printf("something\n");
-	}
-}
-*/
 
 //
 // Turn vt100 stream into command sequences

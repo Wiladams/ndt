@@ -1,11 +1,10 @@
 #include "studio.hpp"
 #include "rangen.h"
 
-#include "svgparser.h"
+
 #include "shapeviewer.h"
 
 using namespace std;
-using namespace svg;
 using namespace ndt;
 using std::string;
 

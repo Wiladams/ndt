@@ -5,8 +5,10 @@
 // be set in an orderly fashion.
 // 
 // There is the concept of a 'cursor', which represents the x,y
-// position of the cell that will be written to next.  This 
-// cursor moves along automatically as cells are written.
+// position of the cell that will be written to next.  
+// 
+// Most operations move the cursor along automatically.
+// A few place values in the cells, but do not move the cursor.
 // 
 // The class is templatized, so that any kind of cell can be 
 // contained.  The cell grid is only reposible for the semantics
@@ -28,35 +30,49 @@
 
 
 template <typename CellT>
-struct ScreenGrid
+struct CellGrid
 {
-	size_t fHeight = 0;		// Number of rows in the console
-	size_t fWidth = 0;	// Number of columns in the console
+	size_t fWidth{ 0 };	// Number of columns in the console
+	size_t fHeight{ 0 };		// Number of rows in the console
 
-	int fCursorX = 0;
-	int fCursorY = 0;
-	CellT *fCharArray;
+
+	int fCursorX{ 0 };
+	int fCursorY{ 0 };
+	CellT* fCellArray{ nullptr };
 
 	// Attributes
-	bool fAutoWrap;
-	bool fAutoScroll;
+	bool fAutoWrap{ false };
+	bool fAutoScroll{ true };
 
-
-	ScreenGrid(const size_t cols, const size_t rows, const char* fontname = "Consolas")
-		:fHeight(rows)
-		, fWidth(cols)
+	CellGrid(const size_t cols, const size_t rows)
 	{
-		fCharArray = new CellT[cols * rows];
+		reset(cols, rows);
+	}
 
+	~CellGrid()
+	{
+		if (fCellArray != nullptr)
+		{
+			delete fCellArray;
+		}
+	}
+
+	void reset(const size_t cols, const size_t rows)
+	{
+		if fCellArray != nullptr
+		{
+			delete fCellArray;
+		}
+
+		fHeight = rows;
+		fWidth = cols;
+		fCursorX = 0;
+		fCursorY = 0;
 		fAutoWrap = false;
-		fAutoScroll = true;
+		fAutoScrool = true;
+		fCellArray = new CellT[cols * rows];
 	}
-
-	~ScreenGrid()
-	{
-		delete fCharArray;
-	}
-
+	
 	// Properties
 	// How many characters wide is the screen
 	constexpr size_t width() const noexcept { return fWidth; }
@@ -67,17 +83,14 @@ struct ScreenGrid
 	//
 	// Attributes
 	// 
-	void autoWrap(bool doWrap)
-	{
-		fAutoWrap = doWrap;
-	}
+	constexpr void autoWrap(bool doWrap){fAutoWrap = doWrap;}
 
 	//
 	// CURSOR CONTROL
 	// 
 
 	// Return current cursor position
-	void cursorPosition(int &x, int &y)
+	void cursorPosition(int &x, int &y) const
 	{ 
 		x = fCursorX;
 		y = fCursorY;
@@ -95,8 +108,11 @@ struct ScreenGrid
 	// reject if not within range
 	void cursorTo(int x, int y)
 	{
-		fCursorX = x;
-		fCursorY = y;
+		if (x >= 0 && x < fWidth && y >= 0 && y < fHeight)
+		{
+			fCursorX = x;
+			fCursorY = y;
+		}
 	}
 
 	void cursorUp()
@@ -160,7 +176,7 @@ struct ScreenGrid
 
 		for (size_t i = 0; i < width(); i++)
 		{
-			fCharArray[toOffset + i] = fCharArray[fromOffset + i];
+			fCellArray[toOffset + i] = fCellArray[fromOffset + i];
 		}
 	}
 
@@ -199,7 +215,7 @@ struct ScreenGrid
 		if (offset < 0)
 			return;
 
-		fCharArray[offset] = info;
+		fCellArray[offset] = info;
 	}
 
 	// output a single character with bounds checking
@@ -299,14 +315,30 @@ struct ScreenGrid
 		}
 	}
 
-	void eraseFromBeginningOfScreen() {}
+	void eraseFromBeginningOfScreen()
+	{
+		eraseFromBeginningOfLine();
+		int y = fCursorY - 1;
+		if (y < 0)
+			return;
 
+		while (y >= 0)
+		{
+			eraseLine(y);
+			y--;
+		}
+	}
+	
 	void eraseToEndOfLine() 
 	{
 		for (int x = fCursorX; x < width(); x++)
 			setCell(x, fCursorY, CellT());
 	}
 
-	void eraseFromBeginningOfLine() {}
+	void eraseFromBeginningOfLine() 
+	{
+		for (int x = fCursorX; x >= 0; x--)
+			setCell(x, fCursorY, CellT());
+	}
 
 };

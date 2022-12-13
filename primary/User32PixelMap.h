@@ -103,7 +103,7 @@ public:
     void setAllPixels(const maths::vec4b& c) override
     {
         for (size_t row = 0; row < fHeight; row++)
-            ndt::memset_l((unsigned long*)fData, c.value, fWidth);
+            ndt::memset_l((uint8_t*)(fData)+(row*stride()), c.value, fWidth);
     }
     
  };

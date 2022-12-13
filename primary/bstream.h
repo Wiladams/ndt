@@ -30,7 +30,7 @@
 
 
 #include "definitions.h"
-//#include "bitbang.h"
+#include "datachunk.h"
 
 
 namespace ndt
@@ -41,25 +41,29 @@ namespace ndt
     //
     // A core type for representing a chunk of data in a stream
     // other routines are meant to operate on this data type
-    struct DataCursor
+    struct DataCursor : public DataChunk
     {
-        const uint8_t* fStart;
-        const uint8_t* fEnd;
+        //const uint8_t* fStart;
+        //const uint8_t* fEnd;
         uint8_t* fCurrent;
+
+        INLINE uint8_t& operator[](size_t i);
+        INLINE const uint8_t& operator[](size_t i) const;
+		INLINE void operator++(int i);
     };
 
 
 
-
+    static INLINE DataCursor make_cursor_chunk(const DataChunk& chunk);
     static INLINE DataCursor make_cursor(const void* starting, const void* ending) noexcept;
     static INLINE DataCursor make_cursor_size(const void* starting, size_t sz) noexcept;
-    static INLINE DataCursor make_cursor_range(const DataCursor& dc, size_t pos, size_t sz)noexcept;     // sub-range
-    static INLINE DataCursor make_cursor_range_size(const DataCursor& dc, size_t sz)noexcept;     // sub-range
+    static INLINE DataCursor make_cursor_range(const DataCursor& dc, size_t pos, size_t sz)noexcept;    // sub-range
+    static INLINE DataCursor make_cursor_range_size(const DataCursor& dc, size_t sz)noexcept;           // sub-range
 
-    static INLINE const uint8_t* data(DataCursor& dc) noexcept;
-    static INLINE ptrdiff_t size(const DataCursor& dc) noexcept;
+
     static INLINE ptrdiff_t remaining(const DataCursor& dc) noexcept;
     static INLINE ptrdiff_t tell(const DataCursor& dc) noexcept;
+    static INLINE uint8_t * tell_pointer(const DataCursor& dc) noexcept;
 
     static INLINE ptrdiff_t seek_to_begin(DataCursor& dc) noexcept;
     static INLINE ptrdiff_t seek_to_end(DataCursor& dc) noexcept;
@@ -71,7 +75,7 @@ namespace ndt
 
 
     static INLINE bool isEOF(DataCursor& dc) noexcept;
-    static INLINE uint8_t peek_u8(DataCursor& dc) noexcept;
+    static INLINE uint8_t peek_u8(const DataCursor& dc) noexcept;
 
     // Read out integer values
     static INLINE uint8_t get_u8(DataCursor& dc) noexcept;
@@ -92,6 +96,17 @@ namespace ndt
 
 namespace ndt
 {
+    static INLINE DataCursor make_cursor_chunk(const DataChunk& chunk)
+	{
+        DataCursor dc{};
+		dc.fStart = chunk.fStart;
+		dc.fEnd = chunk.fEnd;
+		dc.fCurrent = (uint8_t *)chunk.fStart;
+        
+		return dc;
+	}
+
+    
     static INLINE DataCursor make_cursor(const void* starting, const void* ending) noexcept
     {
         DataCursor c{ (const uint8_t*)starting, (const uint8_t*)ending, (uint8_t*)starting };
@@ -133,11 +148,13 @@ namespace ndt
     // A convenience to return a range from our current position
     static INLINE DataCursor make_cursor_range_size(DataCursor& dc, size_t sz) { return make_cursor_range(dc, tell(dc), sz); }
 
+    // some operator overloading
+    
     // Retrieve attributes of the cursor
-    static INLINE const uint8_t* data(DataCursor& dc)  noexcept { return dc.fStart; }
-    static INLINE ptrdiff_t size(const DataCursor& dc)  noexcept { return dc.fEnd - dc.fStart; }
-    static INLINE ptrdiff_t remaining(const DataCursor& dc)  noexcept { return dc.fEnd - dc.fCurrent; }
+
+    static INLINE ptrdiff_t remaining(const DataCursor& dc) noexcept { return dc.fEnd - dc.fCurrent; }
     static INLINE ptrdiff_t tell(const DataCursor& dc)  noexcept { return dc.fCurrent - dc.fStart; }
+    static INLINE uint8_t* tell_pointer(const DataCursor& dc) noexcept { return dc.fCurrent; }
 
     static INLINE ptrdiff_t seek_to_begin(DataCursor& dc)  noexcept { dc.fCurrent = (uint8_t *)dc.fStart; return tell(dc); }
     static INLINE ptrdiff_t seek_to_end(DataCursor& dc)  noexcept { dc.fCurrent = (uint8_t*)dc.fEnd; return tell(dc); }
@@ -156,7 +173,7 @@ namespace ndt
 
 
     static INLINE bool isEOF(DataCursor& dc)  noexcept { return remaining(dc) < 1; }
-    static INLINE uint8_t peek_u8(DataCursor& dc)  noexcept { return *dc.fCurrent; }
+    static INLINE uint8_t peek_u8(const DataCursor& dc)  noexcept { return *dc.fCurrent; }
     static INLINE uint8_t get_u8(DataCursor& dc)  noexcept { return dc.fCurrent < dc.fEnd ? *dc.fCurrent++ : ~0; }    // can't distinguish between valid and EOF
     static INLINE uint16_t get_u16_le(DataCursor& dc) noexcept
     {
@@ -265,4 +282,14 @@ namespace ndt
     }
 }
 
+namespace ndt
+{
+#ifdef __cplusplus
+	static INLINE uint8_t operator*(const DataCursor& dc)  noexcept { return peek_u8(dc); }
+	INLINE void DataCursor::operator++(int i)  { skip(*this, 1); }
+    INLINE uint8_t& DataCursor::operator[](size_t i) { return fCurrent[i]; }
+    INLINE const uint8_t& DataCursor::operator[](size_t i) const { return fCurrent[i]; }
+    
+#endif
+}
 

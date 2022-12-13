@@ -73,6 +73,7 @@ void draw()
         // the commands, but slow things down a lot
         gAppSurface->flush();
     }
+    //gAppSurface->flush();
 
     _stats.draw(*gAppSurface);
 }
@@ -103,9 +104,9 @@ void setup()
     background(255);
     noStroke();
 
-    createCanvas(720, 400);
+    createCanvas(720, 400,"lerpcolor", 8);
     //fullscreen();
 
-    frameRate(5);
+    frameRate(15);
 }
   

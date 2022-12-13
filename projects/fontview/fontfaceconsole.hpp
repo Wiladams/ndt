@@ -1,7 +1,7 @@
 #pragma once
 
 #include "blend2d.h"
-#include "gconsole.h"
+#include "elements/gconsole.h"
 //#include "vt100stream.h"
 
 struct FontFaceConsole : public GConsole

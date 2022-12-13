@@ -29,13 +29,10 @@
 #include <ws2tcpip.h>
 #include <mmsystem.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-#define NDT_IS_WINDOWS
-#endif
+#include "definitions.h"
 
-#if defined(_MSC_VER)
-#define NDT_IS_MSVC
-#endif
+
+
 
 #if BUILD_AS_DLL
 #define APP_API		__declspec(dllexport)

@@ -8,10 +8,14 @@
 //
 namespace maths
 {
+    inline vec4b rgba(uint8_t r, uint8_t g, uint8_t b);
+	inline vec4b rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+    
     inline vec4b float_to_byte(const vec4f& a);
     inline vec4f byte_to_float(const vec4b& a);
-    inline byte float_to_byte(float a);
-    inline float byte_to_float(byte a);
+    inline uint8_t float_to_byte(float a);
+    inline float byte_to_float(uint8_t a);
 
     // Luminance
     inline float luminance(const vec3f& a);
@@ -55,17 +59,20 @@ namespace maths
 //
 namespace maths
 {
+    inline vec4b rgb(uint8_t r, uint8_t g, uint8_t b) { return { b, g, r, 255 }; }
+    inline vec4b rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { return { b, g, r, a }; }
+    
     inline vec4b float_to_byte(const vec4f& a) {
-        return { (byte)clamp(int(a.x * 256), 0, 255),
-            (byte)clamp(int(a.y * 256), 0, 255), (byte)clamp(int(a.z * 256), 0, 255),
-            (byte)clamp(int(a.w * 256), 0, 255) };
+        return { (uint8_t)clamp(int(a.x * 256), 0, 255),
+            (uint8_t)clamp(int(a.y * 256), 0, 255), (uint8_t)clamp(int(a.z * 256), 0, 255),
+            (uint8_t)clamp(int(a.w * 256), 0, 255) };
     }
 
     inline vec4f byte_to_float(const vec4b& a) {
         return { a.x / 255.0f, a.y / 255.0f, a.z / 255.0f, a.w / 255.0f };
     }
-    inline byte float_to_byte(float a) { return (byte)clamp(int(a * 256), 0, 255); }
-    inline float byte_to_float(byte a) { return a / 255.0f; }
+    inline uint8_t float_to_byte(float a) { return (uint8_t)clamp(int(a * 256), 0, 255); }
+    inline float byte_to_float(uint8_t a) { return a / 255.0f; }
 
     // Luminance
     inline float luminance(const vec3f& a) {

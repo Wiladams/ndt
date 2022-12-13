@@ -41,11 +41,10 @@
   * Connect to the specified host and port. The connected socket is
   * returned, or -1 on error.
   */
-static int
-host_connect(const char* host, const char* port)
+static SOCKET host_connect(const char* host, const char* port)
 {
 	struct addrinfo hints, * si, * p;
-	int fd= INVALID_SOCKET;
+	SOCKET fd= INVALID_SOCKET;
 	int err;
 
 	memset(&hints, 0, sizeof hints);
@@ -241,7 +240,7 @@ static const br_x509_trust_anchor TAs[2] = {
 void onLoad()
 {
 	const char* host, * port, * path;
-	int fd;
+	SOCKET fd;
 	br_ssl_client_context sc;
 	br_x509_minimal_context xc;
 	unsigned char iobuf[BR_SSL_BUFSIZE_BIDI];

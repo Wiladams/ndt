@@ -166,6 +166,7 @@
     <ClInclude Include="coloring.h" />
     <ClInclude Include="colorsampler.h" />
     <ClInclude Include="computicle.hpp" />
+    <ClInclude Include="datachunk.h" />
     <ClInclude Include="definitions.h" />
     <ClInclude Include="drawable.h" />
     <ClInclude Include="Event.hpp" />

@@ -1,5 +1,5 @@
 #pragma once
-
+// BUGBUG - this should move into primary
 /*
 	Herein you will find various objects and functions which are
 	useful while scanning, tokenizing, parsing streams of text.

@@ -10,7 +10,7 @@ struct ImageView : GraphicElement
 	maths::vec2f fImageSize{};
 
 	// Given a source image, create a sub-image based on the box
-	ImageView(BLImage& img, maths::bbox2f imgbox, maths::bbox2f aframe)
+	ImageView(BLImage& img, maths::rectf &imgbox, maths::rectf aframe)
 		:GraphicElement(aframe)
 	{
 		fImageSize = maths::size(imgbox);
@@ -18,7 +18,7 @@ struct ImageView : GraphicElement
 		// get a sub-image of the base image
 		BLImageData dataOut;
 		img.getData(&dataOut);
-		uint8_t * pixelData = (uint8_t *)dataOut.pixelData + ((int)imgbox.min.y * (ptrdiff_t)dataOut.stride + ((int)imgbox.min.x * 4));
+		uint8_t * pixelData = (uint8_t *)dataOut.pixelData + ((int)imgbox.y * (ptrdiff_t)dataOut.stride + ((int)imgbox.x * 4));
 		blImageInitAsFromData(&fImage, fImageSize.x, fImageSize.y, BLFormat::BL_FORMAT_PRGB32, pixelData, dataOut.stride, nullptr, nullptr);
 	}
 
@@ -43,7 +43,7 @@ struct ImagePuzzlePiece : public ImageView
 	bool fIsDragging = false;
 	maths::vec2f fLastMouse{};
 
-	ImagePuzzlePiece(BLImage& img, maths::bbox2f imgbox, maths::bbox2f aframe, int id)
+	ImagePuzzlePiece(BLImage& img, maths::rectf &imgbox, maths::rectf &aframe, int id)
 		:ImageView(img, imgbox, aframe)
 		, fID(id)
 	{}
@@ -90,7 +90,7 @@ struct ElementGrid : public GraphicGroup
 	float cellWidth{};
 	float cellHeight{};
 
-	ElementGrid(maths::bbox2f aframe, int rows, int columns)
+	ElementGrid(maths::rectf aframe, int rows, int columns)
 		:GraphicGroup(aframe)
 	{
 		reset(columns, rows);
@@ -134,9 +134,9 @@ struct ElementGrid : public GraphicGroup
 		fCells[offset] = g;
 	}
 
-	maths::bbox2f frameForCell(int row, int col)
+	maths::rectf frameForCell(int row, int col)
 	{
-		maths::bbox2f pbox = { {col * cellWidth,row * cellHeight},{(col * cellWidth) + cellWidth - 1,(row * cellHeight) + cellHeight - 1} };
+		maths::rectf pbox = { col * cellWidth,row * cellHeight, cellWidth - 1, cellHeight - 1 };
 		return pbox;
 	}
 };
@@ -153,12 +153,12 @@ struct ImagePuzzle : ElementGrid
 
 	std::vector<std::shared_ptr<ImagePuzzlePiece> > pieces{};
 
-	ImagePuzzle(BLImage& img, maths::bbox2f aframe, int nColumns, int nRows)
+	ImagePuzzle(BLImage& img, maths::rectf aframe, int nColumns, int nRows)
 		: ElementGrid(aframe, nRows, nColumns)
 	{
 		RNG = maths::make_rng(52);
 
-		BLImageData dataOut;
+		BLImageData dataOut{};
 		img.getData(&dataOut);
 		imgCellWidth = dataOut.size.w/nColumns;
 		imgCellHeight = dataOut.size.h/nRows;
@@ -168,8 +168,8 @@ struct ImagePuzzle : ElementGrid
 			{
 				int id = offsetForCell(row, col);
 
-				maths::bbox2f imgbox = { {col * imgCellWidth,row * imgCellHeight},{(col * imgCellWidth) + imgCellWidth,(row * imgCellHeight) + imgCellHeight} };
-				maths::bbox2f pbox = frameForCell(row, col);
+				maths::rectf imgbox = {col * imgCellWidth,row * imgCellHeight, imgCellWidth, imgCellHeight };
+				maths::rectf pbox = frameForCell(row, col);
 
 				auto piece = std::make_shared<ImagePuzzlePiece>(img, imgbox, pbox, id);
 
@@ -285,7 +285,7 @@ struct ImagePuzzle : ElementGrid
 			{
 				int offset = offsetForCell(row,col);
 
-				maths::bbox2f cellBox = { {col * cellWidth,row * cellHeight},{(col * cellWidth) + cellWidth,(row * cellHeight) + cellHeight} };
+				maths::rectf cellBox = {col * cellWidth,row * cellHeight,cellWidth,cellHeight};
 
 				auto cellCenter = maths::center(cellBox);
 				auto dist = maths::distance(selectedCenter, cellCenter);
@@ -315,7 +315,7 @@ struct ImagePuzzle : ElementGrid
 			for (int col = 0; col < fNumColumns; col++)
 			{
 				int offset = offsetForCell(row,col);
-				maths::bbox2f pbox = { {col * cellWidth,row * cellHeight},{(col * cellWidth) + cellWidth,(row * cellHeight) + cellHeight} };
+				maths::rectf pbox = {col * cellWidth,row * cellHeight,cellWidth, cellWidth };
 				pieces[offset]->setFrame(pbox);
 			}
 	}
@@ -348,7 +348,7 @@ void setup()
 	snapper.reset(0, 0, displayWidth / 2, displayHeight);
 	snapper.next();
 
-	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::bbox2f{ {0,0},{(float)displayWidth/2,(float)displayHeight} }, 8, 8);
+	puzzle = std::make_shared<ImagePuzzle>(snapper.getImage(), maths::rectf{ 0,0,(float)displayWidth/2,(float)displayHeight }, 8, 8);
 
 	addGraphic(puzzle);
 

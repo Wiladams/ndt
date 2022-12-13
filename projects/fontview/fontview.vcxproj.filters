@@ -47,9 +47,6 @@
     <ClInclude Include="emspaceview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gconsole.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\primary\gwindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>

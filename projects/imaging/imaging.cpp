@@ -267,7 +267,7 @@ bool draw_sunsky(PixelAccessor<maths::vec4b>& img, float theta_sun=maths::pif/4,
 
 struct WIN : public GraphicElement
 {
-    WIN(const maths::bbox2f& box)
+    WIN(const maths::rectf& box)
         :GraphicElement(box)
     {}
 
@@ -281,6 +281,8 @@ struct WIN : public GraphicElement
 
 void setup()
 {
+
+    
     //draw_grid(appFrameBuffer(), 4, { 1,0,0,0.75f }, { 1,1,1,1 });
 
     //draw_checker(appFrameBuffer(), 4);
@@ -299,30 +301,31 @@ void setup()
 
     //draw_sunsky(appFrameBuffer());
 
-    /*
-    auto win1 = std::make_shared<WIN>(maths::bbox2f{ {20, 20}, {340, 260} });
-    //agraphic->setDrawingRoutine([agraphic](IGraphics& ctx) {
-    //    ctx.noStroke();
-    //    ctx.fill(255, 0, 255);
-    //    ctx.rect(agraphic->frameX(), agraphic->frameY(), agraphic->boundsWidth(), agraphic->boundsHeight());
-    //    });
+    ///*
+    auto win1 = std::make_shared<WIN>(maths::rectf{ 20, 20, 320, 240 });
+    win1->setDrawingRoutine([win1](IGraphics& ctx) {
+        ctx.noStroke();
+        ctx.fill(255, 0, 255);
+        ctx.rect(win1->frameX(), win1->frameY(), win1->boundsWidth(), win1->boundsHeight());
+        });
 
-    auto win2 = std::make_shared<WIN>(maths::bbox2f{ {360, 100}, {680, 340} });
-    //win2->setDrawingRoutine([win2](IGraphics& ctx) {
-    //    ctx.noStroke();
-    //ctx.fill(255, 255, 0);
-    //ctx.rect(win2->frameX(), win2->frameY(), win2->boundsWidth(), win2->boundsHeight());
-    //    });
-    */
+    auto win2 = std::make_shared<WIN>(maths::rectf{ 360, 100, 320, 240 });
+    win2->setDrawingRoutine([win2](IGraphics& ctx) {
+        ctx.noStroke();
+    ctx.fill(255, 255, 0);
+    ctx.rect(win2->frameX(), win2->frameY(), win2->boundsWidth(), win2->boundsHeight());
+        });
+    
     setDesktopDrawing([](IGraphics& ctx) {
         draw_noisemap(appFrameBuffer(), 2, { 0.0,0.0,0.0,1 }, { 1,1,1,1 });});
 
     //setDesktopDrawing([](IGraphics& ctx) {
     //    draw_sunsky(appFrameBuffer(), maths::pif/3, 3, true, 2.0, 20);});
 
-    //addGraphic(win1);
-    //addGraphic(win2);
+    addGraphic(win1);
+    addGraphic(win2);
     
+    frameRate(2);
 }
 
 

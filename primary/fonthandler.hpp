@@ -204,6 +204,6 @@ public:
     }
 };
 
-EXPORT extern std::shared_ptr<FontHandler> gFontHandler;
+extern std::shared_ptr<FontHandler> gFontHandler;
 
 #endif // fonthandler_h

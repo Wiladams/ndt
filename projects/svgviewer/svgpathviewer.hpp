@@ -7,6 +7,7 @@
 
 struct SVGPathViewer : public GraphicElement
 {
+    
     BLPath fPath{};
 
     /*
@@ -19,12 +20,12 @@ struct SVGPathViewer : public GraphicElement
     }
     */
 
-    SVGPathViewer(const char * subject, size_t subjectLength, const char * name)
+    SVGPathViewer(const std::string_view &str, const std::string &name)
         : GraphicElement({ 0,0,1920,1080 })
     {
         setName(name);
-
-        svg::blPathFromCommands(subject, subjectLength, fPath);
+		ndt::DataChunk dc = ndt::make_chunk_size((void*)str.data(), str.size());
+		svg::blPathFromCommands(dc, fPath);
     }
 
     // x,y are given in the coordinate space

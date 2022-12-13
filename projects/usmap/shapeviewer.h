@@ -1,7 +1,8 @@
 #pragma once
 
 #include "graphic.hpp"
-#include "svgparser.h"
+#include "shaper.h"
+#include "datachunk.h"
 
 struct ShapeViewer : public GraphicElement
 {
@@ -13,7 +14,8 @@ struct ShapeViewer : public GraphicElement
     {
         setName(nm);
         blVarAssignRgba32(&fStyle, BLRgba32(127, 127, 127, 255).value);
-        svg::blPathFromCommands(subject, subjectLength, fPath);
+		ndt::DataChunk chunk = ndt::make_chunk_size( (void *)subject, subjectLength );
+        ndt::blPathFromCommands(chunk, fPath);
     }
 
     // x,y are given in the coordinate space

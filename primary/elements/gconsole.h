@@ -7,7 +7,7 @@
 #include "fonthandler.hpp"
 #include "graphic.hpp"
 #include "Graphics.h"
-#include "screengrid.h"
+#include "elements/cellgrid.h"
 
 // Some typical colors
 constexpr Pixel darkAmber{ 0xffffb000 };
@@ -18,7 +18,7 @@ constexpr Pixel green3{ 0xff00ff66 };			// 502nm
 constexpr Pixel appleII{ 0xff33ff33 };		// apple II 
 constexpr Pixel appleIIc{ 0xff66ff66 };		// apple IIc
 
-// Representation of a single character cell
+// Representation of a single character cell to be displayed on the screen
 template <typename T>
 struct ScreenCell
 {
@@ -53,7 +53,7 @@ struct ScreenCell
 // management and character placement commands.  In addition, it
 // knows how to draw itself into a graphics context.
 
-struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
+struct GConsole : public GraphicElement, public CellGrid<ScreenCell<char> >
 {
 	int charWidth = 7;
 	int charHeight = 12;
@@ -61,10 +61,22 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 	BLFontFace fFontFace;
 	BLFont fFont;
 
+	explicit GConsole(const GConsole&)
+		:GraphicElement()
+		, CellGrid<ScreenCell<char> >(80,20)
+	{}
+	
 	GConsole(const size_t cols, const size_t rows, const char* fontname = "Consolas")
-		: Graphic(),
-		ScreenGrid<ScreenCell<char> >(cols, rows)
+		: GraphicElement()
+		, CellGrid<ScreenCell<char> >(cols, rows)
 	{
+		reset(cols, rows, fontname);
+	}
+
+	void reset(const size_t cols, const size_t rows, const char* fontname = "Consolas")
+	{
+		CellGrid<ScreenCell<char> >::reset(cols, rows);
+
 		gFontHandler->queryFontFace(fontname, fFontFace);
 		fFont.createFromFace(fFontFace, fontSize);
 
@@ -74,10 +86,10 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 		//printf("metrics.vsize: %f\n", vSize);
 
 		//putsln("");
-		setFrame({ {0, 0}, {float(fWidth * charWidth), float(fHeight * charHeight)} });
-		setBounds({ {0, 0}, {float(fWidth * charWidth), float(fHeight * charHeight)} });
+		setFrame({ 0, 0, float(fWidth * charWidth, float(fHeight * charHeight) });
+		setBounds({ 0, 0, float(fWidth * charWidth), float(fHeight * charHeight) });
 	}
-
+	
 	// Simplification commands
 
 	// move down one row, and to leftmost column
@@ -163,6 +175,8 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 
 	void drawSelf(IGraphics& ctx) override
 	{
+		ctx.push();
+		
 		// draw the actual characters one by one
 		ctx.textFace(fFontFace);
 		ctx.textSize(fontSize);
@@ -176,16 +190,16 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 			{
 				int offset = cellOffset(col, row);
 
-				switch (fCharArray[offset].code)
+				switch (fCellArray[offset].code)
 				{
 					default: 
 					{
-						if (isprint(fCharArray[offset].code))
+						if (isprint(fCellArray[offset].code))
 						{
 							int x = col * charWidth;
 							int y = row * charHeight;
 							char buff[2];
-							buff[0] = fCharArray[offset].code;
+							buff[0] = fCellArray[offset].code;
 							buff[1] = 0;
 							ctx.text(buff, x, y);
 						}
@@ -193,5 +207,6 @@ struct GConsole : public Graphic, public ScreenGrid<ScreenCell<char> >
 				}
 			}
 
+		ctx.pop();
 	}
 };
