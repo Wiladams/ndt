@@ -709,7 +709,81 @@ namespace svg
     //
     // parsing transforms
     //
-    static void nsvg__parseTransform(float* xform, const DataChunk &inChunk)
+    static int svg_parseTransformArgs(const DataChunk & inChunk, float* args, int maxNa, int* na)
+    {
+
+
+        
+        *na = 0;
+        DataCursor ptr = make_cursor_chunk(inChunk);
+        while (!isEOF(ptr) && *ptr != '(') 
+            ptr++;
+        
+        if (isEOF(ptr))
+            return 1;
+        
+        auto beginSentinel = tell_pointer(ptr);
+        
+        // now look for the ending ')'
+        while (!isEOF(ptr) && (*ptr != ')')) 
+            ptr++;
+        
+        if (isEOF(ptr))
+            return 1;
+		auto endSentinel = tell_pointer(ptr);
+        
+        // create a new cursor based on beginSentinel and endSentinel
+		DataCursor str = make_cursor(beginSentinel, endSentinel);
+        char it[64]{ 0 };
+		DataChunk numChunk = make_chunk_size(it, 63);
+        
+        while (!isEOF(str)) {
+            if (*str == '-' || *str == '+' || *str == '.' || digitChars(*str)) 
+            {
+                if (*na >= maxNa) 
+                    return 0;
+                
+                auto outChunk = svg_parseNumber(ptr, numChunk);
+                args[(*na)++] = (float)svg_strtof(numChunk);
+            }
+            else {
+                str++;
+            }
+        }
+        
+        return (int)(end - str);
+    }
+    
+    static int svg_parseMatrix(float* xform, const DataChunk& str)
+    {
+        float t[6];
+        int na = 0;
+        int len = svg_parseTransformArgs(str, t, 6, &na);
+        if (na != 6) 
+            return len;
+        
+        memcpy(xform, t, sizeof(float) * 6);
+        
+        return len;
+    }
+    
+    static int svg_parseTranslate(float* xform, const DataChunk & str)
+    {
+        float args[2];
+        float t[6];
+        int na = 0;
+        int len = svg_parseTransformArgs(str, args, 2, &na);
+        if (na == 1) 
+            args[1] = 0.0;
+
+        svg_xformSetTranslation(t, args[0], args[1]);
+        memcpy(xform, t, sizeof(float) * 6);
+        
+        return len;
+    }
+    
+    
+    static void svg_parseTransform(float* xform, const DataChunk &inChunk)
     {
         float t[6];
         int len;
@@ -825,7 +899,7 @@ namespace svg
             attr.fontSize = svg_parseCoordinate(p, value, 0.0f, svg_actualLength(p));
         }
         else if (name == "transform")  {
-            //nsvg__parseTransform(xform, value);
+            svg_parseTransform(xform, value);
             svg_xformPremultiply(attr.xform, xform);
         }
         else if (name == "stop-color")  {
