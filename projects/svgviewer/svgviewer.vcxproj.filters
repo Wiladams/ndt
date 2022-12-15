@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\primary\elements\textscan.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="teststates.h">
       <Filter>Header Files</Filter>
     </ClInclude>

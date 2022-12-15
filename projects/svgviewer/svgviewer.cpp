@@ -128,9 +128,6 @@ void testPathCommands()
 
 
 
-
-SVGDocument_t doc{};
-
 void writeChunk(const DataChunk& chunk)
 {
     DataCursor cur = make_cursor_chunk(chunk);
@@ -141,33 +138,65 @@ void writeChunk(const DataChunk& chunk)
 
 void printChunk(const DataChunk &chunk)
 {
-    writeChunk(chunk);
-    printf("\n");
+	if (size(chunk) > 0)
+	{
+        writeChunk(chunk);
+        printf("\n");
+    }
+    else
+        printf("BLANK==CHUNK\n");
+
 }
 
-static vec4b parseColorName(const DataChunk &inChunk)
+void testNumber()
 {
-    char strBuff[64];
-    copy_to_cstr(strBuff, 63, inChunk);
+	char buffer[256];
+    DataChunk numchunk = make_chunk_size(buffer, 256);
+    DataChunk tr = make_chunk_cstr("1.23e2");
+    auto units = svg_parseNumber(tr, numchunk);
 
-    std::string cName = std::string(inChunk.fStart, inChunk.fEnd);
-    //const char* str = &strBuff[0];
-    if (!colors.contains(cName))
-        return rgb(0, 0, 0);
-
-    return colors[cName];
+	printChunk(numchunk);
+	printChunk(units);
 }
 
-void testParse()
+void testTransform()
 {
-    // do an integer value
-    //const char* str1 = "rgb(10.%,20.3,30.%)";
-    const char* str1 = "lavender";
-	DataChunk c1 = make_chunk_size((char *)str1, strlen(str1));
-    auto c = svg_parseColor(c1);
+    float xform[6]{ 0 };
+	auto tr = make_chunk_cstr("matrix(1 0 0 -1 0 0)");
+	svg_parseTransform(xform, tr);
     
-	printf("color: %d %d %d\n", c.r, c.g, c.b);
+    printf("xform: [%3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f]\n", xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
+}
 
+void testChunk()
+{
+
+    auto mc = make_chunk_cstr("this is a set of words that are space delimited");
+
+	// advance a few characters
+    mc += 5;
+
+    
+    printChunk(mc);
+	printf("Chunk bool: %d\n", (bool)mc);
+}
+
+void testLine()
+{
+
+    SVGParser p{};
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> < line x1 = '100' y1 = '50' x2 = '500' y2 = '50' stroke = 'black' / >< / svg>");
+    parseSVGDocument(mc, p);
+}
+
+void testPolyLine()
+{
+
+    SVGParser p{};
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> <polyline points='0, 100 50, 25 50, 75 100, 0' />< / svg>");
+    parseSVGDocument(mc, p);
+
+    printf("end\n");
 }
 
 void testParseDoc()
@@ -184,13 +213,19 @@ void testParseDoc()
     // We have the file, now try to parse the svg
 
     auto chunk = fmap->getChunk();
-    parseSVGDocument(chunk, doc);
+    SVGParser p{};
+    parseSVGDocument(chunk, p);
 
     fmap->close();
 }
 
 void setup()
 {
-    testParse();
+    //testTransform();
+    //testChunk();
+    //testLine();
+    //testNumber();
+    //testParse();
     //testParseDoc();
+	testPolyLine();
 }

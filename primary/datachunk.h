@@ -2,7 +2,7 @@
 
 
 #include "definitions.h"
-#include "elements/textscan.h"
+#include "textscan.h"
 
 #include <cstdint>
 #include <cstring>
@@ -30,6 +30,16 @@ namespace ndt
 #ifdef __cplusplus
 			INLINE uint8_t& operator[](size_t i);
 			INLINE const uint8_t& operator[](size_t i) const;
+
+			INLINE uint8_t& operator*();
+			INLINE const uint8_t& operator*() const;
+
+			INLINE DataChunk& operator+= (size_t a);
+
+			INLINE DataChunk& operator++();				// prefix ++y
+			INLINE DataChunk& operator++(int i);		// postfix y++
+			
+			INLINE explicit operator bool() const { return (fEnd - fStart) > 0; };
 #endif
 		};
 
@@ -48,9 +58,10 @@ namespace ndt
 
 		static INLINE DataChunk make_chunk(const void* starting, const void* ending) noexcept;
 		static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept;
+		static INLINE DataChunk make_chunk_cstr(const char* str) noexcept;
 		static INLINE const uint8_t* data(DataChunk& dc) noexcept;
-		static INLINE const uint8_t* starting(DataChunk& dc) noexcept;
-		static INLINE const uint8_t* ending(DataChunk& dc) noexcept;
+		static INLINE const uint8_t* begin(DataChunk& dc) noexcept;
+		static INLINE const uint8_t* end(DataChunk& dc) noexcept;
 		static INLINE size_t size(const DataChunk& dc) noexcept;
 		static INLINE size_t copy(DataChunk& a, const DataChunk& b) noexcept;
 		static INLINE size_t copy_to_cstr(char *str, size_t len, const DataChunk& a) noexcept;
@@ -60,14 +71,21 @@ namespace ndt
 		static INLINE bool is_equal(const DataChunk& a, const DataChunk& b) noexcept;
 		static INLINE bool is_equal_cstr(const DataChunk& a, const char* s) noexcept;
 		
-		static INLINE DataChunk ltrim(const DataChunk& a, const charset& skippable);
-		static INLINE DataChunk rtrim(const DataChunk& a, const charset& skippable);
-		static INLINE DataChunk trim(const DataChunk& a, const charset& skippable);
+		// Some utility functions for common operations
+		static INLINE void chunkClear(DataChunk& dc) noexcept;
+		static INLINE DataChunk& chunkSkip(DataChunk& dc, size_t n) noexcept;
+		static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept;
+
+		static INLINE DataChunk ltrim(const DataChunk& a, const charset& skippable) noexcept;
+		static INLINE DataChunk rtrim(const DataChunk& a, const charset& skippable) noexcept;
+		static INLINE DataChunk trim(const DataChunk& a, const charset& skippable) noexcept;
+		
 #ifdef __cplusplus
 	}
 #endif
 	
 #ifdef __cplusplus
+	// Operator overloading
 	static INLINE bool operator< (const DataChunk& a, const DataChunk& b) noexcept;
 	static INLINE bool operator==(const DataChunk& a, const DataChunk& b) noexcept;
 	static INLINE bool operator==(const DataChunk& a, const char* b) noexcept;
@@ -88,11 +106,13 @@ namespace ndt
 	// DataChunk routines
 	static INLINE DataChunk make_chunk(const void* starting, const void* ending) noexcept { return { (const uint8_t*)starting, (const uint8_t*)ending }; }
 	static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept { return { (uint8_t*)data, (uint8_t*)data+sz }; }
+	static INLINE DataChunk make_chunk_cstr(const char* data) noexcept { return { (uint8_t*)data, (uint8_t*)data + strlen(data) }; }
+	
+
+	static INLINE const uint8_t* begin(DataChunk& dc) noexcept { return dc.fStart; }
+	static INLINE const uint8_t* end(DataChunk& dc) noexcept { return dc.fEnd; }
 	
 	static INLINE const uint8_t* data(DataChunk& dc)  noexcept { return dc.fStart; }
-	static INLINE const uint8_t* starting(DataChunk& dc) noexcept { return dc.fStart; }
-	static INLINE const uint8_t* ending(DataChunk& dc) noexcept { return dc.fEnd; }
-	
 	static INLINE size_t size(const DataChunk& dc)  noexcept { return dc.fEnd - dc.fStart; }
 	static INLINE size_t copy(DataChunk& a, const DataChunk& b) noexcept 
 	{ 
@@ -143,11 +163,24 @@ namespace ndt
 		return memcmp(a.fStart, cstr, len) == 0;
 	}
 
+	static INLINE void chunkClear(DataChunk& dc) noexcept
+	{
+		memset((uint8_t *)dc.fStart, 0, size(dc));
+	}
 	
-
-    
+	static INLINE DataChunk & chunkSkip(DataChunk &dc, size_t n) noexcept
+	{
+		if (n > size(dc))
+			n = size(dc);
+		dc.fStart += n;
+		
+		return dc;
+	}
+	
+	static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept { dc.fStart = dc.fEnd; }
+	
 	// Trim the left side of skippable characters
-    static INLINE DataChunk ltrim(const DataChunk& a, const charset & skippable)
+    static INLINE DataChunk ltrim(const DataChunk& a, const charset & skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;
@@ -157,7 +190,7 @@ namespace ndt
 	}
 
 	// trim the right side of skippable characters
-	static INLINE DataChunk rtrim(const DataChunk &a, const charset &skippable)
+	static INLINE DataChunk rtrim(const DataChunk &a, const charset &skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;
@@ -168,7 +201,7 @@ namespace ndt
 	}
 
 	// trim the left and right side of skippable characters
-	static INLINE DataChunk trim(const DataChunk &a, const charset &skippable)
+	static INLINE DataChunk trim(const DataChunk &a, const charset &skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;
@@ -190,6 +223,16 @@ namespace ndt
 	
 	INLINE uint8_t& DataChunk::operator[](size_t i) { return ((uint8_t *)fStart)[i]; }
 	INLINE const uint8_t& DataChunk::operator[](size_t i) const { return ((uint8_t *)fStart)[i]; }
+	
+	INLINE uint8_t& DataChunk::operator*() { static uint8_t zero = 0;  if (fStart < fEnd) return *(uint8_t*)fStart; return  zero; }
+	INLINE const uint8_t& DataChunk::operator*() const { static uint8_t zero = 0;  if (fStart < fEnd) return *(uint8_t*)fStart; return  zero; }
+
+	INLINE DataChunk& DataChunk::operator++() { return chunkSkip(*this, 1); }			// prefix notation ++y
+	INLINE DataChunk& DataChunk::operator++(int i) { return chunkSkip(*this, 1); }       // postfix notation y++
+
+	INLINE DataChunk& DataChunk::operator+= (size_t n) { return chunkSkip(*this, n); }
+
+	//INLINE explicit DataChunk::operator bool() const { return (fEnd - fStart) > 0; }
 	
 	static INLINE bool operator==(const DataChunk& a, const DataChunk& b) noexcept
 	{

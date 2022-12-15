@@ -25,7 +25,12 @@ namespace svg
 	static INLINE void svg_xformPoint(float* t, float* dx, float* dy, float x, float y) noexcept;
 	static INLINE void svg_xformVec(float* t, float* dx, float* dy, float x, float y) noexcept;
 
-	
+	static INLINE float svg_getAverageScale(float* t)
+	{
+		float sx = sqrtf(t[0] * t[0] + t[2] * t[2]);
+		float sy = sqrtf(t[1] * t[1] + t[3] * t[3]);
+		return (sx + sy) * 0.5f;
+	}
 }
 
 

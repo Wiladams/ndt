@@ -47,19 +47,23 @@ namespace ndt
         //const uint8_t* fEnd;
         uint8_t* fCurrent;
 
+#ifdef __cplusplus
         INLINE uint8_t& operator[](size_t i);
         INLINE const uint8_t& operator[](size_t i) const;
+        INLINE void operator++();
 		INLINE void operator++(int i);
+        INLINE operator bool() { return (fEnd-fCurrent)> 0; }
+#endif
     };
 
 
-
+    
     static INLINE DataCursor make_cursor_chunk(const DataChunk& chunk);
     static INLINE DataCursor make_cursor(const void* starting, const void* ending) noexcept;
     static INLINE DataCursor make_cursor_size(const void* starting, size_t sz) noexcept;
     static INLINE DataCursor make_cursor_range(const DataCursor& dc, size_t pos, size_t sz)noexcept;    // sub-range
     static INLINE DataCursor make_cursor_range_size(const DataCursor& dc, size_t sz)noexcept;           // sub-range
-
+    static INLINE DataChunk make_chunk_to_end(const DataCursor& dc) noexcept;
 
     static INLINE ptrdiff_t remaining(const DataCursor& dc) noexcept;
     static INLINE ptrdiff_t tell(const DataCursor& dc) noexcept;
@@ -148,6 +152,11 @@ namespace ndt
     // A convenience to return a range from our current position
     static INLINE DataCursor make_cursor_range_size(DataCursor& dc, size_t sz) { return make_cursor_range(dc, tell(dc), sz); }
 
+    static INLINE DataChunk make_chunk_toend(const DataCursor& dc) noexcept
+    {
+		return make_chunk(dc.fCurrent, dc.fEnd);
+    }
+    
     // some operator overloading
     
     // Retrieve attributes of the cursor
@@ -285,8 +294,12 @@ namespace ndt
 namespace ndt
 {
 #ifdef __cplusplus
-	static INLINE uint8_t operator*(const DataCursor& dc)  noexcept { return peek_u8(dc); }
-	INLINE void DataCursor::operator++(int i)  { skip(*this, 1); }
+	//INLINE operator bool(const DataCursor& dc) { return remaining(dc)>0; }
+    INLINE const uint8_t operator*(const DataCursor& dc)  noexcept { return *dc.fCurrent; }
+    // INLINE uint8_t & operator*(DataCursor& dc)  noexcept { return dc.fCurrent; }
+    INLINE void DataCursor::operator++() { if (fCurrent < fEnd) fCurrent++; }     // prefix notation ++y
+	INLINE void DataCursor::operator++(int i) { if (fCurrent < fEnd) fCurrent++; }                      // postfix notation y++
+    INLINE DataCursor& operator+=(DataCursor& a, const int b) { skip(a, b); return a; }
     INLINE uint8_t& DataCursor::operator[](size_t i) { return fCurrent[i]; }
     INLINE const uint8_t& DataCursor::operator[](size_t i) const { return fCurrent[i]; }
     

@@ -161,12 +161,12 @@
     <ClInclude Include="..\..\primary\bitbang.h" />
     <ClInclude Include="..\..\primary\bstream.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
-    <ClInclude Include="..\..\primary\elements\textscan.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\shaper.h" />
     <ClInclude Include="..\..\primary\svg.h" />
     <ClInclude Include="nanosvg.h" />
     <ClInclude Include="svgdocument.h" />
+    <ClInclude Include="svggraphic.h" />
     <ClInclude Include="svgparser.h" />
     <ClInclude Include="svgpathviewer.hpp" />
     <ClInclude Include="svgxform.h" />

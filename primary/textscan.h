@@ -1,9 +1,9 @@
 #pragma once
-// BUGBUG - this should move into primary
-/*
-	Herein you will find various objects and functions which are
-	useful while scanning, tokenizing, parsing streams of text.
-*/
+
+
+//	Herein you will find various objects and functions which are
+//	useful while scanning, tokenizing, parsing streams of text.
+
 
 #include <bitset>
 
@@ -51,13 +51,12 @@ namespace ndt {
 		{
 			return bits[idx];
 		}
+
+		inline bool contains(const uint8_t idx) const
+		{
+			return bits[idx];
+		}
 	};
 
-	// There is an 'isgraph' function in the <ctype> file.
-	// This one here is specific to ASCII processing
-	// BUGBUG - maybe it should live with whatever needs it
-	static inline bool isGraph(int c)
-	{
-		return (c > 0x20) && (c < 0x7f);
-	}
+
 }

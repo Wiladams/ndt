@@ -11,7 +11,7 @@
 #include "psvm.h"
 #include "ps_base_operators.h"
 
-#include "elements/textscan.h"
+#include "textscan.h"
 
 
 using std::shared_ptr;
@@ -31,6 +31,12 @@ charset isWhitespace("\t\n\f\r ");
 charset numBeginChars("+-.0123456789");
 
 
+// There is an 'isgraph' function in the <ctype> file.
+// This one here is specific to ASCII processing
+static bool isGraph(int c)
+{
+	return (c > 0x20) && (c < 0x7f);
+}
 
 
 // Skip leading whitespaces in a binstream

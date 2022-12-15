@@ -1,7 +1,7 @@
 #pragma once
 
 #include "binstream.hpp"
-#include "elements/textscan.h"
+#include "textscan.h"
 
 #include <cstdint>
 #include <vector>
