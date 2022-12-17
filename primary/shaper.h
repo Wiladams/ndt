@@ -16,12 +16,38 @@
 
 namespace ndt
 {
+    enum SVGlineJoin {
+        SVG_JOIN_MITER = 0,
+        SVG_JOIN_BEVEL = 1,
+        SVG_JOIN_ROUND = 2
+
+    };
+
+    enum SVGlineCap {
+        SVG_CAP_BUTT = 0,
+        SVG_CAP_SQUARE = 1,
+        SVG_CAP_ROUND = 2,
+
+    };
+    
+    enum SVGfillRule {
+        SVG_FILLRULE_NONZERO = 0,
+        SVG_FILLRULE_EVENODD = 1
+    };
+    
+    enum SVGpaintType {
+        SVG_PAINT_NONE = 0,
+        SVG_PAINT_COLOR = 1,
+        SVG_PAINT_LINEAR_GRADIENT = 2,
+        SVG_PAINT_RADIAL_GRADIENT = 3
+    };
+    
     // Shaper contour Commands
     // Origin from SVG path commands
-    // M - moveTo       (M, m)
-    // L - lineTo       (L, l, H, h, V, v)
-    // C - cubicTo      (C, c, S, s)
-    // Q - quadTo       (Q, q, T, t)
+    // M - move       (M, m)
+    // L - line       (L, l, H, h, V, v)
+    // C - cubic      (C, c, S, s)
+    // Q - quad       (Q, q, T, t)
     // A - ellipticArc  (A, a)
     // Z - close        (Z, z)
     enum class SegmentKind : uint8_t
@@ -37,14 +63,30 @@ namespace ndt
         , VLineBy = 'v'
         , CubicTo = 'C'
         , CubicBy = 'c'
+		, SCubicTo = 'S'
+		, SCubicBy = 's'
         , QuadTo = 'Q'
         , QuadBy = 'q'
+		, SQuadTo = 'T'
+		, SQuadBy = 't'
         , ArcTo = 'A'
         , ArcBy = 'a'
         , CloseTo = 'Z'
         , CloseBy = 'z'
     };
 
+    enum class ShapeKind : uint8_t
+	{
+		INVALID = 0
+	    , Line = 1
+        , Rect = 2
+        , Circle = 3
+        , Ellipse = 4
+        , Polyline = 5
+        , Polygon = 6
+        , Path = 7
+	};
+    
     //
     // A Path is comprised of a number of PathSegment structures
     // Each PathSegment begins with a SegmentKind, followed by a series
@@ -66,87 +108,186 @@ namespace ndt
 		void addPoint(float x, float y) { fNumbers.push_back(x); fNumbers.push_back(y); }
     };
 
-    //
-    // tokenizePath
-    // Given a string, representing a series of path segments, turn the string
-    // into a vector of those path segments.
-    // 
-    // This gives us a structure that can then be turned into other forms, such 
-    // as graphic objects.
-    // 
-    // The syntax of the commands is that of the SVG path object 'd' attribute
-    //
-    static void tokenizePath(DataChunk &chunk, std::vector<PathSegment>& commands)
+
+    // Parse a number which may have units after it
+//   1.2em
+// -1.0E2em
+// 2.34ex
+// -2.34e3M10,20
+// 
+// By the end of this routine, the numchunk represents the range of the 
+// captured number.
+// 
+// The returned chun represents what comes next, and can be used
+// to continue scanning the original inChunk
+//
+// Note:  We assume here that the inChunk is already positioned at the start
+// of a number (including +/- sign), with no leading whitespace
+
+    static DataChunk scanNumber(const DataChunk& inChunk, DataChunk& numchunk)
     {
-        ndt::charset whitespaceChars(",\t\n\f\r ");
-        ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");
-        ndt::charset numberChars("0123456789.+-eE");
+        static ndt::charset digitChars("0123456789");                   // only digits
+        
+        DataChunk s = inChunk;
+        numchunk = inChunk;
+        numchunk.fEnd = inChunk.fStart;
 
-        // use binstream do do the parsing
-        //BinStream bs(subject.data(), subject.size(), 0);
-        DataCursor dc = ndt::make_cursor_chunk(chunk);
 
-        // create a little buffer to be used for numbers
-        int numoffset = 0;
-        char numbuff[64]{ 0 };
+        // sign
+        if (*s == '-' || *s == '+') {
+            s++;
+            numchunk.fEnd = s.fStart;
+        }
 
-        while (!ndt::isEOF(dc))
+        // integer part
+        while (s && digitChars[*s]) {
+            s++;
+            numchunk.fEnd = s.fStart;
+        }
+
+        if (*s == '.') {
+            // decimal point
+            s++;
+            numchunk.fEnd = s.fStart;
+            
+            // fraction part
+            while (s && digitChars[*s]) {
+                s++;
+                numchunk.fEnd = s.fStart;
+            }
+        }
+
+        // exponent
+        // but it could be units (em, ex)
+        if ((*s == 'e' || *s == 'E') && (s[1] != 'm' && s[1] != 'x')) 
         {
+            s++;
+            numchunk.fEnd = s.fStart;
+            
+			// Might be a sign
+            if (*s == '-' || *s == '+') {
+                s++;
+                numchunk.fEnd = s.fStart;
+            }
+            
+            // Get any remaining digits
+            while (s && digitChars[*s]) {
+                s++;
+                numchunk.fEnd = s.fStart;
+            }
+        }
 
-            auto c = ndt::get_u8(dc);
+        return s;
+    }
+    
+    
+    //
+    // collectNumbers
+	// Take a list of numbers and tokenize them into a vector of floats
+	// Numbers are separated by whitespace, commas, or semicolons
+    //
+	static void collectNumbers(const DataChunk& chunk, std::vector<float>& numbers)
+	{
+        static ndt::charset whitespaceChars(",;\t\n\f\r ");          // whitespace found in paths
+        static ndt::charset numberChars("0123456789.+-eE");         // digits, symbols, and letters found in numbers
 
+        
+        DataChunk s = chunk;
+
+		while (s)
+		{
             // ignore whitespace
-            while (whitespaceChars[c] && !isEOF(dc))
-                c = get_u8(dc);
+            while (s && whitespaceChars[*s])
+                s++;
+            
+            if (!s)
+                break;
+            
+            if (numberChars[*s])
+            {
+                DataChunk numChunk = s;
+
+                while (numberChars[*s])
+                {
+                    s++;
+                    numChunk.fEnd = s.fStart;
+                }
+
+                float afloat = 0;
+                std::from_chars((const char*)numChunk.fStart, (const char*)numChunk.fEnd, afloat);
+
+                numbers.push_back(afloat);
+            }
+		}
+	}
+    
+//
+// tokenizePath
+// Given a string, representing a series of path segments, turn the string
+// into a vector of those path segments.
+// 
+// This gives us a structure that can then be turned into other forms, such 
+// as graphic objects.
+// 
+// The syntax of the commands is that of the SVG path object 'd' attribute
+//
+
+    
+    static void tokenizePath(const DataChunk &chunk, std::vector<PathSegment>& commands)
+    {
+        static ndt::charset whitespaceChars(",\t\n\f\r ");          // whitespace found in paths
+        static ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");   // set of characters used for commands
+        static ndt::charset numberChars("0123456789.+-eE");         // digits, symbols, and letters found in numbers
+        static ndt::charset digitChars("0123456789");                   // only digits
+        
+        // Use a DataChunk as a cursor on the input
+        DataChunk s = chunk;
+
+        while (s)
+        {
+            // ignore leading whitespace
+            while (s && whitespaceChars[*s])
+                s++;
 
             // See what we've got at this point
             // it's either in commandChars, if we in the START state
-            if (commandChars[c])
+            if (commandChars[*s])
             {
-                switch (c) {
+                switch (*s) {
                 default:
-                    //printf("CMD: %c\n", c);
+                    //printf("CMD: %c\n", *s);
                     ndt::PathSegment cmd{};
-                    cmd.fCommand = ndt::SegmentKind(c);
+                    cmd.fCommand = ndt::SegmentKind(*s);
                     commands.push_back(cmd);
+                    s++;
                 }
 
                 continue;
             }
 
             // or it's something related to a number (+,-,digit,.)
-            if (numberChars[c])
-            {
-                numoffset = 0;
-                while (numberChars[c]) {
-                    numbuff[numoffset] = c;
-                    c = get_u8(dc);
-                    numoffset++;
-                }
+            if (digitChars[*s] || *s == '-')
+            {   
+                // Start with the number chunk being empty
+                // expand only if we have a valid number
+                DataChunk numChunk{};
 
-
-
-                numbuff[numoffset] == 0;
-                float afloat = 0;
-                std::from_chars((const char*)numbuff, ((const char*)numbuff) + numoffset, afloat);
-
-                //printf("  %f\n", afloat);
-                //commands[commands.size() - 1].fNumbers.push_back(afloat);
-				commands[commands.size() - 1].addNumber(afloat);
+                s = scanNumber(s, numChunk);
                 
-                if (isEOF(dc))
-                    break;
-
-                // backup one, because whatever we read was not
-                // a number char, so we'll let the top of the loop
-                // deal with it
-                skip(dc, -1);
+				// If we have a number, add it to the last command
+				if (numChunk)
+				{
+					float afloat = 0;
+					std::from_chars((const char*)numChunk.fStart, (const char*)numChunk.fEnd, afloat);
+					commands.back().addNumber(afloat);
+                    //printf("  %3.3f\n", afloat);
+				}
+                
             }
         }
     }
 
-
-
+    
 
 }
 
@@ -158,6 +299,7 @@ namespace ndt
     struct PathBuilder
     {
     public:
+        maths::vec2f fLastControl{};
         maths::vec2f fLastPosition{};
         BLPath fPath{};
         BLPath fWorkingPath{};
@@ -166,143 +308,341 @@ namespace ndt
     public:
         BLPath& getPath() { return fPath; }
 
-        // Add a moveTo command, and two numbers
+
+        // The case where the path did not end
+// with a 'Z', but we're done parsing
+        void finishWorking()
+        {
+            if (!fWorkingPath.empty())
+            {
+                fPath.addPath(fWorkingPath);
+                fWorkingPath.reset();
+            }
+        }
+        
         // SVG - M
-        void moveTo(ndt::PathSegment& cmd)
+        // add working path to main path
+        // reset the working path to empty
+        // establish a new initial position
+        void moveTo(const PathSegment& cmd)
         {
-            if (!fWorkingPath.empty())
-            {
-                fPath.addPath(fWorkingPath);
-                fWorkingPath.reset();
+            if (cmd.fNumbers.size() < 2) {
+                printf("moveTo - Rejected: %zd\n", cmd.fNumbers.size());
+                return;
             }
+            
+            finishWorking();
 
-            fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
             fWorkingPath.moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
-        }
+            fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
 
-        void moveTo(const float x, const float y)
-        {
-            if (!fWorkingPath.empty())
+            // perform absolute lineTo on working path
+            // if there are more nunbers
+            if (cmd.fNumbers.size() > 2)
             {
-                fPath.addPath(fWorkingPath);
-                fWorkingPath.reset();
+                for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+                {
+                    fWorkingPath.lineTo(cmd.fNumbers[i], cmd.fNumbers[i + 1]);
+                    fLastPosition = maths::vec2f{ cmd.fNumbers[i], cmd.fNumbers[i + 1] };
+                }
             }
-
-            fLastPosition = maths::vec2f{ x, y };
-            fWorkingPath.moveTo(x, y);
         }
 
+        
         // SVG - m
-        void moveBy(const float dx, const float dy)
+        void moveBy(const PathSegment& cmd)
         {
-            moveTo(fLastPosition.x + dx, fLastPosition.y + dy);
-        }
+            if (cmd.fNumbers.size() < 2) {
+                printf("moveBy - Rejected: %zd\n", cmd.fNumbers.size());
+                return;
+            }
+            
+            finishWorking();
 
+            fWorkingPath.moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
+            fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
+
+            // perform relative lineBy on working path
+            // if there are more nunbers
+			if (cmd.fNumbers.size() > 2)
+			{
+				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+				{
+					fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[i], fLastPosition.y + cmd.fNumbers[i + 1]);
+					fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[i], fLastPosition.y + cmd.fNumbers[i + 1] };
+				}
+			}
+        }
 
         // Add a line, using current point as first endpoint
-        // SVG - H
-        void lineTo(const float x, const float y)
-        {
-            fWorkingPath.lineTo(x, y);
-            fLastPosition = { x, y };
-        }
+        // SVG - L
+		void lineTo(const PathSegment& cmd)
+		{
+            if (cmd.fNumbers.size() < 2)
+            {
+                printf("lineTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+            
+			fWorkingPath.lineTo(cmd.fNumbers[0], cmd.fNumbers[1]);
+			fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
+		}
+
 
         // Add a line using relative coordinates
         //SVG - l
-        void lineBy(const float dx, const float dy)
-        {
-            lineTo(fLastPosition.x + dx, fLastPosition.y + dy);
-        }
+        void lineBy(const PathSegment &cmd)
+		{
+            if (cmd.fNumbers.size() < 2)
+            {
+                printf("lineBy - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]);
+			fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+		}
+
 
         // Add horizontal line, using only x coordinate added to existing point
         // SVG - H
-        void hLineTo(const float x)
+        void hLineTo(const PathSegment &cmd)
         {
-            fWorkingPath.lineTo(x, fLastPosition.y);
-            fLastPosition = { x, fLastPosition.y };
+            if (cmd.fNumbers.size() < 1)
+            {
+                printf("hLineTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+            fWorkingPath.lineTo(cmd.fNumbers[0], fLastPosition.y);
+            fLastPosition = { cmd.fNumbers[0], fLastPosition.y };
         }
 
         // SVG - h
-        void hLineBy(const float dx)
-        {
-            hLineTo(fLastPosition.x + dx);
-        }
+		void hLineBy(const PathSegment& cmd)
+		{
+            if (cmd.fNumbers.size() < 1) {
+                printf("hLineBy - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y);
+			fLastPosition = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y };
+		}
 
         // SVG - V
-        void vLineTo(const float y)
+        void vLineTo(const PathSegment &cmd)
         {
-            fWorkingPath.lineTo(fLastPosition.x, y);
-            fLastPosition = { fLastPosition.x, y };
+            if (cmd.fNumbers.size() < 1) {
+                printf("vLineTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+            fWorkingPath.lineTo(fLastPosition.x, cmd.fNumbers[0]);
+            fLastPosition = { fLastPosition.x, cmd.fNumbers[0] };
         }
 
         // SVG - v
-        void vLineBy(const float dy)
+        void vLineBy(const PathSegment& cmd)
         {
-            vLineTo(fLastPosition.y + dy);
+            if (cmd.fNumbers.size() < 1) {
+                printf("vLineBy - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.lineTo(fLastPosition.x, fLastPosition.y + cmd.fNumbers[0]);
+			fLastPosition = { fLastPosition.x, fLastPosition.y + cmd.fNumbers[0] };
         }
+
 
         // SVG - Q
         // Quadratic Bezier curve
-        void quadTo(const float c1x, const float c1y, const float p2x, const float p2y)
+		void quadTo(const PathSegment& cmd)
+		{
+            if (cmd.fNumbers.size() < 4) {
+                printf("quadTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.quadTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);
+            fLastControl = { cmd.fNumbers[0], cmd.fNumbers[1] };
+			fLastPosition = { cmd.fNumbers[2], cmd.fNumbers[3] };
+		}
+
+		// SVG - q
+		// Quadratic Bezier curve, relative coordinates
+		void quadBy(const PathSegment& cmd)
+		{
+            if (cmd.fNumbers.size() < 4) {
+                printf("quadBy - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.quadTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1], fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]);
+            fLastControl = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+            fLastPosition = { fLastPosition.x+cmd.fNumbers[2], fLastPosition.y+cmd.fNumbers[3] };
+		}
+        
+        // SVG - T
+		// Smooth quadratic Bezier curve
+        void smoothQuadTo(const PathSegment& cmd)
         {
-            fWorkingPath.quadTo(BLPoint(c1x, c1y), BLPoint(p2x, p2y));
-            fLastPosition = { p2x, p2y };
+            printf("== NYI - smoothQuadTo ==\n");
+            
+            if (cmd.fNumbers.size() < 2) {
+                printf("smoothQuadTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
         }
+        
+		// SVG - t
+		// Smooth quadratic Bezier curve, relative coordinates
+        void smoothQuadBy(const PathSegment& cmd)
+        {
+            printf("== NYI - smoothQuadBy ==\n");
+            
+			if (cmd.fNumbers.size() < 2) {
+				printf("smoothQuadBy - Rejected: %zd\n", cmd.fNumbers.size());
 
-        //void quadTo(const BLPoint& c1, const BLPoint& p2)
-        //{
-        //    quadTo(c1.x, c1.y, p2.x, p2.y);
-        //}
-
+				return;
+			}
+        }
+        
         // SVG - C
-        void cubicTo(const float c1x, const float c1y,
-            const float c2x, const float c2y,
-            const float p2x, const float p2y)
+		// Cubic Bezier curve
+        void cubicTo(const PathSegment &cmd)
+		{
+            if (cmd.fNumbers.size() < 6) {
+                printf("cubicTo - Rejected: %zd\n", cmd.fNumbers.size());
+
+                return;
+            }
+            
+			fWorkingPath.cubicTo(BLPoint(cmd.fNumbers[0], cmd.fNumbers[1]), BLPoint(cmd.fNumbers[2], cmd.fNumbers[3]), BLPoint(cmd.fNumbers[4], cmd.fNumbers[5]));
+            fLastControl = { cmd.fNumbers[2], cmd.fNumbers[3] };
+            fLastPosition = { cmd.fNumbers[4], cmd.fNumbers[5] };
+		}
+
+        // SVG - c
+		// Cubic Bezier curve, relative coordinates
+        void cubicBy(const PathSegment& cmd)
         {
-            fWorkingPath.cubicTo(BLPoint(c1x, c1y), BLPoint(c2x, c2y), BLPoint(p2x, p2y));
-            fLastPosition = { p2x, p2y };
+            if (cmd.fNumbers.size() < 6) {
+				printf("cubicBy - Rejected: %zd\n", cmd.fNumbers.size());
+                return;
+            }
+            
+			fWorkingPath.cubicTo(BLPoint(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]), BLPoint(fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]), BLPoint(fLastPosition.x + cmd.fNumbers[4], fLastPosition.y + cmd.fNumbers[5]));
+            fLastControl = { fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3] };
+            fLastPosition = { fLastPosition.x + cmd.fNumbers[4], fLastPosition.y + cmd.fNumbers[5] };
         }
 
-        //void cubicBy(const float dc1x, const float dc1y,
-        //    const float dc2x, const float dc2y,
-        //    const float dp2x, const float dp2y)
-        //{}
+        // SVG - S, smooth cubicTo
 
-        void arcTo(float rx, float ry, float rotx, float largeArc, float sweep, float x, float y)
+        void smoothCubicTo(const PathSegment& cmd)
         {
-            bool larc = largeArc != 0;
-            bool swp = sweep != 0;
-            float rotation = maths::radians(rotx);
+            //printf("== NYI - smoothCubicTo ==\n");
+            
+			if (cmd.fNumbers.size() < 4) {
+                printf("smoothCubicTo - Rejected: %zd\n", cmd.fNumbers.size());
+				return;
+			}
+
+            maths::vec2f dxy = -(fLastControl - fLastPosition);
+            maths::vec2f firstControl = fLastPosition + dxy;
+
+            fWorkingPath.cubicTo(BLPoint(firstControl.x, firstControl.y), BLPoint(cmd.fNumbers[0], cmd.fNumbers[1]), BLPoint(cmd.fNumbers[2], cmd.fNumbers[3]));
+            fLastControl = { cmd.fNumbers[0], cmd.fNumbers[1] };
+            fLastPosition = { cmd.fNumbers[2], cmd.fNumbers[3] };
+        }
+        
+        // SVG - s, smooth cubicBy
+        void smoothCubicBy(const PathSegment& cmd)
+        {
+            //printf("== NYI - smoothCubicBy ==\n");
+			if (cmd.fNumbers.size() < 4) {
+                printf("smoothCubicBy - Rejected: %zd\n", cmd.fNumbers.size());
+				return;
+			}
+
+            maths::vec2f dxy = -(fLastControl - fLastPosition);
+            maths::vec2f firstControl = fLastPosition + dxy;
+
+            fWorkingPath.cubicTo(BLPoint(firstControl.x, firstControl.y), BLPoint(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y+cmd.fNumbers[1]), BLPoint(fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]));
+            fLastControl = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+            fLastPosition = { fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3] };
+        }
+        
+        // SVG - A
+        void arcTo(const PathSegment& cmd)
+        {
+            if (cmd.fNumbers.size() < 7) {
+                printf("arcTo - Rejected: %zd\n", cmd.fNumbers.size());
+                return;
+            }
+            
+            float rx = cmd.fNumbers[0];
+			float ry = cmd.fNumbers[1];
+			float xRotation = cmd.fNumbers[2];
+			float largeArcFlag = cmd.fNumbers[3];
+			float sweepFlag = cmd.fNumbers[4];
+			float x = cmd.fNumbers[5];
+			float y = cmd.fNumbers[6];
+            
+			bool larc = largeArcFlag > 0.5f;
+			bool swp = sweepFlag > 0.5f;
+			float rotation = maths::radians(xRotation);
 
             fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
             fLastPosition = { x,y };
         }
 
-        // SVG - S, smooth cubicTo
-        // SVG - s, smooth cubicBy
+
+		// SVG - a
+        void arcBy(const PathSegment& cmd)
+        {
+            if (cmd.fNumbers.size() < 7) {
+                printf("arcBy - Rejected: %zd\n", cmd.fNumbers.size());
+                return;
+            }
+            
+            float rx = cmd.fNumbers[0];
+            float ry = cmd.fNumbers[1];
+            float xRotation = cmd.fNumbers[2];
+            float largeArcFlag = cmd.fNumbers[3];
+            float sweepFlag = cmd.fNumbers[4];
+            float x = fLastPosition.x + cmd.fNumbers[5];
+            float y = fLastPosition.y + cmd.fNumbers[6];
+
+            bool larc = largeArcFlag > 0.5f;
+            bool swp = sweepFlag > 0.5f;
+            float rotation = maths::radians(xRotation);
+
+            fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
+            fLastPosition = { x,y };
+        }
 
         // SVG - Z,z    close path
-        void close()
+		void close(const PathSegment& cmd)
         {
             if (!fWorkingPath.empty())
             {
                 fWorkingPath.close();
-                fPath.addPath(fWorkingPath);
-                fWorkingPath.reset();
             }
+            finishWorking();
         }
 
-        // The case where the path did not end
-        // with a 'Z', but we're done parsing
-        void finish()
-        {
-            if (!fWorkingPath.empty())
-            {
-                fPath.addPath(fWorkingPath);
 
-                fWorkingPath.reset();
-            }
-        }
 
         // Turn a set of commands and numbers
         // into a blPath
@@ -314,57 +654,73 @@ namespace ndt
                 switch (cmd.fCommand)
                 {
                 case ndt::SegmentKind::MoveTo:
-                    moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
-                    //moveTo(cmd);
+                    moveTo(cmd);
                     break;
                 case ndt::SegmentKind::MoveBy:
-                    moveBy(cmd.fNumbers[0], cmd.fNumbers[1]);
+                    moveBy(cmd);
                     break;
 
                 case ndt::SegmentKind::LineTo:
-                    lineTo(cmd.fNumbers[0], cmd.fNumbers[1]);
+                    lineTo(cmd);
                     break;
                 case ndt::SegmentKind::LineBy:
-                    lineBy(cmd.fNumbers[0], cmd.fNumbers[1]);
+                    lineBy(cmd);
                     break;
 
                 case ndt::SegmentKind::HLineTo:
-                    hLineTo(cmd.fNumbers[0]);
+                    hLineTo(cmd);
                     break;
                 case ndt::SegmentKind::HLineBy:
-                    hLineBy(cmd.fNumbers[0]);
+                    hLineBy(cmd);
                     break;
 
                 case ndt::SegmentKind::VLineTo:
-                    vLineTo(cmd.fNumbers[0]);
+                    vLineTo(cmd);
                     break;
                 case ndt::SegmentKind::VLineBy:
-                    vLineBy(cmd.fNumbers[0]);
+                    vLineBy(cmd);
                     break;
 
                 case ndt::SegmentKind::CubicTo:
-                    cubicTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3], cmd.fNumbers[4], cmd.fNumbers[5]);
+                    cubicTo(cmd);
                     break;
                 case ndt::SegmentKind::CubicBy:
+                    cubicBy(cmd);
                     break;
 
+                case ndt::SegmentKind::SCubicTo:
+                    smoothCubicTo(cmd);
+                    break;
+                case ndt::SegmentKind::SCubicBy:
+                    smoothCubicBy(cmd);
+                    break;
+                    
                 case ndt::SegmentKind::QuadTo:
-                    quadTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);
+                    quadTo(cmd);
                     break;
                 case ndt::SegmentKind::QuadBy:
+					quadBy(cmd);
                     break;
 
+                case SegmentKind::SQuadTo:
+                    smoothQuadTo(cmd);
+                    break;
+                case SegmentKind::SQuadBy:
+                    smoothQuadBy(cmd);
+                    break;
+                    
                     // Elliptic arc
                 case ndt::SegmentKind::ArcTo:
-                    arcTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3], cmd.fNumbers[4], cmd.fNumbers[5], cmd.fNumbers[6]);
+                    arcTo(cmd);
                     break;
                 case ndt::SegmentKind::ArcBy:
+                    arcBy(cmd);
                     break;
 
 
                 case ndt::SegmentKind::CloseTo:
                 case ndt::SegmentKind::CloseBy:
-                    close();
+                    close(cmd);
                     break;
 
                 default:
@@ -374,7 +730,7 @@ namespace ndt
 
             }
 
-            finish();
+            finishWorking();
 
             return;
         }

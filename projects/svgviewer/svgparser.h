@@ -10,6 +10,7 @@
 #include "shaper.h"
 #include "geometry.h"
 #include "bstream.h"
+#include "blend2d.h"
 
 #include "svgxform.h"
 
@@ -21,6 +22,27 @@
 #include <map>
 #include <stack>
 
+namespace ndt {
+    void writeChunk(const DataChunk& chunk)
+    {
+        DataCursor cur = make_cursor_chunk(chunk);
+
+        while (!isEOF(cur))
+            printf("%c", get_u8(cur));
+    }
+
+    void printChunk(const DataChunk& chunk)
+    {
+        if (size(chunk) > 0)
+        {
+            writeChunk(chunk);
+            printf("\n");
+        }
+        else
+            printf("BLANK==CHUNK\n");
+
+    }
+}
 
 namespace svg
 {
@@ -58,12 +80,7 @@ namespace svg
     };
 
     // Various Attributes to be found in an SVG image
-    enum SVGpaintType {
-        SVG_PAINT_NONE = 0,
-        SVG_PAINT_COLOR = 1,
-        SVG_PAINT_LINEAR_GRADIENT = 2,
-        SVG_PAINT_RADIAL_GRADIENT = 3
-    };
+
 
     enum SVGspreadType {
         SVG_SPREAD_PAD = 0,
@@ -71,22 +88,9 @@ namespace svg
         SVG_SPREAD_REPEAT = 2
     };
 
-    enum SVGlineJoin {
-        SVG_JOIN_MITER = 0,
-        SVG_JOIN_ROUND = 1,
-        SVG_JOIN_BEVEL = 2
-    };
 
-    enum SVGlineCap {
-        SVG_CAP_BUTT = 0,
-        SVG_CAP_ROUND = 1,
-        SVG_CAP_SQUARE = 2
-    };
 
-    enum SVGfillRule {
-        SVG_FILLRULE_NONZERO = 0,
-        SVG_FILLRULE_EVENODD = 1
-    };
+
 
     enum SVGflags {
         SVG_FLAGS_VISIBLE = 0x01
@@ -303,12 +307,12 @@ namespace svg
         struct SVGshape* next;		// Pointer to next shape, or NULL if last element.
     } SVGshape;
 
-    typedef struct SVGimage
-    {
-        float width;				// Width of the image.
-        float height;				// Height of the image.
-        SVGshape* shapes;			// Linked list of shapes in the image.
-    } SVGimage;
+    //typedef struct SVGimage
+    //{
+    //    float width;				// Width of the image.
+    //    float height;				// Height of the image.
+    //    SVGshape* shapes;			// Linked list of shapes in the image.
+    //} SVGimage;
 }
 
 
@@ -400,22 +404,25 @@ namespace svg
     
     struct SVGParser
     {
-        //std::stack<SVGattrib> attribStack{};
 		std::array<SVGattrib, SVG_MAX_ATTR> attr{};
-        //SVGattrib attr[SVG_MAX_ATTR];
+
         int attrHead=0;
         
         float * pts{};
         int npts=0;
         int cpts=0;
         SVGpath* plist=nullptr;
-        SVGimage* image=nullptr;
+        //SVGimage* image=nullptr;
         SVGgradientData* gradients= nullptr;
         SVGshape* shapesTail= nullptr;
+        BLPath fMainPath;
+        BLPath fWorkingPath;
 
+        
         rectf viewBox{};
         float viewMinx, viewMiny, viewWidth, viewHeight;
-       
+        float imageWidth = 0;
+        float imageHeight = 0;
         int alignX, alignY, alignType;
 
         float fDpi = 96;
@@ -424,11 +431,12 @@ namespace svg
         bool fPathFlag = false;
 
 
+        
+
         SVGParser()
         {
-			image = new SVGimage();
-            //image = (SVGimage*)malloc(sizeof(SVGimage));
-            //memset(image, 0, sizeof(SVGimage));
+			//image = new SVGimage();
+
 
             // Init style
             svg_xformIdentity(attr[0].xform);
@@ -493,7 +501,83 @@ namespace svg
             return sqrtf(w * w + h * h) / sqrtf(2.0f);
         }
 
-        void resetPath(){npts = 0;}
+        void resetPath()
+        {
+            npts = 0;
+            
+            if (!fWorkingPath.empty())
+                fMainPath.addPath(fWorkingPath);
+            fWorkingPath.reset();
+        }
+
+        void addPoint(float x, float y)
+        {
+            if (npts + 1 > cpts) {
+                cpts = cpts ? cpts * 2 : 8;
+                pts = (float*)realloc(pts, cpts * 2 * sizeof(float));
+                if (!pts) return;
+            }
+            pts[npts * 2 + 0] = x;
+            pts[npts * 2 + 1] = y;
+            npts++;
+        }
+        
+        void addLine(float x1, float y1, float x2, float y2)
+        {
+			fWorkingPath.addLine(BLLine(x1, y1, x2, y2));
+            
+            resetPath();
+        }
+
+        void addRect(float x, float y, float w, float h, float rx, float ry)
+        {
+            if (w != 0.0f && h != 0.0f) 
+            {
+                if (rx < 0.00001f || ry < 0.0001f) {
+                    fWorkingPath.addRect(x, y, w, h);
+                }
+                else {
+					fWorkingPath.addRoundRect(BLRoundRect(x, y, w, h, rx, ry));
+                }
+
+				resetPath();
+            }
+        }
+
+		void addCircle(float cx, float cy, float r)
+		{
+			if (r > 0.0f) {
+				fWorkingPath.addCircle(BLCircle(cx, cy, r));
+				resetPath();
+			}
+		}
+        
+        void addEllipse(float cx, float cy, float rx, float ry)
+        {
+			if (rx > 0.0f && ry > 0.0f) {
+				fWorkingPath.addEllipse(BLEllipse(cx, cy, rx, ry));
+				resetPath();
+			}
+        }
+
+        void addPoly(BLArray<BLPoint> &pts, bool closeFlag)
+        {
+			if (closeFlag)
+				fWorkingPath.addPolygon(pts.view());
+			else
+				fWorkingPath.addPolyline(pts.view());
+
+            resetPath();
+        }
+
+        void addPath(std::vector<ndt::PathSegment>& segments)
+        {
+            BLPath apath{};
+            blPathFromSegments(segments, apath);
+			fWorkingPath.addPath(apath);
+
+            resetPath();
+        }
     };
 
 
@@ -671,14 +755,15 @@ namespace svg
     
     // Parse a number which may have units after it
 	//   1.2em
+    // -1.0E2em
+    // 2.34ex
+    // -2.34e3M10,20
     // The end of this routine, we want to return a data chunk that
     // represents the units, and put the characters for the number inside the numChunk
     // a better way would be to use a cursor for the numeric part
     static DataChunk svg_parseNumber(const DataChunk &inChunk, DataChunk & numchunk)
     {
         DataChunk s = inChunk;
-        //auto numdc = numchunk;
-        //DataCursor s = make_cursor_chunk(inChunk);
         DataCursor numdc = make_cursor_chunk(numchunk);
         
         // sign
@@ -688,8 +773,8 @@ namespace svg
         }
         
         // integer part
-        while (size(s) && digitChars[*s]) {
-                put_u8(numdc, *s);
+        while (s && digitChars[*s]) {
+            put_u8(numdc, *s);
             s++;
         }
         
@@ -971,26 +1056,29 @@ namespace svg
         return SVG_FILLRULE_NONZERO;
     }
     
-    static const char* svg_getNextDashItem(const DataChunk &inChunk, DataChunk &it)
+    static DataChunk svg_getNextDashItem(const DataChunk &inChunk, DataChunk &it)
     {
         int sz = size(it);
         int n = 0;
         it[0] = '\0';
         
-		DataCursor s = make_cursor_chunk(inChunk);
+		DataChunk s = inChunk;
         
         // Skip white spaces and commas
-        while (!isEOF(s) && (whitespaceChars(*s) || *s == ',')) 
+        while (s && (whitespaceChars(*s) || *s == ',')) 
             s++;
         
-        // Advance until whitespace, comma or end.
-        while (!isEOF(s) && (!whitespaceChars(*s) && *s != ',')) {
+        // Advance until next whitespace, comma, or end.
+        while (s && (!whitespaceChars(*s) && *s != ',')) 
+        {
             if (n < sz-1)
                 it[n++] = *s;
             s++;
         }
+        
         it[n++] = '\0';
-        return (const char *)s.fCurrent;
+        
+        return s;
     }
     
     static int svg_parseStrokeDashArray(SVGParser & p, const DataChunk& inChunk, float* strokeDashArray)
@@ -1000,15 +1088,16 @@ namespace svg
         float sum = 0.0f;
 
 		DataChunk itemChunk = make_chunk_size(item, 64);
-		DataCursor str = make_cursor_chunk(inChunk);
+        DataChunk s = inChunk;
         
         // Handle "none"
-        if (str[0] == 'n')
+        if (*s == 'n')
             return 0;
 
         // Parse dashes
-        while (!isEOF(str)) {
-            str.fCurrent = (uint8_t *)svg_getNextDashItem(str, itemChunk);
+        while (s) 
+        {
+            s = svg_getNextDashItem(s, itemChunk);
             if (!*item) 
                 break;
             if (count < SVG_MAX_DASHES)
@@ -1390,7 +1479,7 @@ namespace svg
     
     static void svg_parseAttribs(SVGParser &p, std::map<DataChunk, DataChunk>& attr)
     {
-        int i;
+
         
         for (auto& a : attr) {
             const DataChunk& name = a.first;
@@ -1404,17 +1493,7 @@ namespace svg
     }
     
 
-    static void svg_addPoint(SVGParser &p, float x, float y)
-    {
-        if (p.npts + 1 > p.cpts) {
-            p.cpts = p.cpts ? p.cpts * 2 : 8;
-            p.pts = (float*)realloc(p.pts, p.cpts * 2 * sizeof(float));
-            if (!p.pts) return;
-        }
-        p.pts[p.npts * 2 + 0] = x;
-        p.pts[p.npts * 2 + 1] = y;
-        p.npts++;
-    }
+
     
     
     static void svg_moveTo(SVGParser & p, float x, float y)
@@ -1424,7 +1503,7 @@ namespace svg
             p.pts[(p.npts - 1) * 2 + 1] = y;
         }
         else {
-            svg_addPoint(p, x, y);
+            p.addPoint(x, y);
         }
     }
     
@@ -1436,18 +1515,18 @@ namespace svg
             py = p.pts[(p.npts - 1) * 2 + 1];
             dx = x - px;
             dy = y - py;
-            svg_addPoint(p, px + dx / 3.0f, py + dy / 3.0f);
-            svg_addPoint(p, x - dx / 3.0f, y - dy / 3.0f);
-            svg_addPoint(p, x, y);
+            p.addPoint(px + dx / 3.0f, py + dy / 3.0f);
+            p.addPoint(x - dx / 3.0f, y - dy / 3.0f);
+            p.addPoint(x, y);
         }
     }
     
     static void svg_cubicBezTo(SVGParser & p, float cpx1, float cpy1, float cpx2, float cpy2, float x, float y)
     {
         if (p.npts > 0) {
-            svg_addPoint(p, cpx1, cpy1);
-            svg_addPoint(p, cpx2, cpy2);
-            svg_addPoint(p, x, y);
+            p.addPoint(cpx1, cpy1);
+            p.addPoint(cpx2, cpy2);
+            p.addPoint(x, y);
         }
     }
     
@@ -1680,11 +1759,7 @@ namespace svg
 
         return grad;
     }
-
-    
-
-    
-
+    /*
     static void svg_getLocalBounds(float* bounds, SVGshape* shape, float* xform)
     {
         SVGpath* path;
@@ -1715,104 +1790,7 @@ namespace svg
             }
         }
     }
-    
-    static void svg_addShape(SVGParser & p)
-    {
-        SVGattrib & attr = p.getAttr();
-        float scale = 1.0f;
-        SVGshape* shape;
-        SVGpath* path;
-        int i;
-
-        if (p.plist == NULL)
-            return;
-
-        shape = (SVGshape*)malloc(sizeof(SVGshape));
-        if (shape == NULL) 
-            goto error;
-        memset(shape, 0, sizeof(SVGshape));
-
-        memcpy(shape->id, attr.id, sizeof shape->id);
-        scale = svg_getAverageScale(attr.xform);
-        shape->strokeWidth = attr.strokeWidth * scale;
-        shape->strokeDashOffset = attr.strokeDashOffset * scale;
-        shape->strokeDashCount = (char)attr.strokeDashCount;
-        for (i = 0; i < attr.strokeDashCount; i++)
-            shape->strokeDashArray[i] = attr.strokeDashArray[i] * scale;
-        shape->strokeLineJoin = attr.strokeLineJoin;
-        shape->strokeLineCap = attr.strokeLineCap;
-        shape->miterLimit = attr.miterLimit;
-        shape->fillRule = attr.fillRule;
-        shape->opacity = attr.opacity;
-
-        shape->paths = p.plist;
-        p.plist = NULL;
-
-        // Calculate shape bounds
-        shape->bounds[0] = shape->paths->bounds[0];
-        shape->bounds[1] = shape->paths->bounds[1];
-        shape->bounds[2] = shape->paths->bounds[2];
-        shape->bounds[3] = shape->paths->bounds[3];
-        for (path = shape->paths->next; path != NULL; path = path->next) {
-            shape->bounds[0] = svg_minf(shape->bounds[0], path->bounds[0]);
-            shape->bounds[1] = svg_minf(shape->bounds[1], path->bounds[1]);
-            shape->bounds[2] = svg_maxf(shape->bounds[2], path->bounds[2]);
-            shape->bounds[3] = svg_maxf(shape->bounds[3], path->bounds[3]);
-        }
-
-        // Set fill
-        if (attr.hasFill == 0) {
-            shape->fill.type = SVG_PAINT_NONE;
-        }
-        else if (attr.hasFill == 1) {
-            shape->fill.type = SVG_PAINT_COLOR;
-            shape->fill.color = attr.fillColor;
-            shape->fill.color.a = attr.fillOpacity * 255;
-        }
-        else if (attr.hasFill == 2) {
-            float inv[6], localBounds[4];
-            svg_xformInverse(attr.xform, inv);
-            svg_getLocalBounds(localBounds, shape, inv);
-            shape->fill.gradient = svg_createGradient(p, attr.fillGradient, localBounds, &shape->fill.type);
-            if (shape->fill.gradient == NULL) {
-                shape->fill.type = SVG_PAINT_NONE;
-            }
-        }
-
-        // Set stroke
-        if (attr.hasStroke == 0) {
-            shape->stroke.type = SVG_PAINT_NONE;
-        }
-        else if (attr.hasStroke == 1) {
-            shape->stroke.type = SVG_PAINT_COLOR;
-            shape->stroke.color = attr.strokeColor;
-            shape->stroke.color.a = (unsigned int)(attr.strokeOpacity * 255);
-        }
-        else if (attr.hasStroke == 2) {
-            float inv[6], localBounds[4];
-            svg_xformInverse(attr.xform, inv);
-            svg_getLocalBounds(localBounds, shape, inv);
-            shape->stroke.gradient = svg_createGradient(p, attr.strokeGradient, localBounds, &shape->stroke.type);
-            if (shape->stroke.gradient == NULL)
-                shape->stroke.type = SVG_PAINT_NONE;
-        }
-
-        // Set flags
-        shape->flags = (attr.visible ? SVG_FLAGS_VISIBLE : 0x00);
-
-        // Add to tail
-        if (p.image->shapes == NULL)
-            p.image->shapes = shape;
-        else
-            p.shapesTail->next = shape;
-        p.shapesTail = shape;
-
-        return;
-
-    error:
-        if (shape) free(shape);
-    }
-
+    */
 
     //=====================================================
     // Parsing specific elements
@@ -1837,14 +1815,8 @@ namespace svg
             }
         }
         
-        p.resetPath();
+        p.addLine(x1, y1, x2, y2);
 
-        svg_moveTo(p, x1, y1);
-        svg_lineTo(p, x2, y2);
-
-        svg_addPath(p, 0);
-
-        svg_addShape(p);
     }
     
     static void svg_parseRect(SVGParser & p, std::map<DataChunk, DataChunk>& attrs)
@@ -1855,8 +1827,6 @@ namespace svg
         float h = 0.0f;
         float rx = -1.0f; // marks not set
         float ry = -1.0f;
-        //int i;
-
 
         for (auto& keyvalue : attrs)
         {
@@ -1877,32 +1847,8 @@ namespace svg
         if (rx > w / 2.0f) rx = w / 2.0f;
         if (ry > h / 2.0f) ry = h / 2.0f;
 
-        if (w != 0.0f && h != 0.0f) {
-            p.resetPath();
 
-            if (rx < 0.00001f || ry < 0.0001f) {
-                svg_moveTo(p, x, y);
-                svg_lineTo(p, x + w, y);
-                svg_lineTo(p, x + w, y + h);
-                svg_lineTo(p, x, y + h);
-            }
-            else {
-                // Rounded rectangle
-                svg_moveTo(p, x + rx, y);
-                svg_lineTo(p, x + w - rx, y);
-                svg_cubicBezTo(p, x + w - rx * (1 - SVG_KAPPA90), y, x + w, y + ry * (1 - SVG_KAPPA90), x + w, y + ry);
-                svg_lineTo(p, x + w, y + h - ry);
-                svg_cubicBezTo(p, x + w, y + h - ry * (1 - SVG_KAPPA90), x + w - rx * (1 - SVG_KAPPA90), y + h, x + w - rx, y + h);
-                svg_lineTo(p, x + rx, y + h);
-                svg_cubicBezTo(p, x + rx * (1 - SVG_KAPPA90), y + h, x, y + h - ry * (1 - SVG_KAPPA90), x, y + h - ry);
-                svg_lineTo(p, x, y + ry);
-                svg_cubicBezTo(p, x, y + ry * (1 - SVG_KAPPA90), x + rx * (1 - SVG_KAPPA90), y, x + rx, y);
-            }
-
-            svg_addPath(p, 1);
-
-            svg_addShape(p);
-        }
+		p.addRect(x, y, w, h, rx, ry);
     }
     
     static void svg_parseCircle(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
@@ -1910,9 +1856,9 @@ namespace svg
         float cx = 0.0f;
         float cy = 0.0f;
         float r = 0.0f;
-        int i;
 
 
+        // parse attributes of a circle
         for (auto& keyvalue : attrs)
         {
             if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) 
@@ -1923,19 +1869,8 @@ namespace svg
             }
         }
 
-        if (r > 0.0f) {
-            p.resetPath();
+        p.addCircle(cx, cy, r);
 
-            svg_moveTo(p, cx + r, cy);
-            svg_cubicBezTo(p, cx + r, cy + r * SVG_KAPPA90, cx + r * SVG_KAPPA90, cy + r, cx, cy + r);
-            svg_cubicBezTo(p, cx - r * SVG_KAPPA90, cy + r, cx - r, cy + r * SVG_KAPPA90, cx - r, cy);
-            svg_cubicBezTo(p, cx - r, cy - r * SVG_KAPPA90, cx - r * SVG_KAPPA90, cy - r, cx, cy - r);
-            svg_cubicBezTo(p, cx + r * SVG_KAPPA90, cy - r, cx + r, cy - r * SVG_KAPPA90, cx + r, cy);
-
-            svg_addPath(p, 1);
-
-            svg_addShape(p);
-        }
     }
 
     static void svg_parseEllipse(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
@@ -1944,8 +1879,9 @@ namespace svg
         float cy = 0.0f;
         float rx = 0.0f;
         float ry = 0.0f;
-        int i;
 
+
+        // Get the attributes of the ellipse
         for (auto& keyvalue : attrs) 
         {
             if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) 
@@ -1957,20 +1893,7 @@ namespace svg
             }
         }
 
-        if (rx > 0.0f && ry > 0.0f) {
-
-            p.resetPath();
-
-            svg_moveTo(p, cx + rx, cy);
-            svg_cubicBezTo(p, cx + rx, cy + ry * SVG_KAPPA90, cx + rx * SVG_KAPPA90, cy + ry, cx, cy + ry);
-            svg_cubicBezTo(p, cx - rx * SVG_KAPPA90, cy + ry, cx - rx, cy + ry * SVG_KAPPA90, cx - rx, cy);
-            svg_cubicBezTo(p, cx - rx, cy - ry * SVG_KAPPA90, cx - rx * SVG_KAPPA90, cy - ry, cx, cy - ry);
-            svg_cubicBezTo(p, cx + rx * SVG_KAPPA90, cy - ry, cx + rx, cy - ry * SVG_KAPPA90, cx + rx, cy);
-
-            svg_addPath(p, 1);
-
-            svg_addShape(p);
-        }
+		p.addEllipse(cx, cy, rx, ry);
     }
     
     static DataChunk svg_getNextPathItem(const DataChunk &inChunk, DataChunk &outChunk)
@@ -1978,10 +1901,10 @@ namespace svg
         DataChunk s = inChunk;
         
         // Skip white spaces and commas
-        while (*s && (whitespaceChars(*s) || *s == ',')) 
+        while (s && (whitespaceChars(*s) || *s == ',')) 
             s++;
         
-        if (!*s) 
+        if (!s) 
             return s;
         
         if (*s == '-' || *s == '+' || *s == '.' || digitChars(*s)) 
@@ -2000,14 +1923,12 @@ namespace svg
     
     static void svg_parsePoly(SVGParser & p, std::map<DataChunk, DataChunk>& attrs, bool closeFlag)
     {
-        int i;
         DataChunk s{};
         float args[2];
         int nargs, npts = 0;
         uint8_t itembuff[64]{ 0 };
-        DataChunk item = make_chunk_size(itembuff, 64);
 
-        p.resetPath();
+		BLArray <BLPoint> points;
 
         for (auto& keyvalue : attrs)
         {
@@ -2018,13 +1939,17 @@ namespace svg
                     s = keyvalue.second;
                     nargs = 0;
                     while (*s) {
+						//memset(itembuff, 0, 64);
+                        DataChunk item = make_chunk_size(itembuff, 64); // reset for each run
+
                         s = svg_getNextPathItem(s, item);
                         args[nargs++] = (float)svg_strtof(item);
                         if (nargs >= 2) {
                             if (npts == 0)
-                                svg_moveTo(p, args[0], args[1]);
+								points.append(BLPoint{ args[0], args[1] });
                             else
-                                svg_lineTo(p, args[0], args[1]);
+                                points.append(BLPoint{ args[0], args[1] });
+
                             nargs = 0;
                             npts++;
                         }
@@ -2033,9 +1958,8 @@ namespace svg
             }
         }
 
-        svg_addPath(p, (char)closeFlag);
+		p.addPoly(points, closeFlag);
 
-        svg_addShape(p);
     }
     
 	static void svg_parsePolygon(SVGParser& p, std::map<DataChunk, DataChunk>& attrs)
@@ -2043,25 +1967,47 @@ namespace svg
 		svg_parsePoly(p, attrs, true);
 	}
     
+    static void svg_parsePath(SVGParser& p, std::map<DataChunk, DataChunk>& attrs)
+    {
+        DataChunk s{};
+        std::vector<ndt::PathSegment> segments{};
+        
+        // Cycle through the attributes
+        for (auto& keyvalue : attrs)
+        {
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second))
+            {
+                if (keyvalue.first == "d")
+                {
+                    // parse into segments
+                    ndt::tokenizePath(keyvalue.second, segments);
+                }
+            }
+        }
+        
+        // add the path to the parser
+        p.addPath(segments);
+        
+    }
+    
     static void svg_parseSVG(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
     {
-        int i;
 
         for (auto& keyvalue : attrs)
         {
             if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) {
                 if (keyvalue.first == "width") {
-                    p.image->width = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
+                    p.imageWidth = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
                 }
                 else if (keyvalue.first == "height") {
-                    p.image->height = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
+                    p.imageHeight = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
                 }
                 else if (keyvalue.first == "viewBox") {
                     DataChunk s = keyvalue.second;
                     char buf[64];
                     DataChunk bufchunk = make_chunk_size(buf, 64);
                     s = svg_parseNumber(keyvalue.second, bufchunk);
-                    p.viewMinx = svg_strtof(bufchunk);
+                    p.viewMinx = (float)svg_strtof(bufchunk);
 
                     
                     while (*s && (whitespaceChars(*s) || *s == '%' || *s == ',')) 
@@ -2072,7 +2018,7 @@ namespace svg
                     
                     chunkClear(bufchunk);
                     s = svg_parseNumber(s, bufchunk);
-                    p.viewMiny = svg_strtof(bufchunk);
+                    p.viewMiny = (float)svg_strtof(bufchunk);
                     while (*s && (whitespaceChars(*s) || *s == '%' || *s == ',')) 
                         s++;
                     
@@ -2081,7 +2027,7 @@ namespace svg
                     
                     chunkClear(bufchunk);
                     s = svg_parseNumber(s, bufchunk);
-                    p.viewWidth = svg_strtof(bufchunk);
+                    p.viewWidth = (float)svg_strtof(bufchunk);
                     
                     while (*s && (whitespaceChars(*s) || *s == '%' || *s == ',')) 
                         s++;
@@ -2091,7 +2037,7 @@ namespace svg
                     
                     chunkClear(bufchunk);
                     s = svg_parseNumber(s, bufchunk);
-                    p.viewHeight = svg_strtof(bufchunk);
+                    p.viewHeight = (float)svg_strtof(bufchunk);
                 }
                 else if (keyvalue.first == "preserveAspectRatio") 
                 {
@@ -2131,7 +2077,7 @@ namespace svg
     
     static void svg_parseGradient(SVGParser &p, std::map<DataChunk, DataChunk>& attrs, char type)
     {
-        int i;
+
         SVGgradientData* grad = (SVGgradientData*)malloc(sizeof(SVGgradientData));
         if (grad == NULL) 
             return;
@@ -2221,7 +2167,7 @@ namespace svg
         p.gradients = grad;
     }
     
-    ///*
+    
     static void svg_parseGradientStop(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
     {
         SVGattrib & curAttr = p.getAttr();
@@ -2267,7 +2213,7 @@ namespace svg
         stop->color.a = (unsigned int)(curAttr.stopOpacity * 255) << 24;
         stop->offset = curAttr.stopOffset;
     }
-    //*/
+    
     //
     // SVG specific callback routines
     // These are used to actually turn text values
@@ -2298,7 +2244,7 @@ namespace svg
             if (p.fPathFlag)	// Do not allow nested paths.
                 return;
             p.pushAttr();
-            //svg_parsePath(p, attr);
+            svg_parsePath(p, attr);
             p.popAttr();
         }
         else if (el == "rect") {
@@ -2350,7 +2296,6 @@ namespace svg
 
     static void svg_endElement(SVGParser &p, const DataChunk &el)
     {
-        
         if (el == "g") {
             p.popAttr();
         }
@@ -2362,7 +2307,6 @@ namespace svg
         }
     }
     
-
     static void svg_content(SVGParser &p, DataCursor &dc)
     {
         // Don't do anything with content
@@ -2397,7 +2341,8 @@ namespace svg
     
     static void xml_parseElement(SVGParser& p, DataChunk &chunk, StartElementCallback startelCb,EndElementCallback endelCb)
     {
-		DataCursor dc = make_cursor_chunk(chunk);
+        DataChunk s = chunk;
+		//DataCursor dc = make_cursor_chunk(chunk);
         
         // storage for raw attribute key/value pairs
 		std::map<DataChunk, DataChunk> attr{};
@@ -2405,56 +2350,56 @@ namespace svg
         int nattr = 0;
         uint8_t* beginName{};
         uint8_t* endName{};
-        int start = 0;
-        int end = 0;
+        bool start = false;
+        bool end = false;
         uint8_t quote{};
 
         // Skip any white space after the '<'
-		skipWhitespace(dc);
+        while (s && whitespaceChars[*s])
+            s++;
         
-		if (isEOF(dc))
+		if (!s)
 			return;
         
         // Check if the tag is end tag
-        if (peek_u8(dc) == '/') 
+        if (*s == '/') 
         {
 		    // End tag
-			skip(dc, 1);
-            end = 1;
+            s++;
+            end = true;
         }
         else {
-            start = 1;
+            start = true;
         }
 
         // Skip comments, data and preprocessor stuff.
-        if (isEOF(dc) || peek_u8(dc) == '?' || peek_u8(dc) == '!')
+        if (!s || *s == '?' || *s == '!')
             return;
         
 
         // Get tag name
-        beginName = tell_pointer(dc);
+        beginName = (uint8_t *)s.fStart;
 
-        while (!isEOF(dc) && !whitespaceChars[peek_u8(dc)])
-            skip(dc, 1);
+        while (s && !whitespaceChars[*s])
+            s++;
 
-        
-
-        if (!isEOF(dc)) 
+        if (s) 
         { 
-			endName = tell_pointer(dc);
-            dc++;
-
+            endName = (uint8_t *)s.fStart;
+            s++;
         }
         else {
-            endName = tell_pointer(dc);
+            endName = (uint8_t*)s.fStart;
         }
         auto name = make_chunk(beginName, endName);
 
+        // BUGBUG - let's see what element we're dealing with
+        //printf("Element: ");
+        //printChunk(name);
         
         // Get the attribute key/value pairs for the element
-        while (!end && !isEOF(dc) && (nattr < NSVG_XML_MAX_ATTRIBS - 3)) 
+        while (!end && s && (nattr < NSVG_XML_MAX_ATTRIBS - 3)) 
         {
-            
             uint8_t * beginAttrName = NULL;
 			uint8_t * endAttrName = NULL;
             uint8_t* beginattrValue = NULL;
@@ -2462,65 +2407,71 @@ namespace svg
 
 
             // Skip white space before the attrib name
-			skipWhitespace(dc);
+            while (s && whitespaceChars[*s])
+                s++;
 
-			if (isEOF(dc))
+			if (!s)
 				break;
 
             
-            if (peek_u8(dc) == '/') {
-                end = 1;
+            if (*s == '/') {
+                end = true;
                 break;
             }
 
-            beginAttrName = tell_pointer(dc);
+            beginAttrName = (uint8_t *)s.fStart;
             
             // Find end of the attrib name.
-			skipWhitespace(dc);
-            while (!isEOF(dc) && !whitespaceChars[peek_u8(dc)] && peek_u8(dc) != '=')
-                skip(dc, 1);
+            //while (s && whitespaceChars[*s])
+            //    s++;
             
-            if (!isEOF(dc)) 
+            while (s && !whitespaceChars[*s] && *s != '=')
+                s++;
+            
+            if (s) 
             {
-				endAttrName = tell_pointer(dc);
-                skip(dc, 1);
+                endAttrName = (uint8_t *)s.fStart;
+                s++;
             }
 			else {
-				endAttrName = tell_pointer(dc);
+				endAttrName = (uint8_t*)s.fStart;
 			}
             DataChunk attrName = make_chunk(beginAttrName, endAttrName);
-
+            //printf("     ATTR :");
+            //writeChunk(attrName);
+            
             // Skip until the beginning of the value.
-            while (!isEOF(dc) && (peek_u8(dc) != '\"') && (peek_u8(dc) != '\''))
-                skip(dc, 1);
+            while (s && (*s != '\"') && (*s != '\''))
+                s++;
+
 
             
-            if (isEOF(dc)) 
+            if (!s) 
                 break;
             
             
-            quote = get_u8(dc);
+            quote = *s;
             
             // Store value and find the end of it.
-			beginattrValue = tell_pointer(dc);
+            s++;
+			beginattrValue = (uint8_t *)s.fStart;
 
 			// Skip until end of the value.
-            while (!isEOF(dc) && peek_u8(dc) != quote) 
-                skip(dc,1);
+            while (s && *s != quote) 
+                s++;
             
-            if (!isEOF(dc))
+            if (s)
             { 
-				endattrValue = tell_pointer(dc);
-				skip(dc, 1);
+				endattrValue =(uint8_t *)s.fStart;
+				s++;
             }
 
             // Store only well formed attributes
-
 			DataChunk attrValue = make_chunk(beginattrValue, endattrValue);
+            //printf("    VALUE :");
+            //printChunk(attrValue);
+            
 			attr.insert(std::make_pair(attrName, attrValue));
-
-			//printf("    %-20s%s\n", attrName.c_str(), value.c_str());
-            //printf("    %-20s\n", attrName.c_str());
 
 			nattr++;
         }
@@ -2530,7 +2481,6 @@ namespace svg
             startelCb(p, name, attr);
         if (end && endelCb)
             endelCb(p, name);
-
     }
     
     static int parseXML(SVGParser& p, const DataChunk& chunk, StartElementCallback startelCb = nullptr, EndElementCallback endelCb = nullptr, ContentCallback contentCb = nullptr)

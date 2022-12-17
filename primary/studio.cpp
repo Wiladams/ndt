@@ -140,7 +140,7 @@ void onLoad()
 	
 	// Create the surface we'll be using for drawing
 	gAppSurface = std::make_unique<Surface>();
-	gAppSurface->attachPixelArray(appFrameBuffer(),4);
+	gAppSurface->attachPixelArray(appFrameBuffer(),0);
 	gAppSurface->textFont("Consolas");
 
 

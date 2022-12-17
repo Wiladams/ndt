@@ -213,7 +213,7 @@ namespace ndt
 
 
 
-    static INLINE bool put_u8(DataCursor& dc, uint8_t a)  noexcept { if (isEOF(dc))return false; *dc.fCurrent++ = a; return true; }
+    static INLINE bool put_u8(DataCursor& dc, uint8_t a)  noexcept { if (isEOF(dc))return false; *dc.fCurrent = a; dc.fCurrent++;  return true; }
     static INLINE bool put_u16_le(DataCursor& dc, uint16_t a)  noexcept
     {
 

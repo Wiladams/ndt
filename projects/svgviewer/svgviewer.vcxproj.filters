@@ -60,6 +60,9 @@
     <ClInclude Include="..\..\primary\svg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="svggraphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp">

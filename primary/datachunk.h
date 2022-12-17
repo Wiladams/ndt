@@ -38,6 +38,7 @@ namespace ndt
 
 			INLINE DataChunk& operator++();				// prefix ++y
 			INLINE DataChunk& operator++(int i);		// postfix y++
+			INLINE DataChunk& operator--(int i);		// postfix y--
 			
 			INLINE explicit operator bool() const { return (fEnd - fStart) > 0; };
 #endif
@@ -73,7 +74,7 @@ namespace ndt
 		
 		// Some utility functions for common operations
 		static INLINE void chunkClear(DataChunk& dc) noexcept;
-		static INLINE DataChunk& chunkSkip(DataChunk& dc, size_t n) noexcept;
+		static INLINE DataChunk& chunkSkip(DataChunk& dc, int n) noexcept;
 		static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept;
 
 		static INLINE DataChunk ltrim(const DataChunk& a, const charset& skippable) noexcept;
@@ -168,7 +169,7 @@ namespace ndt
 		memset((uint8_t *)dc.fStart, 0, size(dc));
 	}
 	
-	static INLINE DataChunk & chunkSkip(DataChunk &dc, size_t n) noexcept
+	static INLINE DataChunk & chunkSkip(DataChunk &dc, int n) noexcept
 	{
 		if (n > size(dc))
 			n = size(dc);
@@ -229,6 +230,7 @@ namespace ndt
 
 	INLINE DataChunk& DataChunk::operator++() { return chunkSkip(*this, 1); }			// prefix notation ++y
 	INLINE DataChunk& DataChunk::operator++(int i) { return chunkSkip(*this, 1); }       // postfix notation y++
+	INLINE DataChunk& DataChunk::operator--(int i) { return chunkSkip(*this, -1); }       // postfix notation y++
 
 	INLINE DataChunk& DataChunk::operator+= (size_t n) { return chunkSkip(*this, n); }
 

@@ -1,11 +1,12 @@
 #include "studio.hpp"
 
 #include "mmap.hpp"
+#include "binstream.hpp"
 #include "svgparser.h"
 #include "svgpathviewer.hpp"
 
 
-#include "binstream.hpp"
+#include "svggraphic.h"
 
 
 
@@ -30,7 +31,7 @@ struct CenterWindow : public GraphicGroup
     void drawBackground(IGraphics& ctx)
     {
         ctx.push();
-        //ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
+        ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
         //ctx.scale(1, -1);
 
         // axis lines
@@ -39,9 +40,42 @@ struct CenterWindow : public GraphicGroup
         ctx.line(-canvasWidth / 2, 0, canvasWidth / 2, 0);
     }
 
-    void drawForeground(IGraphics& ctx)
+
+    
+    void draw(IGraphics& ctx) override
     {
+        static double scaling = 1.5;
+        
+        // Start by saving the context state
+        // so we're free to mess around with it
+        // while we're drawing ourself.
+        ctx.push();
+
+        // Before we do anything else, and while we're still
+        // in the coordinate system of our parent, we want to setup 
+        // a clip for our frame.
+        // Once the clip is set, we want to transform our
+        // coordinate sytem to have 0,0 be at the upper left corner.
+        //ctx.clip(frame());
+
+        ctx.scale(scaling, scaling);
+
+        // BUGBUG - maybe perform arbitrary transform?
+        //auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
+        //ctx.translate(pt.x, pt.y);
+        ctx.translate(frameX()/scaling, frameY()/scaling);
+
+        // Apply user specified transform
+        //ctx.translate(fTranslation.x, fTranslation.y);
+
+
+        drawBackground(ctx);
+        drawSelf(ctx);
+        drawForeground(ctx);
+
+        //ctx.noClip();
         ctx.pop();
+
     }
 };
 
@@ -126,28 +160,6 @@ void testPathCommands()
 }
 
 
-
-
-void writeChunk(const DataChunk& chunk)
-{
-    DataCursor cur = make_cursor_chunk(chunk);
-
-    while (!isEOF(cur))
-        printf("%c", get_u8(cur));
-}
-
-void printChunk(const DataChunk &chunk)
-{
-	if (size(chunk) > 0)
-	{
-        writeChunk(chunk);
-        printf("\n");
-    }
-    else
-        printf("BLANK==CHUNK\n");
-
-}
-
 void testNumber()
 {
 	char buffer[256];
@@ -189,20 +201,58 @@ void testLine()
     parseSVGDocument(mc, p);
 }
 
+void testLineDisplay()
+{
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> < line x1 = '100' y1 = '50' x2 = '500' y2 = '50' stroke = 'black' / >< / svg>");
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{0,0,(float)canvasWidth, (float)canvasHeight});
+    g->initFromChunk(mc);
+    
+    addGraphic(g);
+}
+
+void testRect()
+{
+    SVGParser p{};
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> <rect x='10' y='10' width='50' height='50' /> <rect x='70' y='10' width='50' height='50' rx='10' ry='10'/><rect x='130' y='10' width='50' height='50' rx='15' ry='15'/>< / svg>");
+
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
+    g->initFromChunk(mc);
+
+    addGraphic(g);
+
+}
+
 void testPolyLine()
 {
 
     SVGParser p{};
-    auto mc = make_chunk_cstr("<svg width='500' height='500'> <polyline points='0, 100 50, 25 50, 75 100, 0' />< / svg>");
-    parseSVGDocument(mc, p);
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> <polyline points='0,0 30,0 15,30' />< / svg>");
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
+    g->initFromChunk(mc);
 
-    printf("end\n");
+    addGraphic(g);
+}
+
+void testPath()
+{
+    SVGParser p{};
+    auto mc = make_chunk_cstr("<svg width='500' height='500'> <path d='M50,50 A30,30 0 0,1 35,20 L100,100 M110,110 L100,0' />< / svg>");
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
+    g->initFromChunk(mc);
+
+    addGraphic(g);
+
 }
 
 void testParseDoc()
 {
-    constexpr const char* filename = "resources\\bowls.svg";
-
+    //constexpr const char* filename = "resources\\bowls.svg";
+    //constexpr const char* filename = "resources\\grapes.svg";
+    //constexpr const char* filename = "resources\\Ghostscript_Tiger.svg";
+    //constexpr const char* filename = "resources\\floppy-disk.svg";
+    constexpr const char* filename = "resources\\headphones.svg";
+    //constexpr const char* filename = "resources\\house.svg";
+    
     auto fmap = mmap::create_shared(filename);
     if (fmap == nullptr || !fmap->isValid())
     {
@@ -211,12 +261,43 @@ void testParseDoc()
     }
 
     // We have the file, now try to parse the svg
-
-    auto chunk = fmap->getChunk();
     SVGParser p{};
-    parseSVGDocument(chunk, p);
+    auto mc = fmap->getChunk();
 
+    auto win1 = std::make_shared<CenterWindow>(maths::rectf{ 0,0,(float)canvasWidth,(float)canvasHeight });
+    addGraphic(win1);
+    
+    //parseSVGDocument(chunk, p);
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
+    g->initFromChunk(mc);
+
+    win1->addGraphic(g);
+    
+    // close the mapped file
     fmap->close();
+
+    
+}
+
+void testPathParse()
+{
+    // pathological number sequences, '-' terminating, multiple sequenced commands
+    //auto mc = make_chunk_cstr("m299.72,80.245c0.62,0.181,2.83,1.305,4.08,2.955,0,0,6.8,10.8,1.6-7.6,0,0-9.2-28.8-0.4-17.6,0,0,6,7.2,2.8-6.4-3.86-16.427-6.4-22.8-6.4-22.8s11.6,4.8-15.2-34.8l8.8,3.6s-19.6-39.6-41.2-44.8l-8-6s38.4-38,25.6-74.8c0,0-6.8-5.2-16.4,4,0,0-6.4,4.8-12.4,3.2,0,0-30.8,1.2-32.8,1.2s-36.8-37.2-102.4-19.6c0,0-5.2,2-9.599,0.8,0,0-18.401-16-67.201,6.8,0,0-10,2-11.6,2s-4.4,0-12.4,6.4-8.4,7.2-10.4,8.8c0,0-16.4,11.2-21.2,12,0,0-11.6,6.4-16,16.4l-3.6,1.2s-1.6,7.2-2,8.4c0,0-4.8,3.6-5.6,9.2,0,0-8.8,6-8.4,10.4,0,0-1.6,5.2-2.4,10,0,0-7.2,4.8-6.4,7.6,0,0-7.6,14-6.4,20.8,0,0-6.4-0.4-9.2,2,0,0-0.8,4.8-2.4,5.2,0,0-2.8,1.2-0.4,5.2,0,0-1.6,2.8-2,4.4,0,0,0.8,2.8-3.6,8.4,0,0-6.4,18.8-4.4,24,0,0,0.4,4.8-2.4,6.4,0,0-3.6-0.4,4.8,11.6,0,0,0.8,1.2-2.4,3.6,0,0-17.2,3.6-19.6,20,0,0-13.6,14.8-13.6,20,0,2.305,0.27,5.452,0.97,10.06,0,0-0.57,8.34,27.03,9.14s402.72-31.355,402.72-31.355z");
+    
+    // floppy-disk.svg
+    //auto mc = make_chunk_cstr("M6,21h10v-6H6V21z M16,4h-3v3h3V4z M19,1H3C1.895,1,1,1.895,1,3v16 c0,1.105,0.895,2,2,2h1v-6c0-1.105,0.895-2,2-2h10c1.105,0,2,0.895,2,2v6h1c1.105,0,2-0.895,2-2V3C21,1.895,20.105,1,19,1z M17,8 H5V3h12V8z");
+    //auto mc = make_chunk_cstr("c0-1.105,0.895-2,2-2h10");
+
+	// headphones.svg
+	auto mc = make_chunk_cstr("M19,11.184V9c0-4.418-3.582-8-8-8S3,4.582,3,9v2.184C1.837,11.597,1,12.696,1,14 v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4c0-1.304-0.837-2.403-2-2.816V9c0-3.314,2.686-6,6-6s6,2.686,6,6v2.184 c-1.163,0.413-2,1.512-2,2.816v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4C21,12.696,20.163,11.597,19,11.184z");
+    
+    
+    std::vector<PathSegment> commands{};
+    ndt::tokenizePath(mc, commands);
+    BLPath apath{};
+    blPathFromSegments(commands, apath);
+
+    printf("commands: %zd\n", commands.size());
 }
 
 void setup()
@@ -224,8 +305,12 @@ void setup()
     //testTransform();
     //testChunk();
     //testLine();
+    //testLineDisplay();
     //testNumber();
     //testParse();
-    //testParseDoc();
-	testPolyLine();
+    testParseDoc();
+    //testPath();
+    //testPathParse();
+    //testPolyLine();
+    //testRect();
 }
