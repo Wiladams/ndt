@@ -292,37 +292,7 @@ namespace svg
         };
     } SVGpaint;
 
-    /*
-    typedef struct SVGpath
-    {
-        float* pts;					// Cubic bezier points: x0,y0, [cpx1,cpx1,cpx2,cpy2,x1,y1], ...
-        int npts;					// Total number of bezier points.
-        char closed;				// Flag indicating if shapes should be treated as closed.
-        float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
-        struct SVGpath* next;		// Pointer to next path, or NULL if last element.
-    } SVGpath;
-    */
-    /*
-    typedef struct SVGshape
-    {
-        char id[64];				// Optional 'id' attr of the shape or its group
-        SVGpaint fill;				// Fill paint
-        SVGpaint stroke;			// Stroke paint
-        float opacity;				// Opacity of the shape.
-        float strokeWidth;			// Stroke width (scaled).
-        float strokeDashOffset;		// Stroke dash offset (scaled).
-        float strokeDashArray[8];			// Stroke dash array (scaled).
-        char strokeDashCount;				// Number of dash values in dash array.
-        char strokeLineJoin;		// Stroke join type.
-        char strokeLineCap;			// Stroke cap type.
-        float miterLimit;			// Miter limit
-        char fillRule;				// Fill rule, see NSVGfillRule.
-        unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
-        float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
-        SVGpath* paths;			    // Linked list of paths in the image.
-        struct SVGshape* next;		// Pointer to next shape, or NULL if last element.
-    } SVGshape;
-    */
+
 
     struct SVGattrib
     {
@@ -380,12 +350,11 @@ namespace svg
     {
         SVGattrib fAttributes;
         BLPath fPath{};
-
+        rectf fFrame;
         
         SVGShape(const rectf &fr)
-            :GraphicElement(fr)
         {
-            setBounds(rectf{ 0,0,frameWidth(), frameHeight() });
+            fFrame = fr;
         }
 
 		void setAttributes(const SVGattrib& attr)
@@ -447,7 +416,7 @@ namespace svg
             fAttributes.fStroke = stroke;
         }
 
-        void drawSelf(IGraphics& ctx)
+        void draw(IGraphics& ctx)
         {
             ctx.push();
             
@@ -523,10 +492,11 @@ namespace svg
 		std::array<SVGattrib, SVG_MAX_ATTR> attr{};
         int attrHead=0;
         
-
+        std::map<DataChunk, BLVar> fDefinitions{};
 
         SVGgradientData* gradients= nullptr;
-
+        
+        std::vector<std::shared_ptr<SVGShape> > fShapes;
         BLPath fWorkingPath;
 
         
@@ -541,7 +511,7 @@ namespace svg
         bool fDefsFlag = false;
         bool fPathFlag = false;
 
-        std::vector<std::shared_ptr<SVGShape> > fShapes;
+
 
         
 
@@ -605,6 +575,11 @@ namespace svg
             fWorkingPath.reset();
         }
 
+		void addDefinition(DataChunk name, BLVar value)
+		{
+			fDefinitions[name] = value;
+		}
+        
         void addShape()
         {
             // If the path is empty, don't do anything
@@ -1223,128 +1198,153 @@ namespace svg
     //
     // parsing transforms
     //
-    static int svg_parseTransformArgs(const DataChunk & inChunk, float* args, int maxNa, int& na)
+    static DataChunk svg_parseTransformArgs(const DataChunk & inChunk, float* args, int maxNa, int& na)
     {
         na = 0;
-        DataCursor ptr = make_cursor_chunk(inChunk);
-        while (!isEOF(ptr) && *ptr != '(') 
-            ptr++;
+
+        DataChunk s = inChunk;
         
-        if (isEOF(ptr))
-            return 1;
+        // Skip past everything until we see a '('
+        while (s && *s != '(') 
+            s++;
         
-        auto beginSentinel = tell_pointer(ptr);
+        // If we got to the end of the chunk, and did not see the '('
+        // then just return
+        if (!s)
+            return s;
         
-        // now look for the ending ')'
-        while (!isEOF(ptr) && (*ptr != ')')) 
-            ptr++;
+        // by the time we're here, we're sitting right on top of the 
+        //'(', so skip past that to get to what should be the numbers
+        s++;
         
-        if (isEOF(ptr))
-            return 1;
-		auto endSentinel = tell_pointer(ptr);
+        // We want to createa  chunk that contains all the numbers
+        // without the closing ')', so create a chunk that just
+        // represents that range.
+        // Start the chunk at the current position
+        // and expand it after we find the ')'
+        DataChunk item = s;
+        item.fEnd = item.fStart;
         
-        // create a new cursor based on beginSentinel and endSentinel
-		DataCursor str = make_cursor(beginSentinel, endSentinel);
-        char it[64]{ 0 };
-		DataChunk numChunk = make_chunk_size(it, 63);
+        // scan until the closing ')'
+        while (s && (*s != ')')) 
+            s++;
         
-        while (str) {
-            memset(it, 0, 64);  // make it clean for the next number
-            if (*str == '-' || *str == '+' || *str == '.' || digitChars(*str)) 
+        // At this point, we're either sitting at the ')' or at the end
+		// of the chunk.  If we're at the end of the chunk, then we
+		// didn't find the closing ')', so just return
+		if (*s != ')')
+            return s;
+        
+		// We found the closing ')', so if we use the current position
+        // as the end (sitting on top of the ')', the item chunk will
+		// perfectly represent the numbers we want to parse.
+		item.fEnd = s.fStart;
+        
+		// Create a chunk that will represent a specific number to be parsed.
+        DataChunk numChunk{};
+        
+		// Move the source chunk cursor past the ')', so that whatever
+        // needs to use it next is ready to go.
+        s++;
+        
+        // Now we're ready to parse the individual numbers
+        while (item) {
+            if (*item == '-' || *item == '+' || *item == '.' || digitChars(*item)) 
             {
                 if (na >= maxNa) 
-                    return 0;
+                    return s;
                 
-                auto strChunk = make_chunk(str.fCurrent, str.fEnd);
-                auto outChunk = svg_parseNumber(strChunk, numChunk);
+                item = scanNumber(item, numChunk);
                 args[(na)++] = (float)svg_strtof(numChunk);
-
-                str.fCurrent = (uint8_t *)outChunk.fStart;
             }
             else {
-                str++;
+                // skip past what should be whitspace, or commas
+                item++;
             }
         }
         
-        auto len = (int)(str.fCurrent - ptr.fStart);
-        return len;
+        return s;
     }
     
-    static int svg_parseMatrix(float* xform, const DataChunk& str)
+    static DataChunk svg_parseMatrix(BLMatrix2D& xform, const DataChunk& inChunk)
     {
         float t[6];
         int na = 0;
-        int len = svg_parseTransformArgs(str, t, 6, na);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, t, 6, na);
+        
         if (na != 6) 
-            return len;
+            return s;
         
-        memcpy(xform, t, sizeof(float) * 6);
+		xform.reset(t[0], t[1], t[2], t[3], t[4], t[5]);
         
-        return len;
+        return s;
     }
     
-    static int svg_parseTranslate(float* xform, const DataChunk & str)
+    static DataChunk svg_parseTranslate(BLMatrix2D& xform, const DataChunk & inChunk)
     {
+
         float args[2];
-        float t[6];
         int na = 0;
-        int len = svg_parseTransformArgs(str, args, 2, na);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, args, 2, na);
         if (na == 1) 
             args[1] = 0.0;
 
-        svg_xformSetTranslation(t, args[0], args[1]);
-        memcpy(xform, t, sizeof(float) * 6);
-        
-        return len;
+		xform.translate(args[0], args[1]);
+      
+        return s;
     }
     
-    static int svg_parseScale(float* xform, const DataChunk & str)
+    static DataChunk svg_parseScale(BLMatrix2D& xform, const DataChunk & inChunk)
     {
         float args[2]{ 0 };
         int na = 0;
-        float t[6]{ 0 };
-        int len = svg_parseTransformArgs(str, args, 2, na);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, args, 2, na);
         
         if (na == 1) 
             args[1] = args[0];
         
-        svg_xformSetScale(t, args[0], args[1]);
-        memcpy(xform, t, sizeof(float) * 6);
+		xform.scale(args[0], args[1]);
         
-        return len;
+        return s;
     }
     
-    static int svg_parseSkewX(float* xform, const DataChunk & str)
+    static DataChunk svg_parseSkewX(BLMatrix2D& xform, const DataChunk & inChunk)
     {
         float args[1];
         int na = 0;
         float t[6];
-        int len = svg_parseTransformArgs(str, args, 1, na);
-        svg_xformSetSkewX(t, args[0] / 180.0f * maths::pi);
-        memcpy(xform, t, sizeof(float) * 6);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, args, 1, na);
+
+		xform.resetToSkewing(args[0], 0.0f);
         
-        return len;
+        return s;
     }
 
-    static int svg_parseSkewY(float* xform, const DataChunk & str)
+    static DataChunk svg_parseSkewY(BLMatrix2D& xform, const DataChunk & inChunk)
     {
         float args[1]{ 0};
         int na = 0;
         float t[6]{ 0 };
-        int len = svg_parseTransformArgs(str, args, 1, na);
-        svg_xformSetSkewY(t, args[0] / 180.0f * maths::pi);
-        memcpy(xform, t, sizeof(float) * 6);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, args, 1, na);
+
+		xform.resetToSkewing(0.0f, args[0]);
         
-        return len;
+        return s;
     }
     
-    static int svg_parseRotate(float* xform, const DataChunk & str)
+    static DataChunk svg_parseRotate(BLMatrix2D &xform, const DataChunk & inChunk)
     {
         float args[3]{ 0 };
         int na = 0;
         float m[6]{ 0 };
         float t[6]{ 0 };
-        int len = svg_parseTransformArgs(str, args, 3, na);
+        DataChunk s = inChunk;
+        s = svg_parseTransformArgs(s, args, 3, na);
         if (na == 1)
             args[1] = args[2] = 0.0f;
         
@@ -1363,60 +1363,67 @@ namespace svg
             svg_xformMultiply(m, t);
         }
 
-        memcpy(xform, m, sizeof(float) * 6);
+		xform.reset(m[0], m[1], m[2], m[3], m[4], m[5]);
 
-        return len;
+		return  s;
     }
 
     
-    static void svg_parseTransform(float* xform, const DataChunk &inChunk)
+    static void svg_parseTransform(BLMatrix2D &xform, const DataChunk &inChunk)
     {
         float t[6];
-        int len;
-        svg_xformIdentity(xform);
+        BLMatrix2D m{};
+        m.reset();
         
-		DataCursor str = make_cursor_chunk(inChunk);
-        while (!isEOF(str))
+        
+		DataChunk s = inChunk;
+        
+        while (s)
         {
-            // Need to make chunk from current cursor position
-			// and the end of the string
-            DataChunk numchunk = make_chunk(str.fCurrent, str.fEnd);
-            
-            if (comparen_cstr(numchunk, "matrix", 6) == 0)
-                len = svg_parseMatrix(t, numchunk);
-            else if (comparen_cstr(numchunk, "translate", 9) == 0)
-                len = svg_parseTranslate(t, numchunk);
-            else if (comparen_cstr(numchunk, "scale", 5) == 0)
-                len = svg_parseScale(t, numchunk);
-            else if (comparen_cstr(numchunk, "rotate", 6) == 0)
-                len = svg_parseRotate(t, numchunk);
-            else if (comparen_cstr(numchunk, "skewX", 5) == 0)
-                len = svg_parseSkewX(t, numchunk);
-            else if (comparen_cstr(numchunk, "skewY", 5) == 0)
-                len = svg_parseSkewY(t, numchunk);
-            else {
-                str++;
-                continue;
-            }
-            if (len != 0) {
-                skip(str, len);
-            }
-            else {
-                str++;
-                continue;
-            }
 
-            svg_xformPremultiply(xform, t);
+            
+			// Set out temp transform to the identity to start
+            // so that if parsing goes wrong, we can still do
+            // the multiply without worrying about messing things up
+			// That means, the individula parsing functions need to not
+			// partially mess up the transform if they fail.
+            //svg_xformIdentity(t);
+            BLMatrix2D tm{};
+            tm.reset();
+            
+            if (comparen_cstr(s, "matrix", 6) == 0)
+                s = svg_parseMatrix(t, s);
+            else if (comparen_cstr(s, "translate", 9) == 0)
+                s = svg_parseTranslate(t, s);
+            else if (comparen_cstr(s, "scale", 5) == 0)
+                s = svg_parseScale(t, s);
+            else if (comparen_cstr(s, "rotate", 6) == 0)
+                s = svg_parseRotate(t, s);
+            else if (comparen_cstr(s, "skewX", 5) == 0)
+                s = svg_parseSkewX(t, s);
+            else if (comparen_cstr(s, "skewY", 5) == 0)
+                s = svg_parseSkewY(t, s);
+            else {
+                s++;
+                continue;
+            }
+            
+            tm.reset(t[0], t[1], t[2], t[3], t[4], t[5]);
+            m.transform(tm);
+
         }
     }
     
     
     // Parse specific kinds of attributes
+    // As the attribute is parsed, the value is stored in the named
+	// attribute of the parser.
     static DataChunk svg_parseStyle(SVGParser& p, const DataChunk& chunk);
     
     static int svg_parseAttr(SVGParser & p, const DataChunk &name, const DataChunk & value)
     {
-        float xform[6]{ 0 };
+        BLMatrix2D xform{};
+
 
         SVGattrib & attr = p.getAttr();
 
@@ -1427,7 +1434,6 @@ namespace svg
             if (value == "none")
                 attr.visible = 0;
             // Don't reset ->visible on display:inline, one display:none hides the whole subtree
-
         }
         else if (name == "fill") {
             if (value == "none") {
@@ -1490,7 +1496,8 @@ namespace svg
         }
         else if (name == "transform")  {
             svg_parseTransform(xform, value);
-            svg_xformPremultiply(attr.xform, xform);
+            //svg_xformPremultiply(attr.xform, xform);
+            attr.xform.transform(xform);
         }
         else if (name == "stop-color")  {
             attr.stopColor = svg_parseColor(value);
@@ -1554,7 +1561,9 @@ namespace svg
 		return svg_parseAttr(p, nameChunk, valueChunk);
     }
 
-    
+    //
+	// Parse a style attribute
+	//
     static DataChunk svg_parseStyle(SVGParser &p, const DataChunk & chunk)
     {
 		DataChunk s = chunk;
@@ -1596,11 +1605,12 @@ namespace svg
         return s;
     }
 
-    
+ 
+    //
+	// Parse an element's attributes
+	//
     static void svg_parseAttribs(SVGParser &p, std::map<DataChunk, DataChunk>& attr)
     {
-
-        
         for (auto& a : attr) {
             const DataChunk& name = a.first;
             DataChunk& value = a.second;
@@ -1611,110 +1621,6 @@ namespace svg
                 svg_parseAttr(p, name, value);
         }
     }
-    
-
-
-    
-    /*
-    static void svg_moveTo(SVGParser & p, float x, float y)
-    {
-        if (p.npts > 0) {
-            p.pts[(p.npts - 1) * 2 + 0] = x;
-            p.pts[(p.npts - 1) * 2 + 1] = y;
-        }
-        else {
-            p.addPoint(x, y);
-        }
-    }
-    
-    static void svg_lineTo(SVGParser &p, float x, float y)
-    {
-        float px, py, dx, dy;
-        if (p.npts > 0) {
-            px = p.pts[(p.npts - 1) * 2 + 0];
-            py = p.pts[(p.npts - 1) * 2 + 1];
-            dx = x - px;
-            dy = y - py;
-            p.addPoint(px + dx / 3.0f, py + dy / 3.0f);
-            p.addPoint(x - dx / 3.0f, y - dy / 3.0f);
-            p.addPoint(x, y);
-        }
-    }
-    
-    static void svg_cubicBezTo(SVGParser & p, float cpx1, float cpy1, float cpx2, float cpy2, float x, float y)
-    {
-        if (p.npts > 0) {
-            p.addPoint(cpx1, cpy1);
-            p.addPoint(cpx2, cpy2);
-            p.addPoint(x, y);
-        }
-    }
-    */
-
-    /*
-    static int svg_ptInBounds(float* pt, float* bounds)
-    {
-        return pt[0] >= bounds[0] && pt[0] <= bounds[2] && pt[1] >= bounds[1] && pt[1] <= bounds[3];
-    }
-    
-    static double svg_evalBezier(double t, double p0, double p1, double p2, double p3)
-    {
-        double it = 1.0 - t;
-        return it * it * it * p0 + 3.0 * it * it * t * p1 + 3.0 * it * t * t * p2 + t * t * t * p3;
-    }
-    
-    static void svg_curveBounds(float* bounds, float* curve)
-    {
-        int i, j, count;
-        double roots[2], a, b, c, b2ac, t, v;
-        float* v0 = &curve[0];
-        float* v1 = &curve[2];
-        float* v2 = &curve[4];
-        float* v3 = &curve[6];
-
-        // Start the bounding box by end points
-        bounds[0] = svg_minf(v0[0], v3[0]);
-        bounds[1] = svg_minf(v0[1], v3[1]);
-        bounds[2] = svg_maxf(v0[0], v3[0]);
-        bounds[3] = svg_maxf(v0[1], v3[1]);
-
-        // Bezier curve fits inside the convex hull of it's control points.
-        // If control points are inside the bounds, we're done.
-        if (svg_ptInBounds(v1, bounds) && svg_ptInBounds(v2, bounds))
-            return;
-
-        // Add bezier curve inflection points in X and Y.
-        for (i = 0; i < 2; i++) {
-            a = -3.0 * v0[i] + 9.0 * v1[i] - 9.0 * v2[i] + 3.0 * v3[i];
-            b = 6.0 * v0[i] - 12.0 * v1[i] + 6.0 * v2[i];
-            c = 3.0 * v1[i] - 3.0 * v0[i];
-            count = 0;
-            if (fabs(a) < SVG_EPSILON) {
-                if (fabs(b) > SVG_EPSILON) {
-                    t = -c / b;
-                    if (t > SVG_EPSILON && t < 1.0 - SVG_EPSILON)
-                        roots[count++] = t;
-                }
-            }
-            else {
-                b2ac = b * b - 4.0 * c * a;
-                if (b2ac > SVG_EPSILON) {
-                    t = (-b + sqrt(b2ac)) / (2.0 * a);
-                    if (t > SVG_EPSILON && t < 1.0 - SVG_EPSILON)
-                        roots[count++] = t;
-                    t = (-b - sqrt(b2ac)) / (2.0 * a);
-                    if (t > SVG_EPSILON && t < 1.0 - SVG_EPSILON)
-                        roots[count++] = t;
-                }
-            }
-            for (j = 0; j < count; j++) {
-                v = svg_evalBezier(roots[j], v0[i], v1[i], v2[i], v3[i]);
-                bounds[0 + i] = svg_minf(bounds[0 + i], (float)v);
-                bounds[2 + i] = svg_maxf(bounds[2 + i], (float)v);
-            }
-        }
-    }
-    */
 
     static SVGgradientData* svg_findGradientData(SVGParser &p, const char* id)
     {
@@ -1924,6 +1830,36 @@ namespace svg
 		p.addEllipse(cx, cy, rx, ry);
     }
     
+    static DataChunk nextNumber(const DataChunk& inChunk, DataChunk& numChunk)
+    {
+        DataChunk s = inChunk;
+
+		// Skip leading whitespace
+        while (s && (whitespaceChars[*s] || *s == '%'))
+            s++;
+
+        if (!s)
+            return s;
+        
+        // We should be at the beginning of some digits
+        if (*s == '-' || *s == '+' || *s == '.' || digitChars(*s))
+        {
+            s = ndt::scanNumber(s, numChunk);
+        }
+        /*
+        numChunk.fStart = s.fStart;
+        numChunk.fEnd = s.fStart;
+
+        // Get extent of first number
+        while (s && !whitespaceChars[*s])
+            s++;
+
+        numChunk.fEnd = s.fStart;
+        */
+            
+        return s;
+    }
+    
     static DataChunk svg_getNextPathItem(const DataChunk &inChunk, DataChunk &outChunk)
     {
         DataChunk s = inChunk;
@@ -1937,7 +1873,6 @@ namespace svg
         
         if (*s == '-' || *s == '+' || *s == '.' || digitChars(*s)) 
         {
-            //s = svg_parseNumber(s, outChunk);
             s = ndt::scanNumber(s, outChunk);
         }
         else {
@@ -2019,33 +1954,7 @@ namespace svg
         
     }
     
-    static DataChunk nextNumber(const DataChunk &inChunk, DataChunk &numChunk)
-    {
-        DataChunk s = inChunk;
 
-
-        while (s && (whitespaceChars[*s] || *s == '%'))
-            s++;
-
-        // We should be at the beginning of some digits
-        
-        //s++;
-        numChunk.fStart = s.fStart;
-        numChunk.fEnd = s.fStart;
-
-        // Get extent of first number
-        while (s && !whitespaceChars[*s])
-            s++;
-
-        //if (!s)
-        //    return s;
-
-        //s++;
-
-        numChunk.fEnd = s.fStart;
-
-        return s;
-    }
 
 
     static void svg_parseSVG(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
@@ -2116,97 +2025,121 @@ namespace svg
     
     static void svg_parseGradient(SVGParser &p, std::map<DataChunk, DataChunk>& attrs, char type)
     {
-
-        SVGgradientData* grad = (SVGgradientData*)malloc(sizeof(SVGgradientData));
-        if (grad == NULL) 
-            return;
-        memset(grad, 0, sizeof(SVGgradientData));
-        grad->units = SVG_OBJECT_SPACE;
-        grad->type = type;
-        if (grad->type == SVG_PAINT_LINEAR_GRADIENT) 
+		BLGradient gradient{};
+		std::string id{};
+        
+       // SVGgradientData* grad = (SVGgradientData*)malloc(sizeof(SVGgradientData));
+        //if (grad == NULL) 
+        //    return;
+        //memset(grad, 0, sizeof(SVGgradientData));
+        //grad->units = SVG_OBJECT_SPACE;
+        //grad->type = type;
+        if (type == SVG_PAINT_LINEAR_GRADIENT) 
         {
-            grad->linear.x1 = { 0.0f, SVG_UNITS_PERCENT };
-            grad->linear.y1 = {0.0f, SVG_UNITS_PERCENT};
-            grad->linear.x2 = { 100.0f, SVG_UNITS_PERCENT };
-            grad->linear.y2 = { 0.0f, SVG_UNITS_PERCENT };
+			gradient = BLGradient(BLLinearGradientValues{0,0,100,100});
+            //grad->linear.x1 = { 0.0f, SVG_UNITS_PERCENT };
+            //grad->linear.y1 = {0.0f, SVG_UNITS_PERCENT};
+            //grad->linear.x2 = { 100.0f, SVG_UNITS_PERCENT };
+            //grad->linear.y2 = { 0.0f, SVG_UNITS_PERCENT };
         }
-        else if (grad->type == SVG_PAINT_RADIAL_GRADIENT) 
+        else if (type == SVG_PAINT_RADIAL_GRADIENT) 
         {
-            grad->radial.cx = { 50.0f, SVG_UNITS_PERCENT };
-            grad->radial.cy = { 50.0f, SVG_UNITS_PERCENT };
-            grad->radial.r = { 50.0f, SVG_UNITS_PERCENT };
+			gradient = BLGradient(BLRadialGradientValues{ 50, 50, 50, 50, 50 });
+            //grad->radial.cx = { 50.0f, SVG_UNITS_PERCENT };
+            //grad->radial.cy = { 50.0f, SVG_UNITS_PERCENT };
+            //grad->radial.r = { 50.0f, SVG_UNITS_PERCENT };
         }
 
-        svg_xformIdentity(grad->xform);
+        //gradient.setMatrix(identityMatrix);
 
+		BLLinearGradientValues linear{};
+		BLRadialGradientValues radial{};
+        
+        BLMatrix2D xform{};
+        xform.reset();
+
+        int units{ SVG_USER_SPACE };
+        
+        // Get all the attributes
         for (auto& keyvalue : attrs)
         {
             if (keyvalue.first == "id") 
             {
-                auto len = copy_to_cstr(grad->id, 63, keyvalue.second);
+				id = std::string(keyvalue.second.fStart, keyvalue.second.fEnd);
+                //auto len = copy_to_cstr(grad->id, 63, keyvalue.second);
                 //strncpy_s(grad->id, (const char *)keyvalue.second.fStart, 63);
-                grad->id[len] = '\0';
+                //grad->id[len] = '\0';
             }
             else if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) {
                 if (keyvalue.first == "gradientUnits") 
                 {
                     if (keyvalue.second == "objectBoundingBox")
-                        grad->units = SVG_OBJECT_SPACE;
+                        units = SVG_OBJECT_SPACE;
                     else
-                        grad->units = SVG_USER_SPACE;
+                        units = SVG_USER_SPACE;
                 }
                 else if (keyvalue.first == "gradientTransform") {
-                    svg_parseTransform(grad->xform, keyvalue.second);
+                    svg_parseTransform(xform, keyvalue.second);
+                    //gradient.setMatrix(identityMatrix);
                 }
                 else if (keyvalue.first == "cx") {
-                    grad->radial.cx = svg_parseCoordinateRaw(keyvalue.second);
+                    
+                   //radial.x0 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "cy") {
-                    grad->radial.cy = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.y0 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "r") {
-                    grad->radial.r = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.r0 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "fx") {
-                    grad->radial.fx = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.x1 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "fy") {
-                    grad->radial.fy = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.y1 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "x1") {
-                    grad->linear.x1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.x0 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "y1") {
-                    grad->linear.y1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.y0 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "x2") {
-                    grad->linear.x2 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.x1 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "y2") {
-                    grad->linear.y2 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.y1 = svg_parseCoordinateRaw(keyvalue.second);
                 }
                 else if (keyvalue.first == "spreadMethod") {
-                    if (keyvalue.first == "pad")
-                        grad->spread = SVG_SPREAD_PAD;
-                    else if (keyvalue.first == "reflect")
-                        grad->spread = SVG_SPREAD_REFLECT;
-                    else if (keyvalue.first == "repeat")
-                        grad->spread = SVG_SPREAD_REPEAT;
+                    //if (keyvalue.first == "pad")
+                    //    grad->spread = SVG_SPREAD_PAD;
+                    //else if (keyvalue.first == "reflect")
+                    //    grad->spread = SVG_SPREAD_REFLECT;
+                    //else if (keyvalue.first == "repeat")
+                    //    grad->spread = SVG_SPREAD_REPEAT;
                 }
                 else if (keyvalue.first == "xlink:href") {
                     //auto len = copy_to_cstr(grad->ref, 62, keyvalue.second);
                     const char* href = (const char *)keyvalue.second.fStart;
-                    strncpy_s(grad->ref, href + 1, 62);
-                    grad->ref[62] = '\0';
+                    //strncpy_s(grad->ref, href + 1, 62);
+                    //grad->ref[62] = '\0';
                 }
             }
         }
 
-        grad->next = p.gradients;
-        p.gradients = grad;
+        //grad->next = p.gradients;
+        //p.gradients = grad;
     }
     
-    
+    /*
+            BLGradient gradient(BLRadialGradientValues(fCenter.x, fCenter.y, fCenter.x, fCenter.y, fRadius));
+        gradient.addStop(0, p5::color(220, 127));       // center
+        gradient.addStop(0.20, p5::color(fBackgroundColor.r(), fBackgroundColor.g(), fBackgroundColor.b(), 127));     // center
+        gradient.addStop(0.80, fBackgroundColor);
+        gradient.addStop(1.0, p5::color(65, 127));     // edge
+  BL_INLINE BLResult addStop(double offset, const BLRgba32& rgba32) noexcept { return blGradientAddStopRgba32(this, offset, rgba32.value); }
+
+    */
     static void svg_parseGradientStop(SVGParser &p, std::map<DataChunk, DataChunk>& attrs)
     {
         SVGattrib & curAttr = p.getAttr();

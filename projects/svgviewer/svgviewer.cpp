@@ -256,7 +256,7 @@ void testParseStyle()
 
 void testParseDoc()
 {
-    //constexpr const char* filename = "resources\\bowls.svg";
+    constexpr const char* filename = "resources\\bowls.svg";
     //constexpr const char* filename = "resources\\example_cubic1.svg";
     //constexpr const char* filename = "resources\\example_elliptic_arc.svg";
     //constexpr const char* filename = "resources\\grapes.svg";
@@ -267,7 +267,7 @@ void testParseDoc()
     //constexpr const char* filename = "resources\\example_quad01.svg";
     //constexpr const char* filename = "resources\\tango.svg";
     //constexpr const char* filename = "resources\\trysvg_linear.svg";
-    constexpr const char* filename = "resources\\svgexample_quad.svg";
+    //constexpr const char* filename = "resources\\svgexample_quad.svg";
     //constexpr const char* filename = "resources\\example_moveby.svg";
     //constexpr const char* filename = "resources\\example_rect.svg";
     //constexpr const char* filename = "resources\\e-path-012.svg";
@@ -287,7 +287,7 @@ void testParseDoc()
     addGraphic(win1);
     
     //parseSVGDocument(chunk, p);
-    auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
+    auto g = std::make_shared<SVGGraphic>(maths::rectf{0,0,(float)canvasWidth, (float)canvasHeight });
     g->initFromChunk(mc);
 
     win1->addGraphic(g);
