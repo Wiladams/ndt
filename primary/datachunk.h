@@ -77,9 +77,9 @@ namespace ndt
 		static INLINE DataChunk& chunkSkip(DataChunk& dc, int n) noexcept;
 		static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept;
 
-		static INLINE DataChunk ltrim(const DataChunk& a, const charset& skippable) noexcept;
-		static INLINE DataChunk rtrim(const DataChunk& a, const charset& skippable) noexcept;
-		static INLINE DataChunk trim(const DataChunk& a, const charset& skippable) noexcept;
+		static INLINE DataChunk chunk_ltrim(const DataChunk& a, const charset& skippable) noexcept;
+		static INLINE DataChunk chunk_rtrim(const DataChunk& a, const charset& skippable) noexcept;
+		static INLINE DataChunk chunk_trim(const DataChunk& a, const charset& skippable) noexcept;
 		
 #ifdef __cplusplus
 	}
@@ -181,7 +181,7 @@ namespace ndt
 	static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept { dc.fStart = dc.fEnd; }
 	
 	// Trim the left side of skippable characters
-    static INLINE DataChunk ltrim(const DataChunk& a, const charset & skippable) noexcept
+    static INLINE DataChunk chunk_ltrim(const DataChunk& a, const charset & skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;
@@ -191,7 +191,7 @@ namespace ndt
 	}
 
 	// trim the right side of skippable characters
-	static INLINE DataChunk rtrim(const DataChunk &a, const charset &skippable) noexcept
+	static INLINE DataChunk chunk_rtrim(const DataChunk &a, const charset &skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;
@@ -202,7 +202,7 @@ namespace ndt
 	}
 
 	// trim the left and right side of skippable characters
-	static INLINE DataChunk trim(const DataChunk &a, const charset &skippable) noexcept
+	static INLINE DataChunk chunk_trim(const DataChunk &a, const charset &skippable) noexcept
 	{
 		const uint8_t* start = a.fStart;
 		const uint8_t* end = a.fEnd;

@@ -44,7 +44,7 @@ struct CenterWindow : public GraphicGroup
     
     void draw(IGraphics& ctx) override
     {
-        static double scaling = 1.5;
+        static double scaling = 1.0;
         
         // Start by saving the context state
         // so we're free to mess around with it
@@ -63,7 +63,7 @@ struct CenterWindow : public GraphicGroup
         // BUGBUG - maybe perform arbitrary transform?
         //auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
         //ctx.translate(pt.x, pt.y);
-        ctx.translate(frameX()/scaling, frameY()/scaling);
+        //ctx.translate(frameX()/scaling, frameY()/scaling);
 
         // Apply user specified transform
         //ctx.translate(fTranslation.x, fTranslation.y);
@@ -244,14 +244,33 @@ void testPath()
 
 }
 
+void testParseStyle()
+{
+    SVGParser p{};
+    DataChunk mc = make_chunk_cstr("stop-color:#99bc00;stop-opacity:0");
+    
+	DataChunk style = svg::svg_parseStyle(p, mc);
+
+	printf("style parsed\n");
+}
+
 void testParseDoc()
 {
     //constexpr const char* filename = "resources\\bowls.svg";
+    //constexpr const char* filename = "resources\\example_cubic1.svg";
+    //constexpr const char* filename = "resources\\example_elliptic_arc.svg";
     //constexpr const char* filename = "resources\\grapes.svg";
     //constexpr const char* filename = "resources\\Ghostscript_Tiger.svg";
     //constexpr const char* filename = "resources\\floppy-disk.svg";
-    constexpr const char* filename = "resources\\headphones.svg";
+    //constexpr const char* filename = "resources\\headphones.svg";
     //constexpr const char* filename = "resources\\house.svg";
+    //constexpr const char* filename = "resources\\example_quad01.svg";
+    //constexpr const char* filename = "resources\\tango.svg";
+    //constexpr const char* filename = "resources\\trysvg_linear.svg";
+    constexpr const char* filename = "resources\\svgexample_quad.svg";
+    //constexpr const char* filename = "resources\\example_moveby.svg";
+    //constexpr const char* filename = "resources\\example_rect.svg";
+    //constexpr const char* filename = "resources\\e-path-012.svg";
     
     auto fmap = mmap::create_shared(filename);
     if (fmap == nullptr || !fmap->isValid())
@@ -289,7 +308,9 @@ void testPathParse()
     //auto mc = make_chunk_cstr("c0-1.105,0.895-2,2-2h10");
 
 	// headphones.svg
-	auto mc = make_chunk_cstr("M19,11.184V9c0-4.418-3.582-8-8-8S3,4.582,3,9v2.184C1.837,11.597,1,12.696,1,14 v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4c0-1.304-0.837-2.403-2-2.816V9c0-3.314,2.686-6,6-6s6,2.686,6,6v2.184 c-1.163,0.413-2,1.512-2,2.816v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4C21,12.696,20.163,11.597,19,11.184z");
+	//auto mc = make_chunk_cstr("M19,11.184V9c0-4.418-3.582-8-8-8S3,4.582,3,9v2.184C1.837,11.597,1,12.696,1,14 v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4c0-1.304-0.837-2.403-2-2.816V9c0-3.314,2.686-6,6-6s6,2.686,6,6v2.184 c-1.163,0.413-2,1.512-2,2.816v4c0,1.657,1.343,3,3,3s3-1.343,3-3v-4C21,12.696,20.163,11.597,19,11.184z");
+    
+    auto mc = make_chunk_cstr("m-122.3,84.285s0.1,1.894-0.73,1.875c-0.82-0.019-17.27-48.094-37.8-45.851,0,0,17.78-7.353,38.53,43.976z");
     
     
     std::vector<PathSegment> commands{};
@@ -309,6 +330,7 @@ void setup()
     //testNumber();
     //testParse();
     testParseDoc();
+    //testParseStyle();
     //testPath();
     //testPathParse();
     //testPolyLine();

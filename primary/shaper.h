@@ -87,6 +87,8 @@ namespace ndt
         , Path = 7
 	};
     
+
+
     //
     // A Path is comprised of a number of PathSegment structures
     // Each PathSegment begins with a SegmentKind, followed by a series
@@ -301,6 +303,8 @@ namespace ndt
     public:
         maths::vec2f fLastControl{};
         maths::vec2f fLastPosition{};
+		maths::vec2f fLastStart{};
+        
         BLPath fPath{};
         BLPath fWorkingPath{};
 
@@ -334,6 +338,7 @@ namespace ndt
             finishWorking();
 
             fWorkingPath.moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
+            fLastStart = { cmd.fNumbers[0], cmd.fNumbers[1] };
             fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
 
             // perform absolute lineTo on working path
@@ -359,9 +364,10 @@ namespace ndt
             
             finishWorking();
 
-            fWorkingPath.moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
-            fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
-
+            fWorkingPath.moveTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y+cmd.fNumbers[1]);
+            fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[0],  fLastPosition.y + cmd.fNumbers[1] };
+            fLastStart = fLastPosition;
+            
             // perform relative lineBy on working path
             // if there are more nunbers
 			if (cmd.fNumbers.size() > 2)
@@ -496,26 +502,32 @@ namespace ndt
 		// Smooth quadratic Bezier curve
         void smoothQuadTo(const PathSegment& cmd)
         {
-            printf("== NYI - smoothQuadTo ==\n");
+            //printf("== NYI - smoothQuadTo ==\n");
             
             if (cmd.fNumbers.size() < 2) {
                 printf("smoothQuadTo - Rejected: %zd\n", cmd.fNumbers.size());
 
                 return;
             }
+
+			fWorkingPath.smoothQuadTo(cmd.fNumbers[0], cmd.fNumbers[1]);
+            fLastPosition = { cmd.fNumbers[0], cmd.fNumbers[1] };
         }
         
 		// SVG - t
 		// Smooth quadratic Bezier curve, relative coordinates
         void smoothQuadBy(const PathSegment& cmd)
         {
-            printf("== NYI - smoothQuadBy ==\n");
+            //printf("== NYI - smoothQuadBy ==\n");
             
 			if (cmd.fNumbers.size() < 2) {
 				printf("smoothQuadBy - Rejected: %zd\n", cmd.fNumbers.size());
 
 				return;
 			}
+
+			fWorkingPath.smoothQuadTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]);
+			fLastPosition = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
         }
         
         // SVG - C
@@ -558,11 +570,7 @@ namespace ndt
 				return;
 			}
 
-            maths::vec2f dxy = -(fLastControl - fLastPosition);
-            maths::vec2f firstControl = fLastPosition + dxy;
-
-            fWorkingPath.cubicTo(BLPoint(firstControl.x, firstControl.y), BLPoint(cmd.fNumbers[0], cmd.fNumbers[1]), BLPoint(cmd.fNumbers[2], cmd.fNumbers[3]));
-            fLastControl = { cmd.fNumbers[0], cmd.fNumbers[1] };
+            fWorkingPath.smoothCubicTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);            
             fLastPosition = { cmd.fNumbers[2], cmd.fNumbers[3] };
         }
         
@@ -575,11 +583,7 @@ namespace ndt
 				return;
 			}
 
-            maths::vec2f dxy = -(fLastControl - fLastPosition);
-            maths::vec2f firstControl = fLastPosition + dxy;
-
-            fWorkingPath.cubicTo(BLPoint(firstControl.x, firstControl.y), BLPoint(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y+cmd.fNumbers[1]), BLPoint(fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]));
-            fLastControl = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+			fWorkingPath.smoothCubicTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1], fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]);
             fLastPosition = { fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3] };
         }
         
