@@ -108,14 +108,26 @@ static INLINE uint64_t bitsValueFromBytes(const uint8_t *bytes, const size_t sta
     return value;
 }
 
-
+// Using the octal representation of the bit numbers, makes
+// it more obvious what is going on.
+// 
 // swap 2 bytes (16-bit) around
+#define SWAP16(x) \
+    (((0x00000000000000ffull & (x)) << 010) |  \
+     ((0x000000000000ff00ull & (x)) >> 010))
+
 static INLINE uint16_t swapUInt16(const uint16_t num) noexcept
 {
     return (((num & 0x00ff) << 8) | ((num & 0xff00) >> 8));
 }
 
 // swap 4 bytes (32-bit) around
+#define SWAP32(x)                           \
+  (((0x00000000000000ffull & (x)) << 030) | \
+   ((0x000000000000ff00ull & (x)) << 010) | \
+   ((0x0000000000ff0000ull & (x)) >> 010) | \
+   ((0x00000000ff000000ull & (x)) >> 030))
+
 static INLINE uint32_t swapUInt32(const uint32_t num) noexcept
 {
     uint32_t x = (num & 0x0000FFFF) << 16 | (num & 0xFFFF0000) >> 16;
@@ -125,6 +137,16 @@ static INLINE uint32_t swapUInt32(const uint32_t num) noexcept
 }
 
 // swap 8 bytes (64-bit) around
+#define SWAP64(x)                           \
+  (((0x00000000000000ffull & (x)) << 070) | \
+   ((0x000000000000ff00ull & (x)) << 050) | \
+   ((0x0000000000ff0000ull & (x)) << 030) | \
+   ((0x00000000ff000000ull & (x)) << 010) | \
+   ((0x000000ff00000000ull & (x)) >> 010) | \
+   ((0x0000ff0000000000ull & (x)) >> 030) | \
+   ((0x00ff000000000000ull & (x)) >> 050) | \
+   ((0xff00000000000000ull & (x)) >> 070))
+
 static INLINE uint64_t swapUInt64(const uint64_t num) noexcept
 {
     return  (num >> 56) |

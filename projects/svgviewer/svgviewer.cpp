@@ -30,21 +30,26 @@ struct CenterWindow : public GraphicGroup
 
     void drawBackground(IGraphics& ctx)
     {
-        ctx.push();
-        ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
-        //ctx.scale(1, -1);
-
+        //ctx.background(Pixel(0,0,0));
+        
         // axis lines
         ctx.stroke(255, 0, 0);
         ctx.line(0, canvasHeight / 2, 0, -canvasHeight / 2);
         ctx.line(-canvasWidth / 2, 0, canvasWidth / 2, 0);
     }
 
-
+    void drawSingle(IGraphics& ctx)
+    {
+		auto g = fChildren.front();
+        if (g!= nullptr)
+            g->draw(ctx);
+    }
     
     void draw(IGraphics& ctx) override
     {
-        static double scaling = 1.0;
+
+        static double scaleX = 1.00;
+        static double scaleY = 1.00;
         
         // Start by saving the context state
         // so we're free to mess around with it
@@ -56,24 +61,15 @@ struct CenterWindow : public GraphicGroup
         // a clip for our frame.
         // Once the clip is set, we want to transform our
         // coordinate sytem to have 0,0 be at the upper left corner.
-        //ctx.clip(frame());
 
-        ctx.scale(scaling, scaling);
+        ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
+        ctx.scale(scaleX, scaleY);
 
-        // BUGBUG - maybe perform arbitrary transform?
-        //auto pt = fTransform.mapPoint(fFrame.x, fFrame.y);
-        //ctx.translate(pt.x, pt.y);
-        //ctx.translate(frameX()/scaling, frameY()/scaling);
-
-        // Apply user specified transform
-        //ctx.translate(fTranslation.x, fTranslation.y);
 
 
         drawBackground(ctx);
-        drawSelf(ctx);
-        drawForeground(ctx);
+        drawSingle(ctx);
 
-        //ctx.noClip();
         ctx.pop();
 
     }
@@ -173,11 +169,11 @@ void testNumber()
 
 void testTransform()
 {
-    float xform[6]{ 0 };
+    BLMatrix2D xform{};
 	auto tr = make_chunk_cstr("matrix(1 0 0 -1 0 0)");
 	svg_parseTransform(xform, tr);
     
-    printf("xform: [%3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f]\n", xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
+    printf("xform: [%3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f]\n", xform.m[0], xform.m[1], xform.m[2], xform.m[3], xform.m[4], xform.m[5]);
 }
 
 void testChunk()
@@ -236,12 +232,26 @@ void testPolyLine()
 void testPath()
 {
     SVGParser p{};
-    auto mc = make_chunk_cstr("<svg width='500' height='500'> <path d='M50,50 A30,30 0 0,1 35,20 L100,100 M110,110 L100,0' />< / svg>");
+    //auto mc = make_chunk_cstr("<svg width='500' height='500'> <path d='M50,50 A30,30 0 0,1 35,20 L100,100 M110,110 L100,0' />< / svg>");
+
+    auto mc = make_chunk_cstr("<svg width='40' height='40'> <path style = 'stroke:black;' d = 'M 5.234375 -8.390625 C 4.242188 -8.390625 3.460938 -8.054688 2.890625 -7.390625 C 2.316406 -6.722656 2.03125 -5.804688 2.03125 -4.640625 C 2.03125 -3.484375 2.296875 -2.566406 2.828125 -1.890625 C 3.359375 -1.222656 4.15625 -0.890625 5.21875 -0.890625 C 5.632812 -0.890625 6.019531 -0.925781 6.375 -1 C 6.738281 -1.070312 7.097656 -1.160156 7.453125 -1.265625 L 7.453125 -0.25 C 7.097656 -0.113281 6.738281 -0.0195312 6.375 0.03125 C 6.007812 0.09375 5.570312 0.125 5.0625 0.125 C 4.113281 0.125 3.320312 -0.0664062 2.6875 -0.453125 C 2.050781 -0.847656 1.578125 -1.40625 1.265625 -2.125 C 0.953125 -2.84375 0.796875 -3.6875 0.796875 -4.65625 C 0.796875 -5.59375 0.960938 -6.414062 1.296875 -7.125 C 1.640625 -7.84375 2.144531 -8.398438 2.8125 -8.796875 C 3.488281 -9.203125 4.300781 -9.40625 5.25 -9.40625 C 6.226562 -9.40625 7.082031 -9.222656 7.8125 -8.859375 L 7.34375 -7.875 C 7.0625 -8.007812 6.742188 -8.128906 6.390625 -8.234375 C 6.035156 -8.335938 5.648438 -8.390625 5.234375 -8.390625 Z M 5.234375 -8.390625 ' / ></svg>");
+        
     auto g = std::make_shared<SVGGraphic>(maths::rectf{ 0,0,(float)canvasWidth, (float)canvasHeight });
     g->initFromChunk(mc);
 
     addGraphic(g);
 
+}
+
+void testParseColor()
+{
+    SVGParser p{};
+    DataChunk mc = make_chunk_cstr("rgb(70,20,10)");
+    //DataChunk mc = make_chunk_cstr("rgb(53.333333%,71.764706%,55.686275 %)");
+        
+    auto c = svg_parseColorRGB(mc);
+
+	printf("color: %d, %d, %d, %d\n", c.r, c.g, c.b, c.a);
 }
 
 void testParseStyle()
@@ -254,23 +264,56 @@ void testParseStyle()
 	printf("style parsed\n");
 }
 
+void testTokens()
+{
+	SVGParser p{};
+	DataChunk mc = make_chunk_cstr("stop-color:#99bc00;stop-opacity:0");
+
+    charset delims(";");
+	auto front = chunk_token(mc, delims);
+
+	while (front)
+	{
+		printf("TOKEN: ");
+		printChunk(front);
+
+		front = chunk_token(mc, delims);
+	}
+}
+
+void easyWindowDrawing(IGraphics& ctx, std::shared_ptr<GraphicGroup> gs)
+{
+    // get first graphic in group and draw it
+	auto g = gs->fChildren[0];
+    if (g!= nullptr)
+		g->draw(ctx);
+    
+}
+
 void testParseDoc()
 {
-    constexpr const char* filename = "resources\\bowls.svg";
+    //constexpr const char* filename = "resources\\bowls.svg";
+    //constexpr const char* filename = "resources\\e-path-012.svg";
     //constexpr const char* filename = "resources\\example_cubic1.svg";
     //constexpr const char* filename = "resources\\example_elliptic_arc.svg";
-    //constexpr const char* filename = "resources\\grapes.svg";
-    //constexpr const char* filename = "resources\\Ghostscript_Tiger.svg";
-    //constexpr const char* filename = "resources\\floppy-disk.svg";
-    //constexpr const char* filename = "resources\\headphones.svg";
-    //constexpr const char* filename = "resources\\house.svg";
-    //constexpr const char* filename = "resources\\example_quad01.svg";
-    //constexpr const char* filename = "resources\\tango.svg";
-    //constexpr const char* filename = "resources\\trysvg_linear.svg";
-    //constexpr const char* filename = "resources\\svgexample_quad.svg";
+    //constexpr const char* filename = "resources\\example_miter.svg";
+    //constexpr const char* filename = "resources\\example_miter2.svg";
     //constexpr const char* filename = "resources\\example_moveby.svg";
     //constexpr const char* filename = "resources\\example_rect.svg";
-    //constexpr const char* filename = "resources\\e-path-012.svg";
+    //constexpr const char* filename = "resources\\example_points.svg";
+    //constexpr const char* filename = "resources\\example_polygon.svg";
+    //constexpr const char* filename = "resources\\example_polyline.svg";    
+    //constexpr const char* filename = "resources\\example_quad01.svg";
+    //constexpr const char* filename = "resources\\floppy-disk.svg";
+    //constexpr const char* filename = "resources\\grapes.svg";
+    constexpr const char* filename = "resources\\Ghostscript_Tiger.svg";
+    //constexpr const char* filename = "resources\\headphones.svg";
+    //constexpr const char* filename = "resources\\house.svg";
+    //constexpr const char* filename = "resources\\svgexample_quad.svg";
+    //constexpr const char* filename = "resources\\Spiderman-SVG-fj1yat.svg";
+    //constexpr const char* filename = "resources\\stcroix_map.svg";
+    //constexpr const char* filename = "resources\\tango.svg";
+    //constexpr const char* filename = "resources\\trysvg_linear.svg";
     
     auto fmap = mmap::create_shared(filename);
     if (fmap == nullptr || !fmap->isValid())
@@ -283,6 +326,8 @@ void testParseDoc()
     SVGParser p{};
     auto mc = fmap->getChunk();
 
+	setWindowDrawing(easyWindowDrawing);
+    
     auto win1 = std::make_shared<CenterWindow>(maths::rectf{ 0,0,(float)canvasWidth,(float)canvasHeight });
     addGraphic(win1);
     
@@ -291,6 +336,7 @@ void testParseDoc()
     g->initFromChunk(mc);
 
     win1->addGraphic(g);
+    //addGraphic(g);
     
     // close the mapped file
     fmap->close();
@@ -329,10 +375,12 @@ void setup()
     //testLineDisplay();
     //testNumber();
     //testParse();
+    //testParseColor();
     testParseDoc();
     //testParseStyle();
     //testPath();
     //testPathParse();
     //testPolyLine();
     //testRect();
+    //testTokens();
 }

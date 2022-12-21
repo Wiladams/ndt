@@ -306,3 +306,27 @@ namespace ndt
 #endif
 }
 
+// a ciyoke if utility routines to help with debugging
+namespace ndt {
+    void writeChunk(const DataChunk& chunk)
+    {
+        DataChunk s = chunk;
+
+        while (*s) {
+            printf("%c", *s);
+            s++;
+        }
+    }
+
+    void printChunk(const DataChunk& chunk)
+    {
+        if (chunk)
+        {
+            writeChunk(chunk);
+            printf("\n");
+        }
+        else
+            printf("BLANK==CHUNK\n");
+
+    }
+}

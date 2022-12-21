@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\primary\binops.h" />
     <ClInclude Include="..\..\primary\binstream.hpp" />
     <ClInclude Include="..\..\primary\bitbang.h" />
+    <ClInclude Include="..\..\primary\BLGraphics.h" />
     <ClInclude Include="..\..\primary\bstream.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />

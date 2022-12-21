@@ -16,8 +16,10 @@ GCMD_ANGLEMODE,
 GCMD_ELLIPSEMODE,
 GCMD_RECTMODE,
 GCMD_BLENDMODE,
+
 GCMD_STROKECAPS,
 GCMD_STROKEJOIN,
+GCMD_STROKEMITERLIMIT,
 GCMD_STROKEWEIGHT,
 
 GCMD_PUSH,
@@ -173,12 +175,14 @@ public:
     virtual void blendMode(int mode) = 0;
     virtual void strokeCaps(int caps) = 0;
     virtual void strokeJoin(int join) = 0;
+	virtual void strokeMiterLimit(float limit) = 0;
     virtual void strokeWeight(float weight) = 0;
 
     virtual void push()=0;
     virtual void pop()=0;
     virtual void flush() = 0;
 
+    virtual void transform(double* values) = 0;
     virtual void translate(double dx, double dy)=0;
     virtual void scale(double sx, double sy)=0;
     virtual void scale(double sxy) { scale(sxy, sxy); }
@@ -208,12 +212,7 @@ public:
     virtual void noFill() = 0;
 
     virtual void fill(const BLVarCore& s) = 0;
-    virtual void fill(const BLGradientCore& g) = 0; // { fill(BLVar(g)); }
     virtual void fill(const Pixel& c) = 0;  // {fill(BLVar(c)); }
-    //virtual void fill(const BLPatternCore& p) {}
-
-    //virtual void fill(const BLVarCore& var) { fill(var); }
-
     virtual void fill(int r, int g, int b, int a) {fill(color(r,g,b,a));}
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
@@ -221,7 +220,7 @@ public:
 
 
     virtual void stroke(const BLVarCore& s) = 0;
-    virtual void stroke(const BLGradientCore& g) = 0;
+    //virtual void stroke(const BLGradientCore& g) = 0;
     virtual void stroke(const Pixel& c) = 0;// {stroke(BLVar(c)); };
 
     virtual void stroke(int r, int g, int b, int a) { stroke(color(r, g, b, a)); }

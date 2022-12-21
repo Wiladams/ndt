@@ -179,7 +179,23 @@ namespace ndt
 	}
 	
 	static INLINE DataChunk& chunkSkipToEnd(DataChunk& dc) noexcept { dc.fStart = dc.fEnd; }
-	
+	/*
+	static INLINE void skipOverCharset(DataChunk& dc, const charset& cs)
+	{
+		while (dc && cs.contains(*dc))
+			dc++;
+	}
+
+	static INLINE void skipUntilCharset(DataChunk& dc, const charset& cs)
+	{
+		while (dc && !cs.contains(*dc))
+			++dc;
+	}
+	*/
+
+
+
+		
 	// Trim the left side of skippable characters
     static INLINE DataChunk chunk_ltrim(const DataChunk& a, const charset & skippable) noexcept
 	{
@@ -210,6 +226,46 @@ namespace ndt
 			++start;
 		while (start < end && skippable(*(end - 1)))
 			--end;
+		return { start, end };
+	}
+	
+	// Given an input chunk
+	// spit it into two chunks, the first chunk is the first token, the second chunk is the rest of the input
+	// the token is defined by the charset
+	
+	static INLINE DataChunk chunk_token(DataChunk& a, const charset& delims) noexcept
+	{
+		const uint8_t* start = a.fStart;
+		const uint8_t* end = a.fEnd;
+		const uint8_t* tokenEnd = start;
+		while (tokenEnd < end && !delims(*tokenEnd))
+			++tokenEnd;
+		
+		if (delims(*tokenEnd))
+		{
+			a.fStart = tokenEnd+1;
+		}
+		else {
+			a.fStart = tokenEnd;
+		}
+		
+		return { start, tokenEnd };
+	}
+	
+	// Given an input chunk
+	// find the first instance of a specified character
+	// return the chunk, starting at that character
+	// or an empty chunk
+	static INLINE DataChunk chunk_find(const DataChunk& a, char c) noexcept
+	{
+		const uint8_t* start = a.fStart;
+		const uint8_t* end = a.fEnd;
+		while (start < end && *start != c)
+			++start;
+		
+		//if (start == end)
+		//	return { start, start };
+		
 		return { start, end };
 	}
 	

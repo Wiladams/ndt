@@ -10,7 +10,6 @@ namespace svg
 
 	struct SVGGraphic : public GraphicGroup
 	{
-		BLPath fMainPath;
 		
 		SVGGraphic(const maths::rectf& fr)
 			:GraphicGroup(fr)
@@ -36,6 +35,15 @@ namespace svg
 			}
 
 			return true;
+		}
+
+		void draw(IGraphics& ctx) override
+		{
+			for (auto& g : fChildren)
+			{
+				g->draw(ctx);
+			}
+
 		}
 	};
 }

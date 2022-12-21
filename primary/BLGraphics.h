@@ -275,6 +275,7 @@ public:
     // stroking attributes
     void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
     void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }
+    void strokeMiterLimit(float limit) override { fCtx.setStrokeMiterLimit(limit); }
     void strokeWeight(float weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
@@ -282,6 +283,7 @@ public:
     void pop() override { fCtx.restore(); }
 
     // Coordinate transformation
+    virtual void transform(double* values) override { fCtx.transform(BLMatrix2D(values[0], values[1], values[2], values[3], values[4], values[5])); }
     void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
     void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
     void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }
@@ -291,12 +293,12 @@ public:
     // Pixel management
     void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
     void fill(const BLVarCore& s) override { fUseFill = true; fCtx.setFillStyle(s); }
-    void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
+    //void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
     void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
 
     void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
     void stroke(const BLVarCore& s) override { fCtx.setStrokeStyle(s); }
-    void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
+    //void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
     void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
 
 

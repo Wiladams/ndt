@@ -110,8 +110,33 @@ namespace ndt
 		void addPoint(float x, float y) { fNumbers.push_back(x); fNumbers.push_back(y); }
     };
 
+	// Convert a scanned number to an integer
+    // no inlining required, just let the compiler do its thing
+    unsigned digit_value(uint8_t c)
+    {
+        return unsigned(c - '0');
+    }
 
-    // Parse a number which may have units after it
+    bool is_digit(uint8_t c)
+    {
+        return digit_value(c) <= 9;
+    }
+
+    uint64_t chunk_to_uint64(DataChunk & s)
+    {
+
+        uint64_t n = digit_value(*s);
+        unsigned d;
+
+        while ((d = digit_value(*++s)) <= 9)
+        {
+            n = n * 10 + d;
+        }
+
+        return n;
+    }
+    
+// Parse a number which may have units after it
 //   1.2em
 // -1.0E2em
 // 2.34ex
@@ -296,14 +321,16 @@ namespace ndt
 namespace ndt
 {
     //
-    // A path should have commands and vertices
+    // PathBuilder
+    // This object takes a series of path segments and turns them into a BLPath object
     //
     struct PathBuilder
     {
     public:
-        maths::vec2f fLastControl{};
+        //maths::vec2f fLastControl{};
         maths::vec2f fLastPosition{};
 		maths::vec2f fLastStart{};
+		SegmentKind fLastCommand{};
         
         BLPath fPath{};
         BLPath fWorkingPath{};
@@ -312,7 +339,14 @@ namespace ndt
     public:
         BLPath& getPath() { return fPath; }
 
-
+        const maths::vec2f & lastPosition() noexcept
+        {
+            BLPoint apoint{};
+			fWorkingPath.getLastVertex(&apoint);
+            
+            return { (float)apoint.x, (float)apoint.y };
+        }
+        
         // The case where the path did not end
 // with a 'Z', but we're done parsing
         void finishWorking()
@@ -322,6 +356,8 @@ namespace ndt
                 fPath.addPath(fWorkingPath);
                 fWorkingPath.reset();
             }
+
+            fLastPosition = lastPosition();
         }
         
         // SVG - M
@@ -339,18 +375,21 @@ namespace ndt
 
             fWorkingPath.moveTo(cmd.fNumbers[0], cmd.fNumbers[1]);
             fLastStart = { cmd.fNumbers[0], cmd.fNumbers[1] };
-            fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
-
+            //lastPosition();
+            
             // perform absolute lineTo on working path
             // if there are more nunbers
             if (cmd.fNumbers.size() > 2)
             {
+				//printf("EXTENDED moveTo\n");
+                
                 for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
                 {
                     fWorkingPath.lineTo(cmd.fNumbers[i], cmd.fNumbers[i + 1]);
-                    fLastPosition = maths::vec2f{ cmd.fNumbers[i], cmd.fNumbers[i + 1] };
+                    //fLastPosition = maths::vec2f{ cmd.fNumbers[i], cmd.fNumbers[i + 1] };
                 }
             }
+
         }
 
         
@@ -362,20 +401,27 @@ namespace ndt
                 return;
             }
             
+            maths::vec2f lastPoint{};
+
+            lastPoint = lastPosition();
+            
             finishWorking();
 
-            fWorkingPath.moveTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y+cmd.fNumbers[1]);
-            fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[0],  fLastPosition.y + cmd.fNumbers[1] };
-            fLastStart = fLastPosition;
+
+            fWorkingPath.moveTo(lastPoint.x + cmd.fNumbers[0], lastPoint.y+cmd.fNumbers[1]);
+
             
             // perform relative lineBy on working path
             // if there are more nunbers
 			if (cmd.fNumbers.size() > 2)
 			{
+				//printf("EXTENDED MOVEBY\n");
+                
 				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
 				{
-					fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[i], fLastPosition.y + cmd.fNumbers[i + 1]);
-					fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[i], fLastPosition.y + cmd.fNumbers[i + 1] };
+					fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1]);
+                    
+					//fLastPosition = maths::vec2f{ lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1] };
 				}
 			}
         }
@@ -393,7 +439,18 @@ namespace ndt
             
             
 			fWorkingPath.lineTo(cmd.fNumbers[0], cmd.fNumbers[1]);
-			fLastPosition = maths::vec2f{ cmd.fNumbers[0], cmd.fNumbers[1] };
+
+            
+			if (cmd.fNumbers.size() > 2)
+			{
+				//printf("EXTENDED lineTo\n");
+
+				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+				{
+					fWorkingPath.lineTo(cmd.fNumbers[i], cmd.fNumbers[i + 1]);
+				}
+			}
+
 		}
 
 
@@ -408,8 +465,17 @@ namespace ndt
                 return;
             }
             
-			fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]);
-			fLastPosition = maths::vec2f{ fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+			fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1]);
+
+            if (cmd.fNumbers.size() > 2)
+			{
+				//printf("EXTENDED lineBy\n");
+
+				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+				{
+					fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1]);
+				}
+			}
 		}
 
 
@@ -424,8 +490,17 @@ namespace ndt
                 return;
             }
             
-            fWorkingPath.lineTo(cmd.fNumbers[0], fLastPosition.y);
-            fLastPosition = { cmd.fNumbers[0], fLastPosition.y };
+            fWorkingPath.lineTo(cmd.fNumbers[0], lastPosition().y);
+            
+			if (cmd.fNumbers.size() > 1)
+			{
+				//printf("EXTENDED hLineTo\n");
+
+				for (size_t i = 1; i < cmd.fNumbers.size(); i++)
+				{
+					fWorkingPath.lineTo(cmd.fNumbers[i], lastPosition().y);
+				}
+			}
         }
 
         // SVG - h
@@ -437,8 +512,17 @@ namespace ndt
                 return;
             }
             
-			fWorkingPath.lineTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y);
-			fLastPosition = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y };
+			fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y);
+
+			if (cmd.fNumbers.size() > 1)
+			{
+				//printf("EXTENDED hLineBy\n");
+
+				for (size_t i = 1; i < cmd.fNumbers.size(); i++)
+				{
+					fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y);
+				}
+			}
 		}
 
         // SVG - V
@@ -450,8 +534,17 @@ namespace ndt
                 return;
             }
             
-            fWorkingPath.lineTo(fLastPosition.x, cmd.fNumbers[0]);
-            fLastPosition = { fLastPosition.x, cmd.fNumbers[0] };
+            fWorkingPath.lineTo(lastPosition().x, cmd.fNumbers[0]);
+            
+            if (cmd.fNumbers.size() > 1)
+            {
+				//printf("EXTENDED vLineTo\n");
+
+				for (size_t i = 1; i < cmd.fNumbers.size(); i++)
+				{
+					fWorkingPath.lineTo(lastPosition().x, cmd.fNumbers[i]);
+				}
+            }
         }
 
         // SVG - v
@@ -463,13 +556,22 @@ namespace ndt
                 return;
             }
             
-			fWorkingPath.lineTo(fLastPosition.x, fLastPosition.y + cmd.fNumbers[0]);
-			fLastPosition = { fLastPosition.x, fLastPosition.y + cmd.fNumbers[0] };
+			fWorkingPath.lineTo(lastPosition().x, lastPosition().y + cmd.fNumbers[0]);
+
+            if (cmd.fNumbers.size() > 1)
+            {
+                //printf("EXTENDED vLineBy\n");
+                for (size_t i = 1; i < cmd.fNumbers.size(); i++)
+                {
+                    fWorkingPath.lineTo(lastPosition().x, lastPosition().y + cmd.fNumbers[i]);
+                }
+            }
         }
 
 
         // SVG - Q
         // Quadratic Bezier curve
+        // consumes 2 points (4 numbers)
 		void quadTo(const PathSegment& cmd)
 		{
             if (cmd.fNumbers.size() < 4) {
@@ -479,8 +581,16 @@ namespace ndt
             }
             
 			fWorkingPath.quadTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);
-            fLastControl = { cmd.fNumbers[0], cmd.fNumbers[1] };
-			fLastPosition = { cmd.fNumbers[2], cmd.fNumbers[3] };
+
+			if (cmd.fNumbers.size() > 4)
+			{
+				//printf("EXTENDED quadTo\n");
+				for (size_t i = 4; i < cmd.fNumbers.size(); i += 4)
+				{
+					fWorkingPath.quadTo(cmd.fNumbers[i], cmd.fNumbers[i + 1], cmd.fNumbers[i + 2], cmd.fNumbers[i + 3]);
+
+				}
+			}
 		}
 
 		// SVG - q
@@ -493,9 +603,16 @@ namespace ndt
                 return;
             }
             
-			fWorkingPath.quadTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1], fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]);
-            fLastControl = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
-            fLastPosition = { fLastPosition.x+cmd.fNumbers[2], fLastPosition.y+cmd.fNumbers[3] };
+			fWorkingPath.quadTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1], lastPosition().x + cmd.fNumbers[2], lastPosition().y + cmd.fNumbers[3]);
+
+			if (cmd.fNumbers.size() > 4)
+			{
+				//printf("EXTENDED quadBy\n");
+				for (size_t i = 4; i < cmd.fNumbers.size(); i += 4)
+				{
+					fWorkingPath.quadTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1], lastPosition().x + cmd.fNumbers[i + 2], lastPosition().y + cmd.fNumbers[i + 3]);
+				}
+			}
 		}
         
         // SVG - T
@@ -511,14 +628,21 @@ namespace ndt
             }
 
 			fWorkingPath.smoothQuadTo(cmd.fNumbers[0], cmd.fNumbers[1]);
-            fLastPosition = { cmd.fNumbers[0], cmd.fNumbers[1] };
+
+            if (cmd.fNumbers.size() > 2)
+			{
+				//printf("EXTENDED smoothQuadTo\n");
+				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+				{
+					fWorkingPath.smoothQuadTo(cmd.fNumbers[i], cmd.fNumbers[i + 1]);
+				}
+			}
         }
         
 		// SVG - t
 		// Smooth quadratic Bezier curve, relative coordinates
         void smoothQuadBy(const PathSegment& cmd)
         {
-            //printf("== NYI - smoothQuadBy ==\n");
             
 			if (cmd.fNumbers.size() < 2) {
 				printf("smoothQuadBy - Rejected: %zd\n", cmd.fNumbers.size());
@@ -526,8 +650,16 @@ namespace ndt
 				return;
 			}
 
-			fWorkingPath.smoothQuadTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]);
-			fLastPosition = { fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1] };
+			fWorkingPath.smoothQuadTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1]);
+
+            if (cmd.fNumbers.size() > 2)
+            {
+				//printf("EXTENDED smoothQuadBy\n");
+				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
+				{
+					fWorkingPath.smoothQuadTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1]);
+				}
+            }
         }
         
         // SVG - C
@@ -541,8 +673,15 @@ namespace ndt
             }
             
 			fWorkingPath.cubicTo(BLPoint(cmd.fNumbers[0], cmd.fNumbers[1]), BLPoint(cmd.fNumbers[2], cmd.fNumbers[3]), BLPoint(cmd.fNumbers[4], cmd.fNumbers[5]));
-            fLastControl = { cmd.fNumbers[2], cmd.fNumbers[3] };
-            fLastPosition = { cmd.fNumbers[4], cmd.fNumbers[5] };
+
+			if (cmd.fNumbers.size() > 6)
+			{
+				//printf("EXTENDED cubicTo\n");
+				for (size_t i = 6; i < cmd.fNumbers.size(); i += 6)
+				{
+					fWorkingPath.cubicTo(BLPoint(cmd.fNumbers[i], cmd.fNumbers[i + 1]), BLPoint(cmd.fNumbers[i + 2], cmd.fNumbers[i + 3]), BLPoint(cmd.fNumbers[i + 4], cmd.fNumbers[i + 5]));
+				}
+			}
 		}
 
         // SVG - c
@@ -554,24 +693,39 @@ namespace ndt
                 return;
             }
             
-			fWorkingPath.cubicTo(BLPoint(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1]), BLPoint(fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]), BLPoint(fLastPosition.x + cmd.fNumbers[4], fLastPosition.y + cmd.fNumbers[5]));
-            fLastControl = { fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3] };
-            fLastPosition = { fLastPosition.x + cmd.fNumbers[4], fLastPosition.y + cmd.fNumbers[5] };
+			fWorkingPath.cubicTo(BLPoint(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1]), BLPoint(lastPosition().x + cmd.fNumbers[2], lastPosition().y + cmd.fNumbers[3]), BLPoint(lastPosition().x + cmd.fNumbers[4], lastPosition().y + cmd.fNumbers[5]));
+
+            if (cmd.fNumbers.size() > 6)
+            {
+                //printf("EXTENDED cubicBy\n");
+                for (size_t i = 6; i < cmd.fNumbers.size(); i += 6)
+                {
+                    fWorkingPath.cubicTo(BLPoint(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1]), BLPoint(lastPosition().x + cmd.fNumbers[i + 2], lastPosition().y + cmd.fNumbers[i + 3]), BLPoint(lastPosition().x + cmd.fNumbers[i + 4], lastPosition().y + cmd.fNumbers[i + 5]));
+                }
+            }
         }
 
         // SVG - S, smooth cubicTo
 
         void smoothCubicTo(const PathSegment& cmd)
         {
-            //printf("== NYI - smoothCubicTo ==\n");
             
 			if (cmd.fNumbers.size() < 4) {
                 printf("smoothCubicTo - Rejected: %zd\n", cmd.fNumbers.size());
 				return;
 			}
 
-            fWorkingPath.smoothCubicTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);            
-            fLastPosition = { cmd.fNumbers[2], cmd.fNumbers[3] };
+            fWorkingPath.smoothCubicTo(cmd.fNumbers[0], cmd.fNumbers[1], cmd.fNumbers[2], cmd.fNumbers[3]);   
+
+			if (cmd.fNumbers.size() > 4)
+			{
+				//printf("EXTENDED smoothCubicTo\n");
+				for (size_t i = 4; i < cmd.fNumbers.size(); i += 4)
+				{
+					fWorkingPath.smoothCubicTo(cmd.fNumbers[i], cmd.fNumbers[i + 1], cmd.fNumbers[i + 2], cmd.fNumbers[i + 3]);
+				}
+			}
+
         }
         
         // SVG - s, smooth cubicBy
@@ -583,8 +737,16 @@ namespace ndt
 				return;
 			}
 
-			fWorkingPath.smoothCubicTo(fLastPosition.x + cmd.fNumbers[0], fLastPosition.y + cmd.fNumbers[1], fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3]);
-            fLastPosition = { fLastPosition.x + cmd.fNumbers[2], fLastPosition.y + cmd.fNumbers[3] };
+			fWorkingPath.smoothCubicTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1], lastPosition().x + cmd.fNumbers[2], lastPosition().y + cmd.fNumbers[3]);
+
+			if (cmd.fNumbers.size() > 4)
+			{
+				//printf("EXTENDED smoothCubicBy\n");
+				for (size_t i = 4; i < cmd.fNumbers.size(); i += 4)
+				{
+					fWorkingPath.smoothCubicTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1], lastPosition().x + cmd.fNumbers[i + 2], lastPosition().y + cmd.fNumbers[i + 3]);
+				}
+			}
         }
         
         // SVG - A
@@ -608,7 +770,27 @@ namespace ndt
 			float rotation = maths::radians(xRotation);
 
             fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
-            fLastPosition = { x,y };
+
+            if (cmd.fNumbers.size() > 7)
+            {
+				//printf("EXTENDED arcTo\n");
+				for (size_t i = 7; i < cmd.fNumbers.size(); i += 7)
+				{
+					rx = cmd.fNumbers[i];
+					ry = cmd.fNumbers[i + 1];
+					xRotation = cmd.fNumbers[i + 2];
+					largeArcFlag = cmd.fNumbers[i + 3];
+					sweepFlag = cmd.fNumbers[i + 4];
+					x = cmd.fNumbers[i + 5];
+					y = cmd.fNumbers[i + 6];
+
+					larc = largeArcFlag > 0.5f;
+					swp = sweepFlag > 0.5f;
+					rotation = maths::radians(xRotation);
+
+					fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
+				}
+            }
         }
 
 
@@ -625,15 +807,35 @@ namespace ndt
             float xRotation = cmd.fNumbers[2];
             float largeArcFlag = cmd.fNumbers[3];
             float sweepFlag = cmd.fNumbers[4];
-            float x = fLastPosition.x + cmd.fNumbers[5];
-            float y = fLastPosition.y + cmd.fNumbers[6];
+            float x = lastPosition().x + cmd.fNumbers[5];
+            float y = lastPosition().y + cmd.fNumbers[6];
 
             bool larc = largeArcFlag > 0.5f;
             bool swp = sweepFlag > 0.5f;
             float rotation = maths::radians(xRotation);
 
             fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
-            fLastPosition = { x,y };
+
+			if (cmd.fNumbers.size() > 7)
+			{
+				//printf("EXTENDED arcBy\n");
+				for (size_t i = 7; i < cmd.fNumbers.size(); i += 7)
+				{
+					rx = cmd.fNumbers[i];
+					ry = cmd.fNumbers[i + 1];
+					xRotation = cmd.fNumbers[i + 2];
+					largeArcFlag = cmd.fNumbers[i + 3];
+					sweepFlag = cmd.fNumbers[i + 4];
+					x = lastPosition().x + cmd.fNumbers[i + 5];
+					y = lastPosition().y + cmd.fNumbers[i + 6];
+
+					larc = largeArcFlag > 0.5f;
+					swp = sweepFlag > 0.5f;
+					rotation = maths::radians(xRotation);
+
+					fWorkingPath.ellipticArcTo(BLPoint(rx, ry), rotation, larc, swp, BLPoint(x, y));
+				}
+			}
         }
 
         // SVG - Z,z    close path
@@ -645,8 +847,6 @@ namespace ndt
             }
             finishWorking();
         }
-
-
 
         // Turn a set of commands and numbers
         // into a blPath
@@ -713,7 +913,7 @@ namespace ndt
                     smoothQuadBy(cmd);
                     break;
                     
-                    // Elliptic arc
+
                 case ndt::SegmentKind::ArcTo:
                     arcTo(cmd);
                     break;
@@ -732,6 +932,8 @@ namespace ndt
                     break;
                 }
 
+                //lastPosition();
+				fLastCommand = cmd.fCommand;
             }
 
             finishWorking();
