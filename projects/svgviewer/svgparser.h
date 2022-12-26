@@ -2,13 +2,15 @@
 
 
 #include "maths.hpp"
-#include "coloring.h"
+
 #include "shaper.h"
 #include "geometry.h"
-#include "bstream.h"
+
 #include "blend2d.h"
+#include "chunkutil.h"
 
 #include "svgxform.h"
+#include "svgcolors.h"
 
 #include <functional>
 #include <charconv>
@@ -22,15 +24,15 @@
 
 namespace svg
 {
-    using namespace maths;
     using namespace ndt;
 
+    static charset nonprintWSPChars("\r\n\f\v");
     static charset whitespaceChars(",\t\n\f\r\v ");
-	static charset pureWhitespaceChars("\t\n\f\r\v ");
+	static charset wspChars("\t\n\f\r\v ");
     static charset digitChars("0123456789");
     static charset numberChars("0123456789.-+eE");
 
-    constexpr auto NSVG_XML_TAG = 1;
+    constexpr auto NSVG_XML_START_TAG = 1;
     constexpr auto NSVG_XML_CONTENT = 2;
     constexpr auto NSVG_XML_MAX_ATTRIBS = 256;
 
@@ -43,10 +45,8 @@ namespace svg
 {
     using namespace maths;
     using namespace ndt;
-
-    constexpr auto  SVG_KAPPA90 = (0.5522847493f);	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
-    constexpr auto  SVG_EPSILON = (1e-12);
     
+    // Various Attributes to be found in an SVG image
     enum SVGAlignType {
         SVG_ALIGN_NONE = 0,
         SVG_ALIGN_MIN = 0,
@@ -56,22 +56,16 @@ namespace svg
         SVG_ALIGN_SLICE = 2,
     };
 
-    // Various Attributes to be found in an SVG image
-
-
     enum SVGspreadType {
         SVG_SPREAD_PAD = 0,
         SVG_SPREAD_REFLECT = 1,
         SVG_SPREAD_REPEAT = 2
     };
 
-
     enum SVGgradientUnits {
         SVG_USER_SPACE = 0,
         SVG_OBJECT_SPACE = 1
     };
-
-
 
     enum SVGunits {
         SVG_UNITS_USER,
@@ -86,196 +80,104 @@ namespace svg
         SVG_UNITS_EX
     };
 
-
     enum SVGflags {
         SVG_FLAGS_VISIBLE = 0x01
     };
+
+    
 }
+
+
 
 namespace svg
 {
     using namespace maths;
 
-
-    // Database of SVG colors
-    // BUGBUG - it might be better if these used float instead of byte values
-    // Then they can be converted to various forms as needed
-    // https://www.w3.org/TR/SVG11/types.html#ColorKeywords
-    std::map<std::string, maths::vec4b> colors =
-    {
-        {"white",  rgb(255, 255, 255)},
-        {"ivory", rgb(255, 255, 240)},
-        {"lightyellow", rgb(255, 255, 224)},
-        {"mintcream", rgb(245, 255, 250)},
-        {"azure", rgb(240, 255, 255)},
-        {"snow", rgb(255, 250, 250)},
-        {"honeydew", rgb(240, 255, 240)},
-        {"floralwhite", rgb(255, 250, 240)},
-        {"ghostwhite", rgb(248, 248, 255)},
-        {"lightcyan", rgb(224, 255, 255)},
-        {"lemonchiffon", rgb(255, 250, 205)},
-        {"cornsilk", rgb(255, 248, 220)},
-        {"lightgoldenrodyellow", rgb(250, 250, 210)},
-        {"aliceblue", rgb(240, 248, 255)},
-        {"seashell", rgb(255, 245, 238)},
-        {"oldlace", rgb(253, 245, 230)},
-        {"whitesmoke", rgb(245, 245, 245)},
-        {"lavenderblush", rgb(255, 240, 245)},
-        {"beige", rgb(245, 245, 220)},
-        {"linen", rgb(250, 240, 230)},
-        {"papayawhip", rgb(255, 239, 213)},
-        {"blanchedalmond", rgb(255, 235, 205)},
-        {"antiquewhite", rgb(250, 235, 215)},
-        {"yellow", rgb(255, 255, 0)},
-        {"mistyrose", rgb(255, 228, 225)},
-        {"lavender", rgb(230, 230, 250)},
-        {"bisque", rgb(255, 228, 196)},
-        {"moccasin", rgb(255, 228, 181)},
-        {"palegoldenrod", rgb(238, 232, 170)},
-        {"khaki", rgb(240, 230, 140)},
-        {"navajowhite", rgb(255, 222, 173)},
-        {"aquamarine", rgb(127, 255, 212)},
-        {"paleturquoise", rgb(175, 238, 238)},
-        {"wheat", rgb(245, 222, 179)},
-        {"peachpuff", rgb(255, 218, 185)},
-        {"palegreen", rgb(152, 251, 152)},
-        {"greenyellow", rgb(173, 255, 47)},
-        {"gainsboro", rgb(220, 220, 220)},
-        {"powderblue", rgb(176, 224, 230)},
-        {"lightgreen", rgb(144, 238, 144)},
-        {"lightgray", rgb(211, 211, 211)},
-        {"chartreuse", rgb(127, 255, 0)},
-        {"gold", rgb(255, 215, 0)},
-        {"lightblue", rgb(173, 216, 230)},
-        {"lawngreen", rgb(124, 252, 0)},
-        {"pink", rgb(255, 192, 203)},
-        {"aqua", rgb(0, 255, 255)},
-        {"cyan", rgb(0, 255, 255)},
-        {"lightpink", rgb(255, 182, 193)},
-        {"thistle", rgb(216, 191, 216)},
-        {"lightskyblue", rgb(135, 206, 250)},
-        {"lightsteelblue", rgb(176, 196, 222)},
-        {"skyblue", rgb(135, 206, 235)},
-        {"silver", rgb(192, 192, 192)},
-        {"springgreen", rgb(0, 255, 127)},
-        {"mediumspringgreen", rgb(0, 250, 154)},
-        {"turquoise", rgb(64, 224, 208)},
-        {"burlywood", rgb(222, 184, 135)},
-        {"tan", rgb(210, 180, 140)},
-        {"yellowgreen", rgb(154, 205, 50)},
-        {"lime", rgb(0, 255, 0)},
-        {"mediumaquamarine", rgb(102, 205, 170)},
-        {"mediumturquoise", rgb(72, 209, 204)},
-        {"darkkhaki", rgb(189, 183, 107)},
-        {"lightsalmon", rgb(255, 160, 122)},
-        {"plum", rgb(221, 160, 221)},
-        {"sandybrown", rgb(244, 164, 96)},
-        {"darkseagreen", rgb(143, 188, 143)},
-        {"orange", rgb(255, 165, 0)},
-        {"darkgray", rgb(169, 169, 169)},
-        {"goldenrod", rgb(218, 165, 32)},
-        {"darksalmon", rgb(233, 150, 122)},
-        {"darkturquoise", rgb(0, 206, 209)},
-        {"limegreen", rgb(50, 205, 50)},
-        {"violet", rgb(238, 130, 238)},
-        {"deepskyblue", rgb(0, 191, 255)},
-        {"darkorange", rgb(255, 140, 0)},
-        {"salmon", rgb(250, 128, 114)},
-        {"rosybrown", rgb(188, 143, 143)},
-        {"lightcoral", rgb(240, 128, 128)},
-        {"coral", rgb(255, 127, 80)},
-        {"mediumseagreen", rgb(60, 179, 113)},
-        {"lightseagreen", rgb(32, 178, 170)},
-        {"cornflowerblue", rgb(100, 149, 237)},
-        {"cadetblue", rgb(95, 158, 160)},
-        {"peru", rgb(205, 133, 63)},
-        {"hotpink", rgb(255, 105, 180)},
-        {"orchid", rgb(218, 112, 214)},
-        {"palevioletred", rgb(219, 112, 147)},
-        {"darkgoldenrod", rgb(184, 134, 11)},
-        {"lightslategray", rgb(119, 136, 153)},
-        {"tomato", rgb(255, 99, 71)},
-        {"gray", rgb(128, 128, 128)},
-        {"dodgerblue", rgb(30, 144, 255)},
-        {"mediumpurple", rgb(147, 112, 219)},
-        {"olivedrab", rgb(107, 142, 35)},
-        {"slategray", rgb(112, 128, 144)},
-        {"chocolate", rgb(210, 105, 30)},
-        {"steelblue", rgb(70, 130, 180)},
-        {"olive", rgb(128, 128, 0)},
-        {"mediumslateblue", rgb(123, 104, 238)},
-        {"indianred", rgb(205, 92, 92)},
-        {"mediumorchid", rgb(186, 85, 211)},
-        {"seagreen", rgb(46, 139, 87)},
-        {"darkcyan", rgb(0, 139, 139)},
-        {"forestgreen", rgb(34, 139, 34)},
-        {"royalblue", rgb(65, 105, 225)},
-        {"dimgray", rgb(105, 105, 105)},
-        {"orangered", rgb(255, 69, 0)},
-        {"slateblue", rgb(106, 90, 205)},
-        {"teal", rgb(0, 128, 128)},
-        {"darkolivegreen", rgb(85, 107, 47)},
-        {"sienna", rgb(160, 82, 45)},
-        {"green", rgb(0, 128, 0)},
-        {"darkorchid", rgb(153, 50, 204)},
-        {"saddlebrown", rgb(139, 69, 19)},
-        {"deeppink", rgb(255, 20, 147)},
-        {"blueviolet", rgb(138, 43, 226)},
-        {"magenta", rgb(255, 0, 255)},
-        {"fuchsia", rgb(255, 0, 255)},
-        {"darkslategray", rgb(47, 79, 79)},
-        {"darkgreen", rgb(0, 100, 0)},
-        {"darkslateblue", rgb(72, 61, 139)},
-        {"brown", rgb(165, 42, 42)},
-        {"mediumvioletred", rgb(199, 21, 133)},
-        {"crimson", rgb(220, 20, 60)},
-        {"firebrick", rgb(178, 34, 34)},
-        {"red", rgb(255, 0, 0)},
-        {"darkviolet", rgb(148, 0, 211)},
-        {"darkmagenta", rgb(139, 0, 139)},
-        {"purple", rgb(128, 0, 128)},
-        {"midnightblue", rgb(25, 25, 112)},
-        {"darkred", rgb(139, 0, 0)},
-        {"maroon", rgb(128, 0, 0)},
-        {"indigo", rgb(75, 0, 130)},
-        {"blue", rgb(0, 0, 255)},
-        {"mediumblue", rgb(0, 0, 205)},
-        {"darkblue", rgb(0, 0, 139)},
-        {"navy", rgb(0, 0, 128)},
-        {"black", rgb(0, 0, 0)},
-    };
-
-}
-
-namespace svg
-{
-    using namespace maths;
-
-    typedef struct SVGgradientStop {
+    struct SVGcoordinate {
+        float value;
+        int units;
+    } ;
+    
+    struct SVGgradientStop {
         vec4b color;
         float offset;
-    } NSVGgradientStop;
+    } ;
 
-    typedef struct SVGgradient {
+    struct SVGgradient {
         float xform[6];
         char spread;
         float fx, fy;
         int nstops;
         // BUGBUG - should be a vector
         SVGgradientStop stops[1];
-    } NSVGgradient;
+    } ;
 
-    typedef struct SVGpaint {
+    struct SVGpaint {
         char type;
         union {
             vec4b color;
             SVGgradient* gradient;
         };
-    } SVGpaint;
+    };
 
 
+    // Represents the actual kind of data in the Attribute
+    // union data section
+    enum SVGAttributeKind
+    {
+        INVALID = 0
+		, BOOL              // bool
+		, ENUM              // int
+        , NUMBER            // floating point number
+        , COORDINATE
+        , TRANSFORM
+        , CHUNK
 
+
+        /*
+        , STRING
+        , COLOR
+        , PAINT
+        , PATTERN
+        , GRADIENT
+        , DASHARRAY
+        , LENGTH
+        , COORDINATE
+        , PERCENTAGE
+        , TRANSFORM
+        , VIEWBOX
+        , PATH
+        , POINTS
+        , RECT
+        , NUMBER_LIST
+        , LENGTH_LIST
+        , COORDINATE_LIST
+        , PERCENTAGE_LIST
+        , TRANSFORM_LIST
+        , VIEWBOX_LIST
+        , GRADIENT_LIST
+        , PATH_LIST
+        , POINTS_LIST
+        , RECT_LIST
+        */
+    };
     
+    struct SVGAttribute
+    {
+		std::string fName{};        // Name of the attribute
+        DataChunk fRawData{};         // The original chunk of data
+		SVGAttributeKind fKind;     // The kind of data
+        
+        union {
+            bool            fBool{ false };
+            int             fEnum;
+            float           fNumber;
+			SVGcoordinate   fCoordinate;
+			BLMatrix2D      fTransform;
+			DataChunk       fChunk;
+        };
+    };
+
     struct SVGattrib
     {
         std::string fID;
@@ -388,9 +290,11 @@ namespace svg
 		}
     } ;
     
+
+    
     struct SVGElement
     {
-		SVGattrib fAttrib;
+        SVGattrib fAttrib;
 
         SVGElement& operator=(const SVGElement& other)
         {
@@ -411,26 +315,19 @@ namespace svg
     // Contains geometry and stroke/fill attributes
     struct SVGShape : public SVGElement, public GraphicElement
     {
-        BLPath fPath{};
-        rectf fFrame;
-        
         SVGShape(const rectf &fr)
+            :GraphicElement(fr)
         {
-            fFrame = fr;
+
         }
-
-
-        
 
 
         void setFill(BLVar& fill) { fAttrib.fFill = fill;}
 
-        void setPath(const BLPath& apath) {fPath = apath; }
-        
         void setStrokeWidth(float w){ fAttrib.strokeWidth = w;}
 
         void setStroke(BLVar& stroke) { fAttrib.fStroke = stroke;}
-
+        
         void draw(IGraphics& ctx)
         {
             ctx.push();
@@ -460,26 +357,52 @@ namespace svg
             }
             
             
-            ctx.path(fPath);
+            drawSelf(ctx);
             
             ctx.pop();
         }
     };
 
+	struct SVGPathShape : public SVGShape
+	{
+        BLPath fPath{};
+        
+		SVGPathShape(const rectf& fr)
+			:SVGShape(fr)
+		{
 
+		}
+
+        void setPath(const BLPath& apath) { fPath = apath; }
+        
+        void drawSelf(IGraphics& ctx) override
+        {
+            ctx.path(fPath);
+        }
+	};
+    
+    struct SVGTextShape : public SVGShape
+    {
+		std::string fText;
+
+		SVGTextShape(const rectf& fr)
+            :SVGShape(fr)
+		{
+		}
+
+		void setText(const std::string& text) { fText = text; }
+
+        void drawSelf(IGraphics& ctx)
+        {
+
+        }
+    };
 }
 
 
 
 namespace svg
 {
-
-
-    typedef struct SVGcoordinate {
-        float value;
-        int units;
-    } SVGcoordinate;
-
     typedef struct SVGlinearData {
         SVGcoordinate x1, y1, x2, y2;
     } SVGlinearData;
@@ -535,7 +458,7 @@ namespace svg
         bool fDefsFlag = false;
         bool fPathFlag = false;
 
-
+        DataChunk fCurrentContent{};
 
         
 
@@ -567,6 +490,11 @@ namespace svg
                 printf("popAttr - EMPTY STACK\n");
         }
 
+		void setContent(const DataChunk& content)
+		{
+			fCurrentContent = content;
+		}
+        
         float actualOrigX() {return viewMinx; }
         float actualOrigY(){ return viewMiny;}
         float actualWidth(){return viewWidth;}
@@ -599,7 +527,7 @@ namespace svg
 
             // Create a new shape, using the current working path
             // and accumulated attributes
-			auto newShape = std::make_shared<SVGShape>(rectf{ viewMinx,viewMiny,viewWidth, viewHeight });
+			auto newShape = std::make_shared<SVGPathShape>(rectf{ viewMinx,viewMiny,viewWidth, viewHeight });
 
             newShape->setPath(fWorkingPath);
 			newShape->setAttributes(getAttr());
@@ -619,7 +547,15 @@ namespace svg
             resetPath();
         }
 
+        void addText()
+        {
+            if (!fCurrentContent)
+                return;
 
+            //auto newShape = std::make_shared<SVGTextShape>(rectf{ viewMinx,viewMiny,viewWidth, viewHeight });
+
+        }
+        
         //============================================================
         // Adding geometries to our shapes storage
         //============================================================
@@ -682,10 +618,12 @@ namespace svg
 
             addShape();
         }
+
+
     };
 
 
-	using attributeMap = std::map<std::string, DataChunk>;
+	using attributeMap = std::map<std::string, SVGAttribute>;
     
     typedef std::function<void(SVGParser& p, const DataChunk& elName, attributeMap& attrs)> StartElementCallback;
     typedef std::function<void(SVGParser& p, const DataChunk& elName)> EndElementCallback;
@@ -697,7 +635,7 @@ namespace svg
     
     static INLINE DataChunk skipWhitespace(DataChunk& dc)
     {
-        chunk_ltrim(dc, pureWhitespaceChars);
+        chunk_ltrim(dc, wspChars);
         return dc;
     }
 
@@ -899,9 +837,7 @@ namespace svg
             }
         }
         
-        // BUGBUG - experimental
-        // assumes it is OK to alter end of buffer chunk
-        // probably is OK because chunk is typically referencing some other storage
+
         numchunk.fEnd = (const uint8_t *)tell_pointer(numdc);
         
         return s;
@@ -915,7 +851,7 @@ namespace svg
     static int svg_parseUnits(const DataChunk &units)
     {
         // if the chunk is blank, then return user units
-        if (size(units) < 1)
+        if (!units)
             return SVG_UNITS_USER;
         
         if (units[0] == 'p' && units[1] == 'x')
@@ -939,6 +875,7 @@ namespace svg
         return SVG_UNITS_USER;
     }
     
+    /*
     static bool svg_isCoordinate(DataChunk &s)
     {
         // optional sign
@@ -947,6 +884,7 @@ namespace svg
         // must have at least one digit, or start by a dot
         return (digitChars[*s] || *s == '.');
     }
+    */
     
     static SVGcoordinate svg_parseCoordinateRaw(const DataChunk & strChunk)
     {
@@ -1020,7 +958,7 @@ namespace svg
         while (num)
         {
             writeChunk(num);
-			if (chunk_find(num, '%'))
+			if (chunk_find_char(num, '%'))
 			{
                 // it's a percentage
                 // BUGBUG - we're assuming it's a range of [0..255]
@@ -1052,18 +990,25 @@ namespace svg
     
     static vec4b svg_parseColor(const DataChunk & inChunk)
     {
-		DataCursor str = make_cursor_chunk(inChunk);
+		DataChunk str = inChunk;
+		DataChunk rgbStr = make_chunk_cstr("rgb(");
+		DataChunk rgbaStr = make_chunk_cstr("rgba(");
         
         size_t len = 0;
-        while (*str == ' ') 
-            str++;
+		skipWhitespace(str);
+        //while (*str == ' ') 
+        //    str++;
         
         len = size(str);
         if (len >= 1 && *str == '#')
+        {
             return svg_parseColorHex(str);
-        else if (len >= 4 && str[0] == 'r' && str[1] == 'g' && str[2] == 'b' && str[3] == '(')
+        } else if (chunk_starts_with(str, rgbStr) || chunk_starts_with(str, rgbaStr))
+        {
+            //else if (len >= 4 && str[0] == 'r' && str[1] == 'g' && str[2] == 'b' && str[3] == '(')
             return svg_parseColorRGB(str);
-
+        }
+        
         return svg_parseColorName(str);
     }
     
@@ -1150,11 +1095,11 @@ namespace svg
 		DataChunk s = inChunk;
         
         // Skip white spaces and commas
-        while (s && (whitespaceChars(*s) || *s == ',')) 
+        while (s && (wspChars(*s) || *s == ',')) 
             s++;
         
         // Advance until next whitespace, comma, or end.
-        while (s && (!whitespaceChars(*s) && *s != ',')) 
+        while (s && (!wspChars(*s) && *s != ',')) 
         {
             if (n < sz-1)
                 it[n++] = *s;
@@ -1524,8 +1469,8 @@ namespace svg
     {
         // split nameValueChunk at the ':'
         charset keyvaldelim(":");
-		auto nameChunk = chunk_trim(chunk_token(nameValueChunk, keyvaldelim), pureWhitespaceChars);
-		auto valueChunk = chunk_trim(nameValueChunk, pureWhitespaceChars);
+		auto nameChunk = chunk_trim(chunk_token(nameValueChunk, keyvaldelim), wspChars);
+		auto valueChunk = chunk_trim(nameValueChunk, wspChars);
 
         std::string attrName = std::string(nameChunk.fStart, nameChunk.fEnd);
         
@@ -1569,8 +1514,8 @@ namespace svg
     static void svg_parseAttribs(SVGParser &p, attributeMap& attr)
     {
         for (auto& a : attr) {
-            //const DataChunk& name = a.first;
-            DataChunk& value = a.second;
+
+            DataChunk& value = a.second.fRawData;
             
             if (a.first == "style")
                svg_parseStyle(p,value);
@@ -1675,7 +1620,7 @@ namespace svg
         //svg_xformMultiply(grad->xform, attr.xform);
 
         grad->spread = data->spread;
-        memcpy(grad->stops, stops, nstops * sizeof(NSVGgradientStop));
+        //memcpy(grad->stops, stops, nstops * sizeof(NSVGgradientStop));
         grad->nstops = nstops;
 
         *paintType = data->type;
@@ -1696,13 +1641,13 @@ namespace svg
 
         for (auto& keyvalue : attrs) 
         {
-			if (!svg_parseAttr(p, keyvalue.first, keyvalue.second))
+			if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData))
 
             {
-                if (keyvalue.first == "x1") x1 = svg_parseCoordinate(p, keyvalue.second, p.actualOrigX(), p.actualWidth());
-                if (keyvalue.first == "y1") y1 = svg_parseCoordinate(p, keyvalue.second, p.actualOrigY(), p.actualHeight());
-                if (keyvalue.first == "x2") x2 = svg_parseCoordinate(p, keyvalue.second, p.actualOrigX(), p.actualWidth());
-                if (keyvalue.first == "y2") y2 = svg_parseCoordinate(p, keyvalue.second, p.actualOrigY(), p.actualHeight());
+                if (keyvalue.first == "x1") x1 = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigX(), p.actualWidth());
+                if (keyvalue.first == "y1") y1 = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigY(), p.actualHeight());
+                if (keyvalue.first == "x2") x2 = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigX(), p.actualWidth());
+                if (keyvalue.first == "y2") y2 = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigY(), p.actualHeight());
             }
         }
         
@@ -1721,13 +1666,13 @@ namespace svg
 
         for (auto& keyvalue : attrs)
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) {
-                if (keyvalue.first == "x") x = svg_parseCoordinate(p, keyvalue.second, p.actualOrigX(), p.actualWidth());
-                if (keyvalue.first == "y") y = svg_parseCoordinate(p, keyvalue.second, p.actualOrigY(), p.actualHeight());
-                if (keyvalue.first == "width") w = svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualWidth());
-                if (keyvalue.first == "height") h = svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualHeight());
-                if (keyvalue.first == "rx") rx = fabsf(svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualWidth()));
-                if (keyvalue.first == "ry") ry = fabsf(svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualHeight()));
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData)) {
+                if (keyvalue.first == "x") x = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigX(), p.actualWidth());
+                if (keyvalue.first == "y") y = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigY(), p.actualHeight());
+                if (keyvalue.first == "width") w = svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualWidth());
+                if (keyvalue.first == "height") h = svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualHeight());
+                if (keyvalue.first == "rx") rx = fabsf(svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualWidth()));
+                if (keyvalue.first == "ry") ry = fabsf(svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualHeight()));
             }
         }
 
@@ -1752,11 +1697,11 @@ namespace svg
         // parse attributes of a circle
         for (auto& keyvalue : attrs)
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) 
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData))
             {
-                if (keyvalue.first == "cx") cx = svg_parseCoordinate(p, keyvalue.second, p.actualOrigX(), p.actualWidth());
-                if (keyvalue.first == "cy") cy = svg_parseCoordinate(p, keyvalue.second, p.actualOrigY(), p.actualHeight());
-                if (keyvalue.first == "r") r = fabsf(svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualLength()));
+                if (keyvalue.first == "cx") cx = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigX(), p.actualWidth());
+                if (keyvalue.first == "cy") cy = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigY(), p.actualHeight());
+                if (keyvalue.first == "r") r = fabsf(svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualLength()));
             }
         }
 
@@ -1775,12 +1720,12 @@ namespace svg
         // Get the attributes of the ellipse
         for (auto& keyvalue : attrs) 
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) 
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData))
             {
-                if (keyvalue.first == "cx") cx = svg_parseCoordinate(p, keyvalue.second, p.actualOrigX(), p.actualWidth());
-                if (keyvalue.first == "cy") cy = svg_parseCoordinate(p, keyvalue.second, p.actualOrigY(), p.actualHeight());
-                if (keyvalue.first == "rx") rx = fabsf(svg_parseCoordinate(p, keyvalue.second, 0.0f, p.actualWidth()));
-                if (keyvalue.first == "ry") ry = fabsf(svg_parseCoordinate(p, keyvalue.second, 0.0f,p.actualHeight()));
+                if (keyvalue.first == "cx") cx = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigX(), p.actualWidth());
+                if (keyvalue.first == "cy") cy = svg_parseCoordinate(p, keyvalue.second.fRawData, p.actualOrigY(), p.actualHeight());
+                if (keyvalue.first == "rx") rx = fabsf(svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, p.actualWidth()));
+                if (keyvalue.first == "ry") ry = fabsf(svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f,p.actualHeight()));
             }
         }
 
@@ -1853,11 +1798,11 @@ namespace svg
 
         for (auto& keyvalue : attrs)
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) 
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData))
             {
                 if (keyvalue.first == "points") 
                 {
-                    s = keyvalue.second;
+                    s = keyvalue.second.fRawData;
                     nargs = 0;
                     while (*s) {
 
@@ -1896,12 +1841,12 @@ namespace svg
         // Cycle through the attributes
         for (auto& keyvalue : attrs)
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second))
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData))
             {
                 if (keyvalue.first == "d")
                 {
                     // parse into segments
-                    ndt::tokenizePath(keyvalue.second, segments);
+                    ndt::tokenizePath(keyvalue.second.fRawData, segments);
                 }
             }
         }
@@ -1910,24 +1855,29 @@ namespace svg
         p.addPath(segments);
     }
     
+    
+    static void svg_parseText(SVGParser& p, attributeMap& attrs)
+    {
+        svg_parseAttribs(p, attrs);
+    }
 
-
+    
 
     static void svg_parseSVG(SVGParser &p, attributeMap& attrs)
     {
 
         for (auto& keyvalue : attrs)
         {
-            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) {
+            if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData)) {
                 if (keyvalue.first == "width") {
-                    p.imageWidth = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
+                    p.imageWidth = svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, 0.0f);
                 }
                 else if (keyvalue.first == "height") {
-                    p.imageHeight = svg_parseCoordinate(p, keyvalue.second, 0.0f, 0.0f);
+                    p.imageHeight = svg_parseCoordinate(p, keyvalue.second.fRawData, 0.0f, 0.0f);
                 }
                 else if (keyvalue.first == "viewBox") {
                     // Assuming we're already on the numeric part
-                    DataChunk s = keyvalue.second;
+                    DataChunk s = keyvalue.second.fRawData;
                     DataChunk numChunk{};
 
                     s = nextNumber(s, numChunk);
@@ -2021,50 +1971,48 @@ namespace svg
         {
             if (keyvalue.first == "id") 
             {
-				id = std::string(keyvalue.second.fStart, keyvalue.second.fEnd);
-                //auto len = copy_to_cstr(grad->id, 63, keyvalue.second);
-                //strncpy_s(grad->id, (const char *)keyvalue.second.fStart, 63);
-                //grad->id[len] = '\0';
+				id = std::string(keyvalue.second.fRawData.fStart, keyvalue.second.fRawData.fEnd);
+
             }
-            else if (!svg_parseAttr(p, keyvalue.first, keyvalue.second)) {
+            else if (!svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData)) {
                 if (keyvalue.first == "gradientUnits") 
                 {
-                    if (keyvalue.second == "objectBoundingBox")
+                    if (keyvalue.second.fRawData == "objectBoundingBox")
                         units = SVG_OBJECT_SPACE;
                     else
                         units = SVG_USER_SPACE;
                 }
                 else if (keyvalue.first == "gradientTransform") {
-                    svg_parseTransform(xform, keyvalue.second);
+                    svg_parseTransform(xform, keyvalue.second.fRawData);
                     //gradient.setMatrix(identityMatrix);
                 }
                 else if (keyvalue.first == "cx") {
                     
-                   //radial.x0 = svg_parseCoordinateRaw(keyvalue.second);
+                   //radial.x0 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "cy") {
-                    //radial.y0 = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.y0 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "r") {
-                    //radial.r0 = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.r0 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "fx") {
-                    //radial.x1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.x1 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "fy") {
-                    //radial.y1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //radial.y1 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "x1") {
-                    //linear.x0 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.x0 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "y1") {
-                    //linear.y0 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.y0 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "x2") {
-                    //linear.x1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.x1 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "y2") {
-                    //linear.y1 = svg_parseCoordinateRaw(keyvalue.second);
+                    //linear.y1 = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 }
                 else if (keyvalue.first == "spreadMethod") {
                     //if (keyvalue.first == "pad")
@@ -2075,8 +2023,8 @@ namespace svg
                     //    grad->spread = SVG_SPREAD_REPEAT;
                 }
                 else if (keyvalue.first == "xlink:href") {
-                    //auto len = copy_to_cstr(grad->ref, 62, keyvalue.second);
-                    const char* href = (const char *)keyvalue.second.fStart;
+                    //auto len = copy_to_cstr(grad->ref, 62, keyvalue.second.fRawData);
+                    const char* href = (const char *)keyvalue.second.fRawData.fStart;
                     //strncpy_s(grad->ref, href + 1, 62);
                     //grad->ref[62] = '\0';
                 }
@@ -2102,9 +2050,9 @@ namespace svg
         
 		BLGradientStop astop{};
         
-        SVGgradientData* grad;
-        SVGgradientStop* stop;
-        int i, idx;
+        //SVGgradientData* grad;
+        //SVGgradientStop* stop;
+        //int i, idx;
 
         curAttr.stopOffset = 0;
         curAttr.stopColor = vec4b{ 0 };
@@ -2112,19 +2060,19 @@ namespace svg
 
         for (auto & keyvalue : attrs)
         {
-            svg_parseAttr(p, keyvalue.first, keyvalue.second);
+            svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData);
         }
 
         // Add stop to the last gradient.
-        grad = p.gradients;
-        if (grad == NULL) 
-            return;
+        //grad = p.gradients;
+        //if (grad == NULL) 
+        //    return;
 
-        grad->nstops++;
-        grad->stops = (SVGgradientStop*)realloc(grad->stops, sizeof(SVGgradientStop) * grad->nstops);
-        if (grad->stops == NULL) 
-            return;
-
+        //grad->nstops++;
+        //grad->stops = (SVGgradientStop*)realloc(grad->stops, sizeof(SVGgradientStop) * grad->nstops);
+        //if (grad->stops == NULL) 
+        //    return;
+/*
         // Insert
         idx = grad->nstops - 1;
         for (i = 0; i < grad->nstops - 1; i++) {
@@ -2142,6 +2090,7 @@ namespace svg
         stop->color = curAttr.stopColor;
         stop->color.a = (unsigned int)(curAttr.stopOpacity * 255) << 24;
         stop->offset = curAttr.stopOffset;
+        */
     }
     
     static void svg_parseLinearGradient(SVGParser& p, attributeMap& attrs)
@@ -2151,27 +2100,27 @@ namespace svg
         
         for (auto& keyvalue : attrs)
         {
-            svg_parseAttr(p, keyvalue.first, keyvalue.second);
+            svg_parseAttr(p, keyvalue.first, keyvalue.second.fRawData);
             
             if (keyvalue.first == "id")
             {
-                id = std::string(keyvalue.second.fStart, keyvalue.second.fEnd);
+                id = std::string(keyvalue.second.fRawData.fStart, keyvalue.second.fRawData.fEnd);
             }
             else if (keyvalue.first == "x1") {
 				// BUGBUG - should use parseCoordinate() to convert to pixels?
-                auto c = svg_parseCoordinateRaw(keyvalue.second);
+                auto c = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 linearValues.x0 = c.value;
             }
             else if (keyvalue.first == "y1") {
-                auto c = svg_parseCoordinateRaw(keyvalue.second);
+                auto c = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 linearValues.y0 = c.value;
             }
             else if (keyvalue.first == "x2") {
-                auto c = svg_parseCoordinateRaw(keyvalue.second);
+                auto c = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 linearValues.x1 = c.value;
             }
             else if (keyvalue.first == "y2") {
-                auto c = svg_parseCoordinateRaw(keyvalue.second);
+                auto c = svg_parseCoordinateRaw(keyvalue.second.fRawData);
                 linearValues.y1 = c.value;
             }
         }
@@ -2187,6 +2136,8 @@ namespace svg
         svg_parseAttribs(p, attrs);
     }
 
+
+    
     //
     // SVG specific callback routines
     // These are used to actually turn text values
@@ -2194,6 +2145,9 @@ namespace svg
     //
     static void svg_startElement(SVGParser &p, const DataChunk &el, attributeMap& attr)
     {
+        //printf("BEGIN ELEMENT : ");
+        //printChunk(el);
+        
         /*
         if (p.fDefsFlag) {
             // Skip everything but gradients in defs
@@ -2271,6 +2225,14 @@ namespace svg
         else if (el == "svg") {
             svg_parseSVG(p, attr);
         }
+        else if (el == "text") {
+            p.pushAttr();
+            svg_parseText(p,attr);
+        }
+        else {
+            //printf("UNKNOWN ELEMENT: ");
+            //printChunk(el);
+        }
     }
 
     static void svg_endElement(SVGParser &p, const DataChunk &el)
@@ -2280,6 +2242,9 @@ namespace svg
 		// pop it off the stack
         // and either add it to the current attribute
         // or save it in definitions map if p.fDefsFlag == true
+                // BUGBUG - let's see what element we're dealing with
+        //printf("END ELEMENT : ");
+        //printChunk(el);
         
         if (el == "g") {
             p.popAttr();
@@ -2290,10 +2255,18 @@ namespace svg
         else if (el == "defs") {
             p.fDefsFlag = false;
         }
+		else if (el == "text") {
+            p.addText();
+            p.popAttr();
+		}
     }
     
     static void svg_content(SVGParser &p, DataChunk &dc)
     {
+        //printf("CONTENT\n");
+        //printChunk(dc);
+        p.setContent(dc);
+        
         // Don't do anything with content
         //NSVG_NOTUSED(ud);
         //NSVG_NOTUSED(s);
@@ -2311,8 +2284,13 @@ namespace svg
     {
 		DataChunk dc = content;
         
-        // Trim front white space
-        skipWhitespace(dc);
+        // Trim front and back white space
+        // if we're left with a blank content
+        // by then, don't do anything.
+        // This will essentially NOT preserve whitespace
+        // we could do it better by only trimming the non-printable
+		// whitespace, leaving 'SPACE' and 'TAB' alone
+        chunk_trim(dc, whitespaceChars);
         
         if (!dc)
             return;
@@ -2322,6 +2300,19 @@ namespace svg
             contentCb(p,dc);
     }
     
+    //
+	// Parse an XML element
+	// We should be sitting on the first character of the element tag after the '<'
+    // There are several things that need to happen here
+	// 1) Scan the element name
+	// 2) Scan the attributes, creating key/value pairs
+	// 3) Figure out if this is a self closing element
+	// 4) Call the startElement callback
+	// 5) Call the endElement callback
+    // 
+    // We do NOT scan the content of the element here, that happens
+    // outside this routine.  We only deal with what comes up the the closing '>'
+    //
     static void xml_parseElement(SVGParser& p, DataChunk &chunk, StartElementCallback startelCb,EndElementCallback endelCb)
     {
         DataChunk s = chunk;
@@ -2330,16 +2321,14 @@ namespace svg
         attributeMap attr{};
         
         int nattr = 0;
-        uint8_t* beginName{};
-        uint8_t* endName{};
         bool start = false;
         bool end = false;
         uint8_t quote{};
 
         // Skip any white space after the '<'
-        while (s && whitespaceChars[*s])
-            s++;
+		skipWhitespace(s);
         
+        // If the chunk is empty, just return
 		if (!s)
 			return;
         
@@ -2355,32 +2344,23 @@ namespace svg
         }
 
         // Skip comments, data and preprocessor stuff.
+        // BUGBUG - these are already handled in parseXML
         if (!s || *s == '?' || *s == '!')
             return;
         
 
         // Get tag name
-        beginName = (uint8_t *)s.fStart;
+        DataChunk tagName = s;
+        tagName.fEnd = s.fStart;
 
         while (s && !whitespaceChars[*s])
             s++;
 
-        if (s) 
-        { 
-            endName = (uint8_t *)s.fStart;
-            s++;
-        }
-        else {
-            endName = (uint8_t*)s.fStart;
-        }
-        auto name = make_chunk(beginName, endName);
-
-        // BUGBUG - let's see what element we're dealing with
-        //printf("BEGIN : ");
-        //printChunk(name);
+        tagName.fEnd = (uint8_t*)s.fStart;
+        s++;
         
         // Get the attribute key/value pairs for the element
-        while (!end && s && (nattr < NSVG_XML_MAX_ATTRIBS - 3)) 
+        while (s && !end && (nattr < NSVG_XML_MAX_ATTRIBS - 3)) 
         {
             uint8_t * beginAttrName = NULL;
 			uint8_t * endAttrName = NULL;
@@ -2395,44 +2375,29 @@ namespace svg
 			if (!s)
 				break;
 
-            
             if (*s == '/') {
                 end = true;
                 break;
             }
-
-            beginAttrName = (uint8_t *)s.fStart;
             
             // Find end of the attrib name.
-            //while (s && whitespaceChars[*s])
-            //    s++;
+            static charset equalChars("=");
+			auto attrNameChunk = chunk_token(s, equalChars);
+            chunk_trim(attrNameChunk, whitespaceChars);
             
-            while (s && !whitespaceChars[*s] && *s != '=')
-                s++;
-            
-            if (s) 
-            {
-                endAttrName = (uint8_t *)s.fStart;
-                s++;
-            }
-			else {
-				endAttrName = (uint8_t*)s.fStart;
-			}
-            //DataChunk attrName = make_chunk(beginAttrName, endAttrName);
-			std::string attrName = std::string(beginAttrName, endAttrName);
+			std::string attrName = std::string(attrNameChunk.fStart, attrNameChunk.fEnd);
             
             //printf("     ATTR : %s", attrName.c_str());
             
-            // Skip until the beginning of the value.
+
+            // Skip stuff past '=' until the beginning of the value.
             while (s && (*s != '\"') && (*s != '\''))
                 s++;
 
-
-            
             if (!s) 
                 break;
             
-            
+            // capture the quote character
             quote = *s;
             
             // Store value and find the end of it.
@@ -2454,7 +2419,7 @@ namespace svg
             //printf("    VALUE :");
             //printChunk(attrValue);
             
-            auto apair = std::make_pair(attrName, attrValue);
+            auto apair = std::make_pair(attrName, SVGAttribute{ attrName,attrValue });
 			attr.insert(apair);
 
 			nattr++;
@@ -2462,11 +2427,68 @@ namespace svg
 
         // Call callbacks.
         if (start && startelCb)
-            startelCb(p, name, attr);
+            startelCb(p, tagName, attr);
         if (end && endelCb)
-            endelCb(p, name);
+            endelCb(p, tagName);
     }
     
+    static int parseXML(SVGParser& p, const DataChunk& chunk, StartElementCallback startelCb = nullptr, EndElementCallback endelCb = nullptr, ContentCallback contentCb = nullptr)
+    {
+        DataChunk s = chunk;
+        DataChunk mark = s;
+        int state = NSVG_XML_CONTENT;
+
+		while (s)
+		{
+			if (state == NSVG_XML_CONTENT)
+			{
+				if (*s == '<')
+				{
+					if (s != mark)
+					{
+						// Content callback
+                        DataChunk content = { mark.fStart, s.fStart };
+						xml_parseContent(p, content, contentCb);
+					}
+					state = NSVG_XML_START_TAG;
+                    s++;
+                    mark = s;
+                }
+                else {
+                    s++;
+                }
+
+			}
+			else if (state == NSVG_XML_START_TAG)
+			{
+                // Create a chunk that encapsulates the element tag 
+				// up to, but not including, the '>' character
+                DataChunk elementChunk = s;
+                elementChunk.fEnd = s.fStart;
+                
+                while (s && *s != '>')
+                    s++;
+                
+				elementChunk.fEnd = (uint8_t*)s.fStart;
+
+                // Element
+                xml_parseElement(p, elementChunk, startelCb, endelCb);
+                state = NSVG_XML_CONTENT;
+                
+				// Move past the '>' character
+                if (s)
+                    s++;
+                mark = s;
+
+			}
+		}
+
+
+        return 1;
+    }
+
+    
+    /*
     static int parseXML(SVGParser& p, const DataChunk& chunk, StartElementCallback startelCb = nullptr, EndElementCallback endelCb = nullptr, ContentCallback contentCb = nullptr)
     {
 		char* s = (char*)chunk.fStart;
@@ -2503,7 +2525,7 @@ namespace svg
 
     return 1;
     }
-    
+    */
     
     //
     // parseSVGDocument

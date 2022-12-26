@@ -4,10 +4,12 @@
 #include "datachunk.h"
 #include "svgparser.h"
 
+// Build up an svg graphic from a chunk of .svg
 
 namespace svg
 {
 
+	
 	struct SVGGraphic : public GraphicGroup
 	{
 		

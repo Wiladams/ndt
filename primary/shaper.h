@@ -1,7 +1,9 @@
 #pragma once
 
-#include "binstream.hpp"
+
+#include "chunkutil.h"
 #include "textscan.h"
+#include "blend2d.h"
 
 #include <cstdint>
 #include <vector>
@@ -110,31 +112,7 @@ namespace ndt
 		void addPoint(float x, float y) { fNumbers.push_back(x); fNumbers.push_back(y); }
     };
 
-	// Convert a scanned number to an integer
-    // no inlining required, just let the compiler do its thing
-    unsigned digit_value(uint8_t c)
-    {
-        return unsigned(c - '0');
-    }
 
-    bool is_digit(uint8_t c)
-    {
-        return digit_value(c) <= 9;
-    }
-
-    uint64_t chunk_to_uint64(DataChunk & s)
-    {
-
-        uint64_t n = digit_value(*s);
-        unsigned d;
-
-        while ((d = digit_value(*++s)) <= 9)
-        {
-            n = n * 10 + d;
-        }
-
-        return n;
-    }
     
 // Parse a number which may have units after it
 //   1.2em
@@ -145,7 +123,7 @@ namespace ndt
 // By the end of this routine, the numchunk represents the range of the 
 // captured number.
 // 
-// The returned chun represents what comes next, and can be used
+// The returned chunk represents what comes next, and can be used
 // to continue scanning the original inChunk
 //
 // Note:  We assume here that the inChunk is already positioned at the start

@@ -40,6 +40,15 @@ namespace ndt {
 				bits.set(chars[i]);
 		}
 
+		charset operator+(const char achar)
+		{
+			charset result(*this);
+			result.bits.set(achar);
+			return result;
+		}
+		
+
+		
 		// This one makes us look like an array
 		inline bool operator [](const size_t idx) const
 		{

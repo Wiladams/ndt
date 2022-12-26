@@ -161,22 +161,27 @@
     <ClInclude Include="..\..\primary\bitbang.h" />
     <ClInclude Include="..\..\primary\BLGraphics.h" />
     <ClInclude Include="..\..\primary\bstream.h" />
+    <ClInclude Include="..\..\primary\chunkutil.h" />
+    <ClInclude Include="..\..\primary\circularbuff.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
     <ClInclude Include="..\..\primary\shaper.h" />
     <ClInclude Include="..\..\primary\svg.h" />
     <ClInclude Include="nanosvg.h" />
+    <ClInclude Include="svgcolors.h" />
     <ClInclude Include="svgdocument.h" />
     <ClInclude Include="svggraphic.h" />
     <ClInclude Include="svgparser.h" />
     <ClInclude Include="svgpathviewer.hpp" />
+    <ClInclude Include="svgscanner.h" />
     <ClInclude Include="svgxform.h" />
     <ClInclude Include="teststates.h" />
+    <ClInclude Include="xmlscan.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
-    <ClCompile Include="..\..\primary\studio.cpp" />
-    <ClCompile Include="svgviewer.cpp" />
+    <ClCompile Include="..\..\primary\p5.cpp" />
+    <ClCompile Include="svgbrowser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -48,8 +48,8 @@ struct CenterWindow : public GraphicGroup
     void draw(IGraphics& ctx) override
     {
 
-        static double scaleX = 1.00;
-        static double scaleY = 1.00;
+        static double scaleX = 0.5;
+        static double scaleY = 0.5;
         
         // Start by saving the context state
         // so we're free to mess around with it
@@ -62,7 +62,7 @@ struct CenterWindow : public GraphicGroup
         // Once the clip is set, we want to transform our
         // coordinate sytem to have 0,0 be at the upper left corner.
 
-        ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
+        //ctx.translate(boundsWidth() / 2, boundsHeight() / 2);
         ctx.scale(scaleX, scaleY);
 
 
@@ -160,11 +160,15 @@ void testNumber()
 {
 	char buffer[256];
     DataChunk numchunk = make_chunk_size(buffer, 256);
-    DataChunk tr = make_chunk_cstr("1.23e2");
+    DataChunk tr = make_chunk_cstr("1.23e2px");
     auto units = svg_parseNumber(tr, numchunk);
 
 	printChunk(numchunk);
 	printChunk(units);
+
+	DataChunk tr2 = make_chunk_cstr("-1.23e-2");
+	auto num = chunk_to_double(tr2);
+	printf("double chunk: %f\n", num);
 }
 
 void testTransform()
@@ -304,6 +308,7 @@ void testParseDoc()
     //constexpr const char* filename = "resources\\example_polygon.svg";
     //constexpr const char* filename = "resources\\example_polyline.svg";    
     //constexpr const char* filename = "resources\\example_quad01.svg";
+    //constexpr const char* filename = "resources\\example_text.svg";
     //constexpr const char* filename = "resources\\floppy-disk.svg";
     //constexpr const char* filename = "resources\\grapes.svg";
     constexpr const char* filename = "resources\\Ghostscript_Tiger.svg";
@@ -314,6 +319,7 @@ void testParseDoc()
     //constexpr const char* filename = "resources\\stcroix_map.svg";
     //constexpr const char* filename = "resources\\tango.svg";
     //constexpr const char* filename = "resources\\trysvg_linear.svg";
+    //constexpr const char* filename = "resources\\World_map_2011_CIA_World_Factbook.svg";
     
     auto fmap = mmap::create_shared(filename);
     if (fmap == nullptr || !fmap->isValid())
