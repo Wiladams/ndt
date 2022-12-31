@@ -176,15 +176,72 @@ namespace svg {
 }
 
 namespace svg {
+
+
+    
+    // SVGVisualProperty
+    // This is meant to be the base class for things that are optionally
+    // used to alter the graphics context.
+    // If isSet() is true, then the drawSelf() is called.
+	// sub-classes should override drawSelf() to do the actual drawing
+    //
+    // This is used for things like; Paint, Transform, Miter, etc.
+    //
+    struct SVGVisualProperty :  public IDrawable
+    {
+        bool fIsSet{ false };
+
+        SVGVisualProperty()
+            :fIsSet(false)
+        {
+
+        }
+
+        SVGVisualProperty(const SVGVisualProperty& other)
+            :fIsSet(other.fIsSet)
+        {}
+
+        SVGVisualProperty operator=(const SVGVisualProperty& rhs)
+        {
+            fIsSet = rhs.fIsSet;
+            return *this;
+        }
+
+        void set(const bool value) { fIsSet = value; }
+        bool isSet() const { return fIsSet; }
+
+		virtual void loadSelfFromChunk(const DataChunk& chunk)
+        {
+			;
+        }
+
+        virtual void loadFromChunk(const DataChunk& chunk)
+        {
+			loadSelfFromChunk(chunk);
+        }
+        
+        // Apply propert to the context conditionally
+        virtual void drawSelf(IGraphics& ctx)
+        {
+            ;
+        }
+
+        void draw(IGraphics& ctx) override
+        {
+            if (isSet())
+                drawSelf(ctx);
+        }
+
+    };
+}
+
+namespace svg {
     // simple type parsing
-    static INLINE maths::vec4b toColor(const ndt::DataChunk& inChunk);
     static INLINE int64_t toInteger(const DataChunk& inChunk);
     static INLINE float toNumber(const DataChunk& inChunk);
     static INLINE std::string toString(const DataChunk& inChunk);
 	
-    // compound types
-    // toDimension, can't forward declare this one
-    // 	static INLINE SVGViewbox toViewbox(const DataChunk& inChunk)
+
     
 	// Utility, for viewbox, points, etc
     static INLINE float nextNumber(DataChunk& inChunk, const charset& delims);
@@ -276,6 +333,11 @@ namespace svg
 		{
 		}
 	    
+        SVGDimension(const SVGDimension &other)
+            :fValue(other.fValue)
+            ,fUnits(other.fUnits)
+            ,fDeviceValue(other.fDeviceValue)
+        {}
 
         SVGDimension(float value, SVGDimensionUnits units)
 		: fValue(value)
@@ -314,21 +376,19 @@ namespace svg
 			fValue = value;
 			fUnits = units;
 			fDeviceValue = 0.0f;
+
 			return *this;
         }
         
-        static SVGDimension fromChunk(const DataChunk &inChunk)
+        void loadSelfFromChunk(const DataChunk &inChunk)
 		{
-            SVGDimension coord{ };
-
             DataChunk s = inChunk;
             DataChunk numChunk;
             auto nextPart = scanNumber(s, numChunk);
             float value = (float)chunk_to_double(numChunk);
             SVGDimensionUnits units = parseDimensionUnits(nextPart);
-            coord.reset(value, units);
             
-            return coord;
+            reset(value, units);
 		}
     };
 
@@ -336,7 +396,10 @@ namespace svg
     
     static INLINE SVGDimension toDimension(const DataChunk& inChunk)
     {
-        return SVGDimension::fromChunk(inChunk);
+        SVGDimension dim{};
+        dim.loadSelfFromChunk(inChunk);
+
+        return dim;
     }
 
     
@@ -386,10 +449,6 @@ namespace svg {
                             <color()>
     */
 
- 
-
- 
-    
 }
 
 namespace svg {
@@ -446,7 +505,8 @@ namespace svg {
 
         while (num)
         {
-            auto cv = SVGDimension::fromChunk(num);
+            auto cv = toDimension(num);
+
             //writeChunk(num);
             if (chunk_find_char(num, '%'))
             {
@@ -458,11 +518,17 @@ namespace svg {
             else
             {
                 // it's a regular number
-                rgbi[i] = (uint8_t)cv.value();
+                if (i==3)
+                    rgbi[i] = (uint8_t)(cv.value()  * 255.0f);
+                else 
+                    rgbi[i] = (uint8_t)cv.value();
             }
             i++;
             num = chunk_token(nums, ",");
         }
+
+        if (i == 4)
+            return rgba(rgbi[0], rgbi[1], rgbi[2], rgbi[3]);
 
         return rgb(rgbi[0], rgbi[1], rgbi[2]);
     }
@@ -482,19 +548,75 @@ namespace svg {
         return svg::colors[cName];
     }
 
-    struct SVGColor
-    {
-        maths::vec4b fColor;
-        bool fIsNone;
 
-        SVGColor(const maths::vec4b c)
+
+    constexpr int SVG_PaintForFill = 1;
+    constexpr int SVG_PaintForStroke = 2;
+
+    struct SVGPaint : public SVGVisualProperty
+    {
+
+
+        BLVar fPaint{};
+        bool fExplicitNone{ false };
+        int fPaintFor{ SVG_PaintForFill };
+
+        SVGPaint() : SVGVisualProperty() {}
+        SVGPaint(const SVGPaint& other) :SVGVisualProperty(other) 
         {
-            fColor = c;
-            fIsNone = false;
+
         }
 
-        static SVGColor fromChunk(const DataChunk& inChunk)
+        SVGPaint& operator=(const SVGPaint& rhs)
         {
+            SVGVisualProperty::operator=(rhs);
+
+            blVarAssignWeak(&fPaint, &rhs.fPaint);
+            fExplicitNone = rhs.fExplicitNone;
+            fPaintFor = rhs.fPaintFor;
+
+            return *this;
+        }
+        void setPaintFor(int pfor) { fPaintFor = pfor; }
+        void setOpacity(float opacity)
+        {
+            uint32_t outValue;
+            if (BL_SUCCESS == blVarToRgba32(&fPaint, &outValue))
+            {
+                BLRgba32 newColor(outValue);
+                newColor.setA(opacity * 255);
+                blVarAssignRgba32(&fPaint, newColor.value);
+            }
+        }
+
+        // Need to distinguish which function gets called
+        // BUGBUG
+        void drawSelf(IGraphics& ctx)
+        {
+            switch (fPaintFor)
+            {
+
+            case SVG_PaintForFill:
+                if (fExplicitNone)
+                    ctx.noFill();
+                else
+                    ctx.fill(fPaint);
+                break;
+
+            case SVG_PaintForStroke:
+                if (fExplicitNone)
+                    ctx.noStroke();
+                else
+                    ctx.stroke(fPaint);
+                break;
+            }
+
+        }
+
+        void loadSelfFromChunk (const DataChunk& inChunk)
+        {
+            maths::vec4b c;
+
             DataChunk str = inChunk;
             DataChunk rgbStr = make_chunk_cstr("rgb(");
             DataChunk rgbaStr = make_chunk_cstr("rgba(");
@@ -504,85 +626,148 @@ namespace svg {
             len = size(str);
             if (len >= 1 && *str == '#')
             {
-                return SVGColor(parseColorHex(str));
+                c = parseColorHex(str);
+                set(true);
             }
             else if (chunk_starts_with(str, rgbStr) || chunk_starts_with(str, rgbaStr))
             {
-                return SVGColor(parseColorRGB(str));
+                c = parseColorRGB(str);
+                set(true);
+            }
+            else {
+                std::string cName = std::string(str.fStart, str.fEnd);
+                if (cName == "none") {
+                    fExplicitNone = true;
+                    set(true);
+                }
+                else if (svg::colors.contains(cName))
+                {
+                    c = svg::colors[cName];
+                    set(true);
+                }
             }
 
-            return SVGColor(parseColorName(str));
+            blVarAssignRgba32(&fPaint, c.value);
+
+        }
+
+        static SVGPaint createFromChunk(const DataChunk& inChunk, const std::string &name)
+        {
+            SVGPaint paint;
+
+            // If the chunk is empty, return immediately 
+            if (!inChunk)
+                return paint;
+
+            paint.loadFromChunk(inChunk);
+
+            return paint;
+        }
+
+        static SVGPaint createFromXml(const XmlElement& elem, const std::string &name)
+        {
+            auto paint = createFromChunk(elem.getAttribute(name), name);
+
+            if (name == "fill")
+            {
+                paint.setPaintFor(SVG_PaintForFill);
+                // look for fill-opacity as well
+                auto o = elem.getAttribute("fill-opacity");
+                if (o)
+                {
+                    auto onum = toNumber(o);
+                    paint.setOpacity(onum);
+                }
+            }
+            else if (name == "stroke")
+            {
+                paint.setPaintFor(SVG_PaintForStroke);
+                // look for stroke-opacity as well
+                auto o = elem.getAttribute("stroke-opacity");
+                if (o)
+                {
+                    auto onum = toNumber(o);
+                    paint.setOpacity(onum);
+                }
+            }
+
+            return paint;
         }
     };
- 
-
-    static INLINE maths::vec4b toColor(const DataChunk& inChunk)
-    {
-        DataChunk str = inChunk;
-        DataChunk rgbStr = make_chunk_cstr("rgb(");
-        DataChunk rgbaStr = make_chunk_cstr("rgba(");
-
-        size_t len = 0;
-
-        len = size(str);
-        if (len >= 1 && *str == '#')
-        {
-            return parseColorHex(str);
-        }
-        else if (chunk_starts_with(str, rgbStr) || chunk_starts_with(str, rgbaStr))
-        {
-            return parseColorRGB(str);
-        }
-
-        return parseColorName(str);
-
-    }
 }
 
 namespace svg {
     
     //======================================================
     // SVGViewbox
+    // A document may or may not have this property
     //======================================================
     
-    struct SVGViewbox {
-        float fX{};
-        float fY{};
-        float fWidth{};
-        float fHeight{};
+    struct SVGViewbox : public SVGVisualProperty
+    {
+        maths::rectf fRect{};
 
 
-        float x() const { return fX; }
-        float y() const { return fY; }
-        float width() const { return fWidth; }
-        float height() const {return fHeight;}
-        
-        static SVGViewbox fromChunk(const DataChunk& inChunk)
+        SVGViewbox()
+            :SVGVisualProperty()
+        {
+            ;
+        }
+
+        SVGViewbox(const SVGViewbox& other)
+            : SVGVisualProperty(other)
+            ,fRect(other.fRect)
         {
 
-			SVGViewbox viewbox{ };
+        }
 
-            if (!inChunk)
-                return viewbox;
+        SVGViewbox& operator=(const SVGViewbox& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fRect = rhs.fRect;
 
+            return *this;
+        }
+
+        float x() const { return fRect.x; }
+        float y() const { return fRect.y; }
+        float width() const { return fRect.w; }
+        float height() const {return fRect.h;}
+        
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
 			DataChunk s = inChunk;
 			DataChunk numChunk;
             charset numDelims = wspChars+',';
                 
-            viewbox.fX = nextNumber(s, numDelims);
-			viewbox.fY = nextNumber(s, numDelims);
-			viewbox.fWidth = nextNumber(s, numDelims);
-			viewbox.fHeight = nextNumber(s, numDelims);
+            fRect.x = nextNumber(s, numDelims);
+			fRect.y = nextNumber(s, numDelims);
+			fRect.w = nextNumber(s, numDelims);
+			fRect.h = nextNumber(s, numDelims);
+        }
 
-			return viewbox;
+        static SVGViewbox createFromChunk(const DataChunk& inChunk)
+        {
+            SVGViewbox vbox;
+
+            // If the chunk is empty, return immediately 
+            if (!inChunk)
+                return vbox;
+
+            vbox.loadFromChunk(inChunk);
+
+            return vbox;
+        }
+
+        // "viewBox"
+        static SVGViewbox createFromXml(const XmlElement& elem, const std::string &name)
+        {
+            return createFromChunk(elem.getAttribute(name));
         }
     };
-
-	static INLINE SVGViewbox toViewbox(const DataChunk& inChunk)
-	{
-		return SVGViewbox::fromChunk(inChunk);
-	}
     
+
+
 }
 
 namespace svg
@@ -608,8 +793,14 @@ namespace svg
 	}
 }
 
+//================================================
+// SVGTransform
+// Transformation matrix
+//================================================
+
 namespace svg
 {
+
     //
     // parsing transforms
     //
@@ -780,26 +971,46 @@ namespace svg
     }
     */
 
-    static BLMatrix2D toTransform(const DataChunk& inChunk)
+    struct SVGTransform : public SVGVisualProperty
     {
+        BLMatrix2D fTransform;
 
-        DataChunk s = inChunk;
-        BLMatrix2D tm{};
+        SVGTransform() : SVGVisualProperty() {}
+        SVGTransform(const SVGTransform& other)
+            :SVGVisualProperty(other)
+            ,fTransform(other.fTransform)
+        {
 
-        //while (s)
-        //{
-            // Set out temp transform to the identity to start
-            // so that if parsing goes wrong, we can still do
-            // the multiply without worrying about messing things up
-            // That means, the individula parsing functions need to not
-            // partially mess up the transform if they fail.
-            //svg_xformIdentity(t);
+        }
 
-            tm.reset();
+        SVGTransform& operator=(const SVGTransform& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fTransform = rhs.fTransform;
+
+            return *this;
+        }
+
+		void loadSelfFromChunk(const DataChunk& inChunk) override
+		{
+            DataChunk s = inChunk;
+            //BLMatrix2D tm{};
+
+            //while (s)
+            //{
+                // Set out temp transform to the identity to start
+                // so that if parsing goes wrong, we can still do
+                // the multiply without worrying about messing things up
+                // That means, the individula parsing functions need to not
+                // partially mess up the transform if they fail.
+                //svg_xformIdentity(t);
+
+            //tm.reset();
 
             if (comparen_cstr(s, "matrix", 6) == 0)
             {
-                tm = toMatrix(s);
+                fTransform = toMatrix(s);
+                set(true);
             }
             else if (comparen_cstr(s, "translate", 9) == 0)
             {
@@ -827,8 +1038,34 @@ namespace svg
             }
 
 
-        //}
-        
-        return tm;
-    }
+            //}
+
+		}
+
+        void drawSelf(IGraphics& ctx) override
+        {
+			ctx.transform(fTransform.m);
+        }
+
+        static SVGTransform createFromChunk(const DataChunk& inChunk)
+        {
+            SVGTransform tform;
+
+            // If the chunk is empty, return immediately 
+            if (!inChunk)
+                return tform;
+            
+            tform.loadFromChunk(inChunk);
+
+            return tform;
+        }
+
+        // "transform"
+        static SVGTransform createFromXml(const XmlElement& elem, const std::string &name)
+        {
+            return createFromChunk(elem.getAttribute(name));
+        }
+    };
+    
+
 }

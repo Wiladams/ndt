@@ -36,11 +36,11 @@ namespace svg {
 
 		//const std::map<std::string, SVGAttribute> & attributes() const { return fAttributes; }
 
-		const std::string & name() const { return fName; }
-		void setName(const std::string &name) { fName = name; }
+		const std::string& name() const { return fName; }
+		void setName(const std::string& name) { fName = name; }
 
 		const std::string& id() const { return fId; }
-		void setId(const std::string &id) { fId = id; }
+		void setId(const std::string& id) { fId = id; }
 
 		virtual void loadSelfFromXml(const XmlElement& elem)
 		{
@@ -70,34 +70,19 @@ namespace svg {
 	struct SVGVisual : public SVGObject, public IDrawable
 	{
 		// Transform
-		bool fHasTransform{ false };
-		BLMatrix2D fTransform{};
+		SVGTransform fTransform{};
 		
 		// Filling 
-		bool fHasFill{ false };
-		bool fHasExplicitNoFill{ false };
-		
-		vec4b fFillColor{};
-		BLVar fFillPaint{};
+		SVGPaint fFillPaint{};
 
 		// Stroking
-		bool fHasStroke{ false };
-		bool fHasExplicitNoStroke{ false };
-		
-		vec4b fStrokeColor{};
-		BLVar fStrokePaint{};
+		SVGPaint fStrokePaint{};
+
 
 		std::string fStrokeLineCap{};
 		std::string fStrokeLineJoin{};
 		float fStrokeMiterLimit;
 		float fStrokeWidth;
-		
-		bool hasTransform() const { return fHasTransform; }
-		bool hasFill() const { return fHasFill; }
-		bool hasExplicitNoFill() const { return fHasExplicitNoFill; }
-		
-		bool hasStroke() const { return fHasStroke; }
-		bool hasExplicitNoStroke() const { return fHasExplicitNoStroke; }
 
 		
 
@@ -106,53 +91,14 @@ namespace svg {
 			SVGObject::loadSelfFromXml(elem);
 			
 			// Transformation matrix
-			fTransform = BLMatrix2D::makeIdentity();
-			auto tform = elem.getAttribute("transform");
-			if (tform)
-			{
-				fTransform = toTransform(tform);
-				fHasTransform = true;
-			}
+			fTransform = SVGTransform::createFromXml(elem, "transform");
+
 			
 			// Load up on all the visuals
-			auto fill = elem.getAttribute("fill");
-			if (fill)
-			{
-				if (fill == "none") {
-					fHasFill = true;
-					fHasExplicitNoFill = true;
-				}
-				else {
-					fHasFill = true;
-					fHasExplicitNoFill = false;
-					fFillColor = svg::toColor(fill);
-					blVarAssignRgba32(&fFillPaint, fFillColor.value);
-				}
-			}
-			else {
-				// Fill not specified, so parent fill cascades
-				fHasFill = false;
-				fHasExplicitNoFill = false;
-			}
-			
-			auto stroke = elem.getAttribute("stroke");
-			if (stroke) {
-				if (stroke == "none") {
-					fHasExplicitNoStroke = true;
-					fHasStroke = true;
-				}
-				else {
-					fHasStroke = true;
-					fHasExplicitNoStroke = false;
-					fStrokeColor = svg::toColor(stroke);
-					blVarAssignRgba32(&fStrokePaint, fStrokeColor.value);
-				}
-			}
-			else {
-				fHasStroke = false;
-				fHasExplicitNoStroke = false;
-			}
-			
+			fFillPaint = SVGPaint::createFromXml(elem, "fill");
+			fStrokePaint = SVGPaint::createFromXml(elem, "stroke");
+
+				
 			// load any transforms
 			// stroke-width
 			auto awidth = elem.getAttribute("stroke-width");
@@ -184,39 +130,11 @@ namespace svg {
 		void applyAttributes(IGraphics& ctx)
 		{
 			// Transform
-			//double tform[6] = { 1.7656463, 0, 0, 1.7656463, 20, 10 };
-						//ctx.transform(tform);
-			if (hasTransform())
-			ctx.transform(fTransform.m);
-
+			fTransform.draw(ctx);
 			
-			// fill
-			if (hasFill())
-			{
-				if (hasExplicitNoFill())
-				{
-					ctx.noFill();
-				}
-				else
-				{
-					ctx.fill(fFillPaint);
-				}
-			}
-
-			// stroke
-			if (hasStroke())
-			{
-				ctx.strokeWeight(fStrokeWidth);
-				
-				if (hasExplicitNoStroke())
-				{
-					ctx.noStroke();
-				}
-				else
-				{
-					ctx.stroke(fStrokePaint);
-				}
-			}
+			fFillPaint.draw(ctx);
+			fStrokePaint.draw(ctx);
+			ctx.strokeWeight(fStrokeWidth);
 		}
 		
 		virtual void drawSelf(IGraphics& ctx)
@@ -649,7 +567,7 @@ namespace svg {
 			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(96);
 
 			// viewbox
-			fViewbox = toViewbox(elem.getAttribute("viewBox"));
+			fViewbox = SVGViewbox::createFromXml(elem, "viewBox");
 
 			// preserveAspectRatio
 

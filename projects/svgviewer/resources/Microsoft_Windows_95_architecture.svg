@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400.09" height="615.36" xmlns:v="https://vecta.io/nano">
+    <style>
+    <![CDATA[
+        .B{stroke:#000}
+        .C{fill:#fff}
+        .D{font-size:12px}
+        .E{word-spacing:0px}
+        .F{fill:#000}
+        .G{font-family:Nimbus Sans}
+        .H{stroke-width:1.6}
+        .I{stroke-miterlimit:3.98887324}
+        .J{stroke-width:1.936}
+        .K{font-weight:400}
+    ]]>
+    </style>
+    <path d="M3.426 4.696h161.883v102.672H3.426z" class="B C I J"/>
+    <text x="43.386" y="497.409" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="43.386" y="60.407" font-weight="normal">DOS Application</tspan>
+    </text>
+    <path d="M183.539 4.988h161.883v102.672H183.539z" class="B C I J"/>
+    <text x="219.256" y="498.054" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="219.256" y="61.052" font-weight="normal">Win32 Application</tspan>
+    </text>
+    <path d="M363.226 4.642h161.883v102.672H363.226z" class="B C I J"/>
+    <text x="398.59" y="497.002" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="398.59" y="60" font-weight="normal">Win32 Application</tspan>
+    </text>
+    <g class="B C I J">
+        <path d="M562.577 5.571h141.465V86.95H562.577z"/>
+        <path d="M542.582 26.773h141.074v82.5H542.582z"/>
+    </g>
+    <text x="566.643" y="509.951" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="566.643" y="72.949">Win16 Application</tspan>
+    </text>
+    <g class="C">
+        <path d="M1364.23 243.848c-.001 14.085-100.843 25.519-225.561 25.575s-226.363-11.287-227.355-25.371 99.04-25.608 223.751-25.777 227.151 11.083 229.137 25.166" class="B H"/><path d="M903.847 148.873h461.967v95.7H903.847z" stroke="#fff" stroke-width="1.606"/><path d="M1363.763 148.595c.001 13.172-101.112 23.865-226.167 23.918s-226.976-10.555-227.973-23.727 99.304-23.949 224.352-24.107 227.767 10.364 229.76 23.535" stroke-width="1.921" class="B I"/></g><path d="M1364.357 148.595v96.838zm-455.425-1.372l2.475 99.825z" fill="none" class="B"/>
+        <text x="1119.306" y="645.275" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="1119.306" y="208.273">Registry</tspan>
+        </text>
+        <path d="M2.673 126.185h160.874v61.462H2.673z" class="B C H"/>
+        <text x="60.01" y="599.487" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="60.01" y="162.485">MS-DOS</tspan></text><g class="B"><path d="M183.976 127.202h519.775z" fill="none" stroke-width="1.658"/>
+        <path d="M182.809 146.161h160.424v40.835H182.809z" class="C H"/>
+        </g><text x="247.562" y="608.248" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="247.562" y="171.246">Kernel</tspan>
+        </text>
+        <path d="M363.609 146.81h160.049v40.425H363.609z" class="B C H"/>
+        <text x="433.321" y="608.15" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="433.321" y="171.148">User</tspan>
+        </text>
+        <path d="M543.046 146.398h161.287v41.25H543.046z" class="B C H"/>
+        <text x="612.346" y="608.562" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="612.346" y="171.56">GDI</tspan>
+        </text><g class="B C H">
+        <path d="M23.16 206.175h140.714v41.719H23.16z"/>
+        <path d="M3.007 226.327h140.714v41.012H3.007z"/>
+        </g>
+        <text x="54.626" y="688.785" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="54.626" y="251.783">DOS VM</tspan>
+        </text>
+        <path d="M183.32 206.882h700.036v60.104H183.32z" class="B C H"/>
+        <text x="509.296" y="679.239" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="509.296" y="242.237">System VM</tspan>
+        </text>
+        <path d="M3.257 286.271h381.5v81H3.257z" class="B C H"/>
+        <text x="130.757" y="767.273" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="130.757" y="330.271">Virtual Machine Manager</tspan>
+        </text><path d="M403.937 286.078h539.522v82.024H403.937z" class="B C H"/>
+        <text x="587.785" y="770.456" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="587.785" y="333.454">Installable Filesystem Manager</tspan>
+        </text><path d="M402.757 385.771h201v42h-201z" class="B C H"/>
+        <text x="491.257" y="848.273" xml:space="preserve" letter-spacing="0" class="D E F G">
+        <tspan x="491.257" y="411.271">VFAT</tspan></text><path d="M623.257 387.271h180.5v40h-180.5z" class="B C H"/><text x="700.757" y="847.773" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="700.757" y="410.771">CDFS</tspan></text><path d="M403.757 446.271h398.855v41.5H403.757z" stroke-width="1.601" class="B C"/><text x="551.757" y="907.773" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="551.757" y="470.771">Input/Output Supervisor</tspan></text><path d="M403.583 506.695h120.208v100.056H403.583z" class="B C H"/><text x="437.878" y="996.023" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="437.878" y="559.021">Port Driver</tspan></text><path d="M543.237 507.049h120.562v39.598H543.237z" class="B C H"/><text x="572.935" y="967.385" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="572.935" y="530.383">SCSI Layer</tspan></text><path d="M543.59 566.799h120.208v41.012H543.59z" class="B C H"/><text x="565.864" y="1027.489" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="565.864" y="590.487">Miniport Driver</tspan></text><path d="M683.598 506.341h119.855v101.116H683.598z" class="B C H"/><text x="717.539" y="988.245" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="717.539" y="551.243">Real Mode</tspan><tspan x="717.539" y="566.243">  Mapper</tspan></text><g class="B C H"><path d="M843.257 385.271h100.5v202.5h-100.5z"/><path d="M823.757 407.271h100.5v200.5h-100.5z"/></g><text x="844.757" y="930.273" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="844.757" y="493.271">  Network </tspan><tspan x="844.757" y="508.271">Redirector</tspan></text><path d="M723.549 126.625h160.513v60.104H723.549z" class="B C H"/><text x="782.946" y="597.922" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="782.946" y="160.92">MS-DOS</tspan></text><path d="M723.196 65.814h160.513v41.719H723.196z" class="B C H"/><text x="753.955" y="527.918" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="753.955" y="90.916">DOS Device Driver</tspan></text><path d="M963.507 386.771h120.75v38.5h-120.75z" class="B C H"/><text x="994.007" y="847.773" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="994.007" y="410.771">Enumerator</tspan></text><path d="M963.257 286.271h400.5v80.5h-400.5z" class="B C H"/><text x="1110.257" y="767.273" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="1110.257" y="330.271">Configuration Manager</tspan></text><g class="B C H"><path d="M982.704 445.884h101.116v42.78H982.704z"/><path d="M963.258 466.39h100.056v38.537H963.258z"/></g><text x="985.886" y="926.726" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="985.886" y="489.724">Bus Driver</tspan></text><path d="M1103.757 386.771h119.5v38h-119.5z" class="B C H"/><text x="1140.05" y="846.773" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="1140.05" y="409.771">Arbitrator</tspan></text><g class="B C H"><path d="M1263.257 386.771h100v100.5h-100z"/><path d="M1242.757 406.771h103v100.5h-103z"/></g><text x="1257.757" y="897.273" xml:space="preserve" letter-spacing="0" class="D E F G"><tspan x="1257.757" y="460.271">Device Driver</tspan></text><g fill="#7e7e7e" stroke="#7e7e7e"><path d="M803.757 125.771v-6z"/><path d="M797.757 121.03l6.5-12.509 6.5 13-5.5-1.962-2 .245z" stroke-width=".991"/><path d="M796.007 205.771l3.25-18.25zm-18 79.5l4.75-17.5z"/><path d="M752.757 386.678l4.25-18.157z" stroke-width="1.026"/><path d="M747.757 428.021l-2.25 17.5z"/><path d="M744.101 488.556v6.237z" stroke-width=".98"/>
+        <path d="M738.007 492.521l6 12.336 6.5-12.103-5.25 2.327-2.25.233z" stroke-width=".965"/>
+        </g>
+</svg>
