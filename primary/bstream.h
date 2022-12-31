@@ -41,10 +41,10 @@ namespace ndt
     //
     // A core type for representing a chunk of data in a stream
     // other routines are meant to operate on this data type
-    struct DataCursor : public DataChunk
+    struct DataCursor 
     {
-        //const uint8_t* fStart;
-        //const uint8_t* fEnd;
+        const uint8_t* fStart;
+        const uint8_t* fEnd;
         uint8_t* fCurrent;
 
 #ifdef __cplusplus
@@ -306,27 +306,4 @@ namespace ndt
 #endif
 }
 
-// a ciyoke if utility routines to help with debugging
-namespace ndt {
-    void writeChunk(const DataChunk& chunk)
-    {
-        DataChunk s = chunk;
 
-        while (*s) {
-            printf("%c", *s);
-            s++;
-        }
-    }
-
-    void printChunk(const DataChunk& chunk)
-    {
-        if (chunk)
-        {
-            writeChunk(chunk);
-            printf("\n");
-        }
-        else
-            printf("BLANK==CHUNK\n");
-
-    }
-}

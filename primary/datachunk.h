@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <iterator>	// for std::data(), std::size()
 
 namespace ndt
 {
@@ -14,12 +15,15 @@ namespace ndt
 #endif
 
 		//
-		// A core type for representing a chunk of data in memory
+		// A core type for representing a contiguous sequence of bytes
+		// As of C++ 20, there is std::span, but it is not yet widely supported
+		// 
 		// The DataChunk is used in everything from networking
 		// to graphics bitmaps to audio buffers.
 		// Having a universal representation of a chunk of data
 		// allows for easy interoperability between different
 		// subsystems.  
+		// 
 		// It also allows us to eliminate disparate implementations that
 		// are used for the same purpose.
 		struct DataChunk
@@ -28,13 +32,19 @@ namespace ndt
 			const uint8_t* fEnd;
 
 #ifdef __cplusplus
-			INLINE uint8_t& operator[](size_t i);
-			INLINE const uint8_t& operator[](size_t i) const;
 
-			INLINE uint8_t& operator*();
-			INLINE const uint8_t& operator*() const;
+			
+			DataChunk(const uint8_t* start, const uint8_t* end) : fStart(start), fEnd(end) {}
+			DataChunk() : fStart(nullptr), fEnd(nullptr) {}
 
-			INLINE DataChunk& operator+= (size_t a);
+			
+			INLINE uint8_t& operator[](size_t i);				// Array access
+			INLINE const uint8_t& operator[](size_t i) const;	// Array access
+
+			INLINE uint8_t& operator*();				// get current byte value
+			INLINE const uint8_t& operator*() const;	// get current byte value
+
+			INLINE DataChunk& operator+= (size_t a);	// advance by the specified amount
 
 			INLINE DataChunk& operator++();				// prefix ++y
 			INLINE DataChunk& operator++(int i);		// postfix y++
@@ -66,6 +76,7 @@ namespace ndt
 		
 		// Some utility functions for common operations
 		static INLINE void chunk_clear(DataChunk& dc) noexcept;
+		static INLINE void chunk_truncate(DataChunk& dc) noexcept;
 		static INLINE DataChunk& chunk_skip(DataChunk& dc, int n) noexcept;
 		static INLINE DataChunk& chunk_skip_to_end(DataChunk& dc) noexcept;
 
@@ -76,10 +87,19 @@ namespace ndt
 #endif
 	
 #ifdef __cplusplus
-	// Operator overloading
-	static INLINE bool operator< (const DataChunk& a, const DataChunk& b) noexcept;
+	//
+	// operators for comparison
+	// operator!=;
+	// operator<=;
+	// operator>=;
 	static INLINE bool operator==(const DataChunk& a, const DataChunk& b) noexcept;
 	static INLINE bool operator==(const DataChunk& a, const char* b) noexcept;
+	static INLINE bool operator< (const DataChunk& a, const DataChunk& b) noexcept;
+	static INLINE bool operator> (const DataChunk& a, const DataChunk& b) noexcept;
+	static INLINE bool operator!=(const DataChunk& a, const DataChunk& b) noexcept;
+	static INLINE bool operator<=(const DataChunk& a, const DataChunk& b) noexcept;
+	static INLINE bool operator>=(const DataChunk& a, const DataChunk& b) noexcept;
+	
 #endif
 
 
@@ -153,6 +173,11 @@ namespace ndt
 		memset((uint8_t *)dc.fStart, 0, size(dc));
 	}
 	
+	static INLINE void chunk_truncate(DataChunk& dc) noexcept
+	{
+		dc.fEnd = dc.fStart;
+	}
+	
 	static INLINE DataChunk & chunk_skip(DataChunk &dc, int n) noexcept
 	{
 		if (n > size(dc))
@@ -203,11 +228,37 @@ namespace ndt
 		return memcmp(a.fStart, b, len) == 0;
 	}
 
+	static INLINE bool operator!=(const DataChunk& a, const DataChunk& b) noexcept
+	{
+		if (size(a) != size(b))
+			return true;
+		return memcmp(a.fStart, b.fStart, size(a)) != 0;
+	}
+	
 	static INLINE bool operator<(const DataChunk &a, const DataChunk&b) noexcept
 	{
 		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes) < 0;
 	}
+
+	static INLINE bool operator>(const DataChunk& a, const DataChunk& b) noexcept
+	{
+		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		return memcmp(a.fStart, b.fStart, maxBytes) > 0;
+	}
+	
+	static INLINE bool operator<=(const DataChunk &a, const DataChunk &b) noexcept
+	{
+		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		return memcmp(a.fStart, b.fStart, maxBytes) <= 0;
+	}
+	
+	static INLINE bool operator>=(const DataChunk& a, const DataChunk& b) noexcept
+	{
+		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		return memcmp(a.fStart, b.fStart, maxBytes) >= 0;
+	}
+	
 #endif
 }
 

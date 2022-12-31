@@ -240,6 +240,9 @@
     <ClInclude Include="datachunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utf8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp">

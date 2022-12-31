@@ -31,6 +31,8 @@ namespace ndt
 		
 #ifdef __cplusplus
 	}
+
+
 #endif
 }
 
@@ -125,9 +127,9 @@ namespace ndt
 		}
 		
 		// Given an input chunk
-// spit it into two chunks, the first chunk is the first token, the second chunk is the rest of the input
-// the token is defined by the charset
-
+		// spit it into two chunks, 
+		// Returns - the first chunk before delimeters
+		// a - adjusted to reflect the rest of the input after delims
 		static INLINE DataChunk chunk_token(DataChunk& a, const charset& delims) noexcept
 		{
 			const uint8_t* start = a.fStart;
@@ -146,6 +148,8 @@ namespace ndt
 
 			return { start, tokenEnd };
 		}
+		
+
 		
 		// Given an input chunk
 		// find the first instance of a specified character
@@ -177,6 +181,31 @@ namespace ndt
 				s++;
 			}
 			
+			return v;
+		}
+		
+		static INLINE int64_t chunk_to_i64(DataChunk& s)
+		{
+			static charset digitChars("0123456789");
+
+			int64_t v = 0;
+
+			bool negative = false;
+			if (s && *s == '-')
+			{
+				negative = true;
+				s++;
+			}
+
+			while (s && digitChars(*s))
+			{
+				v = v * 10 + (int64_t)(*s - '0');
+				s++;
+			}
+
+			if (negative)
+				v = -v;
+
 			return v;
 		}
 		
@@ -259,6 +288,31 @@ namespace ndt
 	}
 #endif
 		
+}
+
+// a ciyoke if utility routines to help with debugging
+namespace ndt {
+	void writeChunk(const DataChunk& chunk)
+	{
+		DataChunk s = chunk;
+
+		while (*s) {
+			printf("%c", *s);
+			s++;
+		}
+	}
+
+	void printChunk(const DataChunk& chunk)
+	{
+		if (chunk)
+		{
+			writeChunk(chunk);
+			printf("\n");
+		}
+		else
+			printf("BLANK==CHUNK\n");
+
+	}
 }
 
 /*

@@ -55,14 +55,14 @@ namespace ndt {
 
     public:
         XmlElement() {}
-        XmlElement(int kind, const DataChunk& data)
+        XmlElement(int kind, const DataChunk& data, bool autoScanAttr = false)
             :fElementKind(kind)
             , fData(data)
         {
-            reset(kind, data);
+            reset(kind, data, autoScanAttr);
         }
 
-		void reset(int kind, const DataChunk& data)
+		void reset(int kind, const DataChunk& data, bool autoScanAttr = false)
 		{
             clear();
 
@@ -75,8 +75,10 @@ namespace ndt {
             {
                 scanTagName();
 
-                if (fElementKind != XML_ELEMENT_TYPE_END_TAG)
-                    scanAttributes();
+                if (autoScanAttr) {
+                    if (fElementKind != XML_ELEMENT_TYPE_END_TAG)
+                        scanAttributes();
+                }
             }
 		}
         
@@ -100,9 +102,12 @@ namespace ndt {
         const DataChunk& data() const { return fData; }
 
 		// Convenience for what kind of tag it is
-        bool isStart() { return (fElementKind == XML_ELEMENT_TYPE_START_TAG) || (fElementKind == XML_ELEMENT_TYPE_SELF_CLOSING); }
-		bool isSelfClosing() { return fElementKind == XML_ELEMENT_TYPE_SELF_CLOSING; }
-		bool isEnd() { return fElementKind == XML_ELEMENT_TYPE_END_TAG; }
+        bool isStart() const { return (fElementKind == XML_ELEMENT_TYPE_START_TAG); }
+		bool isSelfClosing() const { return fElementKind == XML_ELEMENT_TYPE_SELF_CLOSING; }
+		bool isEnd() const { return fElementKind == XML_ELEMENT_TYPE_END_TAG; }
+		bool isComment() const { return fElementKind == XML_ELEMENT_TYPE_COMMENT; }
+		bool isProcessingInstruction() const { return fElementKind == XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION; }
+		bool isContent() const { return fElementKind == XML_ELEMENT_TYPE_CONTENT; }
         
         
         void addAttribute(std::string& name, const DataChunk& valueChunk)
@@ -110,6 +115,15 @@ namespace ndt {
             fAttributes[name] = valueChunk;
         }
 
+        DataChunk getAttribute(const std::string &name) const
+		{
+			auto it = fAttributes.find(name);
+			if (it != fAttributes.end())
+				return it->second;
+			else
+                return DataChunk{};
+		}
+        
     private:
         //
     // Parse an XML element
@@ -156,7 +170,7 @@ namespace ndt {
             fData = s;
         }
 
-
+        public:
         //
 // scanAttributes
 // Scans the fData member looking for attribute key/value pairs
@@ -388,7 +402,7 @@ namespace ndt {
                     else if (chunk_starts_with_char(elementChunk, '/'))
                         kind = XML_ELEMENT_TYPE_END_TAG;
 
-					fCurrentElement.reset(kind, elementChunk);
+					fCurrentElement.reset(kind, elementChunk, true);
 
                     return true;
                 }
@@ -405,4 +419,58 @@ namespace ndt {
             return false;
         } // end of next()
     };
+}
+
+
+namespace ndt_debug {
+	using namespace ndt;
+    
+    std::map<int, std::string> elemTypeNames = {
+        {ndt::XML_ELEMENT_TYPE_INVALID, "INVALID"}
+    ,{ndt::XML_ELEMENT_TYPE_CONTENT, "CONTENT"}
+    ,{ndt::XML_ELEMENT_TYPE_SELF_CLOSING, "SELF_CLOSING"}
+    ,{ndt::XML_ELEMENT_TYPE_START_TAG, "START_TAG"}
+    ,{ndt::XML_ELEMENT_TYPE_END_TAG, "END_TAG"}
+    ,{ndt::XML_ELEMENT_TYPE_COMMENT, "COMMENT"}
+    ,{ndt::XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION, "PROCESSING_INSTRUCTION"}
+    };
+
+    void printXmlElement(const ndt::XmlElement& elem)
+    {
+        if (elem.kind() == XML_ELEMENT_TYPE_INVALID)
+            return;
+
+        switch (elem.kind())
+        {
+        case ndt::XML_ELEMENT_TYPE_CONTENT:
+        case ndt::XML_ELEMENT_TYPE_COMMENT:
+        case ndt::XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION:
+            printf("%s: \n", elemTypeNames[elem.kind()].c_str());
+            printChunk(elem.data());
+            break;
+
+        case ndt::XML_ELEMENT_TYPE_START_TAG:
+            printf("START_TAG: [%s]\n", elem.name().c_str());
+            break;
+
+        case ndt::XML_ELEMENT_TYPE_SELF_CLOSING:
+            printf("SELF_CLOSING: [%s]\n", elem.name().c_str());
+            break;
+
+        case ndt::XML_ELEMENT_TYPE_END_TAG:
+            printf("END_TAG: [%s]\n", elem.name().c_str());
+            break;
+
+        default:
+            printf("NYI: %s\n", elemTypeNames[elem.kind()].c_str());
+            printChunk(elem.data());
+            break;
+        }
+
+        for (auto& attr : elem.attributes())
+        {
+            printf("    %s: ", attr.first.c_str());
+            printChunk(attr.second);
+        }
+    }
 }

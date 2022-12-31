@@ -8,7 +8,7 @@
 
 namespace svg
 {
-    //using namespace maths;
+    using namespace maths;
 
 
     // Database of SVG colors

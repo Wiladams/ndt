@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "bstream.h"
+#include "datachunk.h"
 
 namespace ndt
 {
@@ -77,10 +77,10 @@ namespace ndt
             return true;
         }
 		DataChunk getChunk() { return make_chunk_size(fData, fSize); }
-        DataCursor createCursor() 
-        {
-            return make_cursor_size(data(), size());
-        }
+        //DataCursor createCursor() 
+        //{
+        //    return make_cursor_size(data(), size());
+        //}
 
         // factory method
         // desiredAccess - GENERIC_READ, GENERIC_WRITE, GENERIC_EXECUTE

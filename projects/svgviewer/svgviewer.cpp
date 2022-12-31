@@ -8,9 +8,6 @@
 
 #include "svggraphic.h"
 
-
-
-
 #include <iostream>
 #include <string_view>
 
@@ -161,7 +158,7 @@ void testNumber()
 	char buffer[256];
     DataChunk numchunk = make_chunk_size(buffer, 256);
     DataChunk tr = make_chunk_cstr("1.23e2px");
-    auto units = svg_parseNumber(tr, numchunk);
+    auto units = scanNumber(tr, numchunk);
 
 	printChunk(numchunk);
 	printChunk(units);
@@ -379,10 +376,10 @@ void setup()
     //testChunk();
     //testLine();
     //testLineDisplay();
-    //testNumber();
+    testNumber();
     //testParse();
     //testParseColor();
-    testParseDoc();
+    //testParseDoc();
     //testParseStyle();
     //testPath();
     //testPathParse();

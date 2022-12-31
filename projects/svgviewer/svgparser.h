@@ -133,33 +133,6 @@ namespace svg
         , TRANSFORM
         , CHUNK
 
-
-        /*
-        , STRING
-        , COLOR
-        , PAINT
-        , PATTERN
-        , GRADIENT
-        , DASHARRAY
-        , LENGTH
-        , COORDINATE
-        , PERCENTAGE
-        , TRANSFORM
-        , VIEWBOX
-        , PATH
-        , POINTS
-        , RECT
-        , NUMBER_LIST
-        , LENGTH_LIST
-        , COORDINATE_LIST
-        , PERCENTAGE_LIST
-        , TRANSFORM_LIST
-        , VIEWBOX_LIST
-        , GRADIENT_LIST
-        , PATH_LIST
-        , POINTS_LIST
-        , RECT_LIST
-        */
     };
     
     struct SVGAttribute
@@ -623,7 +596,7 @@ namespace svg
     };
 
 
-	using attributeMap = std::map<std::string, SVGAttribute>;
+	using attributeMap = std::map<std::string, SVGattrib>;
     
     typedef std::function<void(SVGParser& p, const DataChunk& elName, attributeMap& attrs)> StartElementCallback;
     typedef std::function<void(SVGParser& p, const DataChunk& elName)> EndElementCallback;
@@ -670,180 +643,6 @@ namespace svg
     }
     
 
-    //==========================================================
-    // Parser utilities
-    // The primary motivation of these routines is to use
-    // chunks, as much as possible.  we don't want to allocate
-    // any memory, and we don't want to use any system routines
-    //==========================================================
-
-    // Convert a string to an unsigned 64-bit value
-    // this is only the digits part, not the sign or exponent
-    // if you want to handle those, use this only to parse the 
-    // digit parts
-   	static INLINE uint64_t svg_strtoull(DataCursor& dc)
-    {
-        uint64_t v = 0;
-
-        while (!isEOF(dc) && digitChars(*dc))
-        {
-            v = v * 10 + (uint64_t)(*dc - '0');
-            dc++;
-        }
-        return v;
-    }
-    
-	// parse to integer, including sign
-	static INLINE int64_t svg_strtoll(DataCursor& dc)
-	{
-        uint64_t v = 0;
-        int sign = 1;
-        
-        // Parse optional sign
-        if (*dc == '+') {
-            dc++;
-        }
-        else if (*dc == '-') {
-            sign = -1;
-            dc++;
-        }
-        
-		return sign * svg_strtoull(dc);
-	}
-    
-    // parse floating point number
-	// includes sign, exponent, and decimal point
-    static double svg_strtof(const DataChunk &chunk, int *len = nullptr)
-    {
-		DataCursor s = make_cursor_chunk(chunk);
-        DataCursor cur = make_cursor_chunk(chunk);
-        
-        char* end = NULL;
-		double sign = 1.0;
-
-        double res = 0.0;
-        long long intPart = 0, fracPart = 0;
-        bool hasIntPart = false;
-        bool hasFracPart = false;
-
-        // Parse optional sign
-        if (*cur == '+') {
-            cur++;
-        }
-        else if (*cur == '-') {
-            sign = -1;
-            cur++;
-        }
-        // BUGBUG - assuming NOT EOF
-       
-        // Parse integer part
-        if (digitChars[*cur]) {
-            // Parse digit sequence
-            auto sentinel = tell(cur);
-            intPart = svg_strtoull(cur);
-            
-            if (tell(cur) != sentinel) {
-                res = (double)intPart;
-                hasIntPart = true;
-            }
-        }
-
-        // Parse fractional part.
-        if (*cur == '.') {
-            cur++; // Skip '.'
-            if (digitChars(*cur)) {
-                // Parse digit sequence
-                auto sentinel = tell(cur);
-                fracPart = svg_strtoull(cur);
-                if (tell(cur) != sentinel) {
-                    res += (double)fracPart / pow(10.0, (double)(tell(cur) - sentinel));
-                    hasFracPart = true;
-                }
-            }
-        }
-
-        // A valid number should have integer or fractional part.
-        if (!hasIntPart && !hasFracPart)
-            return 0.0;
-
-        
-        // Parse optional exponent
-        if (*cur == 'e' || *cur == 'E') {
-            long long expPart = 0;
-            cur++; // skip 'E'
-            auto sentinel = tell(cur);
-            expPart = svg_strtoll(cur); // Parse digit sequence with sign
-            if (tell(cur) != sentinel) {
-                res *= pow(10.0, (double)expPart);
-            }
-        }
-        
-		if (len) {
-			*len = tell(cur) - tell(s);
-		}
-        
-        return res * sign;
-    }
-    
-    // Parse a number which may have units after it
-	//   1.2em
-    // -1.0E2em
-    // 2.34ex
-    // -2.34e3M10,20
-    // The end of this routine, we want to return a data chunk that
-    // represents the units, and put the characters for the number inside the numChunk
-    // a better way would be to use a cursor for the numeric part
-    static DataChunk svg_parseNumber(const DataChunk &inChunk, DataChunk & numchunk)
-    {
-        DataChunk s = inChunk;
-        DataCursor numdc = make_cursor_chunk(numchunk);
-        
-        // sign
-        if (*s == '-' || *s == '+') {
-                put_u8(numdc, *s);
-			s++;
-        }
-        
-        // integer part
-        while (s && digitChars[*s]) {
-            put_u8(numdc, *s);
-            s++;
-        }
-        
-        if (*s == '.') {
-            // decimal point
-                put_u8(numdc, *s);
-            s++;
-            
-            // fraction part
-            while (size(s) && digitChars[*s]) {
-                    put_u8(numdc, *s);
-                s++;
-            }
-        }
-        
-        // exponent
-        // but it could be units (em, ex)
-        if ((*s == 'e' || *s == 'E') && (s[1] != 'm' && s[1] != 'x')) {
-                put_u8(numdc, *s);
-            s++;
-            if (*s == '-' || *s == '+') {
-                    put_u8(numdc, *s);
-                s++;
-            }
-            while (size(s) && digitChars[*s]) {
-                    put_u8(numdc, *s);
-                s++;
-            }
-        }
-        
-
-        numchunk.fEnd = (const uint8_t *)tell_pointer(numdc);
-        
-        return s;
-    }
-
-    
     //=====================================================
     // Parsing attributes
     //=====================================================
@@ -875,24 +674,13 @@ namespace svg
         return SVG_UNITS_USER;
     }
     
-    /*
-    static bool svg_isCoordinate(DataChunk &s)
-    {
-        // optional sign
-        if (*s == '-' || *s == '+')
-            s++;
-        // must have at least one digit, or start by a dot
-        return (digitChars[*s] || *s == '.');
-    }
-    */
-    
     static SVGcoordinate svg_parseCoordinateRaw(const DataChunk & strChunk)
     {
         SVGcoordinate coord{ 0, SVG_UNITS_USER };
         char buf[64]{};
 		DataChunk numChunk = make_chunk_size(buf, 64);
-        coord.units = svg_parseUnits(svg_parseNumber(strChunk, numChunk));
-        coord.value = (float)svg_strtof(numChunk);
+        coord.units = svg_parseUnits(ndt::scanNumber(strChunk, numChunk));
+        coord.value = (float)chunk_to_double(numChunk);
         
         return coord;
     }
@@ -957,7 +745,7 @@ namespace svg
         
         while (num)
         {
-            writeChunk(num);
+            //writeChunk(num);
 			if (chunk_find_char(num, '%'))
 			{
                 // it's a percentage
@@ -996,8 +784,7 @@ namespace svg
         
         size_t len = 0;
 		skipWhitespace(str);
-        //while (*str == ' ') 
-        //    str++;
+
         
         len = size(str);
         if (len >= 1 && *str == '#')
@@ -1012,15 +799,17 @@ namespace svg
         return svg_parseColorName(str);
     }
     
-    static float svg_parseOpacity(const DataChunk &str)
+    static float svg_parseOpacity(const DataChunk &inChunk)
     {
-        float val = (float)svg_strtof(str);
+        DataChunk s = inChunk;
+        float val = (float)chunk_to_double(s);
         return maths::clamp(val, 0.0f, 1.0f);
     }
     
-    static float svg_parseMiterLimit(const DataChunk &str)
+    static float svg_parseMiterLimit(const DataChunk &inChunk)
     {
-        float val = (float)svg_strtof(str);
+        DataChunk s = inChunk;
+        float val = (float)chunk_to_double(s);
         if (val < 0.0f) val = 0.0f;
         return val;
     }
@@ -1051,6 +840,19 @@ namespace svg
 
         return outChunk;
     }
+    
+    std::map<std::string, int> enumMap = {
+        {"butt", SVG_CAP_BUTT}
+        ,{"round", SVG_CAP_ROUND}
+		,{"square", SVG_CAP_SQUARE}
+		,{"miter", SVG_JOIN_MITER}
+		,{"round", SVG_JOIN_ROUND}
+		,{"bevel", SVG_JOIN_BEVEL}
+		//,{"none", SVG_FILL_NONE}
+        ,{"nonzero", SVG_FILLRULE_NONZERO}
+		,{"evenodd", SVG_FILLRULE_EVENODD}
+        
+    };
     
     static char svg_parseLineCap(const DataChunk & str)
     {
@@ -1202,7 +1004,7 @@ namespace svg
                     return s;
                 
                 item = scanNumber(item, numChunk);
-                args[(na)++] = (float)svg_strtof(numChunk);
+                args[(na)++] = (float)chunk_to_double(numChunk);
             }
             else {
                 // skip past what should be whitspace, or commas
@@ -1809,7 +1611,7 @@ namespace svg
                         DataChunk item = make_chunk_size(itembuff, 64); // reset for each run
 
                         s = svg_getNextPathItem(s, item);
-                        args[nargs++] = (float)svg_strtof(item);
+                        args[nargs++] = (float)chunk_to_double(item);
                         if (nargs >= 2) {
                             if (npts == 0)
 								points.append(BLPoint{ args[0], args[1] });
@@ -1881,16 +1683,16 @@ namespace svg
                     DataChunk numChunk{};
 
                     s = nextNumber(s, numChunk);
-                    p.viewMinx = (float)svg_strtof(numChunk);
+                    p.viewMinx = (float)chunk_to_double(numChunk);
 
                     s = nextNumber(s, numChunk);
-                    p.viewMiny = (float)svg_strtof(numChunk);
+                    p.viewMiny = (float)chunk_to_double(numChunk);
 
                     s = nextNumber(s, numChunk);
-                    p.viewWidth = (float)svg_strtof(numChunk);
+                    p.viewWidth = (float)chunk_to_double(numChunk);
 
                     s = nextNumber(s, numChunk);
-                    p.viewHeight = (float)svg_strtof(numChunk);
+                    p.viewHeight = (float)chunk_to_double(numChunk);
 
                 }
                 else if (keyvalue.first == "preserveAspectRatio") 
@@ -2487,45 +2289,6 @@ namespace svg
         return 1;
     }
 
-    
-    /*
-    static int parseXML(SVGParser& p, const DataChunk& chunk, StartElementCallback startelCb = nullptr, EndElementCallback endelCb = nullptr, ContentCallback contentCb = nullptr)
-    {
-		char* s = (char*)chunk.fStart;
-        char* mark = s;
-        int state = NSVG_XML_CONTENT;
-        
-        while (s < (char *)chunk.fEnd) 
-        {
-            // Start of a tag
-            if (*s == '<' && state == NSVG_XML_CONTENT) 
-            {
-				// consume the '<' to be placed at the start of the tag
-                // which is not part of the content
-                s++;
-                DataChunk markChunk = make_chunk(mark, s);
-                xml_parseContent(p, markChunk, contentCb);
-                mark = s;
-                state = NSVG_XML_TAG;
-            }
-            else if (*s == '>' && state == NSVG_XML_TAG) 
-            {
-            // mark the end of a tag.
-            DataChunk markChunk = make_chunk(mark, s);
-            s++;
-
-            xml_parseElement(p, markChunk, startelCb, endelCb);
-            mark = s;
-            state = NSVG_XML_CONTENT;
-        }
-        else {
-            s++;
-        }
-    }
-
-    return 1;
-    }
-    */
     
     //
     // parseSVGDocument

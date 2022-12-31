@@ -52,6 +52,11 @@ public:
 	{
 		fPixelMap.init(w, h);
 		fSurface.attachPixelArray(fPixelMap);
+
+		// Set default drawing attributes
+		fSurface.fill(Pixel(0, 0, 0));
+		fSurface.stroke(Pixel(0, 0, 0));
+		fSurface.strokeWeight(1.0);
 	}
 
 	void setMoveable(const bool moveable)
@@ -68,6 +73,8 @@ public:
 		if (fTitle.empty())
 			return;
 
+		ctx.push();
+		
 		// A little rectangle to back title
 		ctx.noStroke();
 		ctx.fill(fTitleBarColor);
@@ -80,6 +87,8 @@ public:
 		ctx.textFont("Consolas");
 		ctx.text(fTitle.c_str(), fTitleBar.x + fTitleBar.w / 2, 16);
 		ctx.flush();
+
+		ctx.pop();
 	}
 
 	void setBackgroundColor(const Pixel& c)
@@ -103,7 +112,7 @@ public:
 			ctx.fill(fBackgroundColor);
 			ctx.rect(fClientArea.min.x, fClientArea.min.y, sz.x, sz.y);
 		}
-
+		
 		ctx.pop();
 	}
 
@@ -111,12 +120,15 @@ public:
 	{
 		drawTitleBar(ctx);
 		
+		ctx.push();
+		
 		// Draw a frame
 		auto sz = maths::size(frame());
 		ctx.strokeWeight(2.0f);
 		ctx.stroke(0);
 		ctx.noFill();
 		ctx.rect(0, 0, sz.x, sz.y);
+		ctx.pop();
 	}
 
 	void compose(IGraphics& ctx)

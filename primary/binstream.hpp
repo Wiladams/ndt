@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "bstream.h"
+//#include "bstream.h"
 
 // Define this here instead of using MIN to
 // reduce dependencies

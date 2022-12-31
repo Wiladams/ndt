@@ -14,7 +14,8 @@ struct GraphicGroup : public GraphicElement
 	std::shared_ptr<ILayoutGraphics> fLayout{};
 	std::shared_ptr<GraphicElement> fActiveGraphic{};
 	std::deque<std::shared_ptr<GraphicElement> > fChildren{};
-
+	std::deque<std::shared_ptr<IDrawable> > fDrawables{};
+	
 	GraphicGroup()
 		:GraphicElement()
 	{;}
@@ -87,6 +88,11 @@ struct GraphicGroup : public GraphicElement
 		layout();
 	}
 
+	void addDrawable(std::shared_ptr<IDrawable> drawable)
+	{
+		fDrawables.push_back(drawable);
+	}
+	
 	// Move a specific graphic to the front visually
 	void moveToFront(std::shared_ptr<GraphicElement> g)
 	{
@@ -101,6 +107,14 @@ struct GraphicGroup : public GraphicElement
 		}
 	}
 
+	virtual void drawDrawables(IGraphics& ctx)
+	{
+		for (auto& d : fDrawables)
+		{
+			d->draw(ctx);
+		}
+	}
+	
 	virtual void drawSelf(IGraphics& ctx)
 	{
 		// draw the child graphics
@@ -112,6 +126,8 @@ struct GraphicGroup : public GraphicElement
 
 			g->draw(ctx);
 		}
+
+		drawDrawables(ctx);
 	}
 
 };

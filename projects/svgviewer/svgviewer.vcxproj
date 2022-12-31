@@ -173,15 +173,13 @@
     <ClInclude Include="svggraphic.h" />
     <ClInclude Include="svgparser.h" />
     <ClInclude Include="svgpathviewer.hpp" />
-    <ClInclude Include="svgscanner.h" />
     <ClInclude Include="svgxform.h" />
     <ClInclude Include="teststates.h" />
-    <ClInclude Include="xmlscan.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
-    <ClCompile Include="..\..\primary\p5.cpp" />
-    <ClCompile Include="svgbrowser.cpp" />
+    <ClCompile Include="..\..\primary\studio.cpp" />
+    <ClCompile Include="svgviewer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

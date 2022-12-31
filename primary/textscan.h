@@ -40,10 +40,16 @@ namespace ndt {
 				bits.set(chars[i]);
 		}
 
-		charset operator+(const char achar)
+		charset& operator+=(const char achar)
+		{
+			bits.set(achar);
+			return *this;
+		}
+		
+		charset operator+(const char achar) const
 		{
 			charset result(*this);
-			result.bits.set(achar);
+			result += achar;
 			return result;
 		}
 		
