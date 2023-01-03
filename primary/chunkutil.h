@@ -5,6 +5,8 @@
 
 namespace ndt
 {
+	static ndt::charset wspChars(" \r\n\t\f\v");
+	
 #ifdef __cplusplus
 	extern "C" {
 #endif
@@ -13,13 +15,16 @@ namespace ndt
 		static INLINE DataChunk chunk_ltrim(const DataChunk& a, const charset& skippable) noexcept;
 		static INLINE DataChunk chunk_rtrim(const DataChunk& a, const charset& skippable) noexcept;
 		static INLINE DataChunk chunk_trim(const DataChunk& a, const charset& skippable) noexcept;
-
+		static INLINE DataChunk chunk_skip_wsp(const DataChunk& a) noexcept;
+		
 		static INLINE DataChunk chunk_subchunk(const DataChunk& a, const size_t start, const size_t sz) noexcept;
 		static INLINE bool chunk_starts_with(const DataChunk& a, const DataChunk& b) noexcept;
 		static INLINE bool chunk_starts_with_char(const DataChunk& a, const uint8_t b) noexcept;
+		static INLINE bool chunk_starts_with_cstr(const DataChunk& a, const char* b) noexcept;
 		
 		static INLINE bool chunk_ends_with(const DataChunk& a, const DataChunk& b) noexcept;
 		static INLINE bool chunk_ends_with_char(const DataChunk& a, const uint8_t b) noexcept;
+		static INLINE bool chunk_ends_with_cstr(const DataChunk& a, const char* b) noexcept;
 		
 		static INLINE DataChunk chunk_token(DataChunk& a, const charset& delims) noexcept;
 		static INLINE DataChunk chunk_find_char(const DataChunk& a, char c) noexcept;
@@ -43,6 +48,7 @@ namespace ndt
 #ifdef __cplusplus
 	extern "C" {
 #endif
+
 		
 		static INLINE size_t copy_to_cstr(char* str, size_t len, const DataChunk& a) noexcept
 		{
@@ -86,7 +92,15 @@ namespace ndt
 			return { start, end };
 		}
 		
-
+		static INLINE DataChunk chunk_skip_wsp(const DataChunk& a) noexcept
+		{
+			const uint8_t* start = a.fStart;
+			const uint8_t* end = a.fEnd;
+			while (start < end && wspChars(*start))
+				++start;
+			return { start, end };
+		}
+		
 		static INLINE DataChunk chunk_subchunk(const DataChunk& a, const size_t startAt, const size_t sz) noexcept
 		{
 			const uint8_t* start = a.fStart;
@@ -115,6 +129,10 @@ namespace ndt
 			return size(a) > 0 && a.fStart[0] == b;
 		}
 
+		static INLINE bool chunk_starts_with_cstr(const DataChunk& a, const char* b) noexcept
+		{
+			return chunk_starts_with(a, chunk_from_cstr(b));
+		}
 		
 		static INLINE bool chunk_ends_with(const DataChunk& a, const DataChunk& b) noexcept
 		{
@@ -124,6 +142,11 @@ namespace ndt
 		static INLINE bool chunk_ends_with_char(const DataChunk& a, const uint8_t b) noexcept
 		{
 			return size(a) > 0 && a.fEnd[-1] == b;
+		}
+		
+		static INLINE bool chunk_ends_with_cstr(const DataChunk& a, const char* b) noexcept
+		{
+			return chunk_ends_with(a, chunk_from_cstr(b));
 		}
 		
 		// Given an input chunk

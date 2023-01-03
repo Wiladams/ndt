@@ -50,5 +50,17 @@
     <ClInclude Include="..\..\primary\gwindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\chunkutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cssscanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\svgcolors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svgattributes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

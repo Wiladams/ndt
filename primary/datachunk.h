@@ -59,8 +59,11 @@ namespace ndt
 
 
 		static INLINE DataChunk make_chunk(const void* starting, const void* ending) noexcept;
-		static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept;
-		static INLINE DataChunk make_chunk_cstr(const char* str) noexcept;
+		//static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept;
+		//static INLINE DataChunk make_chunk_cstr(const char* str) noexcept;
+		static INLINE DataChunk chunk_from_data_size(void* data, size_t sz) noexcept;
+		static INLINE DataChunk chunk_from_cstr(const char* str) noexcept;
+		
 		static INLINE const uint8_t* data(DataChunk& dc) noexcept;
 		static INLINE const uint8_t* begin(DataChunk& dc) noexcept;
 		static INLINE const uint8_t* end(DataChunk& dc) noexcept;
@@ -116,9 +119,10 @@ namespace ndt
 		
 	// DataChunk routines
 	static INLINE DataChunk make_chunk(const void* starting, const void* ending) noexcept { return { (const uint8_t*)starting, (const uint8_t*)ending }; }
-	static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept { return { (uint8_t*)data, (uint8_t*)data+sz }; }
-	static INLINE DataChunk make_chunk_cstr(const char* data) noexcept { return { (uint8_t*)data, (uint8_t*)data + strlen(data) }; }
-	
+	//static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept { return { (uint8_t*)data, (uint8_t*)data+sz }; }
+	//static INLINE DataChunk make_chunk_cstr(const char* data) noexcept { return { (uint8_t*)data, (uint8_t*)data + strlen(data) }; }
+	static INLINE DataChunk chunk_from_data_size(void* data, size_t sz) noexcept { return { (uint8_t*)data, (uint8_t*)data + sz }; }
+	static INLINE DataChunk chunk_from_cstr(const char* data) noexcept { return { (uint8_t*)data, (uint8_t*)data + strlen(data) }; }
 
 	static INLINE const uint8_t* begin(DataChunk& dc) noexcept { return dc.fStart; }
 	static INLINE const uint8_t* end(DataChunk& dc) noexcept { return dc.fEnd; }

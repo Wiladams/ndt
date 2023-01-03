@@ -244,19 +244,19 @@ namespace svg {
 
     
 	// Utility, for viewbox, points, etc
-    static INLINE float nextNumber(DataChunk& inChunk, const charset& delims);
+    static INLINE double nextNumber(DataChunk& inChunk, const charset& delims);
 }
 
 /// Some utility routines
 namespace svg {
 
     // return a number next in a list of numbers
-    static INLINE float nextNumber(DataChunk& inChunk, const charset& delims)
+    static INLINE double nextNumber(DataChunk& inChunk, const charset& delims)
     {
         DataChunk numChunk;
         numChunk = chunk_token(inChunk, delims);
 
-        return (float)chunk_to_double(numChunk);
+        return chunk_to_double(numChunk);
     }
 
     static INLINE int64_t toInteger(const DataChunk& inChunk)
@@ -421,8 +421,8 @@ namespace svg
             DataChunk numChunk;
             charset numDelims = wspChars + ',';
 
-            point.fX = nextNumber(s, numDelims);
-            point.fY = nextNumber(s, numDelims);
+            point.fX = (float)nextNumber(s, numDelims);
+            point.fY = (float)nextNumber(s, numDelims);
 
             return point;
         }
@@ -543,7 +543,7 @@ namespace svg {
         // BUGBUG - this is different than not having a color attribute
         // in which case, we might want to eliminate color, and allow ancestor's color to come through
         if (!svg::colors.contains(cName))
-            return rgba(0, 0, 0, 0);
+            return rgba(128, 128, 128, 255);
 
         return svg::colors[cName];
     }
@@ -555,8 +555,6 @@ namespace svg {
 
     struct SVGPaint : public SVGVisualProperty
     {
-
-
         BLVar fPaint{};
         bool fExplicitNone{ false };
         int fPaintFor{ SVG_PaintForFill };
@@ -618,8 +616,8 @@ namespace svg {
             maths::vec4b c;
 
             DataChunk str = inChunk;
-            DataChunk rgbStr = make_chunk_cstr("rgb(");
-            DataChunk rgbaStr = make_chunk_cstr("rgba(");
+            DataChunk rgbStr = chunk_from_cstr("rgb(");
+            DataChunk rgbaStr = chunk_from_cstr("rgba(");
 
             size_t len = 0;
 
@@ -645,49 +643,56 @@ namespace svg {
                     c = svg::colors[cName];
                     set(true);
                 }
+                else {
+                    // user wants some sort of color, which is either invalid name
+                    // or a color function we don't support yet
+                    // so set a default gray color
+                    c = rgb(128, 128, 128);
+                    set(true);
+                }
             }
 
             blVarAssignRgba32(&fPaint, c.value);
-
         }
 
-        static SVGPaint createFromChunk(const DataChunk& inChunk, const std::string &name)
+        static std::shared_ptr<SVGPaint> createFromChunk(const std::string& name, const DataChunk& inChunk)
         {
-            SVGPaint paint;
+            std::shared_ptr<SVGPaint> paint = std::make_shared<SVGPaint>();
 
             // If the chunk is empty, return immediately 
-            if (!inChunk)
-                return paint;
-
-            paint.loadFromChunk(inChunk);
+            if (inChunk)
+                paint->loadFromChunk(inChunk);
 
             return paint;
         }
 
-        static SVGPaint createFromXml(const XmlElement& elem, const std::string &name)
+        static std::shared_ptr<SVGPaint> createFromXml(const std::string& name, const XmlElement& elem)
         {
-            auto paint = createFromChunk(elem.getAttribute(name), name);
+            auto paint = createFromChunk(name, elem.getAttribute(name));
 
+			if (!paint->isSet())
+				return paint;
+            
             if (name == "fill")
             {
-                paint.setPaintFor(SVG_PaintForFill);
+                paint->setPaintFor(SVG_PaintForFill);
                 // look for fill-opacity as well
                 auto o = elem.getAttribute("fill-opacity");
                 if (o)
                 {
                     auto onum = toNumber(o);
-                    paint.setOpacity(onum);
+                    paint->setOpacity(onum);
                 }
             }
             else if (name == "stroke")
             {
-                paint.setPaintFor(SVG_PaintForStroke);
+                paint->setPaintFor(SVG_PaintForStroke);
                 // look for stroke-opacity as well
                 auto o = elem.getAttribute("stroke-opacity");
                 if (o)
                 {
                     auto onum = toNumber(o);
-                    paint.setOpacity(onum);
+                    paint->setOpacity(onum);
                 }
             }
 
@@ -696,6 +701,151 @@ namespace svg {
     };
 }
 
+namespace svg {
+    struct SVGStrokeWidth : public SVGVisualProperty
+    {
+		double fWidth{ 1.0};
+
+		SVGStrokeWidth() : SVGVisualProperty() {}
+		SVGStrokeWidth(const SVGStrokeWidth& other) :SVGVisualProperty(other) { fWidth = other.fWidth; }
+		SVGStrokeWidth& operator=(const SVGStrokeWidth& rhs)
+		{
+			SVGVisualProperty::operator=(rhs);
+			fWidth = rhs.fWidth;
+			return *this;
+		}
+
+		void drawSelf(IGraphics& ctx)
+		{
+			ctx.strokeWeight(fWidth);
+		}
+
+		void loadSelfFromChunk(const DataChunk& inChunk)
+		{
+			fWidth = toNumber(inChunk);
+			set(true);
+		}
+
+		static std::shared_ptr<SVGStrokeWidth> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		{
+			std::shared_ptr<SVGStrokeWidth> sw = std::make_shared<SVGStrokeWidth>();
+
+			// If the chunk is empty, return immediately 
+			if (inChunk)
+				sw->loadFromChunk(inChunk);
+
+			return sw;
+		}
+
+		static std::shared_ptr<SVGStrokeWidth> createFromXml(const std::string& name, const XmlElement& elem)
+		{
+			return createFromChunk(name, elem.getAttribute(name));
+		}
+    };
+    
+    /// <summary>
+    ///  SVGStrokeMiterLimit
+	/// A visual property to set the miter limit for a stroke
+    /// </summary>
+    struct SVGStrokeMiterLimit : public SVGVisualProperty
+    {
+		double fMiterLimit{ 4.0 };
+        
+        SVGStrokeMiterLimit() : SVGVisualProperty() {}
+		SVGStrokeMiterLimit(const SVGStrokeMiterLimit& other) :SVGVisualProperty(other) { fMiterLimit = other.fMiterLimit; }
+        SVGStrokeMiterLimit& operator=(const SVGStrokeMiterLimit& rhs)
+		{
+			SVGVisualProperty::operator=(rhs);
+			fMiterLimit = rhs.fMiterLimit;
+			return *this;
+        }
+
+		void drawSelf(IGraphics& ctx)
+		{
+			ctx.strokeMiterLimit(fMiterLimit);
+		}
+        
+		void loadSelfFromChunk(const DataChunk& inChunk)
+		{
+			fMiterLimit = toNumber(inChunk);
+			set(true);
+		}
+
+		static std::shared_ptr<SVGStrokeMiterLimit> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		{
+			std::shared_ptr<SVGStrokeMiterLimit> sw = std::make_shared<SVGStrokeMiterLimit>();
+
+			// If the chunk is empty, return immediately 
+			if (inChunk)
+				sw->loadFromChunk(inChunk);
+
+			return sw;
+		}
+
+        // stroke-miterlimit
+		static std::shared_ptr<SVGStrokeMiterLimit> createFromXml(const std::string& name, const XmlElement& elem)
+		{
+			return createFromChunk(name, elem.getAttribute(name));
+		}
+	
+    };
+    
+    struct SVGStrokeLineCap : public SVGVisualProperty
+    {
+        SVGlineCap fLineCap{ SVG_CAP_BUTT };
+
+		SVGStrokeLineCap() : SVGVisualProperty() {}
+		SVGStrokeLineCap(const SVGStrokeLineCap& other) :SVGVisualProperty(other)
+		{
+			fLineCap = other.fLineCap;
+		}
+
+		SVGStrokeLineCap& operator=(const SVGStrokeLineCap& rhs)
+		{
+			SVGVisualProperty::operator=(rhs);
+			fLineCap = rhs.fLineCap;
+			return *this;
+		}
+
+		void drawSelf(IGraphics& ctx)
+		{
+			ctx.strokeCaps(fLineCap);
+		}
+
+		void loadSelfFromChunk(const DataChunk& inChunk)
+		{
+            DataChunk s = chunk_trim(inChunk, wspChars);
+
+            set(true);
+            
+			if (s == "butt")
+				fLineCap = SVG_CAP_BUTT;
+			else if (s == "round")
+				fLineCap = SVG_CAP_ROUND;
+			else if (s == "square")
+				fLineCap = SVG_CAP_SQUARE;
+            else
+			    set(false);
+		}
+
+		static std::shared_ptr<SVGStrokeLineCap> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		{
+			std::shared_ptr<SVGStrokeLineCap> stroke = std::make_shared<SVGStrokeLineCap>();
+
+			// If the chunk is empty, return immediately 
+			if (inChunk)
+				stroke->loadFromChunk(inChunk);
+
+			return stroke;
+		}
+
+		static std::shared_ptr<SVGStrokeLineCap> createFromXml(const std::string& name, const XmlElement& elem )
+		{
+			return createFromChunk(name, elem.getAttribute(name));
+		}
+	};
+    
+}
 namespace svg {
     
     //======================================================
@@ -740,10 +890,10 @@ namespace svg {
 			DataChunk numChunk;
             charset numDelims = wspChars+',';
                 
-            fRect.x = nextNumber(s, numDelims);
-			fRect.y = nextNumber(s, numDelims);
-			fRect.w = nextNumber(s, numDelims);
-			fRect.h = nextNumber(s, numDelims);
+            fRect.x = (float)nextNumber(s, numDelims);
+			fRect.y = (float)nextNumber(s, numDelims);
+			fRect.w = (float)nextNumber(s, numDelims);
+			fRect.h = (float)nextNumber(s, numDelims);
         }
 
         static SVGViewbox createFromChunk(const DataChunk& inChunk)
@@ -865,31 +1015,32 @@ namespace svg
         return s;
     }
 
-    static BLMatrix2D toMatrix(const DataChunk& inChunk)
+    static DataChunk parseMatrix(DataChunk& inMatrix, BLMatrix2D &m)
     {
-		BLMatrix2D res = BLMatrix2D::makeIdentity();
+        DataChunk s = inMatrix;
+        m.reset();  // start with identity
+
         
-        double t[6];
-        int na = 0;
-        DataChunk s = inChunk;
+        double t[6];    // storage for our 6 numbers
+		int na = 0;     // Number of arguments parsed
+
         s = parseTransformArgs(s, t, 6, na);
 
         if (na != 6)
-            return res;
+            return s;
 
-		res.reset(t[0], t[1], t[2], t[3], t[4], t[5]);
+		m.reset(t[0], t[1], t[2], t[3], t[4], t[5]);
 
-        return res;
+        return s;
     }
     
-    /*
-    static DataChunk svg_parseTranslate(BLMatrix2D& xform, const DataChunk& inChunk)
+    
+    static DataChunk parseTranslate(const DataChunk& inChunk, BLMatrix2D& xform)
     {
-
-        float args[2];
+        double args[2];
         int na = 0;
         DataChunk s = inChunk;
-        s = svg_parseTransformArgs(s, args, 2, na);
+        s = parseTransformArgs(s, args, 2, na);
         if (na == 1)
             args[1] = 0.0;
 
@@ -897,13 +1048,14 @@ namespace svg
 
         return s;
     }
-
-    static DataChunk svg_parseScale(BLMatrix2D& xform, const DataChunk& inChunk)
+    
+    static DataChunk parseScale(const DataChunk& inChunk, BLMatrix2D& xform)
     {
-        float args[2]{ 0 };
+        double args[2]{ 0 };
         int na = 0;
         DataChunk s = inChunk;
-        s = svg_parseTransformArgs(s, args, 2, na);
+        
+        s = parseTransformArgs(s, args, 2, na);
 
         if (na == 1)
             args[1] = args[0];
@@ -912,64 +1064,51 @@ namespace svg
 
         return s;
     }
-
-    static DataChunk svg_parseSkewX(BLMatrix2D& xform, const DataChunk& inChunk)
+    
+    
+    static DataChunk parseSkewX(const DataChunk& inChunk, BLMatrix2D& xform)
     {
-        float args[1];
+        double args[1];
         int na = 0;
-        float t[6];
         DataChunk s = inChunk;
-        s = svg_parseTransformArgs(s, args, 1, na);
+        s = parseTransformArgs(s, args, 1, na);
 
-        xform.resetToSkewing(args[0], 0.0f);
+        xform.resetToSkewing(maths::radians(args[0]), 0.0f);
 
         return s;
     }
 
-    static DataChunk svg_parseSkewY(BLMatrix2D& xform, const DataChunk& inChunk)
+    static DataChunk parseSkewY(const DataChunk& inChunk, BLMatrix2D& xform)
     {
-        float args[1]{ 0 };
+        double args[1]{ 0 };
         int na = 0;
-        float t[6]{ 0 };
         DataChunk s = inChunk;
-        s = svg_parseTransformArgs(s, args, 1, na);
+        s = parseTransformArgs(s, args, 1, na);
 
-        xform.resetToSkewing(0.0f, args[0]);
+        xform.resetToSkewing(0.0f, maths::radians(args[0]));
 
         return s;
     }
-
-    static DataChunk svg_parseRotate(BLMatrix2D& xform, const DataChunk& inChunk)
+    
+    
+    static DataChunk parseRotate(const DataChunk& inChunk, BLMatrix2D& xform)
     {
-        float args[3]{ 0 };
+        double args[3]{ 0 };
         int na = 0;
         float m[6]{ 0 };
         float t[6]{ 0 };
         DataChunk s = inChunk;
-        s = svg_parseTransformArgs(s, args, 3, na);
+
+		s = parseTransformArgs(s, args, 3, na);
+
         if (na == 1)
             args[1] = args[2] = 0.0f;
 
-        svg_xformIdentity(m);
-
-        if (na > 1) {
-            svg_xformSetTranslation(t, -args[1], -args[2]);
-            svg_xformMultiply(m, t);
-        }
-
-        svg_xformSetRotation(t, args[0] / 180.0f * maths::pi);
-        svg_xformMultiply(m, t);
-
-        if (na > 1) {
-            svg_xformSetTranslation(t, args[1], args[2]);
-            svg_xformMultiply(m, t);
-        }
-
-        xform.reset(m[0], m[1], m[2], m[3], m[4], m[5]);
+		xform.rotate(maths::radians(args[0]), maths::radians(args[1]), maths::radians(args[2]));
 
         return  s;
     }
-    */
+
 
     struct SVGTransform : public SVGVisualProperty
     {
@@ -994,10 +1133,13 @@ namespace svg
 		void loadSelfFromChunk(const DataChunk& inChunk) override
 		{
             DataChunk s = inChunk;
-            //BLMatrix2D tm{};
+            fTransform.reset();     // set to identity initially
+            
 
-            //while (s)
-            //{
+            while (s)
+            {
+				s = chunk_skip_wsp(s);
+                
                 // Set out temp transform to the identity to start
                 // so that if parsing goes wrong, we can still do
                 // the multiply without worrying about messing things up
@@ -1005,40 +1147,50 @@ namespace svg
                 // partially mess up the transform if they fail.
                 //svg_xformIdentity(t);
 
-            //tm.reset();
+                BLMatrix2D tm{};
+				tm.reset();
 
-            if (comparen_cstr(s, "matrix", 6) == 0)
-            {
-                fTransform = toMatrix(s);
-                set(true);
-            }
-            else if (comparen_cstr(s, "translate", 9) == 0)
-            {
-                //s = svg_parseTranslate(tm, s);
-            }
-            else if (comparen_cstr(s, "scale", 5) == 0)
-            {
-                //s = svg_parseScale(tm, s);
-            }
-            else if (comparen_cstr(s, "rotate", 6) == 0)
-            {
-                //s = svg_parseRotate(tm, s);
-            }
-            else if (comparen_cstr(s, "skewX", 5) == 0)
-            {
-                //s = svg_parseSkewX(tm, s);
-            }
-            else if (comparen_cstr(s, "skewY", 5) == 0)
-            {
-                //s = svg_parseSkewY(tm, s);
-            }
-            else {
-                s++;
-                //continue;
-            }
+                if (chunk_starts_with_cstr(s, "matrix"))
+                {
+                    s = parseMatrix(s, tm);
+                    fTransform = tm;
+                    set(true);
+                }
+                else if (chunk_starts_with_cstr(s, "translate"))
+                {
+                    s = parseTranslate(s, tm);
+                    fTransform.transform(tm);
+                    set(true);
+                }
+                else if (chunk_starts_with_cstr(s, "scale"))
+                {
+                    s = parseScale(s, tm);
+					fTransform.transform(tm);
+                    set(true);
+                }
+                else if (chunk_starts_with_cstr(s, "rotate"))
+                {
+                    s = parseRotate(s, tm);
+                    fTransform.transform(tm);
+                    set(true);
+                }
+                else if (chunk_starts_with_cstr(s, "skewX"))
+                {
+                    s = parseSkewX(s,tm);
+                    fTransform.transform(tm);
+                    set(true);
+                }
+                else if (chunk_starts_with_cstr(s, "skewY"))
+                {
+                    s = parseSkewY(s,tm);
+                    fTransform.transform(tm);
+                    set(true);
+                }
+                else {
+                    s++;
+                }
 
-
-            //}
+            }
 
 		}
 
@@ -1047,23 +1199,21 @@ namespace svg
 			ctx.transform(fTransform.m);
         }
 
-        static SVGTransform createFromChunk(const DataChunk& inChunk)
+        static std::shared_ptr<SVGTransform> createFromChunk(const std::string& name, const DataChunk& inChunk)
         {
-            SVGTransform tform;
+			std::shared_ptr<SVGTransform> tform = std::make_shared<SVGTransform>();
 
             // If the chunk is empty, return immediately 
-            if (!inChunk)
-                return tform;
-            
-            tform.loadFromChunk(inChunk);
+            if (inChunk)
+                tform->loadFromChunk(inChunk);
 
             return tform;
         }
 
         // "transform"
-        static SVGTransform createFromXml(const XmlElement& elem, const std::string &name)
+        static std::shared_ptr<SVGTransform> createFromXml(const std::string& name, const XmlElement& elem)
         {
-            return createFromChunk(elem.getAttribute(name));
+            return createFromChunk(name, elem.getAttribute(name));
         }
     };
     

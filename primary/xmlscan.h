@@ -29,7 +29,7 @@
 namespace ndt {
 
 
-    static ndt::charset wspChars(" \r\n\t\f\v");
+    //static ndt::charset wspChars(" \r\n\t\f\v");
 
 
     enum XML_ELEMENT_TYPE {
@@ -40,6 +40,7 @@ namespace ndt {
         , XML_ELEMENT_TYPE_END_TAG
         , XML_ELEMENT_TYPE_COMMENT
         , XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION
+        , XML_ELEMENT_TYPE_CDATA
     };
 
     // Representation of an xml element
@@ -97,8 +98,13 @@ namespace ndt {
 
         // Returning information about the element
         const std::map<std::string, DataChunk>& attributes() const { return fAttributes; }
+        
         const std::string& name() const { return fName; }
+		void setName(const std::string& name) { fName = name; }
+        
         int kind() const { return fElementKind; }
+		void setKind(int kind) { fElementKind = kind; }
+        
         const DataChunk& data() const { return fData; }
 
 		// Convenience for what kind of tag it is
@@ -393,7 +399,9 @@ namespace ndt {
 
                     // output an element
                     int kind = XML_ELEMENT_TYPE_START_TAG;
-                    if (chunk_starts_with_char(elementChunk, '!'))
+                    if (chunk_starts_with_cstr(elementChunk, "![CDATA["))
+                        kind = XML_ELEMENT_TYPE_CDATA;
+                    else if (chunk_starts_with_cstr(elementChunk, "!--"))
                         kind = XML_ELEMENT_TYPE_COMMENT;
                     else if (chunk_starts_with_char(elementChunk, '?'))
                         kind = XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION;
@@ -401,6 +409,7 @@ namespace ndt {
                         kind = XML_ELEMENT_TYPE_SELF_CLOSING;
                     else if (chunk_starts_with_char(elementChunk, '/'))
                         kind = XML_ELEMENT_TYPE_END_TAG;
+
 
 					fCurrentElement.reset(kind, elementChunk, true);
 
@@ -426,13 +435,15 @@ namespace ndt_debug {
 	using namespace ndt;
     
     std::map<int, std::string> elemTypeNames = {
-        {ndt::XML_ELEMENT_TYPE_INVALID, "INVALID"}
+     {ndt::XML_ELEMENT_TYPE_INVALID, "INVALID"}
     ,{ndt::XML_ELEMENT_TYPE_CONTENT, "CONTENT"}
     ,{ndt::XML_ELEMENT_TYPE_SELF_CLOSING, "SELF_CLOSING"}
     ,{ndt::XML_ELEMENT_TYPE_START_TAG, "START_TAG"}
     ,{ndt::XML_ELEMENT_TYPE_END_TAG, "END_TAG"}
     ,{ndt::XML_ELEMENT_TYPE_COMMENT, "COMMENT"}
     ,{ndt::XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION, "PROCESSING_INSTRUCTION"}
+    ,{ndt::XML_ELEMENT_TYPE_CDATA, "CDATA"}
+
     };
 
     void printXmlElement(const ndt::XmlElement& elem)

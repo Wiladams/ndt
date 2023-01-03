@@ -14,7 +14,7 @@ struct ShapeViewer : public GraphicElement
     {
         setName(nm);
         blVarAssignRgba32(&fStyle, BLRgba32(127, 127, 127, 255).value);
-		ndt::DataChunk chunk = ndt::make_chunk_size( (void *)subject, subjectLength );
+		ndt::DataChunk chunk = ndt::chunk_from_data_size( (void *)subject, subjectLength );
         ndt::blPathFromCommands(chunk, fPath);
     }
 

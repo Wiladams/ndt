@@ -5,6 +5,7 @@
 #include "Graphics.h"
 #include "xmlscan.h"
 #include "svgtypes.h"
+#include "cssscanner.h"
 
 #include <string>
 
@@ -32,9 +33,6 @@ namespace svg {
 	{
 		std::string fName{};    // The tag name of the element
 		std::string fId{};      // The id of the element
-		//std::map<std::string, SVGAttribute> fAttributes;
-
-		//const std::map<std::string, SVGAttribute> & attributes() const { return fAttributes; }
 
 		const std::string& name() const { return fName; }
 		void setName(const std::string& name) { fName = name; }
@@ -61,6 +59,24 @@ namespace svg {
 		}
 	};
 	
+	// stroke-linecap
+// stroke-linejoin
+// stroke-miterlimit
+// stroke-dasharray
+// stroke-dashoffset
+
+	static std::map<std::string, std::function<std::shared_ptr<SVGVisualProperty> (const std::string& , const XmlElement& )>> gSVGPropertyCreation = {
+//		,{"color", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("stroke", elem); } }
+		{"fill", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("fill", elem ); } }
+		,{"stroke", [](const std::string& name, const XmlElement& elem ) {return SVGPaint::createFromXml("stroke", elem); } }
+		//,{"stroke-linejoin", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("stroke-linejoin", elem); } }
+		,{"stroke-linecap", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeLineCap::createFromXml("stroke-linecap", elem); } }
+		,{"stroke-miterlimit", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeMiterLimit::createFromXml("stroke-miterlimit", elem); } }
+		,{"stroke-width", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeWidth::createFromXml("stroke-width", elem); } }
+		,{"transform", [](const std::string& name, const XmlElement& elem) {return SVGTransform::createFromXml("transform", elem); } }
+
+	};
+
 	//
 	// SVGVisualObject
 	// This is any object that will change the state of the rendering context
@@ -69,57 +85,77 @@ namespace svg {
 	// Most things, other than basic attribute type, will be a sub-class of this
 	struct SVGVisual : public SVGObject, public IDrawable
 	{
-		// Transform
-		SVGTransform fTransform{};
+		std::map<std::string, std::shared_ptr<SVGVisualProperty>> fVisualProperties{};
 		
-		// Filling 
-		SVGPaint fFillPaint{};
-
-		// Stroking
-		SVGPaint fStrokePaint{};
-
-
-		std::string fStrokeLineCap{};
 		std::string fStrokeLineJoin{};
 		float fStrokeMiterLimit;
-		float fStrokeWidth;
 
-		
+
+		void loadVisualProperties(const XmlElement& elem)
+		{
+			// Run Through the property creation routines, generating
+			// properties for the ones we find in the XmlElement
+			for (auto& propconv : gSVGPropertyCreation)
+			{
+				// get the named attribute
+				auto attrName = propconv.first;
+
+				// We have a property and value, convert to SVGVisibleProperty
+				// and add it to our map of visual properties
+				auto prop = propconv.second(attrName, elem);
+				if (prop->isSet())
+					fVisualProperties[attrName] = prop;
+
+			}
+		}
+
+		void setCommonVisualProperties(const XmlElement &elem)
+		{
+			// load the common stuff that doesn't require
+			// any additional processing
+			loadVisualProperties(elem);
+
+			// Handle the style attribute separately by turning
+			// it into a standalone XmlElement, and then loading
+			// that like a normal element, by running through the properties again
+			// It's ok if there were already styles in separate attributes of the
+			// original elem, because anything in the 'style' attribute is supposed
+			// to override whatever was there.
+			auto styleChunk = elem.getAttribute("style");
+
+			if (styleChunk) {
+				// Create an XML Element to hang the style properties on as attributes
+				XmlElement styleElement{};
+
+				// use CSSInlineIterator to iterate through the key value pairs
+				// creating a visual attribute, using the gSVGPropertyCreation map
+				CSSInlineStyleIterator iter(styleChunk);
+
+				while (iter.next())
+				{
+					std::string name = std::string((*iter).first.fStart, (*iter).first.fEnd);
+					if (!name.empty() && (*iter).second)
+					{
+						styleElement.addAttribute(name, (*iter).second);
+					}
+				}
+
+				loadVisualProperties(styleElement);
+			}
+
+			// Deal with any more attributes that need special handling
+		}
 
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGObject::loadSelfFromXml(elem);
 			
-			// Transformation matrix
-			fTransform = SVGTransform::createFromXml(elem, "transform");
+			setCommonVisualProperties(elem);
 
 			
-			// Load up on all the visuals
-			fFillPaint = SVGPaint::createFromXml(elem, "fill");
-			fStrokePaint = SVGPaint::createFromXml(elem, "stroke");
-
-				
-			// load any transforms
-			// stroke-width
-			auto awidth = elem.getAttribute("stroke-width");
-			if (awidth) {
-				fStrokeWidth = svg::toNumber(awidth);
-			}
-			else {
-				fStrokeWidth = 1.0f;
-			}
-
-			
-			// stroke-linecap
-			// stroke-linejoin
-			// stroke-miterlimit
-			// stroke-dasharray
-			// stroke-dashoffset
 			// fill-rule
 			// clip-rule
 			// opacity
-			// fill-opacity
-			// stroke-opacity
 			// filter
 			// clip-path
 			// mask
@@ -129,12 +165,9 @@ namespace svg {
 		// Contains styling attributes
 		void applyAttributes(IGraphics& ctx)
 		{
-			// Transform
-			fTransform.draw(ctx);
-			
-			fFillPaint.draw(ctx);
-			fStrokePaint.draw(ctx);
-			ctx.strokeWeight(fStrokeWidth);
+			for (auto& prop : fVisualProperties) {
+				prop.second->draw(ctx);
+			}
 		}
 		
 		virtual void drawSelf(IGraphics& ctx)
@@ -462,6 +495,9 @@ namespace svg {
 
 				const ndt::XmlElement& elem = *iter;
 
+				// BUGBUG - debug
+				//ndt_debug::printXmlElement(elem);
+
 				if (!elem)
 					break;
 
@@ -547,6 +583,8 @@ namespace svg {
 
 	struct SVGRootNode : public SVGGroup
 	{
+		bool fInDefinitions{ false };
+
 		float fWidth;
 		float fHeight;
 		SVGViewbox fViewbox;
@@ -558,6 +596,8 @@ namespace svg {
 		{
 		}
 		
+		bool isInDefs() const { return fInDefinitions; }
+
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGGroup::loadSelfFromXml(elem);
@@ -609,6 +649,7 @@ namespace svg {
 	std::map<std::string, std::function<std::shared_ptr<SVGGroup>(XmlElementIterator& iter)>> gGroupCreationMap = {
 		{"g", [](XmlElementIterator& iter) { return SVGGroup::createFromIterator(iter); }},
 		{"svg", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
+		{"defs", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
 	};
 
 

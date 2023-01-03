@@ -3,7 +3,7 @@
 #include "svgscanner.h"
 #include "xmlscan.h"
 #include "mmap.hpp"
-
+#include "cssscanner.h"
 
 using namespace p5;
 using namespace ndt;
@@ -11,8 +11,23 @@ using namespace ndt_debug;
 using namespace svg;
 
 
+
+void testPathParse()
+{
+	// Test the path parser
+	const char* path = "M167.05 85.17h1v15.2h-1zm5.3 0h1.1v15.2h-1.1zm5.3 0h1.1v15.2h-1.1zm5.3 0h1.2v15.2h-1.2zm5.3 0h1.3v15.2h-1.3zm5.3 0h1.3v15.2h-1.3zm5.2 0h1.4v15.2h-1.4zm5.3 0h1.4v15.2h-1.4zm5.3 0h1.5v15.2h-1.5zm5.3 0h1.5v15.2h-1.5zm5.3 0h1.6v15.2h-1.6zm5.2 0h1.7v15.2h-1.7zm5.3 0h1.7v15.2h-1.7zm-64.7-2.3h68.8v.9h-68.8zm-.2 19h68.8v.9h-68.8zm67.3-19.2-62.1-.6v-.4l62.1-.6zm-.8-1.8-59.8-.5v-.5l59.8-.5zm.8 22.2-62.1.5v.4l62.1.6zm-.8 1.7-59.8.6v.4l59.8.6z";
+	//const char* path = "v.9h-68.8z";
+	DataChunk chunk = chunk_from_cstr(path);
+	std::vector<PathSegment> commands{};
+	
+	tokenizePath(chunk, commands);
+}
+
 void setup()
 {
+
+	testPathParse();
+	
 	//createCanvas(1024, 768);
 	fullscreen();
 
@@ -78,7 +93,7 @@ void fileDrop(const FileDropEvent& e)
 		{
 			auto win = window(0, 0, 800, 600);
 			win->setBackgroundColor(Pixel(255, 255, 255, 255));
-			win->setTitle(e.filenames[i]);
+			//win->setTitle(e.filenames[i]);
 			win->addDrawable(doc);
 			
 			addGraphic(win);

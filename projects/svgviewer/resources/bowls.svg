@@ -5,7 +5,7 @@
    <g id="ID__#36_MODEL_SPACE"/>
   </defs>
   <g id="draft" transform="matrix(1 0 0 -1 0 0)" stroke-width="0.08643724837995287">
-   <g id="DEFAULT" color="rgb(0,0,0)" stroke="currentColor" fill="none" stroke-width="0.08643724837995287">
+   <g id="DEFAULT" color="rgb(0,0,0)" stroke="rgb(0,0,0)" fill="none" stroke-width="0.08643724837995287">
     <path d="M -110.3604268811847 110.82142857142881 A 111.8604268811847 111.8604268811847 0 0  1  113.3604268811847 110.8214285714288" id="AC5F"/>
     <circle cx="1.5" cy="110.8214285714288" r="111.8604268811847" id="ID_7F36"/>
     <path d="M 210 -38 L 212 -39.59999999999999 " id="ID_6F"/>

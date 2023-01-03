@@ -24,7 +24,7 @@ struct SVGPathViewer : public GraphicElement
         : GraphicElement({ 0,0,1920,1080 })
     {
         setName(name);
-		ndt::DataChunk dc = ndt::make_chunk_size((void*)str.data(), str.size());
+		ndt::DataChunk dc = ndt::chunk_from_data_size((void*)str.data(), str.size());
 		svg::blPathFromCommands(dc, fPath);
     }
 

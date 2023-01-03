@@ -243,6 +243,7 @@ namespace ndt
         static ndt::charset whitespaceChars(",\t\n\f\r ");          // whitespace found in paths
         static ndt::charset commandChars("mMlLhHvVcCqQsStTaAzZ");   // set of characters used for commands
         static ndt::charset numberChars("0123456789.+-eE");         // digits, symbols, and letters found in numbers
+		static ndt::charset leadingChars("0123456789.+-");          // digits, symbols, and letters found in numbers
         static ndt::charset digitChars("0123456789");                   // only digits
         
         // Use a DataChunk as a cursor on the input
@@ -271,7 +272,7 @@ namespace ndt
             }
 
             // or it's something related to a number (+,-,digit,.)
-            if (digitChars[*s] || *s == '-')
+            if (leadingChars[*s])
             {   
                 // Start with the number chunk being empty
                 // expand only if we have a valid number

@@ -156,14 +156,14 @@ void testPathCommands()
 void testNumber()
 {
 	char buffer[256];
-    DataChunk numchunk = make_chunk_size(buffer, 256);
-    DataChunk tr = make_chunk_cstr("1.23e2px");
+    DataChunk numchunk = chunk_from_data_size(buffer, 256);
+    DataChunk tr = chunk_from_cstr("1.23e2px");
     auto units = scanNumber(tr, numchunk);
 
 	printChunk(numchunk);
 	printChunk(units);
 
-	DataChunk tr2 = make_chunk_cstr("-1.23e-2");
+	DataChunk tr2 = chunk_from_cstr("-1.23e-2");
 	auto num = chunk_to_double(tr2);
 	printf("double chunk: %f\n", num);
 }

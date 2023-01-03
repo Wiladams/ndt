@@ -678,7 +678,7 @@ namespace svg
     {
         SVGcoordinate coord{ 0, SVG_UNITS_USER };
         char buf[64]{};
-		DataChunk numChunk = make_chunk_size(buf, 64);
+		DataChunk numChunk = chunk_from_data_size(buf, 64);
         coord.units = svg_parseUnits(ndt::scanNumber(strChunk, numChunk));
         coord.value = (float)chunk_to_double(numChunk);
         
@@ -919,7 +919,7 @@ namespace svg
         int count = 0, i;
         float sum = 0.0f;
 
-		DataChunk itemChunk = make_chunk_size(item, 64);
+		DataChunk itemChunk = chunk_from_data_size(item, 64);
         DataChunk s = inChunk;
         
         // Handle "none"
@@ -1288,12 +1288,11 @@ namespace svg
     static DataChunk svg_parseStyle(SVGParser &p, const DataChunk & chunk)
     {
 		DataChunk s = chunk;
-        //DataChunk nameValueChunk{};
         
-        charset delims(";");
+        charset nameValueDelim(";");
 
 
-        auto nameValue = chunk_token(s, delims);
+        auto nameValue = chunk_token(s, nameValueDelim);
 
         while (nameValue)
         {
@@ -1303,7 +1302,7 @@ namespace svg
             svg_parseNameValue(p, nameValue);
 
             // Look for the next keyvalue pair
-            nameValue = chunk_token(s, delims);
+            nameValue = chunk_token(s, nameValueDelim);
         }
 
         return s;
@@ -1608,7 +1607,7 @@ namespace svg
                     nargs = 0;
                     while (*s) {
 
-                        DataChunk item = make_chunk_size(itembuff, 64); // reset for each run
+                        DataChunk item = chunk_from_data_size(itembuff, 64); // reset for each run
 
                         s = svg_getNextPathItem(s, item);
                         args[nargs++] = (float)chunk_to_double(item);
