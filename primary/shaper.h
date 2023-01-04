@@ -19,9 +19,13 @@
 namespace ndt
 {
     enum SVGlineJoin {
-        SVG_JOIN_MITER = 0,
-        SVG_JOIN_BEVEL = 1,
-        SVG_JOIN_ROUND = 2
+        SVG_JOIN_MITER_CLIP = 0,
+        SVG_JOIN_MITER_BEVEL = 1,
+        SVG_JOIN_MITWE_ROUND = 2,
+        SVG_JOIN_BEVEL = 3,
+        SVG_JOIN_ROUND = 4,
+       // SVG_JOIN_ARCS = 3,
+
 
     };
 

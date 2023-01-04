@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="240" viewBox="0 0 600 180" preserveAspectRatio="xMidYMid slice">
+<path d="M20,100 l20,-50 l20,50"
+      style="stroke: #000000;    fill:none;
+             stroke-width:16px;
+             stroke-linejoin: miter;" />
+<text x="22" y="20">miter</text>
+
+<path d="M120,100 l20,-50 l20,50"
+      style="stroke: #000000;    fill:none;
+             stroke-width:16px;
+             stroke-linejoin: round;" />
+<text x="122" y="20">round</text>
+
+<path d="M220,100 l20,-50 l20,50"
+      style="stroke: #000000;    fill:none;
+             stroke-width:16px;
+             stroke-linejoin: bevel;" />
+<text x="222" y="20">bevel</text>   
+</svg>

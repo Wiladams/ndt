@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <text x="20"  y="40"
+          transform="rotate(30 20,40)"
+          style="stroke:none; fill:#000000;"
+          >Rotated SVG text</text>
+</svg>

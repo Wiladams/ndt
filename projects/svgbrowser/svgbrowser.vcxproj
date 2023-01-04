@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\primary\chunkutil.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
+    <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
     <ClInclude Include="..\..\primary\shaper.h" />
     <ClInclude Include="..\..\primary\svgcolors.h" />

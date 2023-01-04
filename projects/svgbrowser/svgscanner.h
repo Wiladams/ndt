@@ -1,5 +1,7 @@
 #pragma once
 
+// References
+// https://github.com/lemire/fastbase64
 
 #include "blend2d.h"
 
@@ -62,22 +64,70 @@ namespace svg
 
 
 namespace svg {
-    struct SVGDocument : public SVGGroup
+    struct SVGDocument : public IDrawable
     {
         std::shared_ptr<mmap> fFileMap{};
         
+		std::vector<std::shared_ptr<IDrawable>> fShapes{};
+        
         SVGDocument(std::string filename)
-			: SVGGroup(nullptr)
 		{
             fFileMap = ndt::mmap::create_shared(filename);
             if (fFileMap == nullptr)
                 return ;
-            
-            setRoot(this);
-
         }
         
+        void draw(IGraphics& ctx) override
+        {
+            for (auto& shape : fShapes)
+            {
+				shape->draw(ctx);
+            }
+        }
 
+		void addNode(std::shared_ptr<IDrawable> node)
+		{
+			fShapes.push_back(node);
+		}
+        
+
+        // Load the document from an XML Iterator
+        // Since this is the top level document, we just want to kick
+        // off loading the root node 'svg', and we're done 
+        void loadFromIterator(ndt::XmlElementIterator& iter)
+        {
+
+            // skip past any elements that come before the 'svg' element
+            while (iter)
+            {
+                const ndt::XmlElement& elem = *iter;
+
+                if (!elem)
+                    break;
+
+                printXmlElement(*iter);
+
+                // Skip over these node types we don't know how to process
+                if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
+                {
+                    iter++;
+                    continue;
+                }
+
+
+                if (elem.isStart() && (elem.name() == "svg"))
+                {
+                    auto node = SVGRootNode::createFromIterator(iter);
+                    if (node != nullptr)
+                    {
+                        addNode(node);
+                    }
+                }
+
+                iter++;
+            }
+        }
+        
         bool load()
         {
 			if (fFileMap == nullptr)
@@ -93,42 +143,7 @@ namespace svg {
 			return true;
         }
         
-        // Load the document from an XML Iterator
-        // Since this is the top level document, we just want to kick
-        // off loading the root node 'svg', and we're done 
-        void loadFromIterator(ndt::XmlElementIterator& iter) override
-        {
-
-            // skip past any elements that come before the 'svg' element
-            while (iter)
-            {
-				const ndt::XmlElement& elem = *iter;
-
-				if (!elem)
-					break;
-
-                printXmlElement(*iter);
-                
-                // Skip over these node types we don't know how to process
-                if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-                {
-                    iter++;
-                    continue;
-                }
-                
-                
-				if (elem.isStart() && (elem.name() == "svg"))
-				{
-					auto node = SVGRootNode::createFromIterator(iter);
-					if (node != nullptr)
-					{
-						addNode(node);
-					}
-				}
-
-				iter++;
-            }
-        }
+ 
         
 
 		static std::shared_ptr<SVGDocument> createFromFilename(const std::string& filename)

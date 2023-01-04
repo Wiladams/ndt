@@ -7,9 +7,6 @@
 #include "svgcolors.h"
 
 // https://www.w3.org/TR/css3-values/#numbers
-// SVGDimension
-// SVGColor
-// SVGViewbox
 //
 
 namespace svg {
@@ -177,6 +174,49 @@ namespace svg {
 
 namespace svg {
 
+    struct SVGObject
+    {
+        std::string fName{};    // The tag name of the element
+
+		SVGObject() = default;
+        SVGObject(const SVGObject& other) :fName(other.fName) {}
+        SVGObject(const std::string& name) :fName(name) {}
+		virtual ~SVGObject() = default;
+        
+        const std::string& name() const { return fName; }
+        void setName(const std::string& name) { fName = name; }
+
+
+        virtual void loadSelfFromXml(const XmlElement& elem)
+        {
+            ;
+        }
+
+        virtual void loadFromXmlElement(const ndt::XmlElement& elem)
+        {
+            // load the common attributes
+            setName(elem.name());
+
+            // call to loadselffromxml
+            // so sub-class can do its own loading
+            loadSelfFromXml(elem);
+        }
+    };
+    
+    struct SVGVisual : public SVGObject, public IDrawable
+    {
+        SVGVisual(): SVGObject(){}
+        SVGVisual(const SVGVisual& other) :SVGObject(other) {}
+        SVGVisual(const std::string& name) :SVGObject(name) {}
+        
+		virtual ~SVGVisual() = default;
+
+		void draw(IGraphics& ctx) override
+		{
+            ;// draw the visual
+		}
+	
+    };
 
     
     // SVGVisualProperty
@@ -187,23 +227,27 @@ namespace svg {
     //
     // This is used for things like; Paint, Transform, Miter, etc.
     //
-    struct SVGVisualProperty :  public IDrawable
+    struct SVGVisualProperty :  public SVGVisual
     {
         bool fIsSet{ false };
 
         SVGVisualProperty()
-            :fIsSet(false)
+            :SVGVisual()
+            ,fIsSet(false)
         {
 
         }
 
         SVGVisualProperty(const SVGVisualProperty& other)
-            :fIsSet(other.fIsSet)
+            :SVGVisual(other)
+            ,fIsSet(other.fIsSet)
         {}
 
         SVGVisualProperty operator=(const SVGVisualProperty& rhs)
         {
+            SVGVisual::operator=(rhs);
             fIsSet = rhs.fIsSet;
+            
             return *this;
         }
 
@@ -431,6 +475,156 @@ namespace svg
     };
 }
 
+namespace svg {
+    struct SVGFontSize : public SVGVisualProperty
+    {
+        double fValue{ 12.0 };
+
+        SVGFontSize() : SVGVisualProperty() {}
+        SVGFontSize(const SVGFontSize& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        SVGFontSize& operator=(const SVGFontSize& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fValue = rhs.fValue;
+            return *this;
+        }
+
+        void drawSelf(IGraphics& ctx)
+        {
+            ctx.textSize(fValue);
+        }
+
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            fValue = toDimension(inChunk).calculatePixels(96);
+            set(true);
+        }
+
+        static std::shared_ptr<SVGFontSize> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGFontSize> sw = std::make_shared<SVGFontSize>();
+
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                sw->loadFromChunk(inChunk);
+
+            return sw;
+        }
+
+        static std::shared_ptr<SVGFontSize> createFromXml(const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(name, elem.getAttribute(name));
+        }
+    };
+
+
+    /*
+    // Text Alignment
+enum class ALIGNMENT : unsigned
+{
+    CENTER = 0x01,
+
+    LEFT = 0x02,
+    RIGHT = 0x04,
+
+    TOP         = 0x10, 
+    BASELINE    = 0x20,
+    BOTTOM      = 0x40,
+    MIDLINE     = 0x80,
+
+} ;
+    */
+    struct SVGTextAnchor : public SVGVisualProperty
+    {
+        ALIGNMENT fValue{ ALIGNMENT::LEFT };
+
+        SVGTextAnchor() : SVGVisualProperty() {}
+        SVGTextAnchor(const SVGTextAnchor& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        SVGTextAnchor& operator=(const SVGTextAnchor& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fValue = rhs.fValue;
+            return *this;
+        }
+
+        void drawSelf(IGraphics& ctx)
+        {
+            ctx.textAlign(fValue, ALIGNMENT::BASELINE);
+        }
+
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            if (inChunk == "start")
+                fValue = ALIGNMENT::LEFT;
+			else if (inChunk == "middle")
+				fValue = ALIGNMENT::CENTER;
+			else if (inChunk == "end")
+				fValue = ALIGNMENT::RIGHT;
+
+
+            set(true);
+        }
+
+        static std::shared_ptr<SVGTextAnchor> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGTextAnchor> sw = std::make_shared<SVGTextAnchor>();
+
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                sw->loadFromChunk(inChunk);
+
+            return sw;
+        }
+
+        static std::shared_ptr<SVGTextAnchor> createFromXml(const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(name, elem.getAttribute(name));
+        }
+    };
+    
+    struct SVGTextAlign : public SVGVisualProperty
+    {
+        ALIGNMENT fValue{ ALIGNMENT::LEFT };
+
+        SVGTextAlign() : SVGVisualProperty() {}
+        SVGTextAlign(const SVGTextAlign& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        SVGTextAlign& operator=(const SVGTextAlign& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fValue = rhs.fValue;
+            return *this;
+        }
+
+        void drawSelf(IGraphics& ctx)
+        {
+            ctx.textAlign(fValue, ALIGNMENT::BASELINE);
+        }
+
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            if (inChunk == "center")
+				fValue = ALIGNMENT::CENTER;
+            
+            set(true);
+        }
+
+        static std::shared_ptr<SVGTextAlign> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGTextAlign> sw = std::make_shared<SVGTextAlign>();
+
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                sw->loadFromChunk(inChunk);
+
+            return sw;
+        }
+
+        static std::shared_ptr<SVGTextAlign> createFromXml(const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(name, elem.getAttribute(name));
+        }
+    };
+}
 //======================================================
 // Definition of SVG Paint
 //======================================================
@@ -768,6 +962,8 @@ namespace svg {
 		void loadSelfFromChunk(const DataChunk& inChunk)
 		{
 			fMiterLimit = toNumber(inChunk);
+			fMiterLimit = maths::clamp((float)fMiterLimit, 1.0f, 10.0f);
+            
 			set(true);
 		}
 
@@ -844,6 +1040,66 @@ namespace svg {
 			return createFromChunk(name, elem.getAttribute(name));
 		}
 	};
+
+    // SVGStrokeLineJoin
+	// A visual property to set the line join for a stroke
+    struct SVGStrokeLineJoin : public SVGVisualProperty
+    {
+        SVGlineJoin fLineJoin{ SVG_JOIN_MITER_BEVEL };
+
+		SVGStrokeLineJoin() : SVGVisualProperty() {}
+		SVGStrokeLineJoin(const SVGStrokeLineJoin& other) :SVGVisualProperty(other), fLineJoin(other.fLineJoin) {}  
+        SVGStrokeLineJoin& operator=(const SVGStrokeLineJoin& rhs)
+        {
+			SVGVisualProperty::operator=(rhs);
+			fLineJoin = rhs.fLineJoin;
+			return *this;
+        }
+        
+        void drawSelf(IGraphics& ctx)
+        {
+			ctx.strokeJoin(fLineJoin);
+        }
+        
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            DataChunk s = chunk_trim(inChunk, wspChars);
+
+            set(true);
+            
+			if (s == "miter")
+				fLineJoin = SVG_JOIN_MITER_BEVEL;
+			else if (s == "round")
+				fLineJoin = SVG_JOIN_ROUND;
+			else if (s == "bevel")
+				fLineJoin = SVG_JOIN_BEVEL;
+            //else if (s == "arcs")
+			//	fLineJoin = SVG_JOIN_ARCS;
+			else if (s == "miter-clip")
+				fLineJoin = SVG_JOIN_MITER_CLIP;
+			else
+				set(false);
+
+        }
+        
+		static std::shared_ptr<SVGStrokeLineJoin> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		{
+			std::shared_ptr<SVGStrokeLineJoin> stroke = std::make_shared<SVGStrokeLineJoin>();
+
+			// If the chunk is empty, return immediately
+			if (inChunk)
+				stroke->loadFromChunk(inChunk);
+
+			return stroke;
+		}
+
+        // stroke-linejoin
+        static std::shared_ptr<SVGStrokeLineJoin> createFromXml(const std::string& name, const XmlElement& elem)
+        {
+			return createFromChunk(name, elem.getAttribute(name));
+        }
+        
+    };
     
 }
 namespace svg {
@@ -1104,7 +1360,7 @@ namespace svg
         if (na == 1)
             args[1] = args[2] = 0.0f;
 
-		xform.rotate(maths::radians(args[0]), maths::radians(args[1]), maths::radians(args[2]));
+		xform.rotate(maths::radians(args[0]), args[1], args[2]);
 
         return  s;
     }

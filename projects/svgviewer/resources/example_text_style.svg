@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <text x="20"  y="40"
+          style="font-family: Arial;
+                 font-size  : 34;
+                 stroke     : #000000;
+                 fill       : #00ff00;
+                "
+          >Styled SVG text</text>
+</svg>

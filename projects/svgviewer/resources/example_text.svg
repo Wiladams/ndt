@@ -1,4 +1,3 @@
-Quiet before the storm
 <svg height='100' width = '200' xmlns='http://www.w3.org/2000/svg'>
     <path d='M 0 0 L 100 100 L 200 0' stroke='black' fill='none'/>
     <text x='10' y='6' fill='red'>This text is not fully visible</text>
