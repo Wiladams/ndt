@@ -140,10 +140,19 @@ public:
 
 	void draw(IGraphics & ctx) override
 	{
-		drawBackground(fSurface);
-		drawSelf(fSurface);
-		drawForeground(fSurface);
 
+		
+		drawBackground(fSurface);
+		
+		fSurface.push();
+		// Apply user specified transform
+		fSurface.translate(fTranslation.x, fTranslation.y);
+		drawSelf(fSurface);
+
+		fSurface.pop();
+		
+		drawForeground(fSurface);
+		
 		compose(ctx);
 	}
 

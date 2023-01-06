@@ -21,7 +21,7 @@ namespace ndt
     enum SVGlineJoin {
         SVG_JOIN_MITER_CLIP = 0,
         SVG_JOIN_MITER_BEVEL = 1,
-        SVG_JOIN_MITWE_ROUND = 2,
+        SVG_JOIN_MITER_ROUND = 2,
         SVG_JOIN_BEVEL = 3,
         SVG_JOIN_ROUND = 4,
        // SVG_JOIN_ARCS = 3,
@@ -290,7 +290,7 @@ namespace ndt
 					float afloat = 0;
 					std::from_chars((const char*)numChunk.fStart, (const char*)numChunk.fEnd, afloat);
 					commands.back().addNumber(afloat);
-                    //printf("  %3.3f\n", afloat);
+                    //printf("  %3.5f\n", afloat);
 				}
                 
             }
@@ -310,17 +310,17 @@ namespace ndt
     struct PathBuilder
     {
     public:
-        //maths::vec2f fLastControl{};
+
         maths::vec2f fLastPosition{};
 		maths::vec2f fLastStart{};
 		SegmentKind fLastCommand{};
         
-        BLPath fPath{};
+        //BLPath fPath{};
         BLPath fWorkingPath{};
 
 
     public:
-        BLPath& getPath() { return fPath; }
+        BLPath& getPath() { return fWorkingPath; }
 
         const maths::vec2f & lastPosition() noexcept
         {
@@ -334,11 +334,11 @@ namespace ndt
 // with a 'Z', but we're done parsing
         void finishWorking()
         {
-            if (!fWorkingPath.empty())
-            {
-                fPath.addPath(fWorkingPath);
-                fWorkingPath.reset();
-            }
+            //if (!fWorkingPath.empty())
+           // {
+           //     fPath.addPath(fWorkingPath);
+           //     fWorkingPath.reset();
+           // }
 
             fLastPosition = lastPosition();
         }
@@ -383,17 +383,18 @@ namespace ndt
                 printf("moveBy - Rejected: %zd\n", cmd.fNumbers.size());
                 return;
             }
-            
+
             maths::vec2f lastPoint{};
 
-            lastPoint = lastPosition();
-            
-            finishWorking();
+            if (fWorkingPath.empty())
+                lastPoint = { 0, 0 };
+            else {
+                lastPoint = lastPosition();
+                finishWorking();
+            }
 
+            fWorkingPath.moveTo(lastPosition().x + cmd.fNumbers[0], lastPosition().y + cmd.fNumbers[1]);
 
-            fWorkingPath.moveTo(lastPoint.x + cmd.fNumbers[0], lastPoint.y+cmd.fNumbers[1]);
-
-            
             // perform relative lineBy on working path
             // if there are more nunbers
 			if (cmd.fNumbers.size() > 2)
@@ -403,8 +404,6 @@ namespace ndt
 				for (size_t i = 2; i < cmd.fNumbers.size(); i += 2)
 				{
 					fWorkingPath.lineTo(lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1]);
-                    
-					//fLastPosition = maths::vec2f{ lastPosition().x + cmd.fNumbers[i], lastPosition().y + cmd.fNumbers[i + 1] };
 				}
 			}
         }

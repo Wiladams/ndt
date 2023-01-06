@@ -6,8 +6,10 @@
 #include "xmlscan.h"
 #include "svgtypes.h"
 #include "cssscanner.h"
+#include "base64.h"
 
 #include <string>
+#include <array>
 
 // Common Shapes
 // Line
@@ -39,22 +41,25 @@ namespace svg {
 	// clip-path
 	// mask
 	
-	static std::map<std::string, std::function<std::shared_ptr<SVGVisualProperty> (const std::string& , const XmlElement& )>> gSVGPropertyCreation = {
-//		,{"color", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("stroke", elem); } }
-		{"fill", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("fill", elem ); } }
-		,{"font-size", [](const std::string& name, const XmlElement& elem) {return SVGFontSize::createFromXml("font-size", elem); } }
-		,{"stop-color", [](const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml("stop-color", elem); } }
-		,{"stroke", [](const std::string& name, const XmlElement& elem ) {return SVGPaint::createFromXml("stroke", elem); } }
-		,{"stroke-linejoin", [](const std::string& name, const XmlElement& elem) {return SVGStrokeLineJoin::createFromXml("stroke-linejoin", elem); } }
-		,{"stroke-linecap", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeLineCap::createFromXml("stroke-linecap", elem); } }
-		,{"stroke-miterlimit", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeMiterLimit::createFromXml("stroke-miterlimit", elem); } }
-		,{"stroke-width", [](const std::string& name, const XmlElement& elem ) {return SVGStrokeWidth::createFromXml("stroke-width", elem); } }
-		//,{"text-align", [](const std::string& name, const XmlElement& elem) {return SVGTextAlign::createFromXml("text-align", elem); } }
-		,{"text-anchor", [](const std::string& name, const XmlElement& elem) {return SVGTextAnchor::createFromXml("text-anchor", elem); } }
-		,{"transform", [](const std::string& name, const XmlElement& elem) {return SVGTransform::createFromXml("transform", elem); } }
-		,{"gradientTransform", [](const std::string& name, const XmlElement& elem) {return SVGTransform::createFromXml("gradientTransform", elem); } }
+	static std::map<std::string, std::function<std::shared_ptr<SVGVisualProperty> (IMapSVGNodes *root, const std::string& , const XmlElement& )>> gSVGPropertyCreation = {
+//		,{"color", [](IMapSVGNodes *root, const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml(root, "stroke", elem); } }
+		{"fill", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml(root, "fill", elem ); } }
+		,{"fill-rule", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGFillRule::createFromXml(root, "fill-rule", elem); } }
+		,{"font-size", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGFontSize::createFromXml(root, "font-size", elem); } }
+		//,{"stop-color", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGPaint::createFromXml(root, "stop-color", elem); } }
+		,{"opacity", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGOpacity::createFromXml(root, "opacity", elem); } }
+		,{"stroke", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem ) {return SVGPaint::createFromXml(root, "stroke", elem); } }
+		,{"stroke-linejoin", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGStrokeLineJoin::createFromXml(root, "stroke-linejoin", elem); } }
+		,{"stroke-linecap", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem ) {return SVGStrokeLineCap::createFromXml(root, "stroke-linecap", elem); } }
+		,{"stroke-miterlimit", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem ) {return SVGStrokeMiterLimit::createFromXml(root, "stroke-miterlimit", elem); } }
+		,{"stroke-width", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem ) {return SVGStrokeWidth::createFromXml(root, "stroke-width", elem); } }
+		//,{"text-align", [](IMapSVGNodes *root, const std::string& name, const XmlElement& elem) {return SVGTextAlign::createFromXml(root, "text-align", elem); } }
+		,{"text-anchor", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGTextAnchor::createFromXml(root, "text-anchor", elem); } }
+		,{"transform", [](IMapSVGNodes* root, const std::string& name, const XmlElement& elem) {return SVGTransform::createFromXml(root, "transform", elem); } }
+		//,{"gradientTransform", [](IMapSVGNodes *root, const std::string& name, const XmlElement& elem) {return SVGTransform::createFromXml(root, "gradientTransform", elem); } }
 
 	};
+
 
 	//
 	// SVGVisualObject
@@ -62,36 +67,32 @@ namespace svg {
 	// that's everything from paint that needs to be applied, to geometries
 	// that need to be drawn, to line widths, text alignment, and the like.
 	// Most things, other than basic attribute type, will be a sub-class of this
-	struct SVGGroup;
-	struct IMapSVGNodes
+	struct SVGVisualNode : public SVGObject
 	{
-		virtual std::shared_ptr<SVGVisual> findNodeById(const std::string& name) = 0;
-		virtual void addDefinition(const std::string& name, std::shared_ptr<SVGVisual> obj) = 0;
 
-		virtual void setInDefinitions(bool indefs) = 0;
-		virtual bool inDefinitions() const = 0;
-
-	};
-	
-	struct SVGVisualNode : public SVGVisual
-	{
-		IMapSVGNodes* fRoot{ nullptr };
 		std::string fId{};      // The id of the element
-
 		std::map<std::string, std::shared_ptr<SVGVisualProperty>> fVisualProperties{};
 
-		
-		
 		SVGVisualNode() = default;
 		SVGVisualNode(IMapSVGNodes* root)
-			: fRoot(root)
+			: SVGObject(root)
 		{
+			setRoot(root);
 		}
-		
+		SVGVisualNode(const SVGVisualNode& other) :SVGObject(other)
+		{
+			fId = other.fId;
+			fVisualProperties = other.fVisualProperties;
+		}
 
 
-		virtual void setRoot(IMapSVGNodes* root) { fRoot = root; }
-
+		SVGVisualNode & operator=(const SVGVisualNode& rhs)
+		{
+			fId = rhs.fId;
+			fVisualProperties = rhs.fVisualProperties;
+			
+			return *this;
+		}
 		
 		const std::string& id() const { return fId; }
 		void setId(const std::string& id) { fId = id; }
@@ -107,7 +108,7 @@ namespace svg {
 
 				// We have a property and value, convert to SVGVisibleProperty
 				// and add it to our map of visual properties
-				auto prop = propconv.second(attrName, elem);
+				auto prop = propconv.second(root(), attrName, elem);
 				if (prop->isSet())
 					fVisualProperties[attrName] = prop;
 
@@ -153,7 +154,7 @@ namespace svg {
 
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
-			SVGVisual::loadSelfFromXml(elem);
+			SVGObject::loadSelfFromXml(elem);
 			
 			auto id = elem.getAttribute("id");
 			if (id)
@@ -193,7 +194,14 @@ namespace svg {
 	{
 		SVGShape() :SVGVisualNode(nullptr) {}
 		SVGShape(IMapSVGNodes* root) :SVGVisualNode(root) {}
-
+		SVGShape(const SVGShape& other) :SVGVisualNode(other) {}
+		
+		SVGShape& operator=(const SVGShape& rhs)
+		{
+			SVGVisualNode::operator=(rhs);
+			return *this;
+		}
+		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGVisualNode::loadSelfFromXml(elem);
@@ -210,15 +218,21 @@ namespace svg {
 
 	struct SVGTemplateNode : public SVGShape
 	{
-		std::shared_ptr<SVGVisual> fWrappedNode{};
+		std::shared_ptr<SVGObject> fWrappedNode{};
 		std::string fWrappedID{};
 
 		double fX = 0;
 		double fY = 0;
 
 		SVGTemplateNode() {}
+		SVGTemplateNode(IMapSVGNodes* root) : SVGShape(root) {}
 		~SVGTemplateNode() {}
 
+		const BLVar& getVariant() override
+		{
+			return fWrappedNode->getVariant();
+		}
+		
 		void setRoot(IMapSVGNodes* root) override
 		{
 			SVGShape::setRoot(root);
@@ -275,9 +289,9 @@ namespace svg {
 
 
 
-		static std::shared_ptr<SVGTemplateNode> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGTemplateNode> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGTemplateNode>();
+			auto shape = std::make_shared<SVGTemplateNode>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -291,7 +305,8 @@ namespace svg {
 		BLPath fPath{};
 		
 		SVGPathBasedShape() :SVGShape() {}
-
+		SVGPathBasedShape(IMapSVGNodes* iMap) :SVGShape(iMap) {}
+		
 		
 		void drawSelf(IGraphics &ctx) override
 		{
@@ -301,20 +316,16 @@ namespace svg {
 	
 	struct SVGLine : public SVGPathBasedShape
 	{
-
 		BLLine fGeometry{};
 		
-		SVGLine() 
-			:SVGPathBasedShape() 
-		{ 
-			reset(0, 0, 0, 0); 
-		}
+		SVGLine() :SVGPathBasedShape(){ reset(0, 0, 0, 0); }
+		SVGLine(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
-		SVGLine(float x, float y, float w, float h)
-			:SVGPathBasedShape()
-		{
-			reset(x, y, w, h);
-		}
+		//SVGLine(float x, float y, float w, float h)
+		//	:SVGPathBasedShape()
+		//{
+		//	reset(x, y, w, h);
+		//}
 		
 		void reset(float x, float y, float w, float h)
 		{
@@ -335,9 +346,9 @@ namespace svg {
 			fPath.addLine(fGeometry);
 		}
 
-		static std::shared_ptr<SVGLine> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGLine> createFromXml(IMapSVGNodes *iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGLine>();
+			auto shape = std::make_shared<SVGLine>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -351,7 +362,7 @@ namespace svg {
 		BLRoundRect fGeometry{};
 		
 		SVGRect() : SVGPathBasedShape() {}
-		
+		SVGRect(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
@@ -374,9 +385,9 @@ namespace svg {
 			}
 		}
 		
-		static std::shared_ptr<SVGRect> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGRect> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGRect>();
+			auto shape = std::make_shared<SVGRect>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -388,7 +399,7 @@ namespace svg {
 		BLCircle fCircle{};
 		
 		SVGCircle() : SVGPathBasedShape() {}
-		
+		SVGCircle(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
@@ -401,9 +412,9 @@ namespace svg {
 			fPath.addCircle(fCircle);
 		}
 
-		static std::shared_ptr<SVGCircle> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGCircle> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGCircle>();
+			auto shape = std::make_shared<SVGCircle>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -415,7 +426,7 @@ namespace svg {
 		BLEllipse fGeometry;
 		
 		SVGEllipse() : SVGPathBasedShape() {}
-		
+		SVGEllipse(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
@@ -429,9 +440,9 @@ namespace svg {
 			fPath.addEllipse(fGeometry);
 		}
 
-		static std::shared_ptr<SVGEllipse> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGEllipse> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGEllipse>();
+			auto shape = std::make_shared<SVGEllipse>(iMap);
 			shape->loadFromXmlElement(elem);
 			
 			return shape;
@@ -441,6 +452,7 @@ namespace svg {
 	struct SVGPolyline : public SVGPathBasedShape
 	{
 		SVGPolyline() : SVGPathBasedShape() {}
+		SVGPolyline(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		
 		void loadSelfFromXml(const XmlElement& elem) override
@@ -459,9 +471,9 @@ namespace svg {
 			
 		}
 
-		static std::shared_ptr<SVGPolyline> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGPolyline> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGPolyline>();
+			auto shape = std::make_shared<SVGPolyline>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -471,6 +483,7 @@ namespace svg {
 	struct SVGPolygon : public SVGPathBasedShape
 	{
 		SVGPolygon() : SVGPathBasedShape() {}
+		SVGPolygon(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		
 		void loadSelfFromXml(const XmlElement& elem) override
@@ -489,9 +502,9 @@ namespace svg {
 			
 		}
 
-		static std::shared_ptr<SVGPolygon> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGPolygon> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto shape = std::make_shared<SVGPolygon>();
+			auto shape = std::make_shared<SVGPolygon>(iMap);
 			shape->loadFromXmlElement(elem);
 
 			return shape;
@@ -501,7 +514,8 @@ namespace svg {
 	struct SVGPath : public SVGPathBasedShape
 	{
 		SVGPath() : SVGPathBasedShape() {}
-
+		SVGPath(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
+		
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
@@ -511,53 +525,140 @@ namespace svg {
 			auto success = blPathFromCommands(d, fPath);
 		}
 
-		static std::shared_ptr<SVGPath> createFromXml(const XmlElement& elem)
+		static std::shared_ptr<SVGPath> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto path = std::make_shared<SVGPath>();
+			auto path = std::make_shared<SVGPath>(iMap);
 			path->loadFromXmlElement(elem);
 			
 			return path;
 		}
 	};
 
-	struct SVGGradientStop : public SVGShape
+
+	struct SVGImageNode : public SVGShape
 	{
-		double fOffset = 0.0f;
+		BLImage fImage{};
+		BLPattern fPattern{};
+		double fWidth{};
+		double fHeight{};
+		double fX = 0;
+		double fY = 0;
+
 		
-		SVGGradientStop() {}
+		//SVGImageNode() : SVGShape() {}
+		SVGImageNode(IMapSVGNodes* root) : SVGShape(root) {}
+		SVGImageNode(const SVGImageNode& other) :SVGShape(other) { fImage = other.fImage; fWidth = other.fWidth; fHeight = other.fHeight; }
+		SVGImageNode& operator=(const SVGImageNode& rhs)
+		{
+			//SVGShape::operator=(rhs);
+			fImage = rhs.fImage;
+			fWidth = rhs.fWidth;
+			fHeight = rhs.fHeight;
+
+			return *this;
+		}
+
+		const BLVar& getVariant() override
+		{
+			if (fVar.isNull())
+			{
+				fPattern.create(fImage);
+				
+				blVarAssignWeak(&fVar, &fPattern);
+				
+				auto atype = blVarGetType(&fVar);
+				printf("SVGImageNode: %d\n", atype);
+
+			}
+
+			return fVar;
+		}
+		
+		void drawSelf(IGraphics& ctx)
+		{
+			if (fImage.empty())
+				return;
+			
+			//ctx.image(fImage, 0, 0);
+
+			ctx.scaleImage(fImage, 0, 0, fImage.size().w, fImage.size().h, fX, fY, fWidth, fHeight);
+		}
 
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
-			SVGVisualNode::loadSelfFromXml(elem);
+			SVGShape::loadSelfFromXml(elem);
 
-			fOffset = toDimension(elem.getAttribute("offset")).calculatePixels(96);
+			// Specify the size at which things are displayed
+			fWidth = toDimension(elem.getAttribute("width")).calculatePixels(96);
+			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(96);
+
+			fX = toDimension(elem.getAttribute("x")).calculatePixels(96);
+			fY = toDimension(elem.getAttribute("y")).calculatePixels(96);
+			
+			// docode and load the image
+			fImage.create(fWidth, fHeight, BL_FORMAT_PRGB32);
+			//fCtx.begin(fImage);
+			//fCtx.setFillStyle(BLRgba32(255, 255, 0, 255));
+			//fCtx.fillAll();
+			//fCtx.end();
+
+			//printf("SVGImageNode: %3.0f %3.0f\n", fWidth, fHeight);
+			auto href = elem.getAttribute("xlink:href");
+			if (!href)
+				href = elem.getAttribute("href");
+
+			if (!href)
+				return;
+
+			// figure out what kind of encoding we're dealing with
+			auto data = chunk_token(href, ":");
+			auto mime = chunk_token(href, ";");
+			auto encoding = chunk_token(href, ",");
+
+
+			DataChunk inChunk = href;
+			if (encoding == "base64")
+			{
+				// allocate some memory to decode into
+				uint8_t* outBuff{ new uint8_t[size(href)]{} };
+				DataChunk outChunk = chunk_from_data_size(outBuff, size(href));
+
+				auto outData = base64::b64tobin(inChunk, outChunk);
+				if (outData)
+				{
+					BLResult res = fImage.readFromData(outData.fStart, size(outData));
+
+					printf("RES: %d\n", res);
+				}
+
+				delete [] outBuff;
+			}
+
 
 		}
-		
-		static std::shared_ptr<SVGGradientStop> createFromXml(const XmlElement& elem)
+
+		static std::shared_ptr<SVGImageNode> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
 		{
-			auto stop = std::make_shared<SVGGradientStop>();
-			stop->loadFromXmlElement(elem);
+			auto node = std::make_shared<SVGImageNode>(iMap);
+			node->loadFromXmlElement(elem);
 
-			return stop;
+			return node;
 		}
+
 	};
-	
-
-	
 
 	
 	
-	std::map<std::string, std::function<std::shared_ptr<SVGShape>(const XmlElement& elem)>> gShapeCreationMap = {
-	{"line", [](const XmlElement& elem) { return SVGLine::createFromXml(elem); }},
-	{"rect", [](const XmlElement& elem) { return SVGRect::createFromXml(elem); }},
-	{"circle", [](const XmlElement& elem) { return SVGCircle::createFromXml(elem); }},
-	{"ellipse", [](const XmlElement& elem) { return SVGEllipse::createFromXml(elem); }},
-	{"polyline", [](const XmlElement& elem) { return SVGPolyline::createFromXml(elem); }},
-	{"polygon", [](const XmlElement& elem) { return SVGPolygon::createFromXml(elem); }},
-	{"path", [](const XmlElement& elem) { return SVGPath::createFromXml(elem); }},
-	{"use", [](const XmlElement& elem) { return SVGTemplateNode::createFromXml(elem); }},
-	{"stop", [](const XmlElement& elem) { return SVGGradientStop::createFromXml(elem); }},
+	std::map<std::string, std::function<std::shared_ptr<SVGShape>(IMapSVGNodes* root, const XmlElement& elem)>> gShapeCreationMap = {
+	{"line", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGLine::createFromXml(root, elem); }},
+	{"rect", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGRect::createFromXml(root, elem); }},
+	{"circle", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGCircle::createFromXml(root,elem); }},
+	{"ellipse", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGEllipse::createFromXml(root,elem); }},
+	{"image", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGImageNode::createFromXml(root,elem); }},
+	{"polyline", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGPolyline::createFromXml(root,elem); }},
+	{"polygon", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGPolygon::createFromXml(root,elem); }},
+	{"path", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGPath::createFromXml(root,elem); }},
+	{"use", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGTemplateNode::createFromXml(root,elem); }},
 
 	};
 
@@ -569,12 +670,41 @@ namespace svg {
 		static constexpr int BUILD_STATE_CLOSE = 2;
 		
 		
-		std::vector<std::shared_ptr<SVGVisual>> fNodes{};
-		std::map<std::string, std::shared_ptr<SVGVisual>> fDefinitions;
+		std::vector<std::shared_ptr<SVGObject>> fNodes{};
+		std::map<std::string, std::shared_ptr<SVGObject>> fDefinitions;
 		int buildState = BUILD_STATE_OPEN;
 		
 		SVGCompoundNode() : SVGShape() {}
 		SVGCompoundNode(IMapSVGNodes* root) :SVGShape(root) {}
+		
+		const BLVar& getVariant() override
+		{
+			// if our variant is null
+			// traverse down our fNodes, until we find
+			// something that reports other than null
+			// and return that.
+			if (fVar.isNull())
+			{
+				for (auto& node : fNodes)
+				{
+					auto& var = node->getVariant();
+					if (!var.isNull())
+					{
+						return node->getVariant();
+					}
+				}
+			}
+			
+			return fVar;
+		}
+		
+		
+		void drawSelf(IGraphics& ctx)
+		{
+			for (auto& node : fNodes) {
+				node->draw(ctx);
+			}
+		}
 		
 		virtual void addNode(std::shared_ptr < SVGVisualNode > node)
 		{
@@ -591,7 +721,7 @@ namespace svg {
 			auto it = gShapeCreationMap.find(elem.name());
 			if (it != gShapeCreationMap.end())
 			{
-				auto node = it->second(elem);
+				auto node = it->second(root(), elem);
 				addNode(node);
 			}
 		}
@@ -599,6 +729,11 @@ namespace svg {
 		virtual void loadContentNode(const XmlElement& elem)
 		{
 			// Do something with content nodes	
+		}
+		
+		virtual void loadCDataNode(const XmlElement& elem)
+		{
+			// Do something with CDATA nodes
 		}
 		
 		virtual void loadCompoundNode(XmlElementIterator& iter)
@@ -612,7 +747,8 @@ namespace svg {
 		{
 			// First, loadSelfFromXml because we're sitting on our opening element
 			// and we need to gather our own attributes
-			loadSelfFromXml(*iter);
+			loadFromXmlElement(*iter);
+			//loadSelfFromXml(*iter);
 
 			buildState = BUILD_STATE_OPEN;
 			
@@ -658,10 +794,15 @@ namespace svg {
 					{
 						loadContentNode(elem);
 					}
+					else if (elem.isCData())
+					{
+						loadCDataNode(elem);
+					}
 					else
 					{
 						// Ignore anything else
 						printf("IGNORING: %s\n", elem.name().c_str());
+						ndt_debug::printXmlElement(elem);
 						//printXmlElement(elem);
 					}
 				}
@@ -684,8 +825,10 @@ namespace svg {
 
 	struct SVGTextNode :public SVGCompoundNode
 	{
-		double x;
-		double y;
+		double x{};
+		double y{};
+		double dy = 0;
+
 		std::string fText;
 		
 		SVGTextNode() :SVGCompoundNode() {}
@@ -693,9 +836,10 @@ namespace svg {
 
 		void drawSelf(IGraphics& ctx) override
 		{
-			ctx.textFont("Consolas");	// BUGBUG - hardcoded, should go away when property supported
+			ctx.textFont("Calibri");	// BUGBUG - hardcoded, should go away when property supported
+			ctx.text(fText.c_str(), x, y+dy);
 
-			ctx.text(fText.c_str(), x, y);
+			SVGCompoundNode::drawSelf(ctx);
 		}
 		
 		virtual void loadSelfFromXml(const XmlElement& elem)
@@ -704,6 +848,7 @@ namespace svg {
 
 			x = toDimension(elem.getAttribute("x")).calculatePixels(96);
 			y = toDimension(elem.getAttribute("y")).calculatePixels(96);
+			dy = toDimension(elem.getAttribute("dy")).calculatePixels(96);
 			//fFontSize = toDimension(elem.getAttribute("font-size")).calculatePixels(96);
 		}
 
@@ -712,25 +857,135 @@ namespace svg {
 			// Do something with content nodes	
 			fText = toString(elem.data());
 		}
+
+		void loadCompoundNode(XmlElementIterator& iter) override
+		{
+			// Most likely a <tspan>
+			if ((*iter).name() == "tspan")
+			{
+				auto node = std::make_shared<SVGTextNode>(fRoot);
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
+			else
+			{
+				SVGCompoundNode::loadCompoundNode(iter);
+			}
+
+		}
+		
 	};
 	
+	//============================================================
+	//	SVGStyleNode
+	// Content node is a CDATA section that contains a style sheet
+	//============================================================
+	struct SVGStyleNode :public SVGCompoundNode
+	{
+		double x;
+		double y;
+		std::string fText;
+
+		SVGStyleNode() :SVGCompoundNode() {}
+		SVGStyleNode(IMapSVGNodes* root) :SVGCompoundNode(root) {}
+
+
+		virtual void loadSelfFromXml(const XmlElement& elem)
+		{
+			SVGCompoundNode::loadSelfFromXml(elem);
+		}
+
+		void loadCDataNode(const XmlElement& elem) override
+		{
+			// Do something with CDATA nodes	
+			// parse a style sheet
+			ndt_debug::printXmlElement(elem);
+		}
+	};
+	
+	//============================================================
+	// SVGPatternNode
+	//============================================================
+	struct SVGPatternNode :public SVGCompoundNode
+	{
+		BLMatrix2D fTransform{};
+		double fWidth{};
+		double fHeight{};
+
+
+		SVGPatternNode(IMapSVGNodes* root) :SVGCompoundNode(root) {}
+
+		void drawSelf(IGraphics& ctx) override
+		{
+			SVGCompoundNode::drawSelf(ctx);
+			ctx.transform(fTransform.m);
+		}
+
+		virtual void loadSelfFromXml(const XmlElement& elem)
+		{
+			SVGCompoundNode::loadSelfFromXml(elem);
+
+			fWidth = toDimension(elem.getAttribute("width")).calculatePixels(1,0,96);
+			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(1,0,96);
+
+			if (elem.getAttribute("patternTransform"))
+			{
+				auto  tform = SVGTransform::createFromXml(root(), "patternTransform", elem);
+				fTransform = tform->fTransform;
+			}
+		}
+
+
+
+	};
+	
+	//============================================================
+	//	SVGGradient
+	//============================================================
 	struct SVGGradient : public SVGCompoundNode
 	{
-		BLMatrix2D fGradientTransform;
-		BLGradient fGradient;
-		BLVar fGradientVar;
-		
-		SVGGradient() :SVGCompoundNode() {}
+		BLMatrix2D fGradientTransform{};
+		BLGradient fGradient{};
+		BLVar fGradientVar{};
+
 		SVGGradient(IMapSVGNodes* root) :SVGCompoundNode(root) {}
 		
-		operator BLVar & const ()
+		const BLVar& getVariant() override
 		{
+			blVarAssignWeak(&fGradientVar, &fGradient);
 			return fGradientVar;
 		}
 		
+
+
+		virtual void loadSelfClosingNode(const XmlElement& elem)
+		{
+			SVGDimension dim{};
+			dim.loadSelfFromChunk(elem.getAttribute("offset"));
+			auto offset = dim.calculatePixels(1, 0);
+			auto c = SVGPaint::createFromXml(root(), "stop-color", elem);
+
+			if (c != nullptr)
+			{
+				// Convert the variant color to a BLRgba32
+				BLVar aVar = c->getVariant();
+				uint32_t colorValue = 0;
+				auto res = blVarToRgba32(&aVar, &colorValue);
+				BLRgba32 acolor(colorValue);
+
+				fGradient.addStop(offset, acolor);
+			}
+		}
+		
+	};
+	
+	struct SVGLinearGradient : public SVGGradient
+	{
+		SVGLinearGradient(IMapSVGNodes* root) :SVGGradient(root) {}
+		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
-			SVGVisualNode::loadSelfFromXml(elem);
+			SVGGradient::loadSelfFromXml(elem);
 			
 			double x1 = toDimension(elem.getAttribute("x1")).calculatePixels(96);
 			double x2 = toDimension(elem.getAttribute("x2")).calculatePixels(96);
@@ -741,42 +996,77 @@ namespace svg {
 			// gradientUnits needs to be read in here
 			BLLinearGradientValues gradientValues = { x1, y1, x2, y2 };
 			fGradient = BLGradient(gradientValues);
-			fGradientVar = fGradient;
+
+			if (elem.getAttribute("gradientTransform"))
+			{
+				auto  tform = SVGTransform::createFromXml(root(), "gradientTransform", elem);
+				fGradient.setMatrix(tform->getTransform());
+			}
+
+			//fGradientVar = fGradient;
 		}
 
-		void addNode(std::shared_ptr < SVGVisualNode > node) override
-		{
-			// The only nodes that should be added here are stoops
-			// so we can read them, and turn them into BLGradientStops
-			if (node == nullptr)
-				return;
-			
-			//if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-			//{
-			//	continue;
-			//}
-			
-			double offset = 0;
-			BLRgba32 c{};
-			
-			fGradient.addStop(offset, c);
 
-			
-		}
-
-		void drawSelf(IGraphics& ctx) override
-		{
-			
-		}
 	};
 	
+	struct SVGRadialGradient : public SVGGradient
+	{
+
+		SVGRadialGradient(IMapSVGNodes* root) :SVGGradient(root) {}
+
+
+		void loadSelfFromXml(const XmlElement& elem) override
+		{
+			SVGGradient::loadSelfFromXml(elem);
+
+			BLRadialGradientValues gradientValues(0.5,0.5,0.5,0.5,0);
+			
+			if (elem.getAttribute("cx") && elem.getAttribute("cy") && elem.getAttribute("r"))
+			{
+				double cx = toDimension(elem.getAttribute("cx")).calculatePixels(96);
+				double cy = toDimension(elem.getAttribute("cy")).calculatePixels(96);
+				double r = toDimension(elem.getAttribute("r")).calculatePixels(96);
+
+				gradientValues.x0 = cx;
+				gradientValues.x1 = cx;
+				gradientValues.y0 = cy;
+				gradientValues.y1 = cy;
+				gradientValues.r0 = r;
+			}
+
+
+			if (elem.getAttribute("fx"))
+				gradientValues.x1 = toDimension(elem.getAttribute("fx")).calculatePixels(96);
+				
+			if (elem.getAttribute("fy"))
+				gradientValues.y1 = toDimension(elem.getAttribute("fy")).calculatePixels(96);
+			
+			// gradientTransform should have been read in as commonAttribute
+			// gradientUnits needs to be read in here
+			fGradient = BLGradient(gradientValues);
+
+			if (elem.getAttribute("gradientTransform"))
+			{
+				auto  tform = SVGTransform::createFromXml(root(), "gradientTransform", elem);
+				fGradient.setMatrix(tform->getTransform());
+			}
+
+			//fGradientVar = fGradient;
+		}
+
+	};
+
+
+
+
 	
-	class SVGGroup : public SVGCompoundNode, public IMapSVGNodes
+	
+	struct SVGGroup : public SVGCompoundNode, public IMapSVGNodes
 	{
 	protected:
 		
 		bool fInDefinitions{ false };
-		std::map<std::string, std::shared_ptr<SVGVisual>> fDefinitions;
+		std::map<std::string, std::shared_ptr<SVGObject>> fDefinitions;
 
 	public:
 		SVGGroup() :SVGCompoundNode(nullptr) {}
@@ -786,7 +1076,7 @@ namespace svg {
 		bool inDefinitions() const override { return fInDefinitions; }
 		void setInDefinitions(bool indefs) override { fInDefinitions = indefs; };
 
-		std::shared_ptr<SVGVisual> findNodeById(const std::string& name)
+		std::shared_ptr<SVGObject> findNodeById(const std::string& name)
 		{
 			if (fRoot == this)
 				return fDefinitions[name];
@@ -811,27 +1101,20 @@ namespace svg {
 
 			// If we're not in definitions mode, then 
 			// also add the node to the visual nodes list
-			if (!inDefinitions())
+			if (!inDefinitions() && (node->name() != "symbol"))
 			{
 				fNodes.push_back(node);
 			}
 
 		}
 
-		void addDefinition(const std::string& name, std::shared_ptr<SVGVisual> obj)
+		void addDefinition(const std::string& name, std::shared_ptr<SVGObject> obj)
 		{
 			if (fRoot == this)
 				fDefinitions[name] = obj;
 			else if (fRoot != nullptr)
 				fRoot->addDefinition(name, obj);
 			
-		}
-		
-		void drawSelf(IGraphics& ctx) override
-		{
-			for (auto& node : fNodes) {
-				node->draw(ctx);
-			}
 		}
 
 
@@ -845,7 +1128,7 @@ namespace svg {
 			auto it = gShapeCreationMap.find(elem.name());
 			if (it != gShapeCreationMap.end())
 			{
-				auto node = it->second(elem);
+				auto node = it->second(root(), elem);
 				addNode(node);
 			}
 		}
@@ -854,118 +1137,65 @@ namespace svg {
 		{
 			const ndt::XmlElement& elem = *iter;
 			
-			//if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-			//{
-			//	return;
-			//}
-			
 			// Add a child, and call loadIterator
-			// the only known types are 
-			// gradient
-			// g
 			if (elem.name() == "g")
 			{
-				auto node = std::make_shared<SVGGroup>(fRoot);
+				auto node = std::make_shared<SVGGroup>(root());
 				node->loadFromIterator(iter);
 				addNode(node);
 			}
 			else if (elem.name() == "defs")
 			{
 				setInDefinitions(true);
-				auto node = std::make_shared<SVGGroup>(fRoot);
+				auto node = std::make_shared<SVGGroup>(root());
 				node->loadFromIterator(iter);
 				addNode(node);
 				setInDefinitions(false);
 			}
+			else if (elem.name() == "linearGradient")
+			{
+				auto node = std::make_shared<SVGLinearGradient>(root());
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
+			else if (elem.name() == "pattern")
+			{
+				auto node = std::make_shared<SVGPatternNode>(root());
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
+			else if (elem.name() == "radialGradient")
+			{
+				auto node = std::make_shared<SVGRadialGradient>(root());
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
 			else if (elem.name() == "text")
 			{
-				auto node = std::make_shared<SVGTextNode>(fRoot);
+				auto node = std::make_shared<SVGTextNode>(root());
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
+			else if (elem.name() == "symbol")
+			{
+				auto  node = std::make_shared<SVGGroup>(root());
+				node->loadFromIterator(iter);
+				addNode(node);
+			}
+			else if (elem.name() == "style")
+			{
+				auto node = std::make_shared<SVGStyleNode>(root());
 				node->loadFromIterator(iter);
 				addNode(node);
 			}
 			else {
-				auto node = std::make_shared<SVGGroup>(fRoot);
+				//printf("loadCompoundNode: UNKNOWN: %s\n", elem.name().c_str());
+				auto node = std::make_shared<SVGGroup>(root());
 				node->loadFromIterator(iter);
 				addNode(node);
 			}
 		}
-		/*
-		// Take the XmlElements from the iterator, and turn them into shapes
-		void loadFromIterator(ndt::XmlElementIterator& iter) override
-		{
-			constexpr int BUILD_STATE_INITIAL = 0;
-			constexpr int BUILD_STATE_OPEN = 1;
-			constexpr int BUILD_STATE_CLOSE = 2;
 
-			int buildState = BUILD_STATE_OPEN;
-			int elementDepth = 0;
-
-			// First, loadSelfFromXml because we're sitting on our opening element
-			loadSelfFromXml(*iter);
-
-			while (iter && (buildState != BUILD_STATE_CLOSE))
-			{
-				// move iterator forward to get to next item
-				iter++;
-
-				const ndt::XmlElement& elem = *iter;
-
-				// BUGBUG - debug
-				//ndt_debug::printXmlElement(elem);
-
-				if (!elem)
-					break;
-
-				// Skip over these node types we don't know how to process
-				if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-				{
-					continue;
-				}
-
-				switch (buildState)
-				{
-
-					
-				// We are in an open element.  There are a couple of actions
-				// that are valid from here
-				// 1) We get another open - add a child, call loadIterator
-				// 2) We get a self closing - add a child, call loadXmlElement
-				// 3) We get a close - close the current element
-				// 4) anything else, just ignore it
-				case BUILD_STATE_OPEN:
-				{
-					if (elem.isSelfClosing()) {
-						loadSelfClosingNode(elem);
-					}
-					else if (elem.isStart())
-					{
-						loadCompoundNode(iter);
-					}
-					else if (elem.isEnd())
-					{
-						//if (elem.name() == "defs")
-						//{
-						//	setInDefinitions(false);
-						//}
-
-						// Close the current element
-						buildState = BUILD_STATE_CLOSE;
-					}
-					else
-					{
-						// Ignore anything else
-						printf("IGNORING: %s\n", elem.name().c_str());
-						//printXmlElement(elem);
-					}
-				}
-				break;
-				
-				}	// end of switch
-
-
-			}
-		}
-		*/
 		static std::shared_ptr<SVGGroup> createFromIterator(XmlElementIterator& iter)
 		{
 			auto node = std::make_shared<SVGGroup>();
@@ -1001,7 +1231,7 @@ namespace svg {
 			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(96);
 
 			// viewbox
-			fViewbox = SVGViewbox::createFromXml(elem, "viewBox");
+			fViewbox = SVGViewbox::createFromXml(root(), elem, "viewBox");
 
 			// preserveAspectRatio
 
@@ -1015,18 +1245,18 @@ namespace svg {
 			return node;
 		}
 
-		void drawSelf(IGraphics& ctx) override
-		{
-			SVGGroup::drawSelf(ctx);
-		}
-
 		void draw(IGraphics& ctx) override
 		{
 			ctx.push();
 
+			//ctx.scale(0.3, 0.3);
+			
 			// Start with default state
+			ctx.strokeJoin(SVG_JOIN_ROUND);
+			ctx.ellipseMode(ELLIPSEMODE::CENTER);
 			ctx.noStroke();
 			ctx.fill(Pixel(0, 0, 0));
+			
 			ctx.strokeWeight(1.0);
 			ctx.textSize(16);
 			
@@ -1036,6 +1266,8 @@ namespace svg {
 
 			// Draw the children
 			drawSelf(ctx);
+
+			SVGGroup::draw(ctx);
 
 			ctx.pop();
 		}
@@ -1047,6 +1279,7 @@ namespace svg {
 		{"g", [](XmlElementIterator& iter) { return SVGGroup::createFromIterator(iter); }},
 		{"svg", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
 		{"defs", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
+		{"symbol", [](XmlElementIterator& iter) { return SVGGroup::createFromIterator(iter); }},
 	};
 
 

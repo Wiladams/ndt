@@ -148,6 +148,7 @@
     <ClCompile Include="svgbrowser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\BLGraphics.h" />
     <ClInclude Include="..\..\primary\chunkutil.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
     <ClInclude Include="..\..\primary\Graphics.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\..\primary\svgcolors.h" />
     <ClInclude Include="..\..\primary\textscan.h" />
     <ClInclude Include="..\..\primary\xmlscan.h" />
+    <ClInclude Include="base64.h" />
     <ClInclude Include="cssscanner.h" />
     <ClInclude Include="svgattributes.h" />
     <ClInclude Include="svgscanner.h" />

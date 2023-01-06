@@ -319,10 +319,12 @@ namespace ndt {
 	{
 		DataChunk s = chunk;
 
-		while (*s) {
+		printf("||");
+		while (s && *s) {
 			printf("%c", *s);
 			s++;
 		}
+		printf("||");
 	}
 
 	void printChunk(const DataChunk& chunk)

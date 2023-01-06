@@ -1,0 +1,28 @@
+<svg viewBox="0 0 240 40" xmlns="http://www.w3.org/2000/svg">
+ <linearGradient
+     id="XMLID_32_"
+     y2="377.82"
+     gradientUnits="userSpaceOnUse"
+     x2="286.34"
+     y1="374.32"
+     x1="279.09"><stop
+       stop-color="#006B33"
+       offset="0"
+       id="stop236" /><stop
+       stop-color="#00622F"
+       offset=".1611"
+       id="stop238" /><stop
+       stop-color="#004923"
+       offset=".4252"
+       id="stop240" /><stop
+       stop-color="#002210"
+       offset=".7572"
+       id="stop242" /><stop
+       offset="1"
+       id="stop244" />
+ </linearGradient>
+ <path stroke="#ff0"
+     d="m286.5 374.53c-2.47-0.759-8.197-0.714-7.911 2.915 3.285 1.528 6.521 1.536 9.335-1.039-0.844-1.826-2.934-2.391-4.924-1.876"
+     fill="url(#XMLID_32_)"
+     id="path246" />
+</svg>

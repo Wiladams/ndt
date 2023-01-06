@@ -5,6 +5,8 @@
 #include "maths.hpp"
 #include "coloring.h"
 #include "svgcolors.h"
+#include "graphic.hpp"
+#include "xmlscan.h"
 
 // https://www.w3.org/TR/css3-values/#numbers
 //
@@ -173,20 +175,46 @@ namespace svg {
 }
 
 namespace svg {
-
-    struct SVGObject
+    struct IMapSVGNodes;
+    
+    struct SVGObject : public IDrawable
     {
+        IMapSVGNodes* fRoot{ nullptr };
         std::string fName{};    // The tag name of the element
-
+        BLVar fVar{};
+        
 		SVGObject() = default;
         SVGObject(const SVGObject& other) :fName(other.fName) {}
-        SVGObject(const std::string& name) :fName(name) {}
+        SVGObject(IMapSVGNodes* root) :fRoot(root) {}
+        //SVGObject(const std::string& name) :fName(name) {}
 		virtual ~SVGObject() = default;
+        
+		SVGObject& operator=(const SVGObject& other) {
+            fRoot = other.fRoot;
+            fName = other.fName;
+			BLVar fVar = other.fVar;
+            
+            return *this;
+		}
+        
+		IMapSVGNodes* root() const { return fRoot; }
+        virtual void setRoot(IMapSVGNodes* root) { fRoot = root; }
         
         const std::string& name() const { return fName; }
         void setName(const std::string& name) { fName = name; }
 
-
+        // sub-classes should return something interesting as BLVar
+        // This can be used for styling, so images, colors, patterns, gradients, etc
+        virtual const BLVar& getVariant()
+        {
+            return fVar;
+        }
+        
+        void draw(IGraphics& ctx) override
+        {
+            ;// draw the object
+        }
+        
         virtual void loadSelfFromXml(const XmlElement& elem)
         {
             ;
@@ -203,21 +231,32 @@ namespace svg {
         }
     };
     
-    struct SVGVisual : public SVGObject, public IDrawable
+    struct IMapSVGNodes
+    {
+        virtual std::shared_ptr<SVGObject> findNodeById(const std::string& name) = 0;
+        virtual void addDefinition(const std::string& name, std::shared_ptr<SVGObject> obj) = 0;
+
+        virtual void setInDefinitions(bool indefs) = 0;
+        virtual bool inDefinitions() const = 0;
+    };
+    
+    /*
+    struct SVGVisual : public SVGObject
     {
         SVGVisual(): SVGObject(){}
+		SVGVisual(IMapSVGNodes* root) : SVGObject(root) {}
         SVGVisual(const SVGVisual& other) :SVGObject(other) {}
-        SVGVisual(const std::string& name) :SVGObject(name) {}
         
 		virtual ~SVGVisual() = default;
 
-		void draw(IGraphics& ctx) override
+		SVGVisual& operator=(const SVGVisual& other)
 		{
-            ;// draw the visual
+			SVGObject::operator=(other);
+			return *this;
 		}
-	
     };
-
+    */
+    
     
     // SVGVisualProperty
     // This is meant to be the base class for things that are optionally
@@ -227,25 +266,20 @@ namespace svg {
     //
     // This is used for things like; Paint, Transform, Miter, etc.
     //
-    struct SVGVisualProperty :  public SVGVisual
+    struct SVGVisualProperty :  public SVGObject
     {
         bool fIsSet{ false };
 
-        SVGVisualProperty()
-            :SVGVisual()
-            ,fIsSet(false)
-        {
-
-        }
-
+        SVGVisualProperty() :SVGObject(),fIsSet(false){}
+        SVGVisualProperty(IMapSVGNodes *root):SVGObject(root),fIsSet(false){}
         SVGVisualProperty(const SVGVisualProperty& other)
-            :SVGVisual(other)
+            :SVGObject(other)
             ,fIsSet(other.fIsSet)
         {}
 
         SVGVisualProperty operator=(const SVGVisualProperty& rhs)
         {
-            SVGVisual::operator=(rhs);
+            SVGObject::operator=(rhs);
             fIsSet = rhs.fIsSet;
             
             return *this;
@@ -475,13 +509,56 @@ namespace svg
     };
 }
 
+
+namespace svg {
+    struct SVGOpacity : public SVGVisualProperty
+    {
+        float fValue{ 1.0 };
+
+		SVGOpacity(IMapSVGNodes* iMap):SVGVisualProperty(iMap){}
+
+
+        void drawSelf(IGraphics& ctx)
+        {
+			SVGVisualProperty::drawSelf(ctx);
+            ctx.fillOpacity(fValue);
+        }
+
+		void loadSelfFromChunk(const DataChunk& inChunk)
+		{
+            fValue = toDimension(inChunk).calculatePixels(1);
+            set(true);
+		}
+
+        static std::shared_ptr<SVGOpacity> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGOpacity> sw = std::make_shared<SVGOpacity>(root);
+
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                sw->loadFromChunk(inChunk);
+
+            return sw;
+        }
+
+        static std::shared_ptr<SVGOpacity> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(root, name, elem.getAttribute(name));
+        }
+	};
+
+}
+
+
 namespace svg {
     struct SVGFontSize : public SVGVisualProperty
     {
         double fValue{ 12.0 };
 
         SVGFontSize() : SVGVisualProperty() {}
+		SVGFontSize(IMapSVGNodes* inMap) : SVGVisualProperty(inMap) {}
         SVGFontSize(const SVGFontSize& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        
         SVGFontSize& operator=(const SVGFontSize& rhs)
         {
             SVGVisualProperty::operator=(rhs);
@@ -500,9 +577,9 @@ namespace svg {
             set(true);
         }
 
-        static std::shared_ptr<SVGFontSize> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        static std::shared_ptr<SVGFontSize> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
         {
-            std::shared_ptr<SVGFontSize> sw = std::make_shared<SVGFontSize>();
+            std::shared_ptr<SVGFontSize> sw = std::make_shared<SVGFontSize>(root);
 
             // If the chunk is empty, return immediately 
             if (inChunk)
@@ -511,9 +588,9 @@ namespace svg {
             return sw;
         }
 
-        static std::shared_ptr<SVGFontSize> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGFontSize> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-            return createFromChunk(name, elem.getAttribute(name));
+            return createFromChunk(root, name, elem.getAttribute(name));
         }
     };
 
@@ -539,7 +616,9 @@ enum class ALIGNMENT : unsigned
         ALIGNMENT fValue{ ALIGNMENT::LEFT };
 
         SVGTextAnchor() : SVGVisualProperty() {}
+		SVGTextAnchor(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTextAnchor(const SVGTextAnchor& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        
         SVGTextAnchor& operator=(const SVGTextAnchor& rhs)
         {
             SVGVisualProperty::operator=(rhs);
@@ -565,9 +644,9 @@ enum class ALIGNMENT : unsigned
             set(true);
         }
 
-        static std::shared_ptr<SVGTextAnchor> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        static std::shared_ptr<SVGTextAnchor> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
         {
-            std::shared_ptr<SVGTextAnchor> sw = std::make_shared<SVGTextAnchor>();
+            std::shared_ptr<SVGTextAnchor> sw = std::make_shared<SVGTextAnchor>(root);
 
             // If the chunk is empty, return immediately 
             if (inChunk)
@@ -576,9 +655,9 @@ enum class ALIGNMENT : unsigned
             return sw;
         }
 
-        static std::shared_ptr<SVGTextAnchor> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGTextAnchor> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-            return createFromChunk(name, elem.getAttribute(name));
+            return createFromChunk(root, name, elem.getAttribute(name));
         }
     };
     
@@ -587,7 +666,9 @@ enum class ALIGNMENT : unsigned
         ALIGNMENT fValue{ ALIGNMENT::LEFT };
 
         SVGTextAlign() : SVGVisualProperty() {}
+		SVGTextAlign(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTextAlign(const SVGTextAlign& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        
         SVGTextAlign& operator=(const SVGTextAlign& rhs)
         {
             SVGVisualProperty::operator=(rhs);
@@ -608,9 +689,9 @@ enum class ALIGNMENT : unsigned
             set(true);
         }
 
-        static std::shared_ptr<SVGTextAlign> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        static std::shared_ptr<SVGTextAlign> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
         {
-            std::shared_ptr<SVGTextAlign> sw = std::make_shared<SVGTextAlign>();
+            std::shared_ptr<SVGTextAlign> sw = std::make_shared<SVGTextAlign>(root);
 
             // If the chunk is empty, return immediately 
             if (inChunk)
@@ -619,12 +700,16 @@ enum class ALIGNMENT : unsigned
             return sw;
         }
 
-        static std::shared_ptr<SVGTextAlign> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGTextAlign> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-            return createFromChunk(name, elem.getAttribute(name));
+            return createFromChunk(root, name, elem.getAttribute(name));
         }
     };
 }
+
+
+
+
 //======================================================
 // Definition of SVG Paint
 //======================================================
@@ -753,7 +838,8 @@ namespace svg {
         bool fExplicitNone{ false };
         int fPaintFor{ SVG_PaintForFill };
 
-        SVGPaint() : SVGVisualProperty() {}
+        //SVGPaint() : SVGVisualProperty() {}
+		SVGPaint(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGPaint(const SVGPaint& other) :SVGVisualProperty(other) 
         {
 
@@ -769,6 +855,12 @@ namespace svg {
 
             return *this;
         }
+
+        const BLVar& getVariant() override
+        {
+            return fPaint;
+        }
+        
         void setPaintFor(int pfor) { fPaintFor = pfor; }
         void setOpacity(float opacity)
         {
@@ -807,7 +899,9 @@ namespace svg {
 
         void loadSelfFromChunk (const DataChunk& inChunk)
         {
-            maths::vec4b c;
+            maths::vec4b c{};
+            
+            blVarAssignRgba32(&fPaint, c.value);
 
             DataChunk str = inChunk;
             DataChunk rgbStr = chunk_from_cstr("rgb(");
@@ -819,12 +913,53 @@ namespace svg {
             if (len >= 1 && *str == '#')
             {
                 c = parseColorHex(str);
+                blVarAssignRgba32(&fPaint, c.value);
                 set(true);
             }
             else if (chunk_starts_with(str, rgbStr) || chunk_starts_with(str, rgbaStr))
             {
                 c = parseColorRGB(str);
+                blVarAssignRgba32(&fPaint, c.value);
                 set(true);
+            }
+            else if (chunk_starts_with_cstr(str, "url(")) {
+                // the id we want should look like this
+				// url(#id)
+				// so we need to skip past the 'url(#'
+				// and then find the closing ')'
+				// and then we have the id
+				auto url = chunk_token(str, "(");
+				auto id = chunk_trim(chunk_token(str, ")"), wspChars);
+                
+                // The first character could be '.' or '#'
+				// so we need to skip past that
+				if (*id == '.' || *id == '#')
+					id++;
+                
+                if (!id)
+                    return;
+
+				// lookup the thing we're referencing
+                std::string idStr = toString(id);
+                
+                if (fRoot != nullptr)
+                {
+                    auto node = fRoot->findNodeById(idStr);
+                    // pull out the color value
+					if (node != nullptr)
+					{
+                        //fPaint = node->getVariant();
+                        const BLVar& aVar = node->getVariant();
+                            
+                        //BLObjectType aType = blVarGetType(&aVar);
+                        //printf("VAR TYPE: %d\n", aType);
+
+                        auto res = blVarAssignWeak(&fPaint, &aVar);
+                        if (res == BL_SUCCESS)
+							set(true);
+
+					}
+                }
             }
             else {
                 std::string cName = std::string(str.fStart, str.fEnd);
@@ -835,6 +970,7 @@ namespace svg {
                 else if (svg::colors.contains(cName))
                 {
                     c = svg::colors[cName];
+                    blVarAssignRgba32(&fPaint, c.value);
                     set(true);
                 }
                 else {
@@ -842,16 +978,17 @@ namespace svg {
                     // or a color function we don't support yet
                     // so set a default gray color
                     c = rgb(128, 128, 128);
+                    blVarAssignRgba32(&fPaint, c.value);
                     set(true);
                 }
             }
 
-            blVarAssignRgba32(&fPaint, c.value);
+
         }
 
-        static std::shared_ptr<SVGPaint> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        static std::shared_ptr<SVGPaint> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
         {
-            std::shared_ptr<SVGPaint> paint = std::make_shared<SVGPaint>();
+            std::shared_ptr<SVGPaint> paint = std::make_shared<SVGPaint>(root);
 
             // If the chunk is empty, return immediately 
             if (inChunk)
@@ -860,9 +997,9 @@ namespace svg {
             return paint;
         }
 
-        static std::shared_ptr<SVGPaint> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGPaint> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-            auto paint = createFromChunk(name, elem.getAttribute(name));
+            auto paint = createFromChunk(root, name, elem.getAttribute(name));
 
 			if (!paint->isSet())
 				return paint;
@@ -890,7 +1027,71 @@ namespace svg {
                 }
             }
 
+
             return paint;
+        }
+    };
+}
+
+//enum class FILLRULE : unsigned
+//{
+//    NON_ZERO = 0,
+//    EVEN_ODD = 1,
+//};
+namespace svg {
+    struct SVGFillRule : public SVGVisualProperty
+    {
+		unsigned int fValue{ SVG_FILLRULE_NONZERO };
+
+   
+
+        SVGFillRule() : SVGVisualProperty() {}
+		SVGFillRule(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
+        SVGFillRule(const SVGFillRule& other) :SVGVisualProperty(other)
+        {
+            fValue = other.fValue;
+        }
+
+        SVGFillRule& operator=(const SVGFillRule& rhs)
+        {
+            SVGVisualProperty::operator=(rhs);
+            fValue = rhs.fValue;
+            return *this;
+        }
+
+        void drawSelf(IGraphics& ctx)
+        {
+            ctx.fillRule(fValue);
+        }
+
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            DataChunk s = chunk_trim(inChunk, wspChars);
+
+            set(true);
+
+            if (s == "nonzero")
+                fValue = SVG_FILLRULE_NONZERO;
+            else if (s == "evenodd")
+                fValue = SVG_FILLRULE_EVENODD;
+            else
+                set(false);
+        }
+
+        static std::shared_ptr<SVGFillRule> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGFillRule> node = std::make_shared<SVGFillRule>(root);
+
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                node->loadFromChunk(inChunk);
+
+            return node;
+        }
+
+        static std::shared_ptr<SVGFillRule> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(root, name, elem.getAttribute(name));
         }
     };
 }
@@ -901,7 +1102,9 @@ namespace svg {
 		double fWidth{ 1.0};
 
 		SVGStrokeWidth() : SVGVisualProperty() {}
+		SVGStrokeWidth(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeWidth(const SVGStrokeWidth& other) :SVGVisualProperty(other) { fWidth = other.fWidth; }
+        
 		SVGStrokeWidth& operator=(const SVGStrokeWidth& rhs)
 		{
 			SVGVisualProperty::operator=(rhs);
@@ -920,9 +1123,9 @@ namespace svg {
 			set(true);
 		}
 
-		static std::shared_ptr<SVGStrokeWidth> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		static std::shared_ptr<SVGStrokeWidth> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
 		{
-			std::shared_ptr<SVGStrokeWidth> sw = std::make_shared<SVGStrokeWidth>();
+			std::shared_ptr<SVGStrokeWidth> sw = std::make_shared<SVGStrokeWidth>(root);
 
 			// If the chunk is empty, return immediately 
 			if (inChunk)
@@ -931,9 +1134,9 @@ namespace svg {
 			return sw;
 		}
 
-		static std::shared_ptr<SVGStrokeWidth> createFromXml(const std::string& name, const XmlElement& elem)
+		static std::shared_ptr<SVGStrokeWidth> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
 		{
-			return createFromChunk(name, elem.getAttribute(name));
+			return createFromChunk(root, name, elem.getAttribute(name));
 		}
     };
     
@@ -946,7 +1149,9 @@ namespace svg {
 		double fMiterLimit{ 4.0 };
         
         SVGStrokeMiterLimit() : SVGVisualProperty() {}
+		SVGStrokeMiterLimit(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeMiterLimit(const SVGStrokeMiterLimit& other) :SVGVisualProperty(other) { fMiterLimit = other.fMiterLimit; }
+        
         SVGStrokeMiterLimit& operator=(const SVGStrokeMiterLimit& rhs)
 		{
 			SVGVisualProperty::operator=(rhs);
@@ -967,9 +1172,9 @@ namespace svg {
 			set(true);
 		}
 
-		static std::shared_ptr<SVGStrokeMiterLimit> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		static std::shared_ptr<SVGStrokeMiterLimit> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
 		{
-			std::shared_ptr<SVGStrokeMiterLimit> sw = std::make_shared<SVGStrokeMiterLimit>();
+			std::shared_ptr<SVGStrokeMiterLimit> sw = std::make_shared<SVGStrokeMiterLimit>(root);
 
 			// If the chunk is empty, return immediately 
 			if (inChunk)
@@ -979,9 +1184,9 @@ namespace svg {
 		}
 
         // stroke-miterlimit
-		static std::shared_ptr<SVGStrokeMiterLimit> createFromXml(const std::string& name, const XmlElement& elem)
+		static std::shared_ptr<SVGStrokeMiterLimit> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
 		{
-			return createFromChunk(name, elem.getAttribute(name));
+			return createFromChunk(root, name, elem.getAttribute(name));
 		}
 	
     };
@@ -991,6 +1196,7 @@ namespace svg {
         SVGlineCap fLineCap{ SVG_CAP_BUTT };
 
 		SVGStrokeLineCap() : SVGVisualProperty() {}
+		SVGStrokeLineCap(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeLineCap(const SVGStrokeLineCap& other) :SVGVisualProperty(other)
 		{
 			fLineCap = other.fLineCap;
@@ -1024,9 +1230,9 @@ namespace svg {
 			    set(false);
 		}
 
-		static std::shared_ptr<SVGStrokeLineCap> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		static std::shared_ptr<SVGStrokeLineCap> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
 		{
-			std::shared_ptr<SVGStrokeLineCap> stroke = std::make_shared<SVGStrokeLineCap>();
+			std::shared_ptr<SVGStrokeLineCap> stroke = std::make_shared<SVGStrokeLineCap>(root);
 
 			// If the chunk is empty, return immediately 
 			if (inChunk)
@@ -1035,9 +1241,9 @@ namespace svg {
 			return stroke;
 		}
 
-		static std::shared_ptr<SVGStrokeLineCap> createFromXml(const std::string& name, const XmlElement& elem )
+		static std::shared_ptr<SVGStrokeLineCap> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem )
 		{
-			return createFromChunk(name, elem.getAttribute(name));
+			return createFromChunk(root, name, elem.getAttribute(name));
 		}
 	};
 
@@ -1048,7 +1254,9 @@ namespace svg {
         SVGlineJoin fLineJoin{ SVG_JOIN_MITER_BEVEL };
 
 		SVGStrokeLineJoin() : SVGVisualProperty() {}
+		SVGStrokeLineJoin(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeLineJoin(const SVGStrokeLineJoin& other) :SVGVisualProperty(other), fLineJoin(other.fLineJoin) {}  
+        
         SVGStrokeLineJoin& operator=(const SVGStrokeLineJoin& rhs)
         {
 			SVGVisualProperty::operator=(rhs);
@@ -1082,9 +1290,9 @@ namespace svg {
 
         }
         
-		static std::shared_ptr<SVGStrokeLineJoin> createFromChunk(const std::string& name, const DataChunk& inChunk)
+		static std::shared_ptr<SVGStrokeLineJoin> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
 		{
-			std::shared_ptr<SVGStrokeLineJoin> stroke = std::make_shared<SVGStrokeLineJoin>();
+			std::shared_ptr<SVGStrokeLineJoin> stroke = std::make_shared<SVGStrokeLineJoin>(root);
 
 			// If the chunk is empty, return immediately
 			if (inChunk)
@@ -1094,9 +1302,9 @@ namespace svg {
 		}
 
         // stroke-linejoin
-        static std::shared_ptr<SVGStrokeLineJoin> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGStrokeLineJoin> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-			return createFromChunk(name, elem.getAttribute(name));
+			return createFromChunk(root, name, elem.getAttribute(name));
         }
         
     };
@@ -1114,12 +1322,8 @@ namespace svg {
         maths::rectf fRect{};
 
 
-        SVGViewbox()
-            :SVGVisualProperty()
-        {
-            ;
-        }
-
+        SVGViewbox():SVGVisualProperty(){}
+		SVGViewbox(IMapSVGNodes* iMap):SVGVisualProperty(iMap){}
         SVGViewbox(const SVGViewbox& other)
             : SVGVisualProperty(other)
             ,fRect(other.fRect)
@@ -1152,7 +1356,7 @@ namespace svg {
 			fRect.h = (float)nextNumber(s, numDelims);
         }
 
-        static SVGViewbox createFromChunk(const DataChunk& inChunk)
+        static SVGViewbox createFromChunk(IMapSVGNodes* root, const DataChunk& inChunk)
         {
             SVGViewbox vbox;
 
@@ -1166,9 +1370,9 @@ namespace svg {
         }
 
         // "viewBox"
-        static SVGViewbox createFromXml(const XmlElement& elem, const std::string &name)
+        static SVGViewbox createFromXml(IMapSVGNodes* root, const XmlElement& elem, const std::string &name)
         {
-            return createFromChunk(elem.getAttribute(name));
+            return createFromChunk(root, elem.getAttribute(name));
         }
     };
     
@@ -1368,9 +1572,10 @@ namespace svg
 
     struct SVGTransform : public SVGVisualProperty
     {
-        BLMatrix2D fTransform;
+        BLMatrix2D fTransform{};
 
         SVGTransform() : SVGVisualProperty() {}
+		SVGTransform(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTransform(const SVGTransform& other)
             :SVGVisualProperty(other)
             ,fTransform(other.fTransform)
@@ -1385,6 +1590,8 @@ namespace svg
 
             return *this;
         }
+
+        BLMatrix2D& getTransform() { return fTransform; }
 
 		void loadSelfFromChunk(const DataChunk& inChunk) override
 		{
@@ -1455,9 +1662,9 @@ namespace svg
 			ctx.transform(fTransform.m);
         }
 
-        static std::shared_ptr<SVGTransform> createFromChunk(const std::string& name, const DataChunk& inChunk)
+        static std::shared_ptr<SVGTransform> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
         {
-			std::shared_ptr<SVGTransform> tform = std::make_shared<SVGTransform>();
+			std::shared_ptr<SVGTransform> tform = std::make_shared<SVGTransform>(root);
 
             // If the chunk is empty, return immediately 
             if (inChunk)
@@ -1467,9 +1674,9 @@ namespace svg
         }
 
         // "transform"
-        static std::shared_ptr<SVGTransform> createFromXml(const std::string& name, const XmlElement& elem)
+        static std::shared_ptr<SVGTransform> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
         {
-            return createFromChunk(name, elem.getAttribute(name));
+            return createFromChunk(root, name, elem.getAttribute(name));
         }
     };
     

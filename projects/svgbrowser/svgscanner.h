@@ -10,11 +10,8 @@
 #include "geometry.h"
 
 #include "chunkutil.h"
-
-
 #include "mmap.hpp"
 #include "xmlscan.h"
-
 #include "svgshapes.h"
 
 
@@ -143,9 +140,6 @@ namespace svg {
 			return true;
         }
         
- 
-        
-
 		static std::shared_ptr<SVGDocument> createFromFilename(const std::string& filename)
 		{
 			auto doc = std::make_shared<SVGDocument>(filename);

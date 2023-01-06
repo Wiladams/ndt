@@ -113,8 +113,8 @@ namespace ndt {
 		bool isEnd() const { return fElementKind == XML_ELEMENT_TYPE_END_TAG; }
 		bool isComment() const { return fElementKind == XML_ELEMENT_TYPE_COMMENT; }
 		bool isProcessingInstruction() const { return fElementKind == XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION; }
-		bool isContent() const { return fElementKind == XML_ELEMENT_TYPE_CONTENT; }
-        
+        bool isContent() const { return fElementKind == XML_ELEMENT_TYPE_CONTENT; }
+		bool isCData() const { return fElementKind == XML_ELEMENT_TYPE_CDATA; }
         
         void addAttribute(std::string& name, const DataChunk& valueChunk)
         {

@@ -71,8 +71,8 @@ private:
             cy = b + ry;
             break;
         case ELLIPSEMODE::CENTER:
-            rx = c / 2;
-            ry = d / 2;
+            rx = c ;
+            ry = d ;
             cx = a;
             cy = b;
             break;
@@ -219,18 +219,6 @@ public:
         initContext(BLContext());
     }
 
-/*
-    BLGraphics(BLContext& ctx)
-        : fCtx(ctx)
-        , fUseFill(true)
-        , fEllipseMode(ELLIPSEMODE::CENTER)
-        , fRectMode(RECTMODE::CORNER)
-        , fAngleMode(RADIANS)
-    {
-        initContext(ctx);
-    }
-*/
-
     virtual ~BLGraphics() = default;
 
 
@@ -279,11 +267,20 @@ public:
     void strokeWeight(float weight) override { fCtx.setStrokeWidth(weight); }
 
     // Attribute State Stack
-    void push() override { fCtx.save(); }
-    void pop() override { fCtx.restore(); }
+    bool push() override 
+    { 
+        auto res = fCtx.save(); 
+        return res == BL_SUCCESS;
+    }
+    
+    bool pop() override 
+    { 
+        auto res = fCtx.restore(); 
+        return res == BL_SUCCESS;
+    }
 
     // Coordinate transformation
-    virtual void transform(double* values) override { fCtx.transform(BLMatrix2D(values[0], values[1], values[2], values[3], values[4], values[5])); }
+    void transform(double* values) override { fCtx.transform(BLMatrix2D(values[0], values[1], values[2], values[3], values[4], values[5])); }
     void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
     void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
     void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }
@@ -293,19 +290,19 @@ public:
     // Pixel management
     void noFill() override { fUseFill = false; fCtx.setFillStyle(BLRgba32(0, 0, 0, 0)); }
     void fill(const BLVarCore& s) override { fUseFill = true; fCtx.setFillStyle(s); }
-    //void fill(const BLGradientCore& g) override { fUseFill = true; fCtx.setFillStyle(g); }
     void fill(const Pixel& c) override { fUseFill = true; fCtx.setFillStyle(c); }
-
+	void fillOpacity(double opacity) override { fCtx.setFillAlpha(opacity); }
+	void fillRule(int rule) override { fCtx.setFillRule((BLFillRule)rule); }
+    
     void noStroke() override { fCtx.setStrokeStyle(BLRgba32(0, 0, 0, 0)); }
     void stroke(const BLVarCore& s) override { fCtx.setStrokeStyle(s); }
-    //void stroke(const BLGradientCore& g) override {fCtx.setStrokeStyle(g);}
     void stroke(const Pixel& c) override {fCtx.setStrokeStyle(c); }
 
 
     // Synchronization
     // Wait for any outstanding drawing commands to be applied
     //
-    void flush() override
+    bool flush() override
     {
         BLResult bResult = fCtx.flush(BL_CONTEXT_FLUSH_SYNC);
         if (bResult != BL_SUCCESS)
@@ -314,6 +311,8 @@ public:
         }
 
         resetCommandCount();
+
+        return bResult == BL_SUCCESS;
     }
 
     void loadPixels()
@@ -334,14 +333,14 @@ public:
             return;
     }
 
-     void updatePixels()
+    void updatePixels()
     {
         flush();
         fImageData.reset();
     }
 
     // Background management
-     void clear() override
+    void clear() override
     {
         //printf("BLGraphics.clear\n");
         fCtx.save();
@@ -350,13 +349,13 @@ public:
         flush();
     }
 
-     virtual void clearRect(double x, double y, double w, double h) override
+    void clearRect(double x, double y, double w, double h) override
     {
         fCtx.clearRect(x, y, w, h);
         incrCmd();
     }
 
-     void background(const Pixel& c) override
+    void background(const Pixel& c) override
     {
         fCtx.save();
         if (c.value == 0) {
@@ -428,8 +427,8 @@ public:
             rect(params.x, params.y, params.w, params.h, 1, 1);
     }
 
-     void ellipse(double a, double b, double c, double d) override 
-     {
+    void ellipse(double a, double b, double c, double d) override
+    {
         BLEllipse params = BLGraphics::calcEllipseParams(fEllipseMode, a, b, c, d);
 
         if (fUseFill) {
@@ -443,7 +442,7 @@ public:
 
     void circle(double cx, double cy, double diameter) override { ellipse(cx, cy, diameter, diameter); }
 
-    virtual  void triangle(double x1, double y1, double x2, double y2, double x3, double y3) override
+    void triangle(double x1, double y1, double x2, double y2, double x3, double y3) override
     {
         BLTriangle tri = { x1,y1, x2,y2,x3,y3 };
 

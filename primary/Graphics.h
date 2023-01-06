@@ -154,7 +154,11 @@ enum class DRAWSTYLE : unsigned
   StrokeAndFill
 };
 
-
+enum class FILLRULE : unsigned
+{
+    NON_ZERO = 0,
+    EVEN_ODD = 1,
+};
 
 
 /*
@@ -178,9 +182,9 @@ public:
 	virtual void strokeMiterLimit(float limit) = 0;
     virtual void strokeWeight(float weight) = 0;
 
-    virtual void push()=0;
-    virtual void pop()=0;
-    virtual void flush() = 0;
+    virtual bool push()=0;
+    virtual bool pop()=0;
+    virtual bool flush() = 0;
 
     virtual void transform(double* values) = 0;
     virtual void translate(double dx, double dy)=0;
@@ -217,7 +221,9 @@ public:
     virtual void fill(int r, int g, int b) { fill(color(r, g, b, 255)); }
     virtual void fill(int gray, int alpha) { fill(color(gray, gray, gray, alpha)); }
     virtual void fill(int gray) { fill(color(gray, gray, gray, 255)); }
-
+    virtual void fillOpacity(double opacity) = 0;
+    virtual void fillRule(int rule) = 0;
+    
 
     virtual void stroke(const BLVarCore& s) = 0;
     //virtual void stroke(const BLGradientCore& g) = 0;
