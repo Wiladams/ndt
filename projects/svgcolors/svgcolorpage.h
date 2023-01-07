@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphic.hpp"
-#include "svgparser.h"
+#include "svgcolors.h"
 
 
 

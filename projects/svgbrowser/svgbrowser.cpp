@@ -6,6 +6,9 @@
 #include "cssscanner.h"
 #include "base64.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 using namespace p5;
 using namespace ndt;
 using namespace ndt_debug;
@@ -15,20 +18,81 @@ BLVar gradVar{};
 
 struct SVGWindow : public GWindow
 {
+	maths::vec2f fLastDragLoc{};
+	
+
+
 	SVGWindow(float x, float y, float w, float h) : GWindow(x,y,w,h)
 	{
 		//setFrame(frame);
 	}
 
+
+
+	virtual void keyEvent(const KeyboardEvent& e) override
+	{
+		switch (e.activity)
+		{
+		case KEYPRESSED:
+			if (e.keyCode == VK_RIGHT)
+			{
+				translateBoundsBy(10, 0);
+
+			}
+			else if (e.keyCode == VK_LEFT)
+			{
+				translateBoundsBy(-10, 0);
+			}
+			break;
+		}
+
+		if (fActiveGraphic != nullptr)
+			fActiveGraphic->keyEvent(e);
+	}
+	
 	void mouseEvent(const MouseEvent& e) override
 	{
+		//printf("MOUSE MOVING: %d (%3.0f,%3.0f)\n", e.activity, e.x, e.y);
 
-		if (e.activity == MOUSEWHEEL)
+
+		switch (e.activity) {
+		case MOUSEWHEEL:
 		{
-			translateBoundsBy(0, e.delta * 10);
+			if (e.delta < 0)
+				scaleBoundsBy(0.9f, 0.9f);
+			else
+				scaleBoundsBy(1.1f, 1.1f);
+
+			needsRedraw(true);
+		}
+		break;
+
+		case MOUSEPRESSED:
+		{
+			fLastDragLoc = { e.x, e.y };
+		}
+		break;
+
+		case MOUSEMOVED:
+		{
+			if (!isMoving() && fIsDragging)
+			{
+
+				float diffx = e.x - fLastDragLoc.x;
+				float diffy = e.y - fLastDragLoc.y;
+				//printf("MOUSE DRAGGING: %d (%3.0f,%3.0f)\n", e.activity, diffx, diffy);
+
+				translateBoundsBy(diffx, diffy);
+				fLastDragLoc = { e.x, e.y };
+
+				needsRedraw(true);
+			}
+		}
+		break;
 		}
 
 		GWindow::mouseEvent(e);
+
 	}
 
 };

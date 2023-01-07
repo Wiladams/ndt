@@ -43,6 +43,7 @@ protected:
 	bool fIsMoveable=false;
 
 	maths::vec2f fTranslation{};
+	maths::vec2f fScale{ 1,1 };
 	maths::rectf fBounds{};
 	maths::rectf fFrame{};
 	
@@ -114,6 +115,18 @@ public:
 	void moveBy(const maths::vec2f& dxy) { moveTo(frame().x + dxy.x, frame().y+dxy.y); }
 	void moveBy(const float dx, const float dy) { return moveBy({ dx,dy }); }
 
+	void scaleBoundsTo(float x, float y)
+	{
+		fScale.x = x;
+		fScale.y = y;
+	}
+
+	void scaleBoundsBy(float dx, float dy)
+	{
+		fScale.x *= dx;
+		fScale.y *= dy;
+	}
+	
 	// Changes the coordinate system of the bounds
 	void translateBoundsTo(float x, float y)
 	{

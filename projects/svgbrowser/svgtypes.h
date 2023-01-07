@@ -331,10 +331,15 @@ namespace svg {
     // return a number next in a list of numbers
     static INLINE double nextNumber(DataChunk& inChunk, const charset& delims)
     {
+        // First, trim the front of whitespace
+        inChunk = chunk_ltrim(inChunk, wspChars);
+        
+        // now go for the next number separated by delimiters
         DataChunk numChunk;
         numChunk = chunk_token(inChunk, delims);
-
-        return chunk_to_double(numChunk);
+        double anum = chunk_to_double(numChunk);
+        
+        return anum;
     }
 
     static INLINE int64_t toInteger(const DataChunk& inChunk)

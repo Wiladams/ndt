@@ -30,13 +30,16 @@ protected:
 
 	// Window movement
 	maths::vec2f fLastMouse;
-	bool fIsMoveable;
-	bool fIsMoving;
-
+	bool fIsMoveable{ true };
+	bool fIsMoving{ false };
+	bool fIsDragging{ false };
+	
 	// For drawing and composing
 	Pixel fBackgroundColor;
 	User32PixelMap fPixelMap;
 	Surface fSurface;
+	bool fNeedsRedraw{ true };
+
 
 public:
 
@@ -58,6 +61,9 @@ public:
 		fSurface.stroke(Pixel(0, 0, 0));
 		fSurface.strokeWeight(1.0);
 	}
+
+	const bool needsRedraw() const { return fNeedsRedraw; }
+	void needsRedraw(bool needsIt) { fNeedsRedraw = needsIt; }
 
 	void setMoveable(const bool moveable)
 	{
@@ -141,18 +147,25 @@ public:
 	void draw(IGraphics & ctx) override
 	{
 
-		
-		drawBackground(fSurface);
-		
-		fSurface.push();
-		// Apply user specified transform
-		fSurface.translate(fTranslation.x, fTranslation.y);
-		drawSelf(fSurface);
+		if (needsRedraw())
+		{
+			drawBackground(fSurface);
 
-		fSurface.pop();
-		
-		drawForeground(fSurface);
-		
+			fSurface.push();
+
+			// Apply user specified transform
+			fSurface.translate(fTranslation.x, fTranslation.y);
+			fSurface.scale(fScale.x, fScale.y);
+
+			drawSelf(fSurface);
+
+			fSurface.pop();
+
+			drawForeground(fSurface);
+
+			needsRedraw(false);
+		}
+
 		compose(ctx);
 	}
 
@@ -198,16 +211,20 @@ public:
 		switch (lev.activity)
 		{
 		case MOUSEPRESSED:
+			fIsDragging = true;
+			fLastMouse = { lev.x, lev.y };
+
 			if (inTitleBar(lev.x, lev.y) && fIsMoveable)
 			{
 				fIsMoving = true;
-				fLastMouse = { lev.x, lev.y };
+
 
 				return ;
 			}
 			break;
 
 		case MOUSERELEASED:
+			fIsDragging = false;
 			if (isMoving()) {
 				fIsMoving = false;
 
@@ -215,17 +232,18 @@ public:
 			}
 			break;
 
-		case MOUSEMOVED:
-			if (isMoving()) {
-				// move
-				auto dx = (lev.x - fLastMouse.x);
-				auto dy = (lev.y - fLastMouse.y);
-				//printf("GWindow.mouseEvent(moved): %3.2f %3.2f\n", dx, dy);
+		case MOUSEMOVED: {
+			auto dx = (lev.x - fLastMouse.x);
+			auto dy = (lev.y - fLastMouse.y);
 
+			fLastMouse = { lev.x-dx, lev.y-dy };
+			
+			if (isMoving()) {
+				//printf("GWindow.mouseEvent(moved): %3.2f %3.2f\n", dx, dy);
 				moveBy(dx, dy);
 
-				fLastMouse = { lev.x-dx, lev.y-dy };
-				return ;
+				return;
+			}
 			}
 			break;
 

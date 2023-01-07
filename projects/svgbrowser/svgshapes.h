@@ -7,6 +7,7 @@
 #include "svgtypes.h"
 #include "cssscanner.h"
 #include "base64.h"
+#include "stb_image.h"
 
 #include <string>
 #include <array>
@@ -619,21 +620,29 @@ namespace svg {
 			DataChunk inChunk = href;
 			if (encoding == "base64")
 			{
-				// allocate some memory to decode into
-				uint8_t* outBuff{ new uint8_t[size(href)]{} };
-				DataChunk outChunk = chunk_from_data_size(outBuff, size(href));
+				if ((mime=="image/gif"))
+				{ 
+					// decode a .gif image
+					// gif image decoder
 
-				auto outData = base64::b64tobin(inChunk, outChunk);
-				if (outData)
-				{
-					BLResult res = fImage.readFromData(outData.fStart, size(outData));
-
-					printf("RES: %d\n", res);
 				}
+				else if ((mime == "image/png") || (mime=="image/jpeg"))
+				{
+					// allocate some memory to decode into
+					uint8_t* outBuff{ new uint8_t[size(href)]{} };
+					DataChunk outChunk = chunk_from_data_size(outBuff, size(href));
 
-				delete [] outBuff;
+					auto outData = base64::b64tobin(inChunk, outChunk);
+					if (outData)
+					{
+						BLResult res = fImage.readFromData(outData.fStart, size(outData));
+
+						printf("RES: %d\n", res);
+					}
+
+					delete[] outBuff;
+				}
 			}
-
 
 		}
 
@@ -1209,9 +1218,9 @@ namespace svg {
 	
 	struct SVGRootNode : public SVGGroup
 	{
-		float fWidth;
-		float fHeight;
-		SVGViewbox fViewbox;
+		float fWidth{};
+		float fHeight{};
+		SVGViewbox fViewbox{};
 		bool fPreserveAspectRatio = false;
 
 		SVGRootNode() :SVGGroup(nullptr) { setRoot(this); }
@@ -1266,8 +1275,6 @@ namespace svg {
 
 			// Draw the children
 			drawSelf(ctx);
-
-			SVGGroup::draw(ctx);
 
 			ctx.pop();
 		}
