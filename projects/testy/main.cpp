@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "bstream.h"
+#include "chunkutil.h"
 
 using namespace ndt;
 
@@ -9,9 +9,9 @@ void main()
 {
 	char buff[1024]{};
 
-	auto cur = make_cursor_size(&buff[0], sizeof(buff));
+	auto cur = chunk_from_data_size(buff, 1024);
 
-	printf("Cursor Size: %zd\n", size(cur));
+	printf("Cursor Size: %zd\n", chunk_size(cur));
 
 	put_u8(cur, 0x80);
 	put_u16_le(cur, 0x0160);

@@ -59,15 +59,15 @@ namespace ndt
 
 
 		static INLINE DataChunk make_chunk(const void* starting, const void* ending) noexcept;
-		//static INLINE DataChunk make_chunk_size(void* data, size_t sz) noexcept;
-		//static INLINE DataChunk make_chunk_cstr(const char* str) noexcept;
+
 		static INLINE DataChunk chunk_from_data_size(void* data, size_t sz) noexcept;
 		static INLINE DataChunk chunk_from_cstr(const char* str) noexcept;
 		
 		static INLINE const uint8_t* data(DataChunk& dc) noexcept;
 		static INLINE const uint8_t* begin(DataChunk& dc) noexcept;
 		static INLINE const uint8_t* end(DataChunk& dc) noexcept;
-		static INLINE size_t size(const DataChunk& dc) noexcept;
+		//static INLINE size_t size(const DataChunk& dc) noexcept;
+		static INLINE size_t chunk_size(const DataChunk& dc) noexcept;
 		static INLINE bool chunk_empty(const DataChunk& dc) noexcept;
 		static INLINE size_t copy(DataChunk& a, const DataChunk& b) noexcept;
 		static INLINE size_t copy_to_cstr(char *str, size_t len, const DataChunk& a) noexcept;
@@ -128,24 +128,25 @@ namespace ndt
 	static INLINE const uint8_t* end(DataChunk& dc) noexcept { return dc.fEnd; }
 	
 	static INLINE const uint8_t* data(DataChunk& dc)  noexcept { return dc.fStart; }
-	static INLINE size_t size(const DataChunk& dc)  noexcept { return dc.fEnd - dc.fStart; }
+	//static INLINE size_t size(const DataChunk& dc)  noexcept { return dc.fEnd - dc.fStart; }
+	static INLINE size_t chunk_size(const DataChunk& dc)  noexcept { return dc.fEnd - dc.fStart; }
 	static INLINE bool chunk_empty(const DataChunk& dc)  noexcept { return dc.fEnd == dc.fStart; }
 	static INLINE size_t copy(DataChunk& a, const DataChunk& b) noexcept 
 	{ 
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		memcpy((uint8_t *)a.fStart, b.fStart, maxBytes);
 		return maxBytes;
 	}
 
 	static INLINE int compare(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes);
 	}
 
 	static INLINE int comparen(const DataChunk &a, const DataChunk &b, int n) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		if (maxBytes > n)
 			maxBytes = n;
 		return memcmp(a.fStart, b.fStart, maxBytes);
@@ -153,28 +154,28 @@ namespace ndt
 	
 	static INLINE int comparen_cstr(const DataChunk &a, const char *b, int n) noexcept
 	{
-		size_t maxBytes = size(a) < n ? size(a) : n;
+		size_t maxBytes = chunk_size(a) < n ? chunk_size(a) : n;
 		return memcmp(a.fStart, b, maxBytes);
 	}
 	
 	static INLINE bool chunk_is_equal(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		if (size(a) != size(b))
+		if (chunk_size(a) != chunk_size(b))
 			return false;
-		return memcmp(a.fStart, b.fStart, size(a)) == 0;
+		return memcmp(a.fStart, b.fStart, chunk_size(a)) == 0;
 	}
 
 	static INLINE bool chunk_is_equal_cstr(const DataChunk &a, const char *cstr) noexcept
 	{
 		size_t len = strlen(cstr);
-		if (size(a) != len)
+		if (chunk_size(a) != len)
 			return false;
 		return memcmp(a.fStart, cstr, len) == 0;
 	}
 
 	static INLINE void chunk_clear(DataChunk& dc) noexcept
 	{
-		memset((uint8_t *)dc.fStart, 0, size(dc));
+		memset((uint8_t *)dc.fStart, 0, chunk_size(dc));
 	}
 	
 	static INLINE void chunk_truncate(DataChunk& dc) noexcept
@@ -184,8 +185,8 @@ namespace ndt
 	
 	static INLINE DataChunk & chunk_skip(DataChunk &dc, int n) noexcept
 	{
-		if (n > size(dc))
-			n = size(dc);
+		if (n > chunk_size(dc))
+			n = chunk_size(dc);
 		dc.fStart += n;
 		
 		return dc;
@@ -219,47 +220,47 @@ namespace ndt
 	
 	static INLINE bool operator==(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		if (size(a) != size(b))
+		if (chunk_size(a) != chunk_size(b))
 			return false;
-		return memcmp(a.fStart, b.fStart, size(a)) == 0;
+		return memcmp(a.fStart, b.fStart, chunk_size(a)) == 0;
 	}
 	
 	static INLINE bool operator==(const DataChunk& a, const char* b) noexcept
 	{
 		size_t len = strlen(b);
-		if (size(a) != len)
+		if (chunk_size(a) != len)
 			return false;
 		return memcmp(a.fStart, b, len) == 0;
 	}
 
 	static INLINE bool operator!=(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		if (size(a) != size(b))
+		if (chunk_size(a) != chunk_size(b))
 			return true;
-		return memcmp(a.fStart, b.fStart, size(a)) != 0;
+		return memcmp(a.fStart, b.fStart, chunk_size(a)) != 0;
 	}
 	
 	static INLINE bool operator<(const DataChunk &a, const DataChunk&b) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes) < 0;
 	}
 
 	static INLINE bool operator>(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes) > 0;
 	}
 	
 	static INLINE bool operator<=(const DataChunk &a, const DataChunk &b) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes) <= 0;
 	}
 	
 	static INLINE bool operator>=(const DataChunk& a, const DataChunk& b) noexcept
 	{
-		size_t maxBytes = size(a) < size(b) ? size(a) : size(b);
+		size_t maxBytes = chunk_size(a) < chunk_size(b) ? chunk_size(a) : chunk_size(b);
 		return memcmp(a.fStart, b.fStart, maxBytes) >= 0;
 	}
 	

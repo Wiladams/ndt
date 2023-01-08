@@ -201,6 +201,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console", "console\console.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "svgbrowser", "svgbrowser\svgbrowser.vcxproj", "{6240DDC9-69B9-4A39-9476-9F3A2778EC9D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgradient", "testgradient\testgradient.vcxproj", "{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -953,6 +955,14 @@ Global
 		{6240DDC9-69B9-4A39-9476-9F3A2778EC9D}.Release|x64.Build.0 = Release|x64
 		{6240DDC9-69B9-4A39-9476-9F3A2778EC9D}.Release|x86.ActiveCfg = Release|Win32
 		{6240DDC9-69B9-4A39-9476-9F3A2778EC9D}.Release|x86.Build.0 = Release|Win32
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Debug|x64.ActiveCfg = Debug|x64
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Debug|x64.Build.0 = Debug|x64
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Debug|x86.ActiveCfg = Debug|Win32
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Debug|x86.Build.0 = Debug|Win32
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Release|x64.ActiveCfg = Release|x64
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Release|x64.Build.0 = Release|x64
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Release|x86.ActiveCfg = Release|Win32
+		{1D785BDA-CDE0-4FE9-9232-D05B78E0A23F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

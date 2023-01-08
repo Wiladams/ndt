@@ -2475,12 +2475,10 @@
      stroke="#D08BEA"
      d="m295.87 277.21c2.732 5.122 4.556 10.408 6.01 16.036 0.662 2.562 1.451 5.122 2.09 7.667 0.334 1.331 0.356 3.896 1.4 4.916 3.517 3.438 2.548-5.262 2.258-7.008-0.814-4.902-2.539-9.983-4.416-14.519-1.672-4.041-3.059-8.416-5.509-12.074-0.722-1.078-5.5-7.548-1.407-5.765 1.972 0.859 3.425 4.408 4.316 6.166 2.429 4.792 5.528 9.274 7.608 14.248 3.463 8.282 4.679 16.359 6.15 25.025 0.318 1.874 0.712 8.419 3.259 5.323 2.982-3.625-0.888-10.879-1.35-14.671-0.132-1.079-0.68-2.986 1.009-3.269 2.288-0.382 1.929 2.854 2.083 4.179 0.964 8.288 0.361 17.493 2.674 25.51 2.021 7.004 3.039 0.256 3.268-3.748 0.337-5.874-0.234-12.506-1.426-18.259-1.084-5.236-3.319-10.498-5.25-15.489-1.12-2.894-3.453-9.388-6.292-10.891-0.329 5.042 4.054 9.549 3.226 14.521-3.416-2.36-4.565-10.39-5.942-14.231-2.113-5.898-5.322-10.224-8.992-15.299-2.075-2.869-3.969-6.312-6.893-8.392-1.334-0.949-6.3-4.576-6.861-2.062-0.363 1.627 1.959 2.582 2.886 3.457 0.09 0.085 2.987 4.035 1.441 3.596-3.211-0.913-7.252-5.073-9.916-7.19-1.439-1.144-3.434-2.549-3.405-4.685 0.054-4.067 4.251 0.942 5.067 1.512 0.839 0.586 3.212 2.629 3.697 0.432 0.336-1.526-2.471-2.651-3.365-3.359-1.206-0.955-2.072-1.762-3.327-2.399-5.094-2.587-10.625-4.395-15.924-6.592-2.423-1.005-7.396-3.413-10.016-2.941-3.092 0.558-2.316 1.529-0.649 2.692 3.496 2.439 8.424 2.468 12 4.175 1.761 0.84 14.514 3.324 9.257 7.366-5.053-2.417-10.142-5.064-15.74-6.365-2.729-0.634-15.786-4.426-14.209 2.023 2.879 0.189 5.76 0.003 8.607 0.392 1.623 0.222 3.397 0.343 5.002 0.725 7.497 1.781 14.289 6.432 20.674 10.526 3.08 1.975 5.835 4.313 8.341 7.074 3.49 3.84 6.1 7.03 8.56 11.63z"
      fill="none"
-     id="path1820" /><g
-     id="g9927"
-     style="fill:#666666"
-     transform="matrix(0.07619099,0,0,0.07619099,304.76073,400.00268)"><g
-       transform="matrix(0.11111111,0,0,-0.11111111,-370.55556,415)"
-       id="g9929"><use
+     id="path1820" />
+     <g id="g9927" style="fill:#666666" transform="matrix(0.07619099,0,0,0.07619099,304.76073,400.00268)">
+     <g transform="matrix(0.11111111,0,0,-0.11111111,-370.55556,415)" id="g9929">
+       <use
          xlink:href="#W"
          id="use9931"
          x="0"
@@ -2887,7 +2885,8 @@
          id="use9963-4"
          y="0"
          width="100%"
-         height="100%" /></g></g><g
+         height="100%" /></g></g>
+         <g
      id="g19907"><g
        id="g14813"
        transform="matrix(0.76190991,0,0,0.76190987,772.63006,542.68211)"><circle
@@ -3055,7 +3054,8 @@
              height="100%" /></g></g></g><g
        style="fill:#666666;fill-opacity:1"
        transform="matrix(0.76190991,0,0,0.73629344,772.46315,541.50625)"
-       id="g19870"><text
+       id="g19870">
+       <text
          xml:space="preserve"
          style="color:#000000;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.62502098px;line-height:80.00000119%;font-family:'Gill Sans MT';-inkscape-font-specification:'Gill Sans MT, Bold';text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#4d4d4d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;"
          x="0.14244126"
@@ -3066,11 +3066,13 @@
            id="tspan19822"
            x="0.14244126"
            y="42.488602"
-           style="letter-spacing:0.22320041px;fill:#4d4d4d;fill-opacity:1;" /><tspan
+           style="letter-spacing:0.22320041px;fill:#4d4d4d;fill-opacity:1;" />
+           <tspan
            sodipodi:role="line"
            x="0.14244209"
            y="51.78862"
-           id="tspan19824">COMMONS</tspan></text>
+           id="tspan19824">COMMONS</tspan>
+           </text>
 <text
          xml:space="preserve"
          style="color:#000000;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.64326668px;line-height:80.00000119%;font-family:'Gill Sans MT';-inkscape-font-specification:'Gill Sans MT, Bold';text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#4d4d4d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;"
@@ -3084,7 +3086,8 @@
            x="0.32260382"
            y="41.975315"
            style="letter-spacing:0.14834765px;fill:#4d4d4d;fill-opacity:1;">WIKIMEDIA</tspan></text>
-</g></g><text
+</g></g>
+<text
      xml:space="preserve"
      style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15.00010014px;line-height:89.99999762%;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
      x="614.85071"

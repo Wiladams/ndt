@@ -33,16 +33,41 @@ namespace ndt {
 	struct charset {
 		std::bitset<256> bits;
 
+		charset(const char achar)
+		{
+			addChar(achar);
+		}
+		
 		charset(const char* chars)
+		{
+			addChars(chars);
+
+		}
+
+		charset& addChar(const char achar)
+		{
+			bits.set(achar);
+			return *this;
+		}
+		
+		charset& addChars(const char* chars)
 		{
 			size_t len = strlen(chars);
 			for (size_t i = 0; i < len; i++)
 				bits.set(chars[i]);
-		}
 
+			return *this;
+		}
+		
 		charset& operator+=(const char achar)
 		{
 			bits.set(achar);
+			return *this;
+		}
+		
+		charset& operator+=(const char* chars)
+		{
+			addChars(chars);
 			return *this;
 		}
 		
@@ -53,7 +78,12 @@ namespace ndt {
 			return result;
 		}
 		
-
+		charset operator+(const char* chars) const
+		{
+			charset result(*this);
+			result += chars;
+			return result;
+		}
 		
 		// This one makes us look like an array
 		inline bool operator [](const size_t idx) const

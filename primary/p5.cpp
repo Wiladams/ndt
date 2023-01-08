@@ -515,9 +515,9 @@ namespace p5 {
         gAppSurface->ellipse(a, b, c, d);
     }
 
-    void circle(REAL cx, REAL cy, REAL diameter) noexcept
+    void circle(REAL cx, REAL cy, REAL value) noexcept
     {
-        ellipse(cx, cy, diameter / 2.0f, diameter / 2.0f);
+        ellipse(cx, cy, value, value);
     }
 
     void triangle(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3) noexcept

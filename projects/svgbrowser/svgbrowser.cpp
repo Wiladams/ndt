@@ -97,15 +97,30 @@ struct SVGWindow : public GWindow
 
 };
 
+
+void testSomething()
+{
+	DataChunk param = ndt::chunk_from_cstr("matrix(0.656, 0, 0, 0.656, 427.7833, -461.2639)");
+	DataChunk s = param;
+	DataChunk field = chunk_trim(chunk_token(param, "("), wspChars);
+	printChunk(field);
+	param = chunk_trim(param, wspChars + ")");
+	printChunk(param);
+
+	BLMatrix2D m{};
+	s = parseMatrix(s, m);
+
+	printf("%3.2f %3.2f %3.2f %3.2f %3.2f %3.2f \n", m.m[0], m.m[1], m.m[2], m.m[3], m.m[4], m.m[5]);
+}
+
 void setup()
 {
 
-	//testBase64();
+	//testSomething();
 	
-	//createCanvas(1024, 768);
+	//createCanvas(1920, 1080);
 	fullscreen();
 
-	//testShape();
 	
 	dropFiles();	// allow dropping of files
 
@@ -116,16 +131,8 @@ void setup()
 	frameRate(30);
 }
 
-void testGradient()
-{
-	BLGradient gradient;
-	gradient.create(BLRadialGradientValues(mouseX, mouseY, mouseX, mouseY, canvasHeight / 2), BL_EXTEND_MODE_PAD);
-	gradient.addStop(0.0, BLRgba32(0x00000000));
-	gradient.addStop(1.0, BLRgba32(0xFFFFFFFF));
-	blVarAssignWeak(&gradVar, &gradient);
-	gAppSurface->fill(gradVar);
-	gAppSurface->rect(0, 0, canvasWidth, canvasHeight);
-}
+
+
 
 void draw()
 {
@@ -138,7 +145,7 @@ void draw()
 
 	//background(255);
 
-	//testGradient();
+
 	
 	noStroke();
 	fill(0x7f);

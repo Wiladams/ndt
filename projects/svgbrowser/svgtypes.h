@@ -7,6 +7,7 @@
 #include "svgcolors.h"
 #include "graphic.hpp"
 #include "xmlscan.h"
+#include "cssscanner.h"
 
 // https://www.w3.org/TR/css3-values/#numbers
 //
@@ -713,7 +714,33 @@ enum class ALIGNMENT : unsigned
 }
 
 
+namespace svg {
+    void parseStyleAttribute(const DataChunk & inChunk, XmlElement &styleElement)
+    {
+        // Turn the style element into attributes of an XmlElement, 
+        // then, the caller can use that to more easily parse whatever they're
+        // looking for.
+        DataChunk styleChunk = inChunk;
+        
+        if (styleChunk) {
+            // use CSSInlineIterator to iterate through the key value pairs
+            // creating a visual attribute, using the gSVGPropertyCreation map
+            CSSInlineStyleIterator iter(styleChunk);
 
+            while (iter.next())
+            {
+                std::string name = std::string((*iter).first.fStart, (*iter).first.fEnd);
+                if (!name.empty() && (*iter).second)
+                {
+                    styleElement.addAttribute(name, (*iter).second);
+                }
+            }
+
+        }
+
+        return;
+    }
+}
 
 //======================================================
 // Definition of SVG Paint
@@ -784,7 +811,7 @@ namespace svg {
         // Get the first token, which is red
         // if it's not there, then return gray
         auto num = chunk_token(nums, ",");
-        if (size(num) < 1)
+        if (chunk_size(num) < 1)
             return rgba(128, 128, 128, 0);
 
         while (num)
@@ -843,7 +870,6 @@ namespace svg {
         bool fExplicitNone{ false };
         int fPaintFor{ SVG_PaintForFill };
 
-        //SVGPaint() : SVGVisualProperty() {}
 		SVGPaint(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGPaint(const SVGPaint& other) :SVGVisualProperty(other) 
         {
@@ -902,6 +928,45 @@ namespace svg {
 
         }
 
+        void loadFromUrl(const DataChunk &inChunk)
+        {
+            DataChunk str = inChunk;
+            
+            // the id we want should look like this
+            // url(#id)
+            // so we need to skip past the 'url(#'
+            // and then find the closing ')'
+            // and then we have the id
+            auto url = chunk_token(str, "(");
+            auto id = chunk_trim(chunk_token(str, ")"), wspChars);
+
+            // The first character could be '.' or '#'
+            // so we need to skip past that
+            if (*id == '.' || *id == '#')
+                id++;
+
+            if (!id)
+                return;
+
+            // lookup the thing we're referencing
+            std::string idStr = toString(id);
+
+            if (fRoot != nullptr)
+            {
+                auto node = fRoot->findNodeById(idStr);
+                
+                // pull out the color value
+                if (node != nullptr)
+                {
+                    const BLVar& aVar = node->getVariant();
+
+                    auto res = blVarAssignWeak(&fPaint, &aVar);
+                    if (res == BL_SUCCESS)
+                        set(true);
+                }
+            }
+        }
+        
         void loadSelfFromChunk (const DataChunk& inChunk)
         {
             maths::vec4b c{};
@@ -914,7 +979,7 @@ namespace svg {
 
             size_t len = 0;
 
-            len = size(str);
+            len = chunk_size(str);
             if (len >= 1 && *str == '#')
             {
                 c = parseColorHex(str);
@@ -927,44 +992,9 @@ namespace svg {
                 blVarAssignRgba32(&fPaint, c.value);
                 set(true);
             }
-            else if (chunk_starts_with_cstr(str, "url(")) {
-                // the id we want should look like this
-				// url(#id)
-				// so we need to skip past the 'url(#'
-				// and then find the closing ')'
-				// and then we have the id
-				auto url = chunk_token(str, "(");
-				auto id = chunk_trim(chunk_token(str, ")"), wspChars);
-                
-                // The first character could be '.' or '#'
-				// so we need to skip past that
-				if (*id == '.' || *id == '#')
-					id++;
-                
-                if (!id)
-                    return;
-
-				// lookup the thing we're referencing
-                std::string idStr = toString(id);
-                
-                if (fRoot != nullptr)
-                {
-                    auto node = fRoot->findNodeById(idStr);
-                    // pull out the color value
-					if (node != nullptr)
-					{
-                        //fPaint = node->getVariant();
-                        const BLVar& aVar = node->getVariant();
-                            
-                        //BLObjectType aType = blVarGetType(&aVar);
-                        //printf("VAR TYPE: %d\n", aType);
-
-                        auto res = blVarAssignWeak(&fPaint, &aVar);
-                        if (res == BL_SUCCESS)
-							set(true);
-
-					}
-                }
+            else if (chunk_starts_with_cstr(str, "url(")) 
+            {
+                loadFromUrl(str);
             }
             else {
                 std::string cName = std::string(str.fStart, str.fEnd);
@@ -1031,6 +1061,17 @@ namespace svg {
                     paint->setOpacity(onum);
                 }
             }
+			else if (name == "stop-color")
+			{
+				//paint->setPaintFor(SVG_PaintForStopColor);
+				// look for stop-opacity as well
+				auto o = elem.getAttribute("stop-opacity");
+				if (o)
+				{
+					auto onum = toNumber(o);
+					paint->setOpacity(onum);
+				}
+			}
 
 
             return paint;

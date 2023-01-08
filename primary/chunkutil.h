@@ -52,7 +52,7 @@ namespace ndt
 		
 		static INLINE size_t copy_to_cstr(char* str, size_t len, const DataChunk& a) noexcept
 		{
-			size_t maxBytes = size(a) < len ? size(a) : len;
+			size_t maxBytes = chunk_size(a) < len ? chunk_size(a) : len;
 			memcpy(str, a.fStart, maxBytes);
 			str[maxBytes] = 0;
 
@@ -105,7 +105,7 @@ namespace ndt
 		{
 			const uint8_t* start = a.fStart;
 			const uint8_t* end = a.fEnd;
-			if (startAt < size(a))
+			if (startAt < chunk_size(a))
 			{
 				start += startAt;
 				if (start + sz < end)
@@ -121,12 +121,12 @@ namespace ndt
 		
 		static INLINE bool chunk_starts_with(const DataChunk& a, const DataChunk& b) noexcept
 		{
-			return chunk_is_equal(chunk_subchunk(a, 0, size(b)), b);
+			return chunk_is_equal(chunk_subchunk(a, 0, chunk_size(b)), b);
 		}
 		
 		static INLINE bool chunk_starts_with_char(const DataChunk& a, const uint8_t b) noexcept
 		{
-			return size(a) > 0 && a.fStart[0] == b;
+			return chunk_size(a) > 0 && a.fStart[0] == b;
 		}
 
 		static INLINE bool chunk_starts_with_cstr(const DataChunk& a, const char* b) noexcept
@@ -136,12 +136,12 @@ namespace ndt
 		
 		static INLINE bool chunk_ends_with(const DataChunk& a, const DataChunk& b) noexcept
 		{
-			return chunk_is_equal(chunk_subchunk(a, size(a)-size(b), size(b)), b);
+			return chunk_is_equal(chunk_subchunk(a, chunk_size(a)- chunk_size(b), chunk_size(b)), b);
 		}
 		
 		static INLINE bool chunk_ends_with_char(const DataChunk& a, const uint8_t b) noexcept
 		{
-			return size(a) > 0 && a.fEnd[-1] == b;
+			return chunk_size(a) > 0 && a.fEnd[-1] == b;
 		}
 		
 		static INLINE bool chunk_ends_with_cstr(const DataChunk& a, const char* b) noexcept
@@ -153,6 +153,9 @@ namespace ndt
 		// spit it into two chunks, 
 		// Returns - the first chunk before delimeters
 		// a - adjusted to reflect the rest of the input after delims
+		// If delimeter NOT found
+		// returns the entire input chunk
+		// and 'a' is set to an empty chunk
 		static INLINE DataChunk chunk_token(DataChunk& a, const charset& delims) noexcept
 		{
 			const uint8_t* start = a.fStart;

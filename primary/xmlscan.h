@@ -8,7 +8,15 @@
 //
 // This file represents a very small, fast, simple XML scanner
 // The purpose is to break a chunk of XML down into component parts, that higher
-// level code can then use to build a DOM or other structure.
+// level code can then use to do whatever it wants.
+// 
+// You can construct an iterator, and use that to scan through the XML
+// using a 'pull model'.
+// 
+// One key aspect of the design is that it operates on a span of memory.  It does
+// no deal with files, or streams, or anything high level like that, just a chunk.
+// It does not alter the chunk, just reads bytes from it, and returns chunks in 
+// responses.
 //
 // The fundamental unit is the XmlElement, which encapsulates a single XML element
 // and its attributes.
@@ -34,6 +42,7 @@ namespace ndt {
 
     enum XML_ELEMENT_TYPE {
         XML_ELEMENT_TYPE_INVALID = 0
+		, XML_ELEMENT_TYPE_XMLDECL
         , XML_ELEMENT_TYPE_CONTENT
         , XML_ELEMENT_TYPE_SELF_CLOSING
         , XML_ELEMENT_TYPE_START_TAG
@@ -41,16 +50,54 @@ namespace ndt {
         , XML_ELEMENT_TYPE_COMMENT
         , XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION
         , XML_ELEMENT_TYPE_CDATA
+        , XML_ELEMENT_TYPE_DOCTYPE
     };
 
+	struct XmlName {
+        ndt::DataChunk fNamespace{};
+        ndt::DataChunk fName{};
+
+        XmlName() = default;
+        
+        XmlName(const DataChunk& inChunk)
+        {
+            reset(inChunk);
+        }
+
+        XmlName(const XmlName &other):fNamespace(other.fNamespace), fName(other.fName){}
+        
+        XmlName& operator =(const XmlName& rhs)
+        {
+            fNamespace = rhs.fNamespace;
+            fName = rhs.fName;
+            return *this;
+        }
+        
+        XmlName& reset(const DataChunk& inChunk)
+        {
+            fName = inChunk;
+            fNamespace = chunk_token(fName, ':');
+            if (chunk_size(fName)<1)
+            {
+                fName = fNamespace;
+                fNamespace = {};
+            }
+            return *this;
+        }
+        
+		DataChunk name() const { return fName; }
+		DataChunk ns() const { return fNamespace; }
+	};
+    
     // Representation of an xml element
     // The xml scanner will generate these
     struct XmlElement
     {
     private:
         int fElementKind{ XML_ELEMENT_TYPE_INVALID };
-        ndt::DataChunk fData{};
+        DataChunk fData{};
 
+        XmlName fXmlName{};
         std::string fName{};
         std::map<std::string, DataChunk> fAttributes{};
 
@@ -115,6 +162,8 @@ namespace ndt {
 		bool isProcessingInstruction() const { return fElementKind == XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION; }
         bool isContent() const { return fElementKind == XML_ELEMENT_TYPE_CONTENT; }
 		bool isCData() const { return fElementKind == XML_ELEMENT_TYPE_CDATA; }
+		bool isDoctype() const { return fElementKind == XML_ELEMENT_TYPE_DOCTYPE; }
+
         
         void addAttribute(std::string& name, const DataChunk& valueChunk)
         {
@@ -172,6 +221,7 @@ namespace ndt {
 
             tagName.fEnd = s.fStart;
             fName = std::string(tagName.fStart, tagName.fEnd);
+			fXmlName.reset(tagName);
 
             fData = s;
         }
@@ -323,7 +373,45 @@ namespace ndt {
             fState = st;
         }
 
+        DataChunk readTag()
+        {
+            DataChunk elementChunk = fSource;
+            elementChunk.fEnd = fSource.fStart;
+            
+            while (fSource && *fSource != '>')
+                fSource++;
 
+            elementChunk.fEnd = fSource.fStart;
+            elementChunk = chunk_rtrim(elementChunk, wspChars);
+            
+            // Get past the '>' if it was there
+            fSource++;
+            
+            return elementChunk;
+        }
+        
+        DataChunk readDoctype()
+        {
+            DataChunk elementChunk = fSource;
+            elementChunk.fEnd = fSource.fStart;
+            
+            // Read until we see ]>
+			while (fSource && (*fSource != ']'))
+				fSource++;
+
+            if ((*fSource == ']') && (fSource[1] == '>'))
+            {
+                // We want the closing ']' as part of the element
+                fSource++;
+                elementChunk.fEnd = fSource.fStart;
+                elementChunk = chunk_rtrim(elementChunk, wspChars);
+
+                // But, skip past the '>' of the tag
+                fSource++;
+            }
+
+			return elementChunk;
+        }
         
         // Simple routine to scan XML content
         // the input 's' is a chunk representing the xml to 
@@ -380,36 +468,47 @@ namespace ndt {
                     // up to, but not including, the '>' character
                     DataChunk elementChunk = fSource;
                     elementChunk.fEnd = fSource.fStart;
-
-                    while (fSource && *fSource != '>')
-                        fSource++;
-
-                    elementChunk.fEnd = fSource.fStart;
-
-                    // Element
-                    elementChunk = chunk_rtrim(elementChunk, wspChars);
-
+                    int kind = XML_ELEMENT_TYPE_START_TAG;
+                    
+                    if (chunk_starts_with_cstr(fSource, "?xml"))
+                    {
+						kind = XML_ELEMENT_TYPE_XMLDECL;
+                        elementChunk = readTag();
+                    } 
+                    else if (chunk_starts_with_cstr(fSource, "?"))
+                    {
+                        kind = XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION;
+                        elementChunk = readTag();
+                    }
+                    else if (chunk_starts_with_cstr(fSource, "!DOCTYPE"))
+                    {
+                        kind = XML_ELEMENT_TYPE_DOCTYPE;
+                        elementChunk = readDoctype();
+                    }
+                    else if (chunk_starts_with_cstr(fSource, "!--"))
+                    {
+						kind = XML_ELEMENT_TYPE_COMMENT;
+                        elementChunk = readTag();
+                    }
+                    else if (chunk_starts_with_cstr(fSource, "![CDATA["))
+                    {
+                        kind = XML_ELEMENT_TYPE_CDATA;
+                        elementChunk = readTag();
+                    }
+					else if (chunk_starts_with_cstr(fSource, "/"))
+					{
+						kind = XML_ELEMENT_TYPE_END_TAG;
+						elementChunk = readTag();
+					}
+					else {
+						elementChunk = readTag();
+                        if (chunk_ends_with_char(elementChunk, '/'))
+                            kind = XML_ELEMENT_TYPE_SELF_CLOSING;
+					}
+                    
                     fState = XML_ITERATOR_STATE_CONTENT;
 
-                    // Move past the '>' character
-                    // preparing for next iteration
-                    if (fSource)
-                        fSource++;
                     mark = fSource;
-
-                    // output an element
-                    int kind = XML_ELEMENT_TYPE_START_TAG;
-                    if (chunk_starts_with_cstr(elementChunk, "![CDATA["))
-                        kind = XML_ELEMENT_TYPE_CDATA;
-                    else if (chunk_starts_with_cstr(elementChunk, "!--"))
-                        kind = XML_ELEMENT_TYPE_COMMENT;
-                    else if (chunk_starts_with_char(elementChunk, '?'))
-                        kind = XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION;
-                    else if (chunk_ends_with_char(elementChunk, '/'))
-                        kind = XML_ELEMENT_TYPE_SELF_CLOSING;
-                    else if (chunk_starts_with_char(elementChunk, '/'))
-                        kind = XML_ELEMENT_TYPE_END_TAG;
-
 
 					fCurrentElement.reset(kind, elementChunk, true);
 
@@ -443,8 +542,9 @@ namespace ndt_debug {
     ,{ndt::XML_ELEMENT_TYPE_COMMENT, "COMMENT"}
     ,{ndt::XML_ELEMENT_TYPE_PROCESSING_INSTRUCTION, "PROCESSING_INSTRUCTION"}
     ,{ndt::XML_ELEMENT_TYPE_CDATA, "CDATA"}
-
-    };
+	,{ndt::XML_ELEMENT_TYPE_XMLDECL, "XMLDECL"}
+	,{ndt::XML_ELEMENT_TYPE_DOCTYPE, "DOCTYPE"}
+	};
 
     void printXmlElement(const ndt::XmlElement& elem)
     {

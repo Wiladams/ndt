@@ -629,13 +629,13 @@ namespace svg {
 				else if ((mime == "image/png") || (mime=="image/jpeg"))
 				{
 					// allocate some memory to decode into
-					uint8_t* outBuff{ new uint8_t[size(href)]{} };
-					DataChunk outChunk = chunk_from_data_size(outBuff, size(href));
+					uint8_t* outBuff{ new uint8_t[chunk_size(href)]{} };
+					DataChunk outChunk = chunk_from_data_size(outBuff, chunk_size(href));
 
 					auto outData = base64::b64tobin(inChunk, outChunk);
 					if (outData)
 					{
-						BLResult res = fImage.readFromData(outData.fStart, size(outData));
+						BLResult res = fImage.readFromData(outData.fStart, chunk_size(outData));
 
 						printf("RES: %d\n", res);
 					}
@@ -957,22 +957,113 @@ namespace svg {
 		BLGradient fGradient{};
 		BLVar fGradientVar{};
 
-		SVGGradient(IMapSVGNodes* root) :SVGCompoundNode(root) {}
+		SVGGradient(IMapSVGNodes* root) :SVGCompoundNode(root) 
+		{
+			fGradient.setExtendMode(BL_EXTEND_MODE_PAD);
+		}
+		SVGGradient(const SVGGradient& other) = delete;
+		SVGGradient operator=(const SVGGradient& other) = delete;
 		
 		const BLVar& getVariant() override
 		{
+			//auto nStops = fGradient.size();
+			//printf("STOPS: %d\n", nStops);
+			
 			blVarAssignWeak(&fGradientVar, &fGradient);
 			return fGradientVar;
 		}
 		
+		// Load a URL Reference
+		void loadFromUrl(const DataChunk& inChunk)
+		{
+			DataChunk str = inChunk;
+
+			auto id = chunk_trim(str, wspChars);
+			
+			// The first character could be '.' or '#'
+			// so we need to skip past that
+			if (*id == '.' || *id == '#')
+				id++;
+
+			if (!id)
+				return;
+
+			// lookup the thing we're referencing
+			std::string idStr = toString(id);
+
+			if (fRoot != nullptr)
+			{
+				auto node = fRoot->findNodeById(idStr);
+
+				// pull out the color value
+				if (node != nullptr)
+				{
+					const BLVar& aVar = node->getVariant();
 
 
+					if (aVar.isGradient())
+						fGradient = aVar.as<BLGradient>();
+
+				}
+			}
+		}
+		
+		// This is called to load specific attributes
+		void loadSelfFromXml(const XmlElement& elem) override
+		{
+			//printf("LOAD FROM SELF\n");
+			//ndt_debug::printXmlElement(elem);
+			
+
+			
+			// look for an href template
+			DataChunk href = elem.getAttribute("href");
+			if (!href)
+				href = elem.getAttribute("xlink:href");
+
+			if (href)
+				loadFromUrl(href);
+			
+
+			
+			SVGCompoundNode::loadSelfFromXml(elem);
+
+		}
+		
+		
 		virtual void loadSelfClosingNode(const XmlElement& elem)
 		{
+			printf("SVGGradientNode::loadSelfClosingNode()\n");
+			ndt_debug::printXmlElement(elem);
+			
 			SVGDimension dim{};
 			dim.loadSelfFromChunk(elem.getAttribute("offset"));
 			auto offset = dim.calculatePixels(1, 0);
-			auto c = SVGPaint::createFromXml(root(), "stop-color", elem);
+
+
+			std::shared_ptr<SVGPaint> c = nullptr;
+			
+			// If the node specifies a stop color, then use that
+			if (elem.getAttribute("stop-color"))
+			{
+				// the color could either be wrappep up in a 'style' attribute
+				// or directly as 'stop-color' and 'stop-opacity'
+				c = SVGPaint::createFromXml(root(), "stop-color", elem);
+			}
+			else if (elem.getAttribute("style"))
+			{
+				// Otherwise, look for a style attribute
+				// If found, parse it, then look for a stop-color in there
+				DataChunk style = elem.getAttribute("style");
+				if (style)
+				{
+					XmlElement styleElement;
+					// Turn the style into an XmlElement so we can get at the attributes
+					parseStyleAttribute(style, styleElement);
+					c = SVGPaint::createFromXml(root(), "stop-color", styleElement);
+				}
+			}
+
 
 			if (c != nullptr)
 			{
@@ -990,29 +1081,34 @@ namespace svg {
 	
 	struct SVGLinearGradient : public SVGGradient
 	{
-		SVGLinearGradient(IMapSVGNodes* root) :SVGGradient(root) {}
+		SVGLinearGradient(IMapSVGNodes* root) :SVGGradient(root) 
+		{
+			fGradient.setType(BL_GRADIENT_TYPE_LINEAR);
+		}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
+			// load those first, because there might be an 'href' attribute
+			// and we want that to happen before we set our own stuff.
 			SVGGradient::loadSelfFromXml(elem);
 			
-			double x1 = toDimension(elem.getAttribute("x1")).calculatePixels(96);
-			double x2 = toDimension(elem.getAttribute("x2")).calculatePixels(96);
-			double y1 = toDimension(elem.getAttribute("y1")).calculatePixels(96);
-			double y2 = toDimension(elem.getAttribute("y2")).calculatePixels(96);
+			double x1 = toDimension(elem.getAttribute("x1")).calculatePixels();
+			double y1 = toDimension(elem.getAttribute("y1")).calculatePixels();
+			double x2 = toDimension(elem.getAttribute("x2")).calculatePixels();
+			double y2 = toDimension(elem.getAttribute("y2")).calculatePixels();
 			
-			// gradientTransform should have been read in as commonAttribute
+
 			// gradientUnits needs to be read in here
 			BLLinearGradientValues gradientValues = { x1, y1, x2, y2 };
-			fGradient = BLGradient(gradientValues);
+			fGradient.setValues(gradientValues);
 
+
+			// Get the transform
 			if (elem.getAttribute("gradientTransform"))
 			{
 				auto  tform = SVGTransform::createFromXml(root(), "gradientTransform", elem);
 				fGradient.setMatrix(tform->getTransform());
 			}
-
-			//fGradientVar = fGradient;
 		}
 
 
@@ -1021,14 +1117,21 @@ namespace svg {
 	struct SVGRadialGradient : public SVGGradient
 	{
 
-		SVGRadialGradient(IMapSVGNodes* root) :SVGGradient(root) {}
+		SVGRadialGradient(IMapSVGNodes* root) :SVGGradient(root) 
+		{
+			fGradient.setType(BL_GRADIENT_TYPE_RADIAL);
+		}
 
 
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
+			//printf("SVGRadialGradient::loadSelfFromXml\n");
+			//ndt_debug::printXmlElement(elem);
+			
 			SVGGradient::loadSelfFromXml(elem);
 
-			BLRadialGradientValues gradientValues(0.5,0.5,0.5,0.5,0);
+			//BLRadialGradientValues gradientValues(0.5,0.5,0.5,0.5,0);
+			BLRadialGradientValues gradientValues{};
 			
 			if (elem.getAttribute("cx") && elem.getAttribute("cy") && elem.getAttribute("r"))
 			{
@@ -1037,8 +1140,8 @@ namespace svg {
 				double r = toDimension(elem.getAttribute("r")).calculatePixels(96);
 
 				gradientValues.x0 = cx;
-				gradientValues.x1 = cx;
 				gradientValues.y0 = cy;
+				gradientValues.x1 = cx;
 				gradientValues.y1 = cy;
 				gradientValues.r0 = r;
 			}
@@ -1050,9 +1153,11 @@ namespace svg {
 			if (elem.getAttribute("fy"))
 				gradientValues.y1 = toDimension(elem.getAttribute("fy")).calculatePixels(96);
 			
-			// gradientTransform should have been read in as commonAttribute
+			fGradient.setValues(gradientValues);
+			
 			// gradientUnits needs to be read in here
-			fGradient = BLGradient(gradientValues);
+
+
 
 			if (elem.getAttribute("gradientTransform"))
 			{
@@ -1060,7 +1165,6 @@ namespace svg {
 				fGradient.setMatrix(tform->getTransform());
 			}
 
-			//fGradientVar = fGradient;
 		}
 
 	};
@@ -1134,6 +1238,19 @@ namespace svg {
 
 		void loadSelfClosingNode(const XmlElement& elem) override
 		{
+			if (elem.name() == "linearGradient")
+			{
+				auto node = std::make_shared<SVGLinearGradient>(root());
+				node->loadSelfFromXml(elem);
+				addNode(node);
+			}
+			else if (elem.name() == "radialGradient")
+			{
+				auto node = std::make_shared<SVGRadialGradient>(root());
+				node->loadSelfFromXml(elem);
+				addNode(node);
+			}
+			
 			auto it = gShapeCreationMap.find(elem.name());
 			if (it != gShapeCreationMap.end())
 			{
@@ -1145,6 +1262,8 @@ namespace svg {
 		void loadCompoundNode(XmlElementIterator& iter) override
 		{
 			const ndt::XmlElement& elem = *iter;
+			
+
 			
 			// Add a child, and call loadIterator
 			if (elem.name() == "g")
