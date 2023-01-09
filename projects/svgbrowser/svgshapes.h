@@ -535,18 +535,67 @@ namespace svg {
 		}
 	};
 
+	//
+	// Turn a base64 encoded inlined image into a BLImage
+	// We are handed the attribute, typically coming from a 
+	// href of an <image> tage, or as a lookup for a 
+	// fill, or stroke pain attribute.
+	//
+	bool parseImage(const DataChunk& inChunk, BLImage& img)
+	{
+		bool success{ false };
+		DataChunk value = inChunk;
+
+		// figure out what kind of encoding we're dealing with
+		// value starts with: 'data:image/png;base64,<base64 encoded image>
+		//
+		DataChunk data = chunk_token(value, ":");
+		auto mime = chunk_token(value, ";");
+		auto encoding = chunk_token(value, ",");
+
+
+		//DataChunk inChunk = value;
+		if (encoding == "base64")
+		{
+			if ((mime == "image/gif"))
+			{
+				// decode a .gif image
+				// gif image decoder
+
+			}
+			else if ((mime == "image/png") || (mime == "image/jpeg"))
+			{
+				// allocate some memory to decode into
+				uint8_t* outBuff{ new uint8_t[chunk_size(value)]{} };
+				DataChunk outChunk = chunk_from_data_size(outBuff, chunk_size(value));
+
+				auto outData = base64::b64tobin(value, outChunk);
+
+				if (outData)
+				{
+					BLResult res = img.readFromData(outData.fStart, chunk_size(outData));
+					success = (res == BL_SUCCESS);
+					printf("parseImage, readFromData: %d  %dX%d\n", res, img.size().w, img.size().h);
+				}
+
+				delete[] outBuff;
+
+			}
+		}
+
+		return success;
+	}
 
 	struct SVGImageNode : public SVGShape
 	{
 		BLImage fImage{};
-		BLPattern fPattern{};
+		//BLPattern fPattern{};
 		double fWidth{};
 		double fHeight{};
 		double fX = 0;
 		double fY = 0;
 
 		
-		//SVGImageNode() : SVGShape() {}
 		SVGImageNode(IMapSVGNodes* root) : SVGShape(root) {}
 		SVGImageNode(const SVGImageNode& other) :SVGShape(other) { fImage = other.fImage; fWidth = other.fWidth; fHeight = other.fHeight; }
 		SVGImageNode& operator=(const SVGImageNode& rhs)
@@ -563,13 +612,7 @@ namespace svg {
 		{
 			if (fVar.isNull())
 			{
-				fPattern.create(fImage);
-				
-				blVarAssignWeak(&fVar, &fPattern);
-				
-				auto atype = blVarGetType(&fVar);
-				printf("SVGImageNode: %d\n", atype);
-
+				blVarAssignWeak(&fVar, &fImage);
 			}
 
 			return fVar;
@@ -579,8 +622,6 @@ namespace svg {
 		{
 			if (fImage.empty())
 				return;
-			
-			//ctx.image(fImage, 0, 0);
 
 			ctx.scaleImage(fImage, 0, 0, fImage.size().w, fImage.size().h, fX, fY, fWidth, fHeight);
 		}
@@ -597,7 +638,7 @@ namespace svg {
 			fY = toDimension(elem.getAttribute("y")).calculatePixels(96);
 			
 			// docode and load the image
-			fImage.create(fWidth, fHeight, BL_FORMAT_PRGB32);
+			//fImage.create(fWidth, fHeight, BL_FORMAT_PRGB32);
 			//fCtx.begin(fImage);
 			//fCtx.setFillStyle(BLRgba32(255, 255, 0, 255));
 			//fCtx.fillAll();
@@ -611,39 +652,7 @@ namespace svg {
 			if (!href)
 				return;
 
-			// figure out what kind of encoding we're dealing with
-			auto data = chunk_token(href, ":");
-			auto mime = chunk_token(href, ";");
-			auto encoding = chunk_token(href, ",");
-
-
-			DataChunk inChunk = href;
-			if (encoding == "base64")
-			{
-				if ((mime=="image/gif"))
-				{ 
-					// decode a .gif image
-					// gif image decoder
-
-				}
-				else if ((mime == "image/png") || (mime=="image/jpeg"))
-				{
-					// allocate some memory to decode into
-					uint8_t* outBuff{ new uint8_t[chunk_size(href)]{} };
-					DataChunk outChunk = chunk_from_data_size(outBuff, chunk_size(href));
-
-					auto outData = base64::b64tobin(inChunk, outChunk);
-					if (outData)
-					{
-						BLResult res = fImage.readFromData(outData.fStart, chunk_size(outData));
-
-						printf("RES: %d\n", res);
-					}
-
-					delete[] outBuff;
-				}
-			}
-
+			parseImage(href, fImage);
 		}
 
 		static std::shared_ptr<SVGImageNode> createFromXml(IMapSVGNodes* iMap, const XmlElement& elem)
@@ -812,7 +821,6 @@ namespace svg {
 						// Ignore anything else
 						printf("IGNORING: %s\n", elem.name().c_str());
 						ndt_debug::printXmlElement(elem);
-						//printXmlElement(elem);
 					}
 				}
 				break;
@@ -917,6 +925,7 @@ namespace svg {
 	//============================================================
 	struct SVGPatternNode :public SVGCompoundNode
 	{
+		BLPattern fPattern{};
 		BLMatrix2D fTransform{};
 		double fWidth{};
 		double fHeight{};
@@ -924,16 +933,29 @@ namespace svg {
 
 		SVGPatternNode(IMapSVGNodes* root) :SVGCompoundNode(root) {}
 
+		const BLVar& getVariant() override
+		{
+			// This should be called
+			if (fVar.isNull())
+			{
+				fVar = fPattern;
+			}
+			
+			return fVar;
+		}
+		
 		void drawSelf(IGraphics& ctx) override
 		{
+			// This should not be called
+			// a pattern is used as a fill for other visuals
 			SVGCompoundNode::drawSelf(ctx);
-			ctx.transform(fTransform.m);
 		}
 
 		virtual void loadSelfFromXml(const XmlElement& elem)
 		{
 			SVGCompoundNode::loadSelfFromXml(elem);
 
+			fPattern.setExtendMode(BL_EXTEND_MODE_PAD);
 			fWidth = toDimension(elem.getAttribute("width")).calculatePixels(1,0,96);
 			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(1,0,96);
 
@@ -941,10 +963,47 @@ namespace svg {
 			{
 				auto  tform = SVGTransform::createFromXml(root(), "patternTransform", elem);
 				fTransform = tform->fTransform;
+				fPattern.setMatrix(fTransform);
 			}
 		}
 
+		// Here we get called while loading child nodes
+		// look for <use> here
+		void loadSelfClosingNode(const XmlElement& elem) override
+		{
+			printf("SVGPatternNode::loadSelfClosingNode\n");
+			ndt_debug::printXmlElement(elem);
 
+			// if it's a 'use' node, then get the href field
+			// and use that to find the referenced node
+			if (elem.name() == "use")
+			{
+				auto href = elem.getAttribute("href");
+				if (!href)
+					href = elem.getAttribute("xlink:href");
+				
+				if (href)
+				{
+					auto refNode = root()->findNodeByHref(href);
+					if (refNode)
+					{
+						// Now we have the referenced node
+						// Get the varient from it, and if it's type is image
+						// then assign it to our pattern.
+						const BLVar & avar = refNode->getVariant();
+
+						//auto atype = blVarGetType(&avar);
+						//printf("SVGPatternNode: %d\n", atype);
+
+						
+						if (avar.type() == BL_OBJECT_TYPE_IMAGE)
+						{
+							fPattern.setImage(avar.as<BLImage>());
+						}
+					}
+				}
+			}
+		}
 
 	};
 	
@@ -1003,7 +1062,6 @@ namespace svg {
 
 					if (aVar.isGradient())
 						fGradient = aVar.as<BLGradient>();
-
 				}
 			}
 		}
@@ -1013,8 +1071,6 @@ namespace svg {
 		{
 			//printf("LOAD FROM SELF\n");
 			//ndt_debug::printXmlElement(elem);
-			
-
 			
 			// look for an href template
 			DataChunk href = elem.getAttribute("href");
@@ -1033,8 +1089,8 @@ namespace svg {
 		
 		virtual void loadSelfClosingNode(const XmlElement& elem)
 		{
-			printf("SVGGradientNode::loadSelfClosingNode()\n");
-			ndt_debug::printXmlElement(elem);
+			//printf("SVGGradientNode::loadSelfClosingNode()\n");
+			//ndt_debug::printXmlElement(elem);
 			
 			SVGDimension dim{};
 			dim.loadSelfFromChunk(elem.getAttribute("offset"));
@@ -1189,7 +1245,7 @@ namespace svg {
 		bool inDefinitions() const override { return fInDefinitions; }
 		void setInDefinitions(bool indefs) override { fInDefinitions = indefs; };
 
-		std::shared_ptr<SVGObject> findNodeById(const std::string& name)
+		std::shared_ptr<SVGObject> findNodeById(const std::string& name) override
 		{
 			if (fRoot == this)
 				return fDefinitions[name];
@@ -1197,6 +1253,27 @@ namespace svg {
 				return fRoot->findNodeById(name);
 			
 			return nullptr;
+		}
+		
+		// Load a URL Reference
+		std::shared_ptr<SVGObject> findNodeByHref(const DataChunk& inChunk) override
+		{
+			DataChunk str = inChunk;
+
+			auto id = chunk_trim(str, wspChars);
+
+			// The first character could be '.' or '#'
+			// so we need to skip past that
+			if (*id == '.' || *id == '#')
+				id++;
+
+			if (!id)
+				return nullptr;
+
+			// lookup the thing we're referencing
+			std::string idStr = toString(id);
+
+			return findNodeById(idStr);
 		}
 		
 		void addNode(std::shared_ptr < SVGVisualNode > node) override

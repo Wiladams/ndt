@@ -27,8 +27,13 @@ struct SVGWindow : public GWindow
 		//setFrame(frame);
 	}
 
-
-
+	void setDocument(std::shared_ptr<SVGDocument> doc)
+	{
+		// calculate the bounds of the document
+		// so we can adjust the scaling for drawing
+		addDrawable(doc);
+	}
+	
 	virtual void keyEvent(const KeyboardEvent& e) override
 	{
 		switch (e.activity)
@@ -184,11 +189,11 @@ void fileDrop(const FileDropEvent& e)
 		
 		if (doc != nullptr)
 		{
-			auto win = std::make_shared<SVGWindow>(0, 0, 800, 600);
-			//auto win = window(0, 0, 1920, 1080);
+			auto win = std::make_shared<SVGWindow>(0, 0, 800, 800);
 			win->setBackgroundColor(Pixel(255, 255, 255, 255));
 			//win->setTitle(e.filenames[i]);
-			win->addDrawable(doc);
+
+			win->setDocument(doc);
 			
 			addGraphic(win);
 		}

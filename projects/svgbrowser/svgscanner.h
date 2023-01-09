@@ -65,7 +65,9 @@ namespace svg {
     {
         std::shared_ptr<mmap> fFileMap{};
         
-		std::vector<std::shared_ptr<IDrawable>> fShapes{};
+		// All the drawable nodes within this document
+        std::vector<std::shared_ptr<IDrawable>> fShapes{};
+        maths::bbox2f fExtent;
         
         SVGDocument(std::string filename)
 		{
@@ -82,7 +84,8 @@ namespace svg {
             }
         }
 
-		void addNode(std::shared_ptr<IDrawable> node)
+        // Add a node that can be drawn
+		void addNode(std::shared_ptr<SVGObject> node)
 		{
 			fShapes.push_back(node);
 		}

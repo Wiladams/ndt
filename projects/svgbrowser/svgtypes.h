@@ -183,11 +183,13 @@ namespace svg {
         IMapSVGNodes* fRoot{ nullptr };
         std::string fName{};    // The tag name of the element
         BLVar fVar{};
+        bool fIsVisible{ false };
+        maths::bbox2f fExtent{};
+
         
-		SVGObject() = default;
+		SVGObject() = delete;
         SVGObject(const SVGObject& other) :fName(other.fName) {}
         SVGObject(IMapSVGNodes* root) :fRoot(root) {}
-        //SVGObject(const std::string& name) :fName(name) {}
 		virtual ~SVGObject() = default;
         
 		SVGObject& operator=(const SVGObject& other) {
@@ -204,12 +206,18 @@ namespace svg {
         const std::string& name() const { return fName; }
         void setName(const std::string& name) { fName = name; }
 
+		const bool visible() const { return fIsVisible; }
+		void setVisible(bool visible) { fIsVisible = visible; }
+        
+        
         // sub-classes should return something interesting as BLVar
         // This can be used for styling, so images, colors, patterns, gradients, etc
         virtual const BLVar& getVariant()
         {
             return fVar;
         }
+        
+
         
         void draw(IGraphics& ctx) override
         {
@@ -235,6 +243,9 @@ namespace svg {
     struct IMapSVGNodes
     {
         virtual std::shared_ptr<SVGObject> findNodeById(const std::string& name) = 0;
+        virtual std::shared_ptr<SVGObject> findNodeByHref(const DataChunk& href) = 0;
+
+        
         virtual void addDefinition(const std::string& name, std::shared_ptr<SVGObject> obj) = 0;
 
         virtual void setInDefinitions(bool indefs) = 0;
@@ -271,7 +282,7 @@ namespace svg {
     {
         bool fIsSet{ false };
 
-        SVGVisualProperty() :SVGObject(),fIsSet(false){}
+        //SVGVisualProperty() :SVGObject(),fIsSet(false){}
         SVGVisualProperty(IMapSVGNodes *root):SVGObject(root),fIsSet(false){}
         SVGVisualProperty(const SVGVisualProperty& other)
             :SVGObject(other)
@@ -372,9 +383,6 @@ namespace svg {
 //==============================================================================
 namespace svg
 {
-
-
-
     // Turn a units indicator into an enum
     static SVGDimensionUnits parseDimensionUnits(const DataChunk& units)
     {
@@ -561,7 +569,7 @@ namespace svg {
     {
         double fValue{ 12.0 };
 
-        SVGFontSize() : SVGVisualProperty() {}
+        //SVGFontSize() : SVGVisualProperty() {}
 		SVGFontSize(IMapSVGNodes* inMap) : SVGVisualProperty(inMap) {}
         SVGFontSize(const SVGFontSize& other) :SVGVisualProperty(other) { fValue = other.fValue; }
         
@@ -621,7 +629,7 @@ enum class ALIGNMENT : unsigned
     {
         ALIGNMENT fValue{ ALIGNMENT::LEFT };
 
-        SVGTextAnchor() : SVGVisualProperty() {}
+        //SVGTextAnchor() : SVGVisualProperty() {}
 		SVGTextAnchor(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTextAnchor(const SVGTextAnchor& other) :SVGVisualProperty(other) { fValue = other.fValue; }
         
@@ -671,7 +679,7 @@ enum class ALIGNMENT : unsigned
     {
         ALIGNMENT fValue{ ALIGNMENT::LEFT };
 
-        SVGTextAlign() : SVGVisualProperty() {}
+        //SVGTextAlign() : SVGVisualProperty() {}
 		SVGTextAlign(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTextAlign(const SVGTextAlign& other) :SVGVisualProperty(other) { fValue = other.fValue; }
         
@@ -1091,7 +1099,7 @@ namespace svg {
 
    
 
-        SVGFillRule() : SVGVisualProperty() {}
+        //SVGFillRule() : SVGVisualProperty() {}
 		SVGFillRule(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGFillRule(const SVGFillRule& other) :SVGVisualProperty(other)
         {
@@ -1147,7 +1155,7 @@ namespace svg {
     {
 		double fWidth{ 1.0};
 
-		SVGStrokeWidth() : SVGVisualProperty() {}
+		//SVGStrokeWidth() : SVGVisualProperty() {}
 		SVGStrokeWidth(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeWidth(const SVGStrokeWidth& other) :SVGVisualProperty(other) { fWidth = other.fWidth; }
         
@@ -1194,7 +1202,7 @@ namespace svg {
     {
 		double fMiterLimit{ 4.0 };
         
-        SVGStrokeMiterLimit() : SVGVisualProperty() {}
+        //SVGStrokeMiterLimit() : SVGVisualProperty() {}
 		SVGStrokeMiterLimit(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeMiterLimit(const SVGStrokeMiterLimit& other) :SVGVisualProperty(other) { fMiterLimit = other.fMiterLimit; }
         
@@ -1241,7 +1249,7 @@ namespace svg {
     {
         SVGlineCap fLineCap{ SVG_CAP_BUTT };
 
-		SVGStrokeLineCap() : SVGVisualProperty() {}
+		//SVGStrokeLineCap() : SVGVisualProperty() {}
 		SVGStrokeLineCap(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeLineCap(const SVGStrokeLineCap& other) :SVGVisualProperty(other)
 		{
@@ -1299,7 +1307,7 @@ namespace svg {
     {
         SVGlineJoin fLineJoin{ SVG_JOIN_MITER_BEVEL };
 
-		SVGStrokeLineJoin() : SVGVisualProperty() {}
+		//SVGStrokeLineJoin() : SVGVisualProperty() {}
 		SVGStrokeLineJoin(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
 		SVGStrokeLineJoin(const SVGStrokeLineJoin& other) :SVGVisualProperty(other), fLineJoin(other.fLineJoin) {}  
         
@@ -1368,7 +1376,8 @@ namespace svg {
         maths::rectf fRect{};
 
 
-        SVGViewbox():SVGVisualProperty(){}
+        SVGViewbox() :SVGVisualProperty(nullptr) {}
+        //SVGViewbox():SVGVisualProperty(){}
 		SVGViewbox(IMapSVGNodes* iMap):SVGVisualProperty(iMap){}
         SVGViewbox(const SVGViewbox& other)
             : SVGVisualProperty(other)
@@ -1404,7 +1413,7 @@ namespace svg {
 
         static SVGViewbox createFromChunk(IMapSVGNodes* root, const DataChunk& inChunk)
         {
-            SVGViewbox vbox;
+            SVGViewbox vbox{};
 
             // If the chunk is empty, return immediately 
             if (!inChunk)
@@ -1620,7 +1629,7 @@ namespace svg
     {
         BLMatrix2D fTransform{};
 
-        SVGTransform() : SVGVisualProperty() {}
+        //SVGTransform() : SVGVisualProperty() {}
 		SVGTransform(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTransform(const SVGTransform& other)
             :SVGVisualProperty(other)
