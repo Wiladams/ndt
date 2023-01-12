@@ -154,8 +154,9 @@ public:
 			fSurface.push();
 
 			// Apply user specified transform
-			fSurface.translate(fTranslation.x, fTranslation.y);
 			fSurface.scale(fScale.x, fScale.y);
+			fSurface.translate(fTranslation.x, fTranslation.y);
+
 
 			drawSelf(fSurface);
 

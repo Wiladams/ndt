@@ -24,9 +24,15 @@
     <ClCompile Include="..\..\primary\p5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gifdec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="base64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="svgscanner.h">
+    <ClInclude Include="svgdocument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="svgtypes.h">
@@ -35,7 +41,7 @@
     <ClInclude Include="svgshapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\primary\textscan.h">
+    <ClInclude Include="..\..\primary\charset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\primary\xmlscan.h">
@@ -65,13 +71,22 @@
     <ClInclude Include="..\..\primary\Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="base64.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\primary\BLGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svgwindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gifdec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\bstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\primary\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

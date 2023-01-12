@@ -103,6 +103,7 @@ static constexpr int nKeys = sizeof(keyValues) / sizeof(keyStruct);
 static constexpr int unit = 40;
 
 BLGradient gradient(BLLinearGradientValues(unit/2, unit/2, unit/2, unit/2));
+BLVar gradientVar;
 
 struct VisualKeyboard : public GraphicElement
 {
@@ -160,7 +161,7 @@ struct VisualKeyboard : public GraphicElement
             gradient.setValues(values);
 
             ctx.noStroke();
-            ctx.fill(gradient);
+            ctx.fill(gradientVar);
 
 
             ctx.rect(rrect.x, rrect.y, rrect.w, rrect.h, rrect.rx, rrect.ry);
@@ -191,10 +192,11 @@ void setup()
 {
     setUnitsPerInch(96);
 
-    //createCanvas(800, 600);
-    fullscreen();
+    createCanvas(800, 600);
+    //fullscreen();
 
     // slightly bluish
+    gradientVar = gradient;
     gradient.addStop(0.0, BLRgba32(0xFF4f4f4f));
     gradient.addStop(1.0, BLRgba32(0xFF9f9fff));
 

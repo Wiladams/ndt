@@ -52,6 +52,7 @@ public:
         createInfo.threadCount = threadCount;
 
         fCtx.begin(fImage, createInfo);
+        fCtx.clearAll();
     }
 
 

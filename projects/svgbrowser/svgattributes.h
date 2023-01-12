@@ -1,5 +1,105 @@
 #pragma once
 
+#include <map>
+#include <string>
+
+// SVG Element Attributes are of fixed types
+// The SVGAttributeKind enum defines the types
+// https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes
+enum SVGAttributeKind
+{
+    SVG_ATTR_KIND_INVALID = 0
+    , SVG_ATTR_KIND_CHUNK               // If there is no better representation
+
+    , SVG_ATTR_KIND_NUMBER              // floating point number
+    , SVG_ATTR_KIND_NUMBERORPERCENT     // floating point number or percentage, range [0..1]
+    , SVG_ATTR_KIND_DIMENSION           // value/units
+    , SVG_ATTR_KIND_COLOR               // color
+    , SVG_ATTR_KIND_PAINT               // color, gradient, pattern
+    , SVG_ATTR_KIND_TRANSFORM           // matrix
+    , SVG_ATTR_KIND_ENUM 			    // enumeration of known (typically string) values
+
+    , SVG_ATTR_KIND_BOOL                // bool
+    , SVG_ATTR_KIND_INT                 // int
+    , SVG_ATTR_KIND_STRING              // string
+    , SVG_ATTR_KIND_POINTS              // points for a poly
+    , SVG_ATTR_KIND_PATH                // path data
+};
+
+namespace svg {
+    // A map between a name and a presentation attribute kind
+    // Functions can use this mapping to determine how to parse the data
+    // https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes
+    // 
+    // It's questionable whether this mapping is needed.  
+    // It might be useful when we're doing generic parsing of attributes
+    // but not so useful when we're doing highly directed parsing, where we
+    // explicitly already know the types we're parsing.
+    // 
+    // It might be useful to help the programmer to determine which basic
+    // type parser to use.  So, we'll keep it as informational for now
+    std::map<std::string, int> SVGPresentationAttributeMap = {
+        {"alignment-baseline", SVG_ATTR_KIND_CHUNK}
+        ,{"baseline-shift", SVG_ATTR_KIND_CHUNK}
+        ,{"clip", SVG_ATTR_KIND_ENUM}
+        ,{"clip-path", SVG_ATTR_KIND_CHUNK}
+        ,{"clip-rule", SVG_ATTR_KIND_CHUNK}
+        ,{"color", SVG_ATTR_KIND_CHUNK}
+        ,{"color-interpolation", SVG_ATTR_KIND_CHUNK}
+        ,{"color-interpolation-filters", SVG_ATTR_KIND_CHUNK}
+        ,{"color-rendering", SVG_ATTR_KIND_CHUNK}
+        ,{"cursor", SVG_ATTR_KIND_CHUNK}
+        ,{"direction", SVG_ATTR_KIND_CHUNK}
+        ,{"display", SVG_ATTR_KIND_CHUNK}
+        ,{"dominant-baseline", SVG_ATTR_KIND_CHUNK}
+        ,{"fill", SVG_ATTR_KIND_PAINT}
+        ,{"fill-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
+        ,{"fill-rule", SVG_ATTR_KIND_ENUM}
+        ,{"filter", SVG_ATTR_KIND_CHUNK}
+        ,{"flood-color", SVG_ATTR_KIND_CHUNK}
+        ,{"flood-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
+        ,{"font-family", SVG_ATTR_KIND_CHUNK}
+        ,{"font-size", SVG_ATTR_KIND_DIMENSION}
+        ,{"font-size-adjust", SVG_ATTR_KIND_CHUNK}
+        ,{"font-stretch", SVG_ATTR_KIND_CHUNK}
+        ,{"font-style", SVG_ATTR_KIND_CHUNK}
+        ,{"font-variant", SVG_ATTR_KIND_CHUNK}
+        ,{"font-weight", SVG_ATTR_KIND_CHUNK}
+        ,{"glyph-orientation-horizontal", SVG_ATTR_KIND_CHUNK}
+        ,{"glyph-orientation-vertical", SVG_ATTR_KIND_CHUNK}
+        ,{"image-rendering", SVG_ATTR_KIND_CHUNK}
+        ,{"lighting-color", SVG_ATTR_KIND_COLOR}
+        ,{"marker-end", SVG_ATTR_KIND_CHUNK}
+        ,{"marker-mid", SVG_ATTR_KIND_CHUNK}
+        ,{"marker-start", SVG_ATTR_KIND_CHUNK}
+        ,{"mask", SVG_ATTR_KIND_CHUNK}
+        ,{"opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
+        ,{"overflow", SVG_ATTR_KIND_CHUNK}
+        ,{"paint-order", SVG_ATTR_KIND_ENUM}                        // normal | [fill || stroke || markers]
+        ,{"pointer-events", SVG_ATTR_KIND_CHUNK}
+        ,{"shape-rendering", SVG_ATTR_KIND_CHUNK}
+        ,{"stop-color", SVG_ATTR_KIND_CHUNK}
+        ,{"stop-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
+        ,{"stroke", SVG_ATTR_KIND_PAINT}
+        ,{"stroke-dasharray", SVG_ATTR_KIND_CHUNK}
+        ,{"stroke-dashoffset", SVG_ATTR_KIND_DIMENSION}
+        ,{"stroke-linecap", SVG_ATTR_KIND_ENUM}                     // butt, round, square
+        ,{"stroke-linejoin", SVG_ATTR_KIND_ENUM}                    // miter, miter-clip, round, bevel, arcs
+        ,{"stroke-miterlimit", SVG_ATTR_KIND_NUMBER}
+        ,{"stroke-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
+        ,{"stroke-width", SVG_ATTR_KIND_DIMENSION}
+        ,{"text-anchor", SVG_ATTR_KIND_ENUM}                       // start, middle, end
+        ,{"text-decoration", SVG_ATTR_KIND_CHUNK}
+        ,{"text-rendering", SVG_ATTR_KIND_CHUNK}
+        ,{"transform", SVG_ATTR_KIND_TRANSFORM}
+        ,{"unicode-bidi", SVG_ATTR_KIND_CHUNK}
+        ,{"vector-effect", SVG_ATTR_KIND_CHUNK}
+        ,{"vertical-align", SVG_ATTR_KIND_DIMENSION}               // SVG 2.0
+        ,{"visibility", SVG_ATTR_KIND_CHUNK}
+        ,{"word-spacing", SVG_ATTR_KIND_DIMENSION}
+        ,{"letter-spacing", SVG_ATTR_KIND_CHUNK}
+    };
+}
 
 namespace svg {
 

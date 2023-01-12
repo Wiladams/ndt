@@ -6,8 +6,7 @@
 #include "xmlscan.h"
 #include "svgtypes.h"
 #include "cssscanner.h"
-#include "base64.h"
-#include "stb_image.h"
+
 
 #include <string>
 #include <array>
@@ -70,8 +69,6 @@ namespace svg {
 	// Most things, other than basic attribute type, will be a sub-class of this
 	struct SVGVisualNode : public SVGObject
 	{
-
-		std::string fId{};      // The id of the element
 		std::map<std::string, std::shared_ptr<SVGVisualProperty>> fVisualProperties{};
 
 		SVGVisualNode() = default;
@@ -82,21 +79,18 @@ namespace svg {
 		}
 		SVGVisualNode(const SVGVisualNode& other) :SVGObject(other)
 		{
-			fId = other.fId;
 			fVisualProperties = other.fVisualProperties;
 		}
 
 
 		SVGVisualNode & operator=(const SVGVisualNode& rhs)
 		{
-			fId = rhs.fId;
+			SVGObject::operator=(rhs);
+
 			fVisualProperties = rhs.fVisualProperties;
 			
 			return *this;
 		}
-		
-		const std::string& id() const { return fId; }
-		void setId(const std::string& id) { fId = id; }
 		
 		void loadVisualProperties(const XmlElement& elem)
 		{
@@ -156,17 +150,13 @@ namespace svg {
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGObject::loadSelfFromXml(elem);
-			
-			auto id = elem.getAttribute("id");
-			if (id)
-				setId(std::string(id.fStart, id.fEnd));
 
 			
 			setCommonVisualProperties(elem);
 		}
 		
 		// Contains styling attributes
-		void applyAttributes(IGraphics& ctx)
+		virtual void applyAttributes(IGraphics& ctx)
 		{
 			for (auto& prop : fVisualProperties) {
 				prop.second->draw(ctx);
@@ -535,61 +525,11 @@ namespace svg {
 		}
 	};
 
-	//
-	// Turn a base64 encoded inlined image into a BLImage
-	// We are handed the attribute, typically coming from a 
-	// href of an <image> tage, or as a lookup for a 
-	// fill, or stroke pain attribute.
-	//
-	bool parseImage(const DataChunk& inChunk, BLImage& img)
-	{
-		bool success{ false };
-		DataChunk value = inChunk;
 
-		// figure out what kind of encoding we're dealing with
-		// value starts with: 'data:image/png;base64,<base64 encoded image>
-		//
-		DataChunk data = chunk_token(value, ":");
-		auto mime = chunk_token(value, ";");
-		auto encoding = chunk_token(value, ",");
-
-
-		//DataChunk inChunk = value;
-		if (encoding == "base64")
-		{
-			if ((mime == "image/gif"))
-			{
-				// decode a .gif image
-				// gif image decoder
-
-			}
-			else if ((mime == "image/png") || (mime == "image/jpeg"))
-			{
-				// allocate some memory to decode into
-				uint8_t* outBuff{ new uint8_t[chunk_size(value)]{} };
-				DataChunk outChunk = chunk_from_data_size(outBuff, chunk_size(value));
-
-				auto outData = base64::b64tobin(value, outChunk);
-
-				if (outData)
-				{
-					BLResult res = img.readFromData(outData.fStart, chunk_size(outData));
-					success = (res == BL_SUCCESS);
-					printf("parseImage, readFromData: %d  %dX%d\n", res, img.size().w, img.size().h);
-				}
-
-				delete[] outBuff;
-
-			}
-		}
-
-		return success;
-	}
 
 	struct SVGImageNode : public SVGShape
 	{
 		BLImage fImage{};
-		//BLPattern fPattern{};
 		double fWidth{};
 		double fHeight{};
 		double fX = 0;
@@ -618,11 +558,35 @@ namespace svg {
 			return fVar;
 		}
 		
+		// Contains styling attributes
+		void applyAttributes(IGraphics& ctx) override
+		{
+			// BUGBUG - just for debug
+			//SVGShape::applyAttributes(ctx);
+			for (auto& prop : fVisualProperties) {
+				if (prop.first == "opacity")
+				{
+					if (prop.second->getVariant().isDouble()) {
+						double opacity = 1.0;
+						prop.second->getVariant().toDouble(&opacity);
+						//printf("opacity: %f\n", opacity);
+						ctx.globalOpacity(opacity);
+					}
+				} 
+				else {
+					prop.second->draw(ctx);
+				}
+			}
+		}
+		
 		void drawSelf(IGraphics& ctx)
 		{
 			if (fImage.empty())
 				return;
 
+
+			ctx.blendMode(BL_COMP_OP_SRC_OVER);
+			//ctx.globalOpacity(0.5);
 			ctx.scaleImage(fImage, 0, 0, fImage.size().w, fImage.size().h, fX, fY, fWidth, fHeight);
 		}
 
@@ -636,13 +600,6 @@ namespace svg {
 
 			fX = toDimension(elem.getAttribute("x")).calculatePixels(96);
 			fY = toDimension(elem.getAttribute("y")).calculatePixels(96);
-			
-			// docode and load the image
-			//fImage.create(fWidth, fHeight, BL_FORMAT_PRGB32);
-			//fCtx.begin(fImage);
-			//fCtx.setFillStyle(BLRgba32(255, 255, 0, 255));
-			//fCtx.fillAll();
-			//fCtx.end();
 
 			//printf("SVGImageNode: %3.0f %3.0f\n", fWidth, fHeight);
 			auto href = elem.getAttribute("xlink:href");
@@ -840,6 +797,10 @@ namespace svg {
 		}
 	};
 
+
+	//============================================================
+	//	SVGTextNode 
+	//============================================================
 	struct SVGTextNode :public SVGCompoundNode
 	{
 		double x{};
@@ -1411,14 +1372,94 @@ namespace svg {
 	};
 
 
+	struct SVGPortal : public SVGVisualProperty
+	{
+		double fWidth{100};		
+		double fHeight{100};
+
+		
+		SVGViewbox fViewbox{};
+		bool fPreserveAspectRatio{ false };
+
+		SVGPortal() = default;
+		SVGPortal(IMapSVGNodes* root) : SVGVisualProperty(root) {}
+		
+
+		SVGPortal& operator=(const SVGPortal& rhs)
+		{
+			SVGVisualProperty::operator=(rhs);
+			fViewbox = rhs.fViewbox;
+			fWidth = rhs.fWidth;
+			fHeight = rhs.fHeight;
+			fPreserveAspectRatio = rhs.fPreserveAspectRatio;
+
+			return *this;
+		}
+		
+		double width() { return fWidth; }
+		double height() { return fHeight; }
+		
+		void drawSelf(IGraphics& ctx)
+		{
+			if (fViewbox.isSet())
+			{
+				ctx.scale(fWidth / fViewbox.width(), fHeight / fViewbox.height());
+				ctx.translate(-fViewbox.x(), -fViewbox.y());
+			}
+		}
+		
+		void loadSelfFromXml(const XmlElement& elem) override
+		{
+			SVGVisualProperty::loadSelfFromXml(elem);
+			
+			// Load the viewbox, if it exists
+			fViewbox = SVGViewbox::createFromXml(root(), elem, "viewBox");
+			if (fViewbox.isSet())
+			{
+				// Start the width and height to be the same as the viewbox
+				fWidth = fViewbox.width();
+				fHeight = fViewbox.height();
+				
+				fPreserveAspectRatio = elem.getAttribute("preserveAspectRatio") == "xMidYMid meet";
+			}
+			
+			// Dimensions
+			if (elem.getAttribute("width") && elem.getAttribute("height"))
+			{
+				double rangeX = 100;
+				double rangeY = 100;
+				
+				if (fViewbox.isSet())
+				{
+					rangeX = fViewbox.width();
+					rangeY = fViewbox.height();
+				}
+
+				fWidth = toDimension(elem.getAttribute("width")).calculatePixels(rangeX, 0, 96);
+				fHeight = toDimension(elem.getAttribute("height")).calculatePixels(rangeY, 0, 96);
+			}
+
+			
+			fPreserveAspectRatio = elem.getAttribute("preserveAspectRatio") == "xMidYMid meet";
+
+			set(true);
+		}
+		
+
+		
+		static std::shared_ptr<SVGPortal> createFromXml(IMapSVGNodes* root, const XmlElement& elem, const std::string &name)
+		{
+			auto node = std::make_shared<SVGPortal>(root);
+			node->loadFromXmlElement(elem);
+
+			return node;
+		}
+	};
 	
 	struct SVGRootNode : public SVGGroup
 	{
-		float fWidth{};
-		float fHeight{};
-		SVGViewbox fViewbox{};
-		bool fPreserveAspectRatio = false;
-
+		std::shared_ptr<SVGPortal> fPortal;
+		
 		SVGRootNode() :SVGGroup(nullptr) { setRoot(this); }
 		SVGRootNode(IMapSVGNodes *root)
 			: SVGGroup(root)
@@ -1426,20 +1467,25 @@ namespace svg {
 			setRoot(this);
 		}
 		
+		double width()
+		{
+			if (fPortal != nullptr)
+				return fPortal->width();
+			return 100;
+		}
 
+		double height()
+		{
+			if (fPortal != nullptr)
+				return fPortal->height();
+			return 100;
+		}
+		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGGroup::loadSelfFromXml(elem);
 			
-			// width
-			fWidth = toDimension(elem.getAttribute("width")).calculatePixels(96);
-			fHeight = toDimension(elem.getAttribute("height")).calculatePixels(96);
-
-			// viewbox
-			fViewbox = SVGViewbox::createFromXml(root(), elem, "viewBox");
-
-			// preserveAspectRatio
-
+			fPortal = SVGPortal::createFromXml(root(), elem, "portal");
 		}
 
 		static std::shared_ptr<SVGRootNode> createFromIterator(XmlElementIterator& iter)
@@ -1455,8 +1501,12 @@ namespace svg {
 			ctx.push();
 
 			//ctx.scale(0.3, 0.3);
+			//if (fPortal != nullptr)
+			//	fPortal->draw(ctx);
+
 			
 			// Start with default state
+			ctx.blendMode(BLCompOp::BL_COMP_OP_SRC_OVER);
 			ctx.strokeJoin(SVG_JOIN_ROUND);
 			ctx.ellipseMode(ELLIPSEMODE::CENTER);
 			ctx.noStroke();

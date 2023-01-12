@@ -1,15 +1,13 @@
 #pragma once
 
 #include "datachunk.h"
-#include "textscan.h"
+#include "charset.h"
 
 namespace ndt
 {
 	static ndt::charset wspChars(" \r\n\t\f\v");
 	
-#ifdef __cplusplus
-	extern "C" {
-#endif
+
 		
 		static INLINE size_t copy_to_cstr(char* str, size_t len, const DataChunk& a) noexcept;
 		static INLINE DataChunk chunk_ltrim(const DataChunk& a, const charset& skippable) noexcept;
@@ -32,22 +30,13 @@ namespace ndt
 		// Number Conversions
 		static INLINE double chunk_to_double(DataChunk& inChunk) noexcept;
 
-
-		
-#ifdef __cplusplus
-	}
-
-
-#endif
 }
 
 
 
 namespace ndt 
 {
-#ifdef __cplusplus
-	extern "C" {
-#endif
+
 
 		
 		static INLINE size_t copy_to_cstr(char* str, size_t len, const DataChunk& a) noexcept
@@ -72,12 +61,12 @@ namespace ndt
 		// trim the right side of skippable characters
 		static INLINE DataChunk chunk_rtrim(const DataChunk& a, const charset& skippable) noexcept
 		{
-			const uint8_t* start = a.fStart;
-			const uint8_t* end = a.fEnd;
-			while (start < end && skippable(*(end - 1)))
-				--end;
+			const uint8_t* starting = a.fStart;
+			const uint8_t* ending = a.fEnd;
+			while ((starting < ending) && skippable.contains(*(ending - 1)))
+				--ending;
 
-			return { start, end };
+			return { starting, ending };
 		}
 
 		// trim the left and right side of skippable characters
@@ -309,11 +298,6 @@ namespace ndt
 			return res * sign;
 		}
 		
-		
-#ifdef __cplusplus
-	}
-#endif
-		
 }
 
 // a ciyoke if utility routines to help with debugging
@@ -344,6 +328,21 @@ namespace ndt {
 }
 
 /*
+	    // Turn a chunk into a vector of chunks, splitting on the delimiters
+    // BUGBUG - should consider the option of empty chunks, especially at the boundaries
+    static INLINE std::vector<DataChunk> chunk_split(const DataChunk& inChunk, const charset& delims, bool wantEmpties = false) noexcept
+    {
+        std::vector<DataChunk> result;
+        DataChunk s = inChunk;
+        while (s)
+        {
+            DataChunk token = chunk_token(s, delims);
+            //if (size(token) > 0)
+            result.push_back(token);
+        }
+
+        return result;
+    }
 	
 	static INLINE void skipOverCharset(DataChunk& dc, const charset& cs)
 	{

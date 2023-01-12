@@ -259,7 +259,8 @@ public:
     void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }
     void rectMode(const RECTMODE mode) override { fRectMode = mode; }
     void blendMode(int op) override { fCtx.setCompOp((BLCompOp)op); }
-
+	void globalOpacity(double opacity) override { fCtx.setGlobalAlpha(opacity); }
+    
     // stroking attributes
     void strokeCaps(int caps) override { fCtx.setStrokeCaps((BLStrokeCap)caps); }
     void strokeJoin(int style) override { fCtx.setStrokeJoin((BLStrokeJoin)style); }

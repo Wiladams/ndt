@@ -8,6 +8,9 @@
 #include "graphic.hpp"
 #include "xmlscan.h"
 #include "cssscanner.h"
+#include "base64.h"
+#include "gifdec.h"
+
 
 // https://www.w3.org/TR/css3-values/#numbers
 //
@@ -18,29 +21,6 @@ namespace svg {
 }
 
 namespace svg {
-    // SVG Element Attributes are of fixed types
-// The SVGAttributeKind enum defines the types
-// https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes
-    enum SVGAttributeKind
-    {
-        SVG_ATTR_KIND_INVALID = 0
-        , SVG_ATTR_KIND_CHUNK               // If there is no better representation
-
-        , SVG_ATTR_KIND_NUMBER              // floating point number
-		, SVG_ATTR_KIND_NUMBERORPERCENT     // floating point number or percentage, range [0..1]
-        , SVG_ATTR_KIND_DIMENSION           // value/units
-		, SVG_ATTR_KIND_COLOR               // color
-        , SVG_ATTR_KIND_PAINT               // color, gradient, pattern
-        , SVG_ATTR_KIND_TRANSFORM           // matrix
-		, SVG_ATTR_KIND_ENUM 			    // enumeration of known (typically string) values
-        
-        , SVG_ATTR_KIND_BOOL                // bool
-        , SVG_ATTR_KIND_INT                 // int
-        , SVG_ATTR_KIND_STRING              // string
-        , SVG_ATTR_KIND_POINTS              // points for a poly
-        , SVG_ATTR_KIND_PATH                // path data
-    };
-
 
     // Enums that represent choices for individual attributes
     // 
@@ -100,80 +80,7 @@ namespace svg {
     };
 }
 
-namespace svg {
-    // A map between a name and a presentation attribute kind
-    // Functions can use this mapping to determine how to parse the data
-    // https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes
-    // 
-    // It's questionable whether this mapping is needed.  
-    // It might be useful when we're doing generic parsing of attributes
-    // but not so useful when we're doing highly directed parsing, where we
-    // explicitly already know the types we're parsing.
-    // 
-    // It might be useful to help the programmer to determine which basic
-    // type parser to use.  So, we'll keep it as informational for now
-    std::map<std::string, int> SVGPresentationAttributeMap = {
-        {"alignment-baseline", SVG_ATTR_KIND_CHUNK}
-        ,{"baseline-shift", SVG_ATTR_KIND_CHUNK}
-        ,{"clip", SVG_ATTR_KIND_ENUM}
-        ,{"clip-path", SVG_ATTR_KIND_CHUNK}
-        ,{"clip-rule", SVG_ATTR_KIND_CHUNK}
-        ,{"color", SVG_ATTR_KIND_CHUNK}
-        ,{"color-interpolation", SVG_ATTR_KIND_CHUNK}
-        ,{"color-interpolation-filters", SVG_ATTR_KIND_CHUNK}
-        ,{"color-rendering", SVG_ATTR_KIND_CHUNK}
-        ,{"cursor", SVG_ATTR_KIND_CHUNK}
-        ,{"direction", SVG_ATTR_KIND_CHUNK}
-        ,{"display", SVG_ATTR_KIND_CHUNK}
-        ,{"dominant-baseline", SVG_ATTR_KIND_CHUNK}
-        ,{"fill", SVG_ATTR_KIND_PAINT}
-        ,{"fill-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
-        ,{"fill-rule", SVG_ATTR_KIND_ENUM}
-        ,{"filter", SVG_ATTR_KIND_CHUNK}
-        ,{"flood-color", SVG_ATTR_KIND_CHUNK}
-        ,{"flood-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
-        ,{"font-family", SVG_ATTR_KIND_CHUNK}
-        ,{"font-size", SVG_ATTR_KIND_DIMENSION}
-        ,{"font-size-adjust", SVG_ATTR_KIND_CHUNK}
-        ,{"font-stretch", SVG_ATTR_KIND_CHUNK}
-        ,{"font-style", SVG_ATTR_KIND_CHUNK}
-        ,{"font-variant", SVG_ATTR_KIND_CHUNK}
-        ,{"font-weight", SVG_ATTR_KIND_CHUNK}
-        ,{"glyph-orientation-horizontal", SVG_ATTR_KIND_CHUNK}
-        ,{"glyph-orientation-vertical", SVG_ATTR_KIND_CHUNK}
-        ,{"image-rendering", SVG_ATTR_KIND_CHUNK}
-        ,{"lighting-color", SVG_ATTR_KIND_COLOR}
-        ,{"marker-end", SVG_ATTR_KIND_CHUNK}
-        ,{"marker-mid", SVG_ATTR_KIND_CHUNK}
-        ,{"marker-start", SVG_ATTR_KIND_CHUNK}
-        ,{"mask", SVG_ATTR_KIND_CHUNK}
-        ,{"opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
-        ,{"overflow", SVG_ATTR_KIND_CHUNK}
-        ,{"paint-order", SVG_ATTR_KIND_ENUM}                        // normal | [fill || stroke || markers]
-        ,{"pointer-events", SVG_ATTR_KIND_CHUNK}
-        ,{"shape-rendering", SVG_ATTR_KIND_CHUNK}
-        ,{"stop-color", SVG_ATTR_KIND_CHUNK}
-        ,{"stop-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
-        ,{"stroke", SVG_ATTR_KIND_PAINT}
-        ,{"stroke-dasharray", SVG_ATTR_KIND_CHUNK}
-        ,{"stroke-dashoffset", SVG_ATTR_KIND_DIMENSION}
-        ,{"stroke-linecap", SVG_ATTR_KIND_ENUM}                     // butt, round, square
-        ,{"stroke-linejoin", SVG_ATTR_KIND_ENUM}                    // miter, miter-clip, round, bevel, arcs
-        ,{"stroke-miterlimit", SVG_ATTR_KIND_NUMBER}
-        ,{"stroke-opacity", SVG_ATTR_KIND_NUMBERORPERCENT}
-        ,{"stroke-width", SVG_ATTR_KIND_DIMENSION}
-        ,{"text-anchor", SVG_ATTR_KIND_ENUM}                       // start, middle, end
-        ,{"text-decoration", SVG_ATTR_KIND_CHUNK}
-        ,{"text-rendering", SVG_ATTR_KIND_CHUNK}
-        ,{"transform", SVG_ATTR_KIND_TRANSFORM}
-        ,{"unicode-bidi", SVG_ATTR_KIND_CHUNK}
-        ,{"vector-effect", SVG_ATTR_KIND_CHUNK}
-        ,{"vertical-align", SVG_ATTR_KIND_DIMENSION}               // SVG 2.0
-        ,{"visibility", SVG_ATTR_KIND_CHUNK}
-        ,{"word-spacing", SVG_ATTR_KIND_DIMENSION}
-        ,{"letter-spacing", SVG_ATTR_KIND_CHUNK}
-    };
-}
+
 
 namespace svg {
     struct IMapSVGNodes;
@@ -181,6 +88,7 @@ namespace svg {
     struct SVGObject : public IDrawable
     {
         IMapSVGNodes* fRoot{ nullptr };
+        std::string fId{};      // The id of the element
         std::string fName{};    // The tag name of the element
         BLVar fVar{};
         bool fIsVisible{ false };
@@ -188,20 +96,33 @@ namespace svg {
 
         
 		SVGObject() = delete;
-        SVGObject(const SVGObject& other) :fName(other.fName) {}
+        SVGObject(const SVGObject& other) :fName(other.fName) 
+        {
+			fRoot = other.fRoot;
+            fId = other.fId;
+            fName = other.fName;
+			fIsVisible = other.fIsVisible;
+			fExtent = other.fExtent;
+        }
         SVGObject(IMapSVGNodes* root) :fRoot(root) {}
 		virtual ~SVGObject() = default;
         
 		SVGObject& operator=(const SVGObject& other) {
             fRoot = other.fRoot;
+            fId = other.fId;
             fName = other.fName;
-			BLVar fVar = other.fVar;
+			fIsVisible = other.fIsVisible;
+            fExtent = other.fExtent;
+			blVarAssignWeak(&fVar, &other.fVar);
             
             return *this;
 		}
         
 		IMapSVGNodes* root() const { return fRoot; }
         virtual void setRoot(IMapSVGNodes* root) { fRoot = root; }
+        
+        const std::string& id() const { return fId; }
+        void setId(const std::string& id) { fId = id; }
         
         const std::string& name() const { return fName; }
         void setName(const std::string& name) { fName = name; }
@@ -226,11 +147,15 @@ namespace svg {
         
         virtual void loadSelfFromXml(const XmlElement& elem)
         {
-            ;
+            
         }
 
         virtual void loadFromXmlElement(const ndt::XmlElement& elem)
         {
+            auto id = elem.getAttribute("id");
+            if (id)
+                setId(std::string(id.fStart, id.fEnd));
+            
             // load the common attributes
             setName(elem.name());
 
@@ -252,22 +177,6 @@ namespace svg {
         virtual bool inDefinitions() const = 0;
     };
     
-    /*
-    struct SVGVisual : public SVGObject
-    {
-        SVGVisual(): SVGObject(){}
-		SVGVisual(IMapSVGNodes* root) : SVGObject(root) {}
-        SVGVisual(const SVGVisual& other) :SVGObject(other) {}
-        
-		virtual ~SVGVisual() = default;
-
-		SVGVisual& operator=(const SVGVisual& other)
-		{
-			SVGObject::operator=(other);
-			return *this;
-		}
-    };
-    */
     
     
     // SVGVisualProperty
@@ -527,15 +436,21 @@ namespace svg
 namespace svg {
     struct SVGOpacity : public SVGVisualProperty
     {
-        float fValue{ 1.0 };
+        double fValue{ 1.0 };
 
 		SVGOpacity(IMapSVGNodes* iMap):SVGVisualProperty(iMap){}
 
-
+        virtual const BLVar& getVariant()
+        {
+            fVar = fValue;
+            return fVar;
+        }
+        
         void drawSelf(IGraphics& ctx)
         {
 			SVGVisualProperty::drawSelf(ctx);
-            ctx.fillOpacity(fValue);
+            ctx.fillOpacity(fValue);    // BUGBUG - fill or stroke?  Need to decide
+                                        // perhaps a lambda gets attached??
         }
 
 		void loadSelfFromChunk(const DataChunk& inChunk)
@@ -723,11 +638,11 @@ enum class ALIGNMENT : unsigned
 
 
 namespace svg {
+    // Turn the style element into attributes of an XmlElement, 
+    // then, the caller can use that to more easily parse whatever they're
+    // looking for.
     void parseStyleAttribute(const DataChunk & inChunk, XmlElement &styleElement)
     {
-        // Turn the style element into attributes of an XmlElement, 
-        // then, the caller can use that to more easily parse whatever they're
-        // looking for.
         DataChunk styleChunk = inChunk;
         
         if (styleChunk) {
@@ -747,6 +662,92 @@ namespace svg {
         }
 
         return;
+    }
+}
+
+namespace svg {
+    void saveChunk(const uint8_t *data, size_t sz, const char* filename)
+    {
+        FILE *f{};
+        fopen_s(&f, filename, "wb");
+        fwrite(data, 1, sz, f);
+        fclose(f);
+    }
+
+    //
+    // Turn a base64 encoded inlined image into a BLImage
+    // We are handed the attribute, typically coming from a 
+    // href of an <image> tage, or as a lookup for a 
+    // fill, or stroke pain attribute.
+    //
+    bool parseImage(const DataChunk& inChunk, BLImage& img)
+    {
+        bool success{ false };
+        DataChunk value = inChunk;
+
+        // figure out what kind of encoding we're dealing with
+        // value starts with: 'data:image/png;base64,<base64 encoded image>
+        //
+        DataChunk data = chunk_token(value, ":");
+        auto mime = chunk_token(value, ";");
+        auto encoding = chunk_token(value, ",");
+
+
+        //DataChunk inChunk = value;
+        if (encoding == "base64")
+        {
+            // allocate some memory to cleanup the buffer
+            uint8_t* inBuff{ new uint8_t[chunk_size(value)]{} };
+            size_t inCharCount = 0;
+            DataChunk valueChunk = value;
+            while(valueChunk)
+            {
+                if (!wspChars.contains(*valueChunk))
+                {
+                    inBuff[inCharCount] = *valueChunk;
+                    inCharCount++;
+                }
+                valueChunk++;
+            }
+            DataChunk inBuffChunk = chunk_from_data_size(inBuff, inCharCount);
+            
+            size_t outBuffSize = BASE64_DECODE_OUT_SIZE(chunk_size(inBuffChunk));
+            
+            // allocate some memory to decode into
+            uint8_t* outBuff{ new uint8_t[outBuffSize]{} };
+            DataChunk outChunk = chunk_from_data_size(outBuff, outBuffSize);
+            
+            if ((mime == "image/gif"))
+            {
+                auto decodedSize = base64_decode((const char *)inBuffChunk.fStart, chunk_size(inBuffChunk), outBuff);
+
+                //saveChunk(outBuff, decodedSize, "chunk.gif");
+
+                if (decodedSize)
+                {
+                    bool success{false};
+                    success = parseGIF(outBuff, decodedSize, img);
+
+                    //printf("parseImage(GIF), readFromData: %d  %dX%d\n", success, img.size().w, img.size().h);
+                }
+            }
+            else if ((mime == "image/png") || (mime == "image/jpeg"))
+            {   
+                auto decodedSize = base64_decode((const char*)inBuffChunk.fStart, chunk_size(inBuffChunk), outBuff);
+
+                if (decodedSize)
+                {
+                    BLResult res = img.readFromData(outBuff, decodedSize);
+                    success = (res == BL_SUCCESS);
+                    //printf("parseImage, readFromData: %d  %dX%d\n", res, img.size().w, img.size().h);
+                }
+            }
+            
+            delete[] outBuff;
+			delete[] inBuff;
+        }
+
+        return success;
     }
 }
 
@@ -1375,9 +1376,7 @@ namespace svg {
     {
         maths::rectf fRect{};
 
-
         SVGViewbox() :SVGVisualProperty(nullptr) {}
-        //SVGViewbox():SVGVisualProperty(){}
 		SVGViewbox(IMapSVGNodes* iMap):SVGVisualProperty(iMap){}
         SVGViewbox(const SVGViewbox& other)
             : SVGVisualProperty(other)
@@ -1399,6 +1398,12 @@ namespace svg {
         float width() const { return fRect.w; }
         float height() const {return fRect.h;}
         
+        void drawSelf(IGraphics& ctx)
+        {
+            //ctx.scale(fWidth / fViewbox.width(), fHeight / fViewbox.height());
+            ctx.translate(-x(), -y());
+        }
+        
         void loadSelfFromChunk(const DataChunk& inChunk)
         {
 			DataChunk s = inChunk;
@@ -1409,6 +1414,8 @@ namespace svg {
 			fRect.y = (float)nextNumber(s, numDelims);
 			fRect.w = (float)nextNumber(s, numDelims);
 			fRect.h = (float)nextNumber(s, numDelims);
+
+            set(true);  // Yes, we will draw
         }
 
         static SVGViewbox createFromChunk(IMapSVGNodes* root, const DataChunk& inChunk)
@@ -1421,6 +1428,7 @@ namespace svg {
 
             vbox.loadFromChunk(inChunk);
 
+            
             return vbox;
         }
 

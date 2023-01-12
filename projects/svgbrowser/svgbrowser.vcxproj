@@ -145,25 +145,30 @@
   <ItemGroup>
     <ClCompile Include="..\..\primary\appmain.cpp" />
     <ClCompile Include="..\..\primary\p5.cpp" />
+    <ClCompile Include="base64.cpp" />
+    <ClCompile Include="gifdec.cpp" />
     <ClCompile Include="svgbrowser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\primary\base64.h" />
     <ClInclude Include="..\..\primary\BLGraphics.h" />
+    <ClInclude Include="..\..\primary\bstream.h" />
     <ClInclude Include="..\..\primary\chunkutil.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
     <ClInclude Include="..\..\primary\Graphics.h" />
     <ClInclude Include="..\..\primary\gwindow.h" />
     <ClInclude Include="..\..\primary\shaper.h" />
     <ClInclude Include="..\..\primary\svgcolors.h" />
-    <ClInclude Include="..\..\primary\textscan.h" />
+    <ClInclude Include="..\..\primary\charset.h" />
     <ClInclude Include="..\..\primary\xmlscan.h" />
-    <ClInclude Include="base64.h" />
     <ClInclude Include="cssscanner.h" />
+    <ClInclude Include="gifdec.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="svgattributes.h" />
-    <ClInclude Include="svgscanner.h" />
+    <ClInclude Include="svgdocument.h" />
     <ClInclude Include="svgshapes.h" />
     <ClInclude Include="svgtypes.h" />
+    <ClInclude Include="svgwindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

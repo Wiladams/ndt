@@ -177,6 +177,8 @@ public:
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
     virtual void rectMode(const RECTMODE mode) = 0;
     virtual void blendMode(int mode) = 0;
+    virtual void globalOpacity(double opacity) = 0;
+    
     virtual void strokeCaps(int caps) = 0;
     virtual void strokeJoin(int join) = 0;
 	virtual void strokeMiterLimit(float limit) = 0;

@@ -1049,6 +1049,7 @@ void onLoad()
     gAppSurface = std::make_shared<Surface>();
     gAppSurface->attachPixelArray(appFrameBuffer());
     gAppSurface->textFont("Consolas");
+    gAppSurface->blendMode(BLCompOp::BL_COMP_OP_SRC_OVER);
     
     // ppi and user units
     gAppSurface->setDpiUnits(systemPpi, (float)systemPpi);     // default to raw pixels

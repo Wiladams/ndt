@@ -485,6 +485,26 @@ namespace maths
         inline const int& operator[](int i) const;
     };
 
+    struct vec3b
+    {
+        union {
+            struct {
+                uint8_t x;
+                uint8_t y;
+                uint8_t z;
+            };
+            struct {
+                uint8_t b;
+                uint8_t g;
+                uint8_t r;
+            };
+        };
+
+
+        inline uint8_t& operator[](int i);
+        inline const uint8_t& operator[](int i) const;
+    };
+
     struct vec4b
     {
         union {
@@ -635,6 +655,22 @@ namespace maths
 }
 
 //=========================================
+//  DECLARATION vec3b
+//=========================================
+namespace maths
+{
+    inline int        size(const vec3b& a);
+    inline const uint8_t* begin(const vec3b& a);
+    inline const uint8_t* end(const vec3b& a);
+    inline uint8_t* begin(vec3b& a);
+    inline uint8_t* end(vec3b& a);
+    inline const uint8_t* data(const vec3b& a);
+    inline uint8_t* data(vec3b& a);
+
+}
+
+
+//=========================================
 //  DECLARATION vec4b
 //=========================================
 namespace maths
@@ -709,6 +745,10 @@ namespace maths
     inline vec4i abs(const vec4i& a);
     inline void  swap(vec4i& a, vec4i& b);
 
+    // Vector comparison operations.
+    inline bool operator==(const vec3b& a, const vec3b& b);
+    inline bool operator!=(const vec3b& a, const vec3b& b);
+    
     // Vector comparison operations.
     inline bool operator==(const vec4b& a, const vec4b& b);
     inline bool operator!=(const vec4b& a, const vec4b& b);
@@ -1531,6 +1571,10 @@ namespace maths
     inline int& vec4i::operator[](int i) { return (&x)[i]; }
     inline const int& vec4i::operator[](int i) const { return (&x)[i]; }
 
+    // vec3b
+    inline uint8_t& vec3b::operator[](int i) { return (&x)[i]; }
+    inline const uint8_t& vec3b::operator[](int i) const { return (&x)[i]; }
+    
     // Vector data types
     inline uint8_t & vec4b::operator[](int i) { return (&x)[i]; }
     inline const uint8_t& vec4b::operator[](int i) const { return (&x)[i]; }
@@ -1703,6 +1747,15 @@ namespace maths
     inline void  swap(vec3i& a, vec3i& b) { std::swap(a, b); }
 
     // Vector sequence operations.
+    inline int        size(const vec3b& a) { return 4; }
+    inline const uint8_t* begin(const vec3b& a) { return &a.x; }
+    inline const uint8_t* end(const vec3b& a) { return &a.x + 4; }
+    inline uint8_t* begin(vec3b& a) { return &a.x; }
+    inline uint8_t* end(vec3b& a) { return &a.x + 4; }
+    inline const uint8_t* data(const vec3b& a) { return &a.x; }
+    inline uint8_t* data(vec3b& a) { return &a.x; }
+    
+    // Vector sequence operations.
     inline int        size(const vec4b& a) { return 4; }
     inline const uint8_t* begin(const vec4b& a) { return &a.x; }
     inline const uint8_t* end(const vec4b& a) { return &a.x + 4; }
@@ -1808,6 +1861,14 @@ namespace maths
     }
     inline void swap(vec4i& a, vec4i& b) { std::swap(a, b); }
 
+    // vec3b comparison operations.
+    inline bool operator==(const vec3b& a, const vec3b& b) {
+        return a.x == b.x && a.y == b.y && a.z == b.z ;
+    }
+    inline bool operator!=(const vec3b& a, const vec3b& b) {
+        return a.x != b.x || a.y != b.y || a.z != b.z ;
+    }
+    
     // Vector comparison operations.
     inline bool operator==(const vec4b& a, const vec4b& b) {
         return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;

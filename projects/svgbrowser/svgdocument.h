@@ -34,28 +34,6 @@ namespace svg
 
 
     static charset digitChars("0123456789");
-    static charset numberChars("0123456789.-+eE");
-
-
-    constexpr auto SVG_MAX_ATTR = 128;
-    constexpr auto SVG_MAX_DASHES = 8;
-
-    // Turn a chunk into a vector of chunks, splitting on the delimiters
-    // BUGBUG - should consider the option of empty chunks, especially at the boundaries
-    static INLINE std::vector<DataChunk> chunk_split(const DataChunk& inChunk, const charset& delims, bool wantEmpties = false) noexcept
-    {
-        std::vector<DataChunk> result;
-        DataChunk s = inChunk;
-        while (s)
-        {
-            DataChunk token = chunk_token(s, delims);
-            //if (size(token) > 0)
-            result.push_back(token);
-        }
-
-        return result;
-    }
-
 }
 
 
@@ -64,6 +42,7 @@ namespace svg {
     struct SVGDocument : public IDrawable
     {
         std::shared_ptr<mmap> fFileMap{};
+		std::shared_ptr<SVGRootNode> fRootNode{};
         
 		// All the drawable nodes within this document
         std::vector<std::shared_ptr<IDrawable>> fShapes{};
@@ -75,6 +54,19 @@ namespace svg {
             if (fFileMap == nullptr)
                 return ;
         }
+        
+		double width() const { 
+			if (fRootNode == nullptr)
+				return 100;
+			return fRootNode->width();
+        }
+
+		double height() const {
+			if (fRootNode == nullptr)
+				return 100;
+			return fRootNode->height();
+		}
+        
         
         void draw(IGraphics& ctx) override
         {
@@ -108,19 +100,21 @@ namespace svg {
                 printXmlElement(*iter);
 
                 // Skip over these node types we don't know how to process
-                if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-                {
-                    iter++;
-                    continue;
-                }
+                //if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
+                //{
+                //    iter++;
+                //    continue;
+                //}
 
 
                 if (elem.isStart() && (elem.name() == "svg"))
                 {
-                    auto node = SVGRootNode::createFromIterator(iter);
-                    if (node != nullptr)
+                    // There should be only one root node in a document, so we should 
+                    // break here, but, curiosity...
+                    fRootNode = SVGRootNode::createFromIterator(iter);
+                    if (fRootNode != nullptr)
                     {
-                        addNode(node);
+                        addNode(fRootNode);
                     }
                 }
 

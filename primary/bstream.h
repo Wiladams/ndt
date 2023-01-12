@@ -35,88 +35,186 @@
 
 namespace ndt
 {
-#ifdef __cplusplus
-    extern "C" {
-#endif
-    //
-    // A core type for representing a chunk of data in a stream
-    // other routines are meant to operate on this data type
-    struct DataCursor 
+    struct BStream
     {
-        const uint8_t* fStart;
-        const uint8_t* fEnd;
-        uint8_t* fCurrent;
+        static constexpr int MSEEK_CUR = 1;
+        static constexpr int MSEEK_END = 2;
+        static constexpr int MSEEK_SET = 0;
+        
+        DataChunk fSource{};
+        DataChunk fCursor{};
+        bool fStreamIsLE{ true };
+        
+        BStream() = default;
+        BStream(const DataChunk& inChunk)
+            :fSource(inChunk)
+        {
+            fCursor = fSource;
+        }
+        BStream(const void* inData, const size_t sz)
+            : fSource((const uint8_t *)inData, (const uint8_t *)inData+sz)
+        {
+            fCursor = fSource;
+        }
+        
+        BStream& operator=(const BStream& other)
+        {
+			fSource = other.fSource;
+			fCursor = other.fCursor;
+			fStreamIsLE = other.fStreamIsLE;
+			return *this;
+        }
+        
+        // operator *
+        // operator[]
+        // operator++
+        
+		const uint8_t* data() const
+		{
+			return fCursor.fStart;
+		}
+        
+		size_t size() const
+		{
+			return chunk_size(fSource);
+		}
 
-#ifdef __cplusplus
-        INLINE uint8_t& operator[](size_t i);
-        INLINE const uint8_t& operator[](size_t i) const;
-        INLINE void operator++();
-		INLINE void operator++(int i);
-        INLINE operator bool() { return (fEnd-fCurrent)> 0; }
-#endif
+        size_t seek(ptrdiff_t offset, ptrdiff_t relativeTo = MSEEK_SET)
+        {
+			switch (relativeTo)
+			{
+			case MSEEK_CUR:
+				fCursor.fStart = fCursor.fStart+offset;
+				break;
+			case MSEEK_END:
+				fCursor.fStart = fSource.fEnd - offset;
+				break;
+			case MSEEK_SET:
+				fCursor.fStart = fSource.fStart + offset;
+				break;
+			}
+			
+            // clamp to boundaries
+            if (fCursor.fStart < fSource.fStart)
+				fCursor.fStart = fSource.fStart;
+			if (fCursor.fStart > fSource.fEnd)
+				fCursor.fStart = fSource.fEnd;
+            
+            return fCursor.fStart - fSource.fStart;
+		}
+        
+        size_t tell()
+        {
+			return fCursor.fStart - fSource.fStart;
+        }
+
+		size_t remaining()
+		{
+			return fSource.fEnd - fCursor.fStart;
+		}
+
+        // returns whether we're currently sitting at End Of File
+        bool isEOF() const
+        {
+			return fCursor.fStart >= fSource.fEnd;
+        }
+        
+        bool skip(ptrdiff_t n)  noexcept { fCursor += n; return true; }
+        
+        // Return a chunk that represents the bytes requested, 
+        // up to the amount remaining
+        DataChunk read(size_t sz)
+        {
+			size_t maxBytes = sz > remaining() ? remaining() : sz;
+			DataChunk result = chunk_from_data_size((void *)fCursor.fStart, maxBytes);
+            skip(maxBytes);
+
+			return result;
+        }
+        
+        // Copy the data out from the chunk
+        // copy up to remaining() bytes
+        // return the number of bytes copied
+        size_t read_copy(void* outData, size_t sz)
+        {
+			size_t maxBytes = sz > remaining() ? remaining() : sz;
+			memcpy(outData, fCursor.fStart, maxBytes);
+            skip(maxBytes);
+            
+            return maxBytes;
+        }
+        
+		// Read a single byte
+        uint8_t read_u8()  noexcept 
+        {
+			uint8_t result = *fCursor.fStart;
+			skip(1);
+
+			return result;
+        }    
+        
+		// Read a unsigned 16 bit value
+        // assuming stream is in little endian format
+        uint16_t read_u16_le() noexcept
+        {
+            uint16_t r = *(uint16_t*)fCursor.fStart;
+            skip(2);
+            
+            return r;
+
+            //return get_u8(dc) | (get_u8(dc) << 8);
+        }
+
+        // Read a unsigned 32-bit value
+		// assuming stream is in little endian format
+        uint32_t read_u32_le() noexcept
+        {
+            uint32_t r = *(uint32_t*)fCursor.fStart;
+            skip(4);
+            
+            return r;
+
+            //return get_u8(dc) | (get_u8(dc) << 8) | (get_u8(dc) << 16) | (get_u8(dc) << 24);
+        }
+
+		// Read a unsigned 64-bit value
+		// assuming stream is in little endian format
+        uint64_t read_u64_le() noexcept
+        {
+            uint64_t r = *(uint64_t*)fCursor.fStart;
+            skip(8);
+            
+            return r;
+            //return (uint64_t)get_u8(dc) | ((uint64_t)get_u8(dc) << 8) | ((uint64_t)get_u8(dc) << 16) | ((uint64_t)get_u8(dc) << 24) |
+            //    ((uint64_t)get_u8(dc) << 32) | ((uint64_t)get_u8(dc) << 40) | ((uint64_t)get_u8(dc) << 48) | ((uint64_t)get_u8(dc) << 56);
+        }
+
     };
+}
 
-
-    
-    static INLINE DataCursor make_cursor_chunk(const DataChunk& chunk);
-    static INLINE DataCursor make_cursor(const void* starting, const void* ending) noexcept;
-    static INLINE DataCursor make_cursor_size(const void* starting, size_t sz) noexcept;
-    static INLINE DataCursor make_cursor_range(const DataCursor& dc, size_t pos, size_t sz)noexcept;    // sub-range
-    static INLINE DataCursor make_cursor_range_size(const DataCursor& dc, size_t sz)noexcept;           // sub-range
-    static INLINE DataChunk make_chunk_to_end(const DataCursor& dc) noexcept;
-
-    static INLINE ptrdiff_t remaining(const DataCursor& dc) noexcept;
-    static INLINE ptrdiff_t tell(const DataCursor& dc) noexcept;
+/*
+namespace ndt
+{
     static INLINE uint8_t * tell_pointer(const DataCursor& dc) noexcept;
 
     static INLINE ptrdiff_t seek_to_begin(DataCursor& dc) noexcept;
     static INLINE ptrdiff_t seek_to_end(DataCursor& dc) noexcept;
     static INLINE ptrdiff_t seek(DataCursor& dc, ptrdiff_t pos) noexcept;
-    static INLINE bool skip(DataCursor& dc, ptrdiff_t n) noexcept;
     static INLINE bool skip_to_alignment(DataCursor& dc, size_t num) noexcept;
     static INLINE bool skip_to_even(DataCursor& dc) noexcept;
     static INLINE const uint8_t* cursorPointer(DataCursor& dc) noexcept;
 
-
-    static INLINE bool isEOF(DataCursor& dc) noexcept;
     static INLINE uint8_t peek_u8(const DataCursor& dc) noexcept;
-
-    // Read out integer values
-    static INLINE uint8_t get_u8(DataCursor& dc) noexcept;
-    static INLINE uint16_t get_u16_le(DataCursor& dc) noexcept;
-    static INLINE uint32_t get_u32_le(DataCursor& dc) noexcept;
-    static INLINE uint64_t get_u64_le(DataCursor& dc) noexcept;
 
     // Write in integer values
     static INLINE bool put_u8(DataCursor& dc, uint8_t a) noexcept;
     static INLINE bool put_u16_le(DataCursor& dc, uint16_t a) noexcept;
     static INLINE bool put_u32_le(DataCursor& dc, uint32_t a) noexcept;
     static INLINE bool put_u64_le(DataCursor& dc, uint64_t a) noexcept;
-
-#ifdef __cplusplus
-    }
-#endif
 }
 
 namespace ndt
 {
-    static INLINE DataCursor make_cursor_chunk(const DataChunk& chunk)
-	{
-        DataCursor dc{};
-		dc.fStart = chunk.fStart;
-		dc.fEnd = chunk.fEnd;
-		dc.fCurrent = (uint8_t *)chunk.fStart;
-        
-		return dc;
-	}
-
-    
-    static INLINE DataCursor make_cursor(const void* starting, const void* ending) noexcept
-    {
-        DataCursor c{ (const uint8_t*)starting, (const uint8_t*)ending, (uint8_t*)starting };
-        return c;
-    }
-    static INLINE DataCursor make_cursor_size(const void* starting, size_t sz)  noexcept { return make_cursor(starting, (uint8_t*)starting + sz); }
 
     // get a subrange of the memory stream
     // returning a new memory stream
@@ -149,8 +247,7 @@ namespace ndt
         return make_cursor_size(dc.fStart + pos, sz);
     }
 
-    // A convenience to return a range from our current position
-    static INLINE DataCursor make_cursor_range_size(DataCursor& dc, size_t sz) { return make_cursor_range(dc, tell(dc), sz); }
+
 
     static INLINE DataChunk make_chunk_toend(const DataCursor& dc) noexcept
     {
@@ -162,13 +259,13 @@ namespace ndt
     // Retrieve attributes of the cursor
 
     static INLINE ptrdiff_t remaining(const DataCursor& dc) noexcept { return dc.fEnd - dc.fCurrent; }
-    static INLINE ptrdiff_t tell(const DataCursor& dc)  noexcept { return dc.fCurrent - dc.fStart; }
+
     static INLINE uint8_t* tell_pointer(const DataCursor& dc) noexcept { return dc.fCurrent; }
 
     static INLINE ptrdiff_t seek_to_begin(DataCursor& dc)  noexcept { dc.fCurrent = (uint8_t *)dc.fStart; return tell(dc); }
     static INLINE ptrdiff_t seek_to_end(DataCursor& dc)  noexcept { dc.fCurrent = (uint8_t*)dc.fEnd; return tell(dc); }
     static INLINE ptrdiff_t seek(DataCursor& dc, ptrdiff_t pos)  noexcept { dc.fCurrent = (uint8_t*)dc.fStart + pos; return tell(dc); }
-    static INLINE bool skip(DataCursor& dc, ptrdiff_t n)  noexcept { dc.fCurrent += n; return true; }
+
     
     // Seek forwad to a boundary of the specified
     // number of bytes.
@@ -180,36 +277,8 @@ namespace ndt
     // Return a pointer to the current position
     static INLINE const uint8_t * cursorPointer(DataCursor& dc)  noexcept { return dc.fCurrent; }
 
-
-    static INLINE bool isEOF(DataCursor& dc)  noexcept { return remaining(dc) < 1; }
     static INLINE uint8_t peek_u8(const DataCursor& dc)  noexcept { return *dc.fCurrent; }
-    static INLINE uint8_t get_u8(DataCursor& dc)  noexcept { return dc.fCurrent < dc.fEnd ? *dc.fCurrent++ : ~0; }    // can't distinguish between valid and EOF
-    static INLINE uint16_t get_u16_le(DataCursor& dc) noexcept
-    {
-        uint16_t r = *(uint16_t*)dc.fCurrent;
-        skip(dc, 2);
-        return r;
 
-        //return get_u8(dc) | (get_u8(dc) << 8);
-    }
-
-    static INLINE uint32_t get_u32_le(DataCursor& dc) noexcept
-    {
-        uint32_t r = *(uint32_t*)dc.fCurrent;
-        skip(dc, 4);
-        return r;
-
-        //return get_u8(dc) | (get_u8(dc) << 8) | (get_u8(dc) << 16) | (get_u8(dc) << 24);
-    }
-
-    static INLINE uint64_t get_u64_le(DataCursor& dc) noexcept
-    {
-        uint64_t r = *(uint64_t*)dc.fCurrent;
-        skip(dc, 8);
-        return r;
-        //return (uint64_t)get_u8(dc) | ((uint64_t)get_u8(dc) << 8) | ((uint64_t)get_u8(dc) << 16) | ((uint64_t)get_u8(dc) << 24) |
-        //    ((uint64_t)get_u8(dc) << 32) | ((uint64_t)get_u8(dc) << 40) | ((uint64_t)get_u8(dc) << 48) | ((uint64_t)get_u8(dc) << 56);
-    }
 
 
 
@@ -293,7 +362,7 @@ namespace ndt
 
 namespace ndt
 {
-#ifdef __cplusplus
+
 	//INLINE operator bool(const DataCursor& dc) { return remaining(dc)>0; }
     INLINE const uint8_t operator*(const DataCursor& dc)  noexcept { return *dc.fCurrent; }
     // INLINE uint8_t & operator*(DataCursor& dc)  noexcept { return dc.fCurrent; }
@@ -303,7 +372,6 @@ namespace ndt
     INLINE uint8_t& DataCursor::operator[](size_t i) { return fCurrent[i]; }
     INLINE const uint8_t& DataCursor::operator[](size_t i) const { return fCurrent[i]; }
     
-#endif
 }
 
-
+*/

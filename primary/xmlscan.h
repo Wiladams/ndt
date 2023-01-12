@@ -192,6 +192,12 @@ namespace ndt {
     // We do NOT scan the content of the element here, that happens
     // outside this routine.  We only deal with what comes up the the closing '>'
     //
+        void setTagName(const DataChunk& inChunk)
+        {
+            fXmlName.reset(inChunk);
+			fName = std::string(fXmlName.name().fStart, fXmlName.name().fEnd);
+        }
+        
         void scanTagName()
         {
             DataChunk s = fData;
@@ -220,8 +226,8 @@ namespace ndt {
                 s++;
 
             tagName.fEnd = s.fStart;
-            fName = std::string(tagName.fStart, tagName.fEnd);
-			fXmlName.reset(tagName);
+            setTagName(tagName);
+
 
             fData = s;
         }
@@ -297,7 +303,7 @@ namespace ndt {
                 }
 
                 // Store only well formed attributes
-                DataChunk attrValue = make_chunk(beginattrValue, endattrValue);
+                DataChunk attrValue = { beginattrValue, endattrValue };
                 //printf("    VALUE :");
                 //printChunk(attrValue);
 
