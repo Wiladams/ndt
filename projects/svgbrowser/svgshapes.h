@@ -561,7 +561,6 @@ namespace svg {
 		// Contains styling attributes
 		void applyAttributes(IGraphics& ctx) override
 		{
-			// BUGBUG - just for debug
 			//SVGShape::applyAttributes(ctx);
 			for (auto& prop : fVisualProperties) {
 				if (prop.first == "opacity")
