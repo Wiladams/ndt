@@ -202,6 +202,11 @@ Examples
 * Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette, scroll with mouse wheel
 
+### svgcolors
+<img src="docs/images/svgbrowser.png" alt="svgbrowser" width=240/></br>
+* Project: [svgbrowser](projects/svgbrowser)
+* Notes: Drag-drop svg images, icon view, maleable detail view
+
 ### targaviewer
 <img src="docs/images/targaviewer.png" alt="targaviewer" width=240/></br>
 * Project: [tgaviewer](projects/tgaviewer)
