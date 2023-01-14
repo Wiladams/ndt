@@ -202,7 +202,7 @@ Examples
 * Project: [svgcolors](projects/svgcolors)
 * Notes: Display colors from SVG palette, scroll with mouse wheel
 
-### svgcolors
+### svgbrowser
 <img src="docs/images/svgbrowser.png" alt="svgbrowser" width=240/></br>
 * Project: [svgbrowser](projects/svgbrowser)
 * Notes: Drag-drop svg images, icon view, maleable detail view
