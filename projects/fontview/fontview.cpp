@@ -57,7 +57,7 @@ void setup()
 	// Window for the console
 	//
 	auto win1 = window(0, 0, faceCons->boundsWidth(), faceCons->boundsHeight());
-	win1->addChild(faceCons);
+	win1->addGraphic(faceCons);
 	win1->moveTo({ 8, 8 });
 	win1->setBackgroundColor(color(25, 55, 55, 200));
 	win1->setTitle("console");
@@ -69,7 +69,7 @@ void setup()
 
 	// Window for single character view
 	auto win2 = window(0, 0, 600, 600);
-	win2->addChild(emView);
+	win2->addGraphic(emView);
 	win2->moveTo({ 462, 8 });
 
 

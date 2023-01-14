@@ -2,13 +2,14 @@
 
 #include "svgdocument.h"
 #include "svgwindow.h"
-
+#include "svgiconpage.h"
 
 using namespace p5;
 using namespace ndt;
 using namespace ndt_debug;
 using namespace svg;
 
+std::shared_ptr<SVGIconPage> gIconPage{};
 
 void testSomething()
 {	
@@ -37,12 +38,24 @@ void setup()
 	//windowLayout(layout);
 
 	frameRate(30);
+
+	auto iconWin = window(20, 60, 360, displayHeight-60-48);
+	gIconPage = std::make_shared<SVGIconPage>(0, 0, 340, iconWin->frameHeight());
+	iconWin->addGraphic(gIconPage);
+
+	auto detailWin = window(440, 60, 800, 800);
+	auto detailPage = std::make_shared<SVGWindow>(0, 0, 800, 800, nullptr);
+	detailWin->addGraphic(detailPage);
+	
+	gIconPage->subscribe([detailPage](std::shared_ptr<svg::SVGDocument> doc) {detailPage->document(doc, true); });
+
+	
+
 }
 
 
 void draw()
 {
-
 	// Clear to background, whatever it is
 	if (!isLayered())
 		background(Pixel(0,0,0,0));	// (245 , 246, 247);
@@ -51,8 +64,6 @@ void draw()
 
 	//background(255);
 
-
-	
 	noStroke();
 	fill(0x7f);
 	rect(0, 0, canvasWidth, 48);
@@ -80,23 +91,5 @@ void keyReleased(const KeyboardEvent& e)
 
 void fileDrop(const FileDropEvent& e)
 {
-	// assuming there's at least one file that 
-	// has been dropped.
-	for (int i = 0; i < e.filenames.size(); i++)
-	{
-		// Create a new SVGDocument for each file
-		// And create a window to display each document
-		auto doc = svg::SVGDocument::createFromFilename(e.filenames[i]);
-		
-		if (doc != nullptr)
-		{
-			auto win = std::make_shared<SVGWindow>(doc);
-			win->setBackgroundColor(Pixel(255, 255, 255, 255));
-			//win->setTitle(e.filenames[i]);
-
-			win->setDocument(doc);
-			
-			addGraphic(win);
-		}
-	}
+	gIconPage->fileDrop(e);
 }

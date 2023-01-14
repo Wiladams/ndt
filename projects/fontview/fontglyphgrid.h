@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Graphics.h"
+#include "Graphic.h"
 #include "blend2d.h"
 #include "graphic.hpp"
 
@@ -98,7 +99,7 @@ struct GlyphGridBody :public GraphicElement
 		float bheight = numRows * fCellSize.y;
 		float bwidth = maxColumns * fCellSize.x;
 
-		setBounds({ {0,0},{bwidth,bheight} });
+		setBounds({ 0,0,bwidth,bheight });
 	}
 
 	void drawSelf(IGraphics& ctx) override
@@ -152,7 +153,7 @@ struct GlyphGridBody :public GraphicElement
 
 // FontGlyphGrid
 // Pulls all the pieces of the glyph grid together
-struct FontGlyphGrid : public Graphic
+struct FontGlyphGrid : public GraphicElement
 {
 	float fCellWidth = 0;
 	float fCellHeight = 0;
@@ -162,7 +163,7 @@ struct FontGlyphGrid : public Graphic
 	std::shared_ptr<GlyphGridRowHeading> fRowHeading = nullptr;
 
 	FontGlyphGrid(float x, float y, float w, float h)
-		:Graphic(x,y,w,h)
+		:GraphicElement(x,y,w,h)
 	{
 
 		maths::vec2f cSize = { 48, 1 };		// Size of column header

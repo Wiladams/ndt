@@ -428,3 +428,44 @@ public:
 	}
 };
 
+struct VerticalGridLayout : public ILayoutGraphics
+{
+	static constexpr float columnGap = 20;
+
+	maths::rectf fBoundary;
+	float fBoundaryWidth = 0;
+	float fColumnGap = columnGap;
+
+	VerticalGridLayout(const maths::rectf& boundary, float gap = columnGap)
+		:fBoundary(boundary),
+		fColumnGap(gap)
+	{
+		fBoundaryWidth = boundary.w;
+	}
+
+	virtual maths::rectf layout(std::deque<std::shared_ptr<GraphicElement> >& gs)
+	{
+		float xoffset = columnGap;
+		float yoffset = columnGap;
+
+		maths::rectf extent{};
+
+		for (auto& g : gs)
+		{
+			g->moveTo(xoffset, yoffset);
+
+			xoffset += (g->frameWidth() + fColumnGap);
+			float lastX = fBoundaryWidth - g->frameWidth();
+			if (xoffset > lastX)
+			{
+				xoffset = columnGap;
+				yoffset += g->frameHeight() + fColumnGap;
+			}
+
+			maths::expand(extent, g->frame());
+		}
+
+		return extent;
+	}
+
+};

@@ -13,7 +13,7 @@ using namespace p5;
 
 // Take a source image, and split it into 
 // three plane images
-class ColorPlaneWindow : public Graphic
+class ColorPlaneWindow : public GraphicElement
 {
     int cellWidth = 64;
     int cellHeight = 64;
@@ -62,7 +62,7 @@ class ColorPlaneWindow : public Graphic
 
 public:
     ColorPlaneWindow(int w, int h, ScreenSnapper & ss)
-        :Graphic(0,0,w,h)
+        :GraphicElement(0,0,w,h)
         ,fSnapper(ss)
         ,redSurface(ss.width(),ss.height())
         ,greenSurface(ss.width(), ss.height())
@@ -86,12 +86,12 @@ public:
 };
 
 
-static const int captureWidth = 1280;
-static const int captureHeight = 1024;
+static int captureWidth = 1280;
+static int captureHeight = 1024;
 FrameStats _stats;
 
 
-ScreenSnapper ss;
+static ScreenSnapper ss;
 
 
 void draw()
@@ -109,6 +109,9 @@ void onComposed()
 
 void setup()
 {
+    captureWidth = displayWidth/2;
+    captureHeight = displayHeight;
+    
     double windowScale = 1;
 
     frameRate(20);
@@ -122,7 +125,7 @@ void setup()
     win->setTitle("Split Panes");
     
     auto colorpanes = std::make_shared<ColorPlaneWindow>(captureWidth * windowScale, captureHeight* windowScale, ss);
-    win->addChild(colorpanes);
+    win->addGraphic(colorpanes);
 }
 
 void keyReleased(const KeyboardEvent& e)

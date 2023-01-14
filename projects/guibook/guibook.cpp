@@ -110,7 +110,7 @@ void setup()
     auto label = TextLabel::create("Text Label quit",10,10, 32);
 
     //win->addChild(label);
-    addWindow(label);
+    addGraphic(label);
     //label->draw(*gAppSurface);
 
     //noLoop();

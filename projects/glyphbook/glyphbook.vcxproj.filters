@@ -56,5 +56,8 @@
     <ClInclude Include="..\..\primary\gwindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\primary\graphic.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

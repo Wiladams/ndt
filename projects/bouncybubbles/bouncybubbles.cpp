@@ -5,7 +5,7 @@
 
 using namespace p5;
 
-constexpr int numBalls = 1024;
+constexpr int numBalls = 256;
 float spring = 0.03f;        //0.05
 float gravity = 2.03f;       // 0.03
 float friction = -0.9f;      // -0.9
@@ -128,7 +128,7 @@ void collision()
 
 void setup() 
 {
-    createCanvas(1920, 400);
+    createCanvas(800, 600);
     //layered();
     //fullscreen();
 

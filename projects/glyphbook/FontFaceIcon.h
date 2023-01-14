@@ -20,9 +20,12 @@ struct FontFaceIcon : public GraphicElement, public Topic<std::string &>
 		createPaths();
 	}
 
-	void mouseReleased(const MouseEvent& e)
+	void mouseEvent(const MouseEvent& e) override
 	{
-		notify(fFaceName);
+		if (e.activity == MOUSERELEASED)
+		{
+			notify(fFaceName);
+		}
 	}
 
 	void createPaths()

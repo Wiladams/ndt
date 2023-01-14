@@ -91,7 +91,7 @@ namespace svg {
         std::string fId{};      // The id of the element
         std::string fName{};    // The tag name of the element
         BLVar fVar{};
-        bool fIsVisible{ false };
+        bool fIsVisible{ true };
         maths::bbox2f fExtent{};
 
         
@@ -128,7 +128,9 @@ namespace svg {
         void setName(const std::string& name) { fName = name; }
 
 		const bool visible() const { return fIsVisible; }
-		void setVisible(bool visible) { fIsVisible = visible; }
+		void setVisible(bool visible) { 
+            fIsVisible = visible; 
+        }
         
         
         // sub-classes should return something interesting as BLVar
@@ -155,6 +157,8 @@ namespace svg {
             auto id = elem.getAttribute("id");
             if (id)
                 setId(std::string(id.fStart, id.fEnd));
+            
+
             
             // load the common attributes
             setName(elem.name());
@@ -478,13 +482,14 @@ namespace svg {
 
 }
 
-
+//==================================================================
+//  SVG Text Properties
+//================================================================= =
 namespace svg {
     struct SVGFontSize : public SVGVisualProperty
     {
         double fValue{ 12.0 };
 
-        //SVGFontSize() : SVGVisualProperty() {}
 		SVGFontSize(IMapSVGNodes* inMap) : SVGVisualProperty(inMap) {}
         SVGFontSize(const SVGFontSize& other) :SVGVisualProperty(other) { fValue = other.fValue; }
         
@@ -523,28 +528,59 @@ namespace svg {
         }
     };
 
+	// attribute name="font-family" type="string" default="sans-serif"
+	// attribute name="font-style" type="string" default="normal"
+    struct SVGFontFamily : public SVGVisualProperty
+    {
+        std::string fValue{ "Arial" };
 
-    /*
-    // Text Alignment
-enum class ALIGNMENT : unsigned
-{
-    CENTER = 0x01,
+		SVGFontFamily(IMapSVGNodes* inMap) : SVGVisualProperty(inMap) {}
+		SVGFontFamily(const SVGFontFamily& other) :SVGVisualProperty(other) { fValue = other.fValue; }
+        
+        SVGFontFamily& operator=(const SVGFontFamily& rhs)
+        {
+			SVGVisualProperty::operator=(rhs);
+			fValue = rhs.fValue;
+			return *this;
+        }
 
-    LEFT = 0x02,
-    RIGHT = 0x04,
+		void drawSelf(IGraphics& ctx) override
+		{
+			ctx.textFont(fValue.c_str());
+		}
+        
+        void loadSelfFromChunk(const DataChunk& inChunk)
+        {
+            if (!inChunk)
+                return;
+            
+			fValue = toString(chunk_trim(inChunk, wspChars));
+			set(true);
+        }
 
-    TOP         = 0x10, 
-    BASELINE    = 0x20,
-    BOTTOM      = 0x40,
-    MIDLINE     = 0x80,
+        static std::shared_ptr<SVGFontFamily> createFromChunk(IMapSVGNodes* root, const std::string& name, const DataChunk& inChunk)
+        {
+            std::shared_ptr<SVGFontFamily> sw = std::make_shared<SVGFontFamily>(root);
 
-} ;
-    */
+            // If the chunk is empty, return immediately 
+            if (inChunk)
+                sw->loadFromChunk(inChunk);
+
+            return sw;
+        }
+
+        static std::shared_ptr<SVGFontFamily> createFromXml(IMapSVGNodes* root, const std::string& name, const XmlElement& elem)
+        {
+            return createFromChunk(root, name, elem.getAttribute(name));
+        }
+        
+    };
+    
+
     struct SVGTextAnchor : public SVGVisualProperty
     {
         ALIGNMENT fValue{ ALIGNMENT::LEFT };
 
-        //SVGTextAnchor() : SVGVisualProperty() {}
 		SVGTextAnchor(IMapSVGNodes* iMap) : SVGVisualProperty(iMap) {}
         SVGTextAnchor(const SVGTextAnchor& other) :SVGVisualProperty(other) { fValue = other.fValue; }
         
@@ -636,7 +672,9 @@ enum class ALIGNMENT : unsigned
     };
 }
 
-
+//=================================================================
+// Style attribute parsing
+//=================================================================
 namespace svg {
     // Turn the style element into attributes of an XmlElement, 
     // then, the caller can use that to more easily parse whatever they're
@@ -665,6 +703,11 @@ namespace svg {
     }
 }
 
+//=================================================================
+// SVGImage
+// BUGBUG - this should be a compound node as </image> is possible
+// even if superfluous
+//=================================================================
 namespace svg {
     void saveChunk(const uint8_t *data, size_t sz, const char* filename)
     {
@@ -809,7 +852,7 @@ namespace svg {
         // get the numbers by separating at the ')'
         auto nums = chunk_token(s, ")");
 
-        // So, now nums contains the individual numeric values, separated by ','
+        // So, now nums contains the individual numeric values, separated by ',' or '[SPC]'
         // The individual numeric values are either
         // 50%
         // 50
@@ -819,9 +862,9 @@ namespace svg {
 
         // Get the first token, which is red
         // if it's not there, then return gray
-        auto num = chunk_token(nums, ",");
+        auto num = chunk_token(nums, ", ");
         if (chunk_size(num) < 1)
-            return rgba(128, 128, 128, 0);
+            return rgba(128, 128, 128, 255);
 
         while (num)
         {
@@ -838,13 +881,13 @@ namespace svg {
             else
             {
                 // it's a regular number
-                if (i==3)
+                if (i==3) // last number of rgba is a decimal indicating opacity
                     rgbi[i] = (uint8_t)(cv.value()  * 255.0f);
                 else 
                     rgbi[i] = (uint8_t)cv.value();
             }
             i++;
-            num = chunk_token(nums, ",");
+            num = chunk_token(nums, ", ");
         }
 
         if (i == 4)
@@ -1072,7 +1115,6 @@ namespace svg {
             }
 			else if (name == "stop-color")
 			{
-				//paint->setPaintFor(SVG_PaintForStopColor);
 				// look for stop-opacity as well
 				auto o = elem.getAttribute("stop-opacity");
 				if (o)

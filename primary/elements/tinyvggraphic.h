@@ -221,7 +221,7 @@ public:
 
 		// Assuming the parse was ok
 		// BUGBUG - should check isValid()
-		setBounds(maths::bbox2f{ 0, 0, (float)parser.header.width, (float)parser.header.height });
+		setBounds(maths::rectf{ 0, 0, (float)parser.header.width, (float)parser.header.height });
 		setFrame(bounds());
 
 		// Construct our graphic commands
@@ -253,7 +253,7 @@ public:
 
 	static std::shared_ptr<TinyVGGraphic> createFromFilename(const char *filename)
 	{
-		FileStream fs(filename);
+		ndt::FileStream fs(filename);
 		auto g = std::make_shared<TinyVGGraphic>(fs);
 
 		return g;

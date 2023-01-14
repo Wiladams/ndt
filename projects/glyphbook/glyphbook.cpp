@@ -1,6 +1,6 @@
 #include "p5.hpp"
 
-#include "FontFaceIcon.h"
+
 #include "FontIconPage.h"
 #include "elements/slider.h"
 
@@ -8,33 +8,19 @@
 
 using namespace p5;
 
-std::shared_ptr<FontIconPage> page = nullptr;
+std::shared_ptr<FontIconPage> iconPage = nullptr;
 std::shared_ptr<GWindow> iconWin = nullptr;
 std::shared_ptr<GWindow> summaryWin = nullptr;
 std::shared_ptr<FontSummary> summaryPage = nullptr;
 
-// This is a functor that reacts to a face
-// being selected.
-struct FaceSelector
-{
-	std::shared_ptr<FontSummary> fPage=nullptr;
-
-	FaceSelector() = default;
-	FaceSelector(std::shared_ptr<FontSummary> page) : fPage{ page } {;}
-
-	void setPage(std::shared_ptr<FontSummary> page){fPage = page;}
-
-	void operator()(const std::string& facename) {fPage->setFamily(facename);}
-};
-
+// Action of the slider
 void onSlide(const float pos)
 {
 	//printf("onSlide: %f\n", pos);
-	float maxY = page->boundsHeight() - iconWin->frameHeight();
+	float maxY = iconPage->boundsHeight() - iconWin->frameHeight();
 	float transY = maths::map(pos, 0, 1, 0, maxY);
 
-	page->translateBoundsTo(0, -transY);
-
+	iconPage->translateBoundsTo(0, -transY);
 }
 
 
@@ -44,7 +30,6 @@ void draw()
 		clear();
 	else
 		background(0xC0);
-
 }
 
 void keyReleased(const KeyboardEvent& e)
@@ -57,7 +42,6 @@ void keyReleased(const KeyboardEvent& e)
 	}
 }
 
-FaceSelector selectAFace;
 
 void setup()
 {
@@ -77,13 +61,11 @@ void setup()
 
 	// Create window that's going to hold the font icons
 	iconWin = window(0, 0, 580, 800);
-	iconWin->setMoveable(false);
-	page = std::make_shared<FontIconPage>(0, 0, 560, 800);
-	selectAFace.setPage(summaryPage);
-	page->subscribe(selectAFace);
+	//iconWin->setMoveable(false);
+	iconPage = std::make_shared<FontIconPage>(0, 0, 560, 800);
+	iconPage->subscribe([](std::string& name) {summaryPage->setFamily(name); });
+	
 
-	//page->subscribe(onSelectFace);
-	//page->subscribe(*summaryPage);
 
 
 	// Create a slider to go into the icon window
@@ -92,7 +74,7 @@ void setup()
 		{ float(iconWin->frameWidth() - 20), float(iconWin->frameHeight() - 8)});
 	sldr->subscribe(onSlide);
 
-	iconWin->addGraphic(page);
+	iconWin->addGraphic(iconPage);
 	iconWin->addGraphic(sldr);
 
 }

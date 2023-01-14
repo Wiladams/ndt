@@ -1,6 +1,6 @@
 #include "p5.hpp"
 
-#include "framestats.h"
+#include "elements/framestats.h"
 #include "canvas.h"
 
 using namespace p5;
@@ -20,5 +20,5 @@ void draw()
 {
 	clear();
 	//printf("draw\n");
-	_stats.draw(gAppSurface);
+	_stats.draw(*gAppSurface);
 }

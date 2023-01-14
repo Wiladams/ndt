@@ -88,6 +88,11 @@ struct GraphicGroup : public GraphicElement
 		layout();
 	}
 
+	void clearDrawables()
+	{
+		fDrawables.clear();
+	}
+	
 	void addDrawable(std::shared_ptr<IDrawable> drawable)
 	{
 		fDrawables.push_back(drawable);
@@ -130,6 +135,36 @@ struct GraphicGroup : public GraphicElement
 		drawDrawables(ctx);
 	}
 
+	void mouseEvent(const MouseEvent& e) override
+	{
+		//printf("GraphicGroup:mouseEvent: %d\n", e.activity);
+		
+		MouseEvent lev(e);
+		lev.x = e.x - frameX();
+		lev.y = e.y - frameY();
+		
+		// adjust for boundary translation
+		// BUGBUG - this should be general transformation, including scaling
+		lev.x += fTranslation.x;
+		lev.y += -fTranslation.y;
+		
+		//printf("mouseEvent: e.xy: %f %f, lev.xy: %f %f\n", e.x, e.y, lev.x, lev.y);
+		
+		// figure out which graphic the mouse is over
+		auto g = graphicAt(lev.x, lev.y);
+
+		if (g != fActiveGraphic)
+		{
+			// tell the active graphic it's no longer
+		}
+		
+		if (g != nullptr)
+		{
+			fActiveGraphic = g;
+
+			g->mouseEvent(lev);
+		}
+	}
 };
 
 

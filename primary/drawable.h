@@ -115,6 +115,12 @@ public:
 	void moveBy(const maths::vec2f& dxy) { moveTo(frame().x + dxy.x, frame().y+dxy.y); }
 	void moveBy(const float dx, const float dy) { return moveBy({ dx,dy }); }
 
+	void resetBoundsTransform()
+	{
+		fScale = { 1,1 };
+		fTranslation = { 0,0 };
+	}
+	
 	void scaleBoundsTo(float x, float y)
 	{
 		fScale.x = x;
@@ -189,7 +195,7 @@ public:
 
 	virtual void mouseEvent(const MouseEvent& e)
 	{
-		//printf("GraphicElement:mouseEvent: %d\n", e.activity);
+		printf("GraphicElement:mouseEvent: %d\n", e.activity);
 
 		if (fMouseDispatch != nullptr)
 			fMouseDispatch(*this, e);

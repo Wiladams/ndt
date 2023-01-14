@@ -44,6 +44,8 @@ struct CellGrid
 	bool fAutoWrap{ false };
 	bool fAutoScroll{ true };
 
+	CellGrid() = default;
+	
 	CellGrid(const size_t cols, const size_t rows)
 	{
 		reset(cols, rows);
@@ -59,7 +61,7 @@ struct CellGrid
 
 	void reset(const size_t cols, const size_t rows)
 	{
-		if fCellArray != nullptr
+		if (fCellArray != nullptr)
 		{
 			delete fCellArray;
 		}
@@ -69,7 +71,7 @@ struct CellGrid
 		fCursorX = 0;
 		fCursorY = 0;
 		fAutoWrap = false;
-		fAutoScrool = true;
+		fAutoScroll = true;
 		fCellArray = new CellT[cols * rows];
 	}
 	

@@ -4,27 +4,110 @@
 #include "gwindow.h"
 #include "svgdocument.h"
 
+#include <memory>
+
+struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
+{
+	std::shared_ptr<svg::SVGDocument> fDocument{};
+	bool fScaleToFit = false;
+
+
+	SVGIcon(float x, float y, float w, float h, std::shared_ptr<svg::SVGDocument> doc) 
+		: GWindow(x, y, w, h)
+	{
+		document(doc, true);
+		smartCache(true);
+	}
+
+	std::shared_ptr<svg::SVGDocument> document() const { return fDocument; }
+	void document(std::shared_ptr<svg::SVGDocument> doc, bool scaleToFit = true)
+	{
+		fDocument = doc;
+
+		if (nullptr == doc)
+			return;
+
+		if (scaleToFit)
+		{
+			float scalex = frameWidth() / doc->width();
+			float scaley = frameHeight() / doc->height();
+			float scale = scalex < scaley ? scalex : scaley;
+
+			scaleBoundsTo(scale, scale);
+		}
+
+		// calculate the bounds of the document
+		// so we can adjust the scaling for drawing
+		// clear all drawables
+		clearDrawables();
+
+		// add the document as a drawable
+		addDrawable(doc);
+	}
+
+
+	void mouseEvent(const MouseEvent& e) override
+	{
+		switch (e.activity) {
+
+		case MOUSERELEASED:
+			notify(document());
+			break;
+
+		}
+
+		//GWindow::mouseEvent(e);
+	}
+
+};
+
 struct SVGWindow : public GWindow
 {
 	maths::vec2f fLastDragLoc{};
-
+	std::shared_ptr<svg::SVGDocument> fDocument{};
+	bool fScaleToFit = false;
 
 	SVGWindow(std::shared_ptr<svg::SVGDocument> doc)
 		: GWindow(0,0,doc->width()<100?100: (float)doc->width(), (float)doc->height()<100?100: (float)doc->height())
 	{
-		setDocument(doc);
+		document(doc, false);
+		smartCache(true);
 	}
 
-	SVGWindow(float x, float y, float w, float h) : GWindow(x, y, w, h)
-	{
-		//setFrame(frame);
+	SVGWindow(float x, float y, float w, float h, std::shared_ptr<svg::SVGDocument> doc) : GWindow(x, y, w, h)
+	{	
+		document(doc, true);
+		smartCache(true);
 	}
 
-	void setDocument(std::shared_ptr<svg::SVGDocument> doc)
+	std::shared_ptr<svg::SVGDocument> document() const { return fDocument; }
+	void document(std::shared_ptr<svg::SVGDocument> doc, bool scaleToFit=true)
 	{
+		fDocument = doc;
+		
+		if (nullptr == doc)
+			return;
+		
+		resetBoundsTransform();
+		
+		if (scaleToFit)
+		{
+			float scalex = frameWidth() / doc->width();
+			float scaley = frameHeight() / doc->height();
+			float scale = scalex < scaley ? scalex : scaley;
+
+			scaleBoundsTo(scale, scale);
+		}
+
+		
 		// calculate the bounds of the document
 		// so we can adjust the scaling for drawing
+		// clear all drawables
+		clearDrawables();
+		
+		// add the document as a drawable
 		addDrawable(doc);
+		needsRedraw(true);
 	}
 
 	virtual void keyEvent(const KeyboardEvent& e) override
@@ -50,9 +133,6 @@ struct SVGWindow : public GWindow
 
 	void mouseEvent(const MouseEvent& e) override
 	{
-		//printf("MOUSE MOVING: %d (%3.0f,%3.0f)\n", e.activity, e.x, e.y);
-
-
 		switch (e.activity) {
 		case MOUSEWHEEL:
 		{
@@ -70,7 +150,7 @@ struct SVGWindow : public GWindow
 			fLastDragLoc = { e.x, e.y };
 		}
 		break;
-
+			
 		case MOUSEMOVED:
 		{
 			if (!isMoving() && fIsDragging)

@@ -126,9 +126,6 @@
     <ClInclude Include="trianglemesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="slider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -201,13 +198,7 @@
     <ClInclude Include="secondtime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="framestats.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="user32surface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="winminap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="interpolator.h">

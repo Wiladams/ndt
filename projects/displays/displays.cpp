@@ -20,7 +20,7 @@ struct MonitorSnapshot : public GraphicElement
 	// Has a GMonitor
 	GMonitor& fMonitor;
 	
-	MonitorSnapshot(GMonitor &monitor) : fMonitor(monitor) 
+	MonitorSnapshot(GMonitor&monitor) : fMonitor(monitor)
 	{ 
 		fSnapper.reset(0, 0, fMonitor.frameWidth(), fMonitor.frameHeight(), fMonitor.getMonitorDC());
 		setFrame(monitor.frame());

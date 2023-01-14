@@ -26,8 +26,8 @@
 #include <memory>
 #include <vector>
 
-//#include "binstream.hpp"
-#include "bstream.h"
+#include "binstream.hpp"
+//#include "bstream.h"
 #include "bitbang.h"
 #include "maths.hpp"
 
@@ -255,7 +255,7 @@ namespace tinyvg
 		bool endOfDocument = false;
 		size_t commandStart = 0;
 
-		tvgparser(BinStream& bs)
+		tvgparser(BinStream& abs)
 			:bs(bs)
 		{
 			init(0);

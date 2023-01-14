@@ -14,7 +14,7 @@ class TextLabel : public GraphicElement
     Pixel fTextFillColor;
 
 public:
-    TextLabel(const std::string & txt, const maths::bbox2f& f,
+    TextLabel(const std::string & txt, const maths::rectf& f,
         const char* fontfamily = "Consolas", float fontSize = 12)
         :GraphicElement(f)
     {
@@ -46,8 +46,8 @@ public:
         ctx.fill(fTextFillColor);
         ctx.textFont(fFontFamily.c_str());
         ctx.textSize(fFontSize);
-        float x = bounds().min.x;
-        float y = bounds().min.y + ctx.textAscent();
+        float x = bounds().x;
+        float y = bounds().y + ctx.textAscent();
         ctx.textAtBaseline(fText.c_str(), x, y);
 
         ctx.pop();

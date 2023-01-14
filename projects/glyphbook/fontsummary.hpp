@@ -19,7 +19,7 @@ class FontSummary : public GraphicGroup
     std::string fFontFamily;
 
 public:
-
+    FontSummary(FontSummary&) = delete;
     FontSummary(int x, int y, int w, int h, const char* family)
         :GraphicGroup(x,y,w,h)
     {
@@ -31,14 +31,6 @@ public:
     void setFamily(const std::string & familyname)
     {
         this->fFontFamily = familyname;
-    }
-
-    // Act as a functor so that we can subscribe to 
-    // name change publishing.
-    void operator() (const std::string& s)
-    {
-        printf("FontSummary: %s\n", s.c_str());
-        setFamily(s);
     }
 
     void drawFontName(IGraphics& ctx)

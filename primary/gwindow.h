@@ -39,7 +39,7 @@ protected:
 	User32PixelMap fPixelMap;
 	Surface fSurface;
 	bool fNeedsRedraw{ true };
-
+	bool fSmartCache{ false };
 
 public:
 
@@ -62,6 +62,9 @@ public:
 		fSurface.strokeWeight(1.0);
 	}
 
+	const bool smartCache() const { return fSmartCache; }
+	void smartCache(bool b) { fSmartCache = b; }
+	
 	const bool needsRedraw() const { return fNeedsRedraw; }
 	void needsRedraw(bool needsIt) { fNeedsRedraw = needsIt; }
 
@@ -147,7 +150,7 @@ public:
 	void draw(IGraphics & ctx) override
 	{
 
-		if (needsRedraw())
+		if (!smartCache() || needsRedraw())
 		{
 			drawBackground(fSurface);
 

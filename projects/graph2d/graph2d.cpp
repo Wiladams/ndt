@@ -24,7 +24,7 @@ void onLoop()
     float theta;
     float val;
 
-    byte bw; //variable to store grayscale
+    uint8_t bw; //variable to store grayscale
     int i;
     int j;
     int cols = canvasWidth;
@@ -40,7 +40,7 @@ void onLoop()
             //val = maths::cos(r);                            // Another simple function
             //val = maths::sin(r);
             //val = maths::sin(theta);                        // Another simple function
-            bw = byte(((val + 1) * 255) / 2);
+            bw = uint8_t(((val + 1) * 255) / 2);
             int index = 4 * (i + j * canvasWidth);
 
             appFrameBuffer().setPixel(i, j, maths::vec4b{ bw, bw, bw, 255 });

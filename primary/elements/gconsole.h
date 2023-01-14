@@ -58,9 +58,14 @@ struct GConsole : public GraphicElement, public CellGrid<ScreenCell<char> >
 	int charWidth = 7;
 	int charHeight = 12;
 	static constexpr float fontSize = 12;
-	BLFontFace fFontFace;
-	BLFont fFont;
+	BLFontFace fFontFace{};
+	BLFont fFont{};
 
+	GConsole()
+	{
+
+	}
+	
 	explicit GConsole(const GConsole&)
 		:GraphicElement()
 		, CellGrid<ScreenCell<char> >(80,20)
@@ -86,7 +91,7 @@ struct GConsole : public GraphicElement, public CellGrid<ScreenCell<char> >
 		//printf("metrics.vsize: %f\n", vSize);
 
 		//putsln("");
-		setFrame({ 0, 0, float(fWidth * charWidth, float(fHeight * charHeight) });
+		setFrame({ 0, 0, float(fWidth * charWidth), float(fHeight * charHeight) });
 		setBounds({ 0, 0, float(fWidth * charWidth), float(fHeight * charHeight) });
 	}
 	
