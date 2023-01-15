@@ -118,6 +118,8 @@ namespace svg {
             return *this;
 		}
         
+		virtual size_t nodeCount() const { return 0; }
+        
 		IMapSVGNodes* root() const { return fRoot; }
         virtual void setRoot(IMapSVGNodes* root) { fRoot = root; }
         
@@ -1493,7 +1495,7 @@ namespace svg
 	{
 		std::vector<SVGPoint> points;
 
-		DataChunk s = inChunk;
+		DataChunk s = chunk_trim(inChunk, wspChars);
 		charset numDelims = wspChars + ',';
 
 		while (s)

@@ -3,6 +3,7 @@
 #include "svgdocument.h"
 #include "svgwindow.h"
 #include "svgiconpage.h"
+#include "elements/slider.h"
 
 using namespace p5;
 using namespace ndt;
@@ -24,6 +25,9 @@ void testSomething()
 	printf("ksize: %d\n", ksize);
 }
 
+
+
+
 void setup()
 {
 	//testSomething();
@@ -39,18 +43,36 @@ void setup()
 
 	frameRate(30);
 
-	auto iconWin = window(20, 60, 360, displayHeight-60-48);
-	gIconPage = std::make_shared<SVGIconPage>(0, 0, 340, iconWin->frameHeight());
-	iconWin->addGraphic(gIconPage);
+	//auto iconWin = window(20, 60, 360, displayHeight-60-48);
+	gIconPage = std::make_shared<SVGIconPage>(0, 0, 340, displayHeight - 60 - 48);
+	//iconWin->addGraphic(gIconPage);
 
+	auto iconsldr = Slider::create(
+		{ float(gIconPage->frameWidth() - 20), 40 },
+		{ float(gIconPage->frameWidth() - 20), float(gIconPage->frameHeight() - 8) });
+	iconsldr->subscribe([](const float pos) {
+		float maxY = gIconPage->boundsHeight() - gIconPage->frameHeight();
+		float transY = maths::map(pos, 0, 1, 0, maxY);
+		gIconPage->translateBoundsTo(0, -transY);
+		});
+	gIconPage->addGraphic(iconsldr);
+	addGraphic(gIconPage);
+	
+	// BUGBUG - put in a horizontal scroll bar at the bottom
+	// of the detail page, connected to the progress() of the drawing
 	auto detailWin = window(440, 60, 800, 800);
 	auto detailPage = std::make_shared<SVGWindow>(0, 0, 800, 800, nullptr);
 	detailWin->addGraphic(detailPage);
+	auto detailsldr = Slider::create(
+		{ 20.0f, (float)detailWin->frameHeight() - 20.0f },
+		{ (float)detailWin->frameWidth() - 20.0f, (float)detailWin->frameHeight() - 20.0f },
+		{1.0f, 1.0f});
+	detailsldr->subscribe([detailPage](const float pos) {detailPage->progress(pos);});
+	detailWin->addGraphic(detailsldr);
 	
+	
+	// Connect clicking on an icon to showing the detail page
 	gIconPage->subscribe([detailPage](std::shared_ptr<svg::SVGDocument> doc) {detailPage->document(doc, true); });
-
-	
-
 }
 
 
@@ -91,5 +113,6 @@ void keyReleased(const KeyboardEvent& e)
 
 void fileDrop(const FileDropEvent& e)
 {
+	printf("svgbrowser: fileDrop: \n");
 	gIconPage->fileDrop(e);
 }

@@ -166,6 +166,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="svgattributes.h" />
     <ClInclude Include="svgdocument.h" />
+    <ClInclude Include="svgicon.h" />
     <ClInclude Include="svgiconpage.h" />
     <ClInclude Include="svgshapes.h" />
     <ClInclude Include="svgtypes.h" />

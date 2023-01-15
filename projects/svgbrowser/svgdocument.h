@@ -45,7 +45,7 @@ namespace svg {
 		std::shared_ptr<SVGRootNode> fRootNode{};
         
 		// All the drawable nodes within this document
-        std::vector<std::shared_ptr<IDrawable>> fShapes{};
+        //std::vector<std::shared_ptr<IDrawable>> fShapes{};
         maths::bbox2f fExtent;
         
         SVGDocument(std::string filename)
@@ -67,20 +67,34 @@ namespace svg {
 			return fRootNode->height();
 		}
         
+		size_t nodeCount() const {
+			if (fRootNode == nullptr)
+				return 0;
+			return fRootNode->nodeCount();
+		}
         
         void draw(IGraphics& ctx) override
         {
-            for (auto& shape : fShapes)
-            {
-				shape->draw(ctx);
-            }
+            if (nullptr == fRootNode)
+                return;
+            
+            fRootNode->draw(ctx);
         }
+        
+        void drawProgressive(IGraphics& ctx, double percent, size_t totalNodes, size_t &nodesDrawn)
+        {
+            if (nullptr == fRootNode)
+                return;
 
-        // Add a node that can be drawn
-		void addNode(std::shared_ptr<SVGObject> node)
-		{
-			fShapes.push_back(node);
-		}
+            // get the node count of fRootNode
+            // then call drawProgressive on fRootNode
+            // passing along our progress, and the top level root count
+            // so that it can calculate the progress of each node
+            size_t drawn = 0;
+            fRootNode->drawProgressive(ctx, percent, fRootNode->nodeCount(), drawn);
+
+            //printf("SVGDocument::drawProgressive: %zu of %zu nodes drawn\n", drawn, fRootNode->nodeCount());
+        }
         
 
         // Load the document from an XML Iterator
@@ -99,13 +113,6 @@ namespace svg {
 
                 printXmlElement(*iter);
 
-                // Skip over these node types we don't know how to process
-                //if (elem.isComment() || elem.isContent() || elem.isProcessingInstruction())
-                //{
-                //    iter++;
-                //    continue;
-                //}
-
 
                 if (elem.isStart() && (elem.name() == "svg"))
                 {
@@ -114,7 +121,8 @@ namespace svg {
                     fRootNode = SVGRootNode::createFromIterator(iter);
                     if (fRootNode != nullptr)
                     {
-                        addNode(fRootNode);
+						printf("SVGDocument node count: %zd\n", fRootNode->nodeCount());
+                        //addNode(fRootNode);
                     }
                 }
 

@@ -705,7 +705,12 @@
 		C465.416,268.589,466.39,266.318,465.958,265.886z"/>
 </g>
 <g id="Key">
-	<text transform="matrix(1 0 0 1 16.5625 520.1865)"><tspan x="0" y="0" font-family="'HelveticaLT'" font-size="22">1. Bell</tspan><tspan x="0" y="26.4" font-family="'HelveticaLT'" font-size="22">2. Bell Pipe</tspan><tspan x="0" y="52.8" font-family="'HelveticaLT'" font-size="22">3. Spit Valve</tspan><tspan x="0" y="79.2" font-family="'HelveticaLT'" font-size="22">4. Rotary Valves</tspan></text>
+	<text transform="matrix(1 0 0 1 16.5625 520.1865)">
+	  <tspan x="0" y="0" font-family="Helvetica" font-size="22">1. Bell</tspan>
+	  <tspan x="0" y="26.4" font-family="Helvetica" font-size="22">2. Bell Pipe</tspan>
+	  <tspan x="0" y="52.8" font-family="Helvetica" font-size="22">3. Spit Valve</tspan>
+	  <tspan x="0" y="79.2" font-family="Helvetica" font-size="22">4. Rotary Valves</tspan>
+    </text>
 	<text transform="matrix(1 0 0 1 195.6787 520.041)"><tspan x="0" y="0" font-family="'HelveticaLT'" font-size="22">5. Finger Rest</tspan><tspan x="0" y="26.4" font-family="'HelveticaLT'" font-size="22">6. Three Valve Levers</tspan><tspan x="0" y="52.8" font-family="'HelveticaLT'" font-size="22">7. Fourth Valve Lever</tspan><tspan x="0" y="79.2" font-family="'HelveticaLT'" font-size="22">8. Leadpipe</tspan></text>
 	<text transform="matrix(1 0 0 1 421.2988 547.6416)"><tspan x="0" y="0" font-family="'HelveticaLT'" font-size="22">9. Mouthpiece</tspan><tspan x="0" y="26.4" font-family="'HelveticaLT'" font-size="22">10. Tuning  Slides </tspan><tspan x="0" y="52.8" font-family="'HelveticaLT'" font-size="22">11. Valve Slides</tspan></text>
 	<g>

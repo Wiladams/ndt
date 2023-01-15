@@ -226,7 +226,7 @@ public:
 	// the graphic.
 	virtual void fileDrop(const FileDropEvent& e)
 	{
-		//printf("Graphic.fileDrop\n");
+		printf("Graphic.fileDrop\n");
 		// do nothing
 	}
 

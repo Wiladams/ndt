@@ -201,6 +201,37 @@ namespace svg {
 
 			ctx.pop();
 		}
+
+
+		virtual void drawSelfProgressive(IGraphics& ctx, double percent, size_t totalNodes, size_t& nodesDrawn)
+		{
+			draw(ctx);
+			
+			// BUGBUG
+			// Don't increment nodesDrawn here as the group we're in will do it
+			// but maybe they should not
+			//nodesDrawn++;
+		}
+		
+		
+		virtual void drawProgressive(IGraphics& ctx, double percent, size_t totalNodes, size_t &nodesDone)
+		{
+			if (!visible())
+			{
+				return;
+			}
+
+
+			ctx.push();
+
+			applyAttributes(ctx);
+
+			drawSelfProgressive(ctx, percent, totalNodes, nodesDone);
+
+			ctx.pop();
+		}
+		
+		
 	};
 	
 	struct SVGShape : public SVGVisualNode
@@ -215,10 +246,6 @@ namespace svg {
 			return *this;
 		}
 		
-		void loadSelfFromXml(const XmlElement& elem) override
-		{
-			SVGVisualNode::loadSelfFromXml(elem);
-		}
 		
 		static std::shared_ptr<SVGShape> createFromXml(const XmlElement& elem)
 		{
@@ -229,7 +256,7 @@ namespace svg {
 		}
 	};
 
-	struct SVGTemplateNode : public SVGShape
+	struct SVGTemplateNode : public SVGVisualNode
 	{
 		std::shared_ptr<SVGObject> fWrappedNode{};
 		std::string fWrappedID{};
@@ -237,8 +264,8 @@ namespace svg {
 		double fX = 0;
 		double fY = 0;
 
-		SVGTemplateNode() {}
-		SVGTemplateNode(IMapSVGNodes* root) : SVGShape(root) {}
+		//SVGTemplateNode() {}
+		SVGTemplateNode(IMapSVGNodes* root) : SVGVisualNode(root) {}
 		~SVGTemplateNode() {}
 
 		const BLVar& getVariant() override
@@ -248,7 +275,7 @@ namespace svg {
 		
 		void setRoot(IMapSVGNodes* root) override
 		{
-			SVGShape::setRoot(root);
+			SVGVisualNode::setRoot(root);
 
 			// Use the root to lookup the wrapped node
 			if (root != nullptr && !fWrappedID.empty())
@@ -271,11 +298,13 @@ namespace svg {
 			fWrappedNode->draw(ctx);
 		}
 		
+
+		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			fWrappedNode = nullptr;
 
-			SVGShape::loadSelfFromXml(elem);
+			SVGVisualNode::loadSelfFromXml(elem);
 
 			// look for the href, or xlink:href attribute
 			auto href = elem.getAttribute("href");
@@ -309,12 +338,12 @@ namespace svg {
 		}
 	};
 	
-	struct SVGPathBasedShape : public SVGShape
+	struct SVGPathBasedShape : public SVGVisualNode
 	{
 		BLPath fPath{};
 		
-		SVGPathBasedShape() :SVGShape() {}
-		SVGPathBasedShape(IMapSVGNodes* iMap) :SVGShape(iMap) {}
+		//SVGPathBasedShape() :SVGVisualNode() {}
+		SVGPathBasedShape(IMapSVGNodes* iMap) :SVGVisualNode(iMap) {}
 		
 		
 		void drawSelf(IGraphics &ctx) override
@@ -327,14 +356,8 @@ namespace svg {
 	{
 		BLLine fGeometry{};
 		
-		SVGLine() :SVGPathBasedShape(){ reset(0, 0, 0, 0); }
+		//SVGLine() :SVGPathBasedShape(){ reset(0, 0, 0, 0); }
 		SVGLine(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
-		
-		//SVGLine(float x, float y, float w, float h)
-		//	:SVGPathBasedShape()
-		//{
-		//	reset(x, y, w, h);
-		//}
 		
 		void reset(float x, float y, float w, float h)
 		{
@@ -370,7 +393,7 @@ namespace svg {
 	{
 		BLRoundRect fGeometry{0,0,0,0,0,0};
 		
-		SVGRect() : SVGPathBasedShape() {}
+		//SVGRect() : SVGPathBasedShape() {}
 		SVGRect(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
@@ -430,7 +453,7 @@ namespace svg {
 	{
 		BLCircle fCircle{};
 		
-		SVGCircle() : SVGPathBasedShape() {}
+		//SVGCircle() : SVGPathBasedShape() {}
 		SVGCircle(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
@@ -457,7 +480,7 @@ namespace svg {
 	{
 		BLEllipse fGeometry;
 		
-		SVGEllipse() : SVGPathBasedShape() {}
+		//SVGEllipse() : SVGPathBasedShape() {}
 		SVGEllipse(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
@@ -483,7 +506,7 @@ namespace svg {
 	
 	struct SVGPolyline : public SVGPathBasedShape
 	{
-		SVGPolyline() : SVGPathBasedShape() {}
+		//SVGPolyline() : SVGPathBasedShape() {}
 		SVGPolyline(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		
@@ -514,7 +537,6 @@ namespace svg {
 	
 	struct SVGPolygon : public SVGPathBasedShape
 	{
-		SVGPolygon() : SVGPathBasedShape() {}
 		SVGPolygon(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		
@@ -545,7 +567,7 @@ namespace svg {
 	
 	struct SVGPath : public SVGPathBasedShape
 	{
-		SVGPath() : SVGPathBasedShape() {}
+		//SVGPath() : SVGPathBasedShape() {}
 		SVGPath(IMapSVGNodes* iMap) :SVGPathBasedShape(iMap) {}
 		
 		
@@ -568,7 +590,7 @@ namespace svg {
 
 
 
-	struct SVGImageNode : public SVGShape
+	struct SVGImageNode : public SVGVisualNode
 	{
 		BLImage fImage{};
 		double fWidth{};
@@ -577,11 +599,11 @@ namespace svg {
 		double fY = 0;
 
 		
-		SVGImageNode(IMapSVGNodes* root) : SVGShape(root) {}
-		SVGImageNode(const SVGImageNode& other) :SVGShape(other) { fImage = other.fImage; fWidth = other.fWidth; fHeight = other.fHeight; }
+		SVGImageNode(IMapSVGNodes* root) : SVGVisualNode(root) {}
+		SVGImageNode(const SVGImageNode& other) :SVGVisualNode(other) { fImage = other.fImage; fWidth = other.fWidth; fHeight = other.fHeight; }
 		SVGImageNode& operator=(const SVGImageNode& rhs)
 		{
-			//SVGShape::operator=(rhs);
+			//SVGVisualNode::operator=(rhs);
 			fImage = rhs.fImage;
 			fWidth = rhs.fWidth;
 			fHeight = rhs.fHeight;
@@ -632,7 +654,7 @@ namespace svg {
 
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
-			SVGShape::loadSelfFromXml(elem);
+			SVGVisualNode::loadSelfFromXml(elem);
 
 			// Specify the size at which things are displayed
 			fWidth = toDimension(elem.getAttribute("width")).calculatePixels(96);
@@ -664,7 +686,7 @@ namespace svg {
 
 	
 	
-	std::map<std::string, std::function<std::shared_ptr<SVGShape>(IMapSVGNodes* root, const XmlElement& elem)>> gShapeCreationMap = {
+	std::map<std::string, std::function<std::shared_ptr<SVGVisualNode>(IMapSVGNodes* root, const XmlElement& elem)>> gShapeCreationMap = {
 	{"line", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGLine::createFromXml(root, elem); }},
 	{"rect", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGRect::createFromXml(root, elem); }},
 	{"circle", [](IMapSVGNodes* root, const XmlElement& elem) { return SVGCircle::createFromXml(root,elem); }},
@@ -686,8 +708,7 @@ namespace svg {
 		
 		int buildState = BUILD_STATE_OPEN;
 		
-		
-		std::vector<std::shared_ptr<SVGObject>> fNodes{};
+		std::vector<std::shared_ptr<SVGVisualNode>> fNodes{};
 
 		bool fInDefinitions{ false };
 		std::map<std::string, std::shared_ptr<SVGObject>> fDefinitions;
@@ -695,6 +716,22 @@ namespace svg {
 		
 		SVGCompoundNode() : SVGShape() {}
 		SVGCompoundNode(IMapSVGNodes* root) :SVGShape(root) {}
+		
+
+		
+		// Return a recursive count of the number of nodes we have
+		size_t nodeCount() const override
+		{
+			size_t count = 0;
+			for (auto& node : fNodes)
+			{
+				// Count the node itself, 
+				// and how many child nodes it has
+				count++;
+				count += node->nodeCount();
+			}
+			return count;
+		}
 		
 		const BLVar& getVariant() override
 		{
@@ -762,11 +799,29 @@ namespace svg {
 		}
 
 		
-		void drawSelf(IGraphics& ctx)
+		void drawSelf(IGraphics& ctx) override
 		{
+
 			for (auto& node : fNodes) {
 				node->draw(ctx);
 			}
+		}
+		
+		void drawSelfProgressive(IGraphics& ctx, double percent, size_t totalNodes, size_t &nodesDrawn) override
+		{
+			
+			if ((nodesDrawn >= percent * totalNodes) && (percent < 0.98))
+				return;
+			
+			size_t lastNode = totalNodes * percent;
+			size_t i = 0;
+			while (nodesDrawn < lastNode && (i < fNodes.size()))
+			{
+				fNodes[i]->drawProgressive(ctx, percent, totalNodes, nodesDrawn);
+				nodesDrawn++;
+				i++;
+			}
+
 		}
 		
 		virtual void addNode(std::shared_ptr < SVGVisualNode > node)
@@ -1518,6 +1573,7 @@ namespace svg {
 			setRoot(this);
 		}
 		
+		
 		double width()
 		{
 			if (fPortal != nullptr)
@@ -1575,15 +1631,33 @@ namespace svg {
 			ctx.pop();
 		}
 
+		// draw no more children than are available based on the percent
+		void drawProgressive(IGraphics& ctx, double percent, size_t totalNodes, size_t &nodesDone) override
+		{
+			ctx.push();
+
+			ctx.blendMode(BLCompOp::BL_COMP_OP_SRC_OVER);
+			ctx.strokeJoin(SVG_JOIN_ROUND);
+			ctx.ellipseMode(ELLIPSEMODE::CENTER);
+			ctx.noStroke();
+			ctx.fill(Pixel(0, 0, 0));
+
+			ctx.strokeWeight(1.0);
+			ctx.textSize(16);
+
+			// Apply attributes that have been gathered
+			// in the case of the root node, it's mostly the viewport
+			applyAttributes(ctx);
+
+			// Draw the children
+			drawSelfProgressive(ctx, percent, totalNodes, nodesDone);
+
+			ctx.pop();
+		}
+		
+		
+
 	};
-	
-	
-	//std::map<std::string, std::function<std::shared_ptr<SVGGroup>(XmlElementIterator& iter)>> gGroupCreationMap = {
-	//	{"g", [](XmlElementIterator& iter) { return SVGGroup::createFromIterator(iter); }},
-	//	{"svg", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
-	//	{"defs", [](XmlElementIterator& iter) { return SVGRootNode::createFromIterator(iter); }},
-	//	{"symbol", [](XmlElementIterator& iter) { return SVGGroup::createFromIterator(iter); }},
-	//};
 
 
 	

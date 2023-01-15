@@ -92,5 +92,8 @@
     <ClInclude Include="svgiconpage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="svgicon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
