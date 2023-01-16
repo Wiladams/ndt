@@ -681,8 +681,9 @@ namespace svg {
     // Turn the style element into attributes of an XmlElement, 
     // then, the caller can use that to more easily parse whatever they're
     // looking for.
-    void parseStyleAttribute(const DataChunk & inChunk, XmlElement &styleElement)
+    XmlElement parseStyleAttribute(const DataChunk & inChunk)
     {
+        XmlElement styleElement;
         DataChunk styleChunk = inChunk;
         
         if (styleChunk) {
@@ -701,7 +702,7 @@ namespace svg {
 
         }
 
-        return;
+        return styleElement;
     }
 }
 

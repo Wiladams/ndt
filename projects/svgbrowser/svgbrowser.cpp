@@ -43,8 +43,9 @@ void setup()
 
 	frameRate(30);
 
+
+	gIconPage = std::make_shared<SVGIconPage>(20, 60, 360, displayHeight - 60 - 48);
 	//auto iconWin = window(20, 60, 360, displayHeight-60-48);
-	gIconPage = std::make_shared<SVGIconPage>(0, 0, 340, displayHeight - 60 - 48);
 	//iconWin->addGraphic(gIconPage);
 
 	auto iconsldr = Slider::create(
@@ -55,7 +56,7 @@ void setup()
 		float transY = maths::map(pos, 0, 1, 0, maxY);
 		gIconPage->translateBoundsTo(0, -transY);
 		});
-	gIconPage->addGraphic(iconsldr);
+	gIconPage->addDrawable(iconsldr);
 	addGraphic(gIconPage);
 	
 	// BUGBUG - put in a horizontal scroll bar at the bottom
@@ -111,8 +112,8 @@ void keyReleased(const KeyboardEvent& e)
 // A file drop may contain the names
 // of several files at once
 
-void fileDrop(const FileDropEvent& e)
-{
-	printf("svgbrowser: fileDrop: \n");
-	gIconPage->fileDrop(e);
-}
+//void fileDrop(const FileDropEvent& e)
+//{
+//	printf("svgbrowser: fileDrop: \n");
+//	gIconPage->fileDrop(e);
+//}

@@ -67,7 +67,7 @@ struct SVGWindow : public GWindow
 		//clearDrawables();
 		
 		// add the document as a drawable
-		//addDrawable(doc);
+		addDrawable(doc);
 		needsRedraw(true);
 	}
 

@@ -1221,7 +1221,7 @@ namespace svg {
 				{
 					XmlElement styleElement;
 					// Turn the style into an XmlElement so we can get at the attributes
-					parseStyleAttribute(style, styleElement);
+					styleElement = parseStyleAttribute(style);
 					c = SVGPaint::createFromXml(root(), "stop-color", styleElement);
 				}
 			}
@@ -1619,7 +1619,10 @@ namespace svg {
 			ctx.fill(Pixel(0, 0, 0));
 			
 			ctx.strokeWeight(1.0);
+
+			// Text attributes
 			ctx.textSize(16);
+			ctx.textAlign(ALIGNMENT::LEFT, ALIGNMENT::BASELINE);
 			
 			// Apply attributes that have been gathered
 			// in the case of the root node, it's mostly the viewport

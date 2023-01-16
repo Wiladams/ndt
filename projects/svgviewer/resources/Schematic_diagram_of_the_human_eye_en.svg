@@ -200,31 +200,16 @@
          d="m -2.5,-1 c 0,2.76 -2.24,5 -5,5 -2.76,0 -5,-2.24 -5,-5 0,-2.76 2.24,-5 5,-5 2.76,0 5,2.24 5,5 z"
          id="path4672" />
     </marker>
-    <style
-       id="style"
-       type="text/css">
-      a {
-  	fill: #005;
-	font-size: 20px;
-      }
-      .arrow
-      {
-		fill:none;fill-opacity:0.75;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter
-      }
-  </style>
-    <style
-       type="text/css"
-       id="style2593">      a {
-  	fill: #005;
-	font-size: 20px;
-      }
-      .arrow
-      {
-		fill:none;fill-opacity:0.75;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter
-      }
-	  .numbers circle {fill:white;stroke:black;stroke-width:3;fill:url(#radialGradient2041)}
+     <style id="style" type="text/css">
+      a {fill: #005; font-size: 20px;}
+      .arrow {fill:none;fill-opacity:0.75;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter}
+     </style>
+     <style type="text/css" id="style2593">
+       a { fill: #005; font-size: 20px; }
+      .arrow {fill:none;fill-opacity:0.75;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter }
+	   .numbers circle {fill:white;stroke:black;stroke-width:3;fill:url(#radialGradient2041)}
       .numbers text {font-size:56px;font-style:normal;font-weight:normal;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Georgia}
-  </style>
+     </style>
     <linearGradient
        id="linearGradient10065-5">
       <stop

@@ -396,14 +396,22 @@ namespace ndt {
             return elementChunk;
         }
         
+        //
+        // !DOCTYPE
+        // Will either contain a '[]' section
+        // or it will just have '>' at the end
+        //
         DataChunk readDoctype()
         {
             DataChunk elementChunk = fSource;
             elementChunk.fEnd = fSource.fStart;
             
-            // Read until we see ]>
-			while (fSource && (*fSource != ']'))
-				fSource++;
+            if (chunk_find_char(elementChunk, ']'))
+            {
+                // Read until we see ]>
+                while (fSource && (*fSource != ']'))
+                    fSource++;
+            }
 
             if ((*fSource == ']') && (fSource[1] == '>'))
             {
@@ -411,10 +419,10 @@ namespace ndt {
                 fSource++;
                 elementChunk.fEnd = fSource.fStart;
                 elementChunk = chunk_rtrim(elementChunk, wspChars);
-
-                // But, skip past the '>' of the tag
-                fSource++;
             }
+            // But, skip past the '>' of the tag
+            fSource++;
+            
 
 			return elementChunk;
         }
