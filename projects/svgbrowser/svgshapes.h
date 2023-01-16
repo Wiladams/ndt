@@ -1387,12 +1387,14 @@ namespace svg {
 				node->loadFromXmlElement(elem);
 				addNode(node);
 			}
-			
-			auto it = gShapeCreationMap.find(elem.name());
-			if (it != gShapeCreationMap.end())
-			{
-				auto node = it->second(root(), elem);
-				addNode(node);
+			else {
+
+				auto it = gShapeCreationMap.find(elem.name());
+				if (it != gShapeCreationMap.end())
+				{
+					auto node = it->second(root(), elem);
+					addNode(node);
+				}
 			}
 		}
 		

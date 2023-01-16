@@ -405,24 +405,31 @@ namespace ndt {
         {
             DataChunk elementChunk = fSource;
             elementChunk.fEnd = fSource.fStart;
+            //auto endingTag = chunk_find_cstr(fSource, "]>");
             
-            if (chunk_find_char(elementChunk, ']'))
+            if (chunk_find_char(fSource, '['))
             {
                 // Read until we see ]>
                 while (fSource && (*fSource != ']'))
                     fSource++;
+
+                // We want the closing ']' as part of the element
+                if (*fSource == ']')
+                    fSource++;
+            }
+            else {
+                // skip ahead to '>'
+                while (fSource && (*fSource != '>'))
+                    fSource++;
             }
 
-            if ((*fSource == ']') && (fSource[1] == '>'))
+            if (*fSource == '>')
             {
-                // We want the closing ']' as part of the element
-                fSource++;
                 elementChunk.fEnd = fSource.fStart;
                 elementChunk = chunk_rtrim(elementChunk, wspChars);
+
+                fSource++;
             }
-            // But, skip past the '>' of the tag
-            fSource++;
-            
 
 			return elementChunk;
         }
