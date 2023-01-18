@@ -153,6 +153,7 @@
     <ClInclude Include="..\..\primary\base64.h" />
     <ClInclude Include="..\..\primary\BLGraphics.h" />
     <ClInclude Include="..\..\primary\bstream.h" />
+    <ClInclude Include="..\..\primary\bufferedview.h" />
     <ClInclude Include="..\..\primary\chunkutil.h" />
     <ClInclude Include="..\..\primary\datachunk.h" />
     <ClInclude Include="..\..\primary\Graphics.h" />

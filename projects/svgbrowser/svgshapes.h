@@ -1575,6 +1575,10 @@ namespace svg {
 			setRoot(this);
 		}
 		
+		const SVGViewbox& viewBox() const 
+		{ 
+			return fPortal->fViewbox; 
+		}
 		
 		double width()
 		{

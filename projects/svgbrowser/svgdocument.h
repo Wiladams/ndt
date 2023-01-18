@@ -44,9 +44,7 @@ namespace svg {
         std::shared_ptr<mmap> fFileMap{};
 		std::shared_ptr<SVGRootNode> fRootNode{};
         
-		// All the drawable nodes within this document
-        //std::vector<std::shared_ptr<IDrawable>> fShapes{};
-        maths::bbox2f fExtent;
+        SVGViewbox fViewbox{};
         
         SVGDocument(std::string filename)
 		{
@@ -55,16 +53,31 @@ namespace svg {
                 return ;
         }
         
+        double x() const {
+            if (fRootNode == nullptr)
+                return 0;
+		
+			return fRootNode->viewBox().x();
+        }
+
+        double y() const {
+            if (fRootNode == nullptr)
+                return 0;
+
+			return fRootNode->viewBox().y();
+        }
+        
 		double width() const { 
 			if (fRootNode == nullptr)
 				return 100;
-			return fRootNode->width();
+			return fRootNode->viewBox().width();
         }
 
 		double height() const {
 			if (fRootNode == nullptr)
 				return 100;
-			return fRootNode->height();
+
+            return fRootNode->viewBox().height();
 		}
         
 		size_t nodeCount() const {

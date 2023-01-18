@@ -1,9 +1,0 @@
-<svg viewBox="0 0 38 30" xmlns="http://www.w3.org/2000/svg">
-  <!-- Impact of the default miter limit -->
-  <path stroke="black" fill="none" stroke-linejoin="miter" id="p1"
-        d="M10,90 l70   ,-30 l70   ,30
-           m20,0 l35 ,-30 l35 ,30
-           m20,0 l20   ,-30 l20   ,30
-           m20,0 l07.5,-30 l07.5,30
-           m20,0 l05 ,-30 l05 ,30" />
-</svg>

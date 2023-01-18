@@ -1,4 +1,0 @@
-<svg viewBox="0 0 200 200" height="200" width="200">
-  <rect x="10" y="10" width="150" height="150" fill="green" stroke="yellow" stroke-width="4" />
-  <path d="M100,100L200,100L100,200z" fill="none" stroke="red" />
-</svg>

@@ -2,15 +2,18 @@
 
 #include "gwindow.h"
 #include "svgdocument.h"
+#include "bufferedview.h"
 
-struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
+
+
+struct SVGIcon : public BufferedView, public Topic<std::shared_ptr<svg::SVGDocument>>
 {
 	std::shared_ptr<svg::SVGDocument> fDocument{};
 	bool fScaleToFit = false;
 
 
 	SVGIcon(float x, float y, float w, float h, std::shared_ptr<svg::SVGDocument> doc)
-		: GWindow(x, y, w, h)
+		: BufferedView(x, y, w, h)
 	{
 		document(doc, true);
 		smartCache(true);
@@ -24,6 +27,7 @@ struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
 		if (nullptr == doc)
 			return;
 
+		// scale to fit
 		if (scaleToFit)
 		{
 			float scalex = frameWidth() / doc->width();
@@ -33,6 +37,10 @@ struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
 			scaleBoundsTo(scale, scale);
 		}
 
+		// use the document's viewbox as the default viewport
+		fTranslation.x = -doc->x();
+		fTranslation.y = -doc->y();
+		
 		// calculate the bounds of the document
 		// so we can adjust the scaling for drawing
 		// clear all drawables
@@ -42,7 +50,11 @@ struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
 		addDrawable(doc);
 	}
 
-
+	void drawBackground(IGraphics& ctx)
+	{
+		ctx.background(Pixel(255, 255, 255, 255));
+	}
+	
 	void mouseEvent(const MouseEvent& e) override
 	{
 		switch (e.activity) {
@@ -53,7 +65,6 @@ struct SVGIcon : public GWindow, public Topic<std::shared_ptr<svg::SVGDocument>>
 
 		}
 
-		//GWindow::mouseEvent(e);
 	}
 
 };

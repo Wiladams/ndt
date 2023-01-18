@@ -28,7 +28,7 @@ struct SVGIconPage : public GWindow, public Topic<std::shared_ptr<svg::SVGDocume
 			if (doc != nullptr)
 			{
 				auto win = std::make_shared<SVGIcon>(0,0,100,100, doc);
-				win->setBackgroundColor(Pixel(255, 255, 255, 255));
+				//win->setBackgroundColor(Pixel(255, 255, 255, 255));
 				win->setMoveable(false);
 				win->subscribe([this](std::shared_ptr<svg::SVGDocument> doc) { this->notify(doc); });
 

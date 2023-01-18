@@ -60,9 +60,9 @@ struct SVGWindow : public GWindow
 			scaleBoundsTo(scale, scale);
 		}
 
+		fTranslation.x = -doc->x();
+		fTranslation.y = -doc->y();
 		
-		// calculate the bounds of the document
-		// so we can adjust the scaling for drawing
 		// clear all drawables
 		//clearDrawables();
 		
@@ -107,13 +107,17 @@ struct SVGWindow : public GWindow
 
 	void mouseEvent(const MouseEvent& e) override
 	{
+		MouseEvent lev(e);
+		lev.x = e.x - frameX();
+		lev.y = e.y - frameY();
+		
 		switch (e.activity) {
 		case MOUSEWHEEL:
 		{
 			if (e.delta < 0)
-				scaleBoundsBy(0.9f, 0.9f);
+				scaleBoundsBy(0.9f, 0.9f, lev.x, lev.y);
 			else
-				scaleBoundsBy(1.1f, 1.1f);
+				scaleBoundsBy(1.1f, 1.1f, lev.x, lev.y);
 
 			needsRedraw(true);
 		}
@@ -134,7 +138,7 @@ struct SVGWindow : public GWindow
 				float diffy = e.y - fLastDragLoc.y;
 				//printf("MOUSE DRAGGING: %d (%3.0f,%3.0f)\n", e.activity, diffx, diffy);
 
-				translateBoundsBy(diffx, diffy);
+				translateBoundsBy(diffx/fScale.x, diffy/fScale.y);
 				fLastDragLoc = { e.x, e.y };
 
 				needsRedraw(true);

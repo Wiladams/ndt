@@ -157,7 +157,12 @@ public:
 			fSurface.push();
 
 			// Apply user specified transform
+			// Do the scaling around the indicated center point
+			//fSurface.translate(fCenterTransform.x, fCenterTransform.y);
 			fSurface.scale(fScale.x, fScale.y);
+			//fSurface.translate(-fCenterTransform.x, -fCenterTransform.y);
+			
+			// Now do the actual translation
 			fSurface.translate(fTranslation.x, fTranslation.y);
 
 

@@ -42,6 +42,7 @@ struct GraphicElement : public IDrawable
 protected:
 	bool fIsMoveable=false;
 
+	//maths::vec2f fCenterTransform{};
 	maths::vec2f fTranslation{};
 	maths::vec2f fScale{ 1,1 };
 	maths::rectf fBounds{};
@@ -119,19 +120,31 @@ public:
 	{
 		fScale = { 1,1 };
 		fTranslation = { 0,0 };
+		//fCenterTransform = { 0,0 };
 	}
 	
-	void scaleBoundsTo(float x, float y)
+	void scaleBoundsTo(float x, float y, float cx=0, float cy=0)
 	{
 		fScale.x = x;
 		fScale.y = y;
+
+		//fCenterTransform.x = cx;
+		//fCenterTransform.y = cy;
+		
 	}
 
-	void scaleBoundsBy(float dx, float dy)
+	void scaleBoundsBy(float dx, float dy, float cx=0, float cy=0)
 	{
 		fScale.x *= dx;
 		fScale.y *= dy;
-	}
+		
+		//fCenterTransform.x = cx*fScale.x;
+		//fCenterTransform.y = cy*fScale.y;
+
+		//printf("scaleBoundsBy: scale: %3.2f, %3.2f   center: %3.2f, %3.2f\n", fScale.x, fScale.y, fCenterTransform.x, fCenterTransform.y);
+
+	}	
+
 	
 	// Changes the coordinate system of the bounds
 	void translateBoundsTo(float x, float y)
