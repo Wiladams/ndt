@@ -253,7 +253,11 @@ public:
     }
 
 
-
+    virtual void strokeBeforeTransform(bool b) override
+    {
+		fCtx.setStrokeTransformOrder(b ? BL_STROKE_TRANSFORM_ORDER_BEFORE : BL_STROKE_TRANSFORM_ORDER_AFTER);
+    }
+    
     // Various Modes
     void angleMode(ANGLEMODE mode) override { fAngleMode = mode; }
     void ellipseMode(const ELLIPSEMODE mode) override { fEllipseMode = mode; }

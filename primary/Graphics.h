@@ -173,6 +173,7 @@ public:
 
     virtual void setDpiUnits(const int dpi, const float units) = 0;
 
+	virtual void strokeBeforeTransform(bool b) = 0;
     virtual void angleMode(const ANGLEMODE mode) = 0;
     virtual void ellipseMode(const ELLIPSEMODE mode) = 0;
     virtual void rectMode(const RECTMODE mode) = 0;

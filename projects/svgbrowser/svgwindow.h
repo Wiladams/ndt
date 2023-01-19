@@ -51,10 +51,10 @@ struct SVGWindow : public GWindow
 		
 		resetBoundsTransform();
 		
-		if (scaleToFit)
+		if (scaleToFit && doc->viewBox())
 		{
-			float scalex = frameWidth() / doc->width();
-			float scaley = frameHeight() / doc->height();
+			float scalex = frameWidth() / doc->viewBox()->width();
+			float scaley = frameHeight() / doc->viewBox()->height();
 			float scale = scalex < scaley ? scalex : scaley;
 
 			scaleBoundsTo(scale, scale);

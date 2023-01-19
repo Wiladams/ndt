@@ -1478,21 +1478,24 @@ namespace svg {
 	//
 	struct SVGPortal : public SVGVisualProperty
 	{
+		double fX{ 0 };
+		double fY{ 0 };
 		double fWidth{100};		
 		double fHeight{100};
 
-		
 		SVGViewbox fViewbox{};
 		bool fPreserveAspectRatio{ false };
 
-		SVGPortal() = default;
-		SVGPortal(IMapSVGNodes* root) : SVGVisualProperty(root) {}
+		SVGPortal(IMapSVGNodes *root) :SVGVisualProperty(root) {}
+
 		
 
 		SVGPortal& operator=(const SVGPortal& rhs)
 		{
 			SVGVisualProperty::operator=(rhs);
 			fViewbox = rhs.fViewbox;
+			fX = rhs.fX;
+			fY = rhs.fY;
 			fWidth = rhs.fWidth;
 			fHeight = rhs.fHeight;
 			fPreserveAspectRatio = rhs.fPreserveAspectRatio;
@@ -1500,8 +1503,14 @@ namespace svg {
 			return *this;
 		}
 		
+		double x() { return fX; }
+		double y() { return fY; }
 		double width() { return fWidth; }
 		double height() { return fHeight; }
+		
+		const SVGViewbox& viewbox() const { return fViewbox; }
+		
+
 		
 		void drawSelf(IGraphics& ctx)
 		{
@@ -1521,6 +1530,8 @@ namespace svg {
 			if (fViewbox.isSet())
 			{
 				// Start the width and height to be the same as the viewbox
+				fX = fViewbox.x();
+				fY = fViewbox.y();
 				fWidth = fViewbox.width();
 				fHeight = fViewbox.height();
 				
@@ -1528,7 +1539,7 @@ namespace svg {
 			}
 			
 			// Dimensions
-			if (elem.getAttribute("width") && elem.getAttribute("height"))
+			if (elem.getAttribute("width") || elem.getAttribute("height"))
 			{
 				double rangeX = 100;
 				double rangeY = 100;
@@ -1549,7 +1560,6 @@ namespace svg {
 				
 			}
 
-			
 			fPreserveAspectRatio = elem.getAttribute("preserveAspectRatio") == "xMidYMid meet";
 
 			set(true);
@@ -1566,44 +1576,52 @@ namespace svg {
 	
 	struct SVGRootNode : public SVGGroup
 	{
-		std::shared_ptr<SVGPortal> fPortal;
+		SVGPortal fPortal;
 		
-		SVGRootNode() :SVGGroup(nullptr) { setRoot(this); }
+
 		SVGRootNode(IMapSVGNodes *root)
 			: SVGGroup(root)
+			,fPortal(root)
 		{
 			setRoot(this);
 		}
 		
 		const SVGViewbox& viewBox() const 
 		{ 
-			return fPortal->fViewbox; 
+			return fPortal.fViewbox; 
+		}
+		
+		double x()
+		{
+			return fPortal.x();
+		}
+		
+		double y()
+		{
+			return fPortal.y();
 		}
 		
 		double width()
 		{
-			if (fPortal != nullptr)
-				return fPortal->width();
-			return 100;
+			return fPortal.width();
 		}
 
 		double height()
 		{
-			if (fPortal != nullptr)
-				return fPortal->height();
-			return 100;
+				return fPortal.height();
+
 		}
 		
 		void loadSelfFromXml(const XmlElement& elem) override
 		{
 			SVGGroup::loadSelfFromXml(elem);
 			
-			fPortal = SVGPortal::createFromXml(root(), elem, "portal");
+			fPortal.loadFromXmlElement(elem);
 		}
 
 		static std::shared_ptr<SVGRootNode> createFromIterator(XmlElementIterator& iter)
 		{
-			auto node = std::make_shared<SVGRootNode>();
+			auto node = std::make_shared<SVGRootNode>(nullptr);
 			node->loadFromIterator(iter);
 
 			return node;
@@ -1613,11 +1631,11 @@ namespace svg {
 		{
 			ctx.push();
 
-			//if (fPortal != nullptr)
-			//	fPortal->draw(ctx);
+			//	fPortal.draw(ctx);
 
 			// BUGBUG - this can be replaced with a default SVGStyle property
 			// Start with default state
+			ctx.strokeBeforeTransform(true);
 			ctx.blendMode(BLCompOp::BL_COMP_OP_SRC_OVER);
 			ctx.strokeJoin(SVG_JOIN_ROUND);
 			ctx.ellipseMode(ELLIPSEMODE::CENTER);
@@ -1663,8 +1681,6 @@ namespace svg {
 
 			ctx.pop();
 		}
-		
-		
 
 	};
 

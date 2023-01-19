@@ -42,9 +42,7 @@ namespace svg {
     struct SVGDocument : public IDrawable
     {
         std::shared_ptr<mmap> fFileMap{};
-		std::shared_ptr<SVGRootNode> fRootNode{};
-        
-        SVGViewbox fViewbox{};
+		std::shared_ptr<SVGRootNode> fRootNode = nullptr;
         
         SVGDocument(std::string filename)
 		{
@@ -53,31 +51,39 @@ namespace svg {
                 return ;
         }
         
+		const SVGViewbox * viewBox() const 
+        { 
+            if (!fRootNode)
+				return nullptr;
+            
+			return &fRootNode->viewBox();
+        }
+        
         double x() const {
             if (fRootNode == nullptr)
                 return 0;
 		
-			return fRootNode->viewBox().x();
+			return fRootNode->x();
         }
 
         double y() const {
             if (fRootNode == nullptr)
                 return 0;
 
-			return fRootNode->viewBox().y();
+			return fRootNode->y();
         }
         
 		double width() const { 
 			if (fRootNode == nullptr)
 				return 100;
-			return fRootNode->viewBox().width();
+			return fRootNode->width();
         }
 
 		double height() const {
 			if (fRootNode == nullptr)
 				return 100;
 
-            return fRootNode->viewBox().height();
+            return fRootNode->height();
 		}
         
 		size_t nodeCount() const {
