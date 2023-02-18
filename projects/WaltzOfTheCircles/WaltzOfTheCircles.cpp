@@ -45,7 +45,7 @@ Pixel getColorByTheta(float theta, float time) {
 
 void setup()
 {
-    createCanvas(700, 700, "WaltzOfTheCircles", 8);
+    createCanvas(700, 700, "WaltzOfTheCircles", 16);
     //fullscreen("WaltzOfTheCircles", 8);
 
     frameRate(30);

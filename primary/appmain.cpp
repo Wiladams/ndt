@@ -95,7 +95,7 @@ uint64_t fFrameCount = 0;         // how many frames drawn so far
 
 // Keyboard globals
 // BUGBUG - these should go into the apphost.h
-uint8_t keyStates[255]{};
+uint8_t keyStates[256]{};
 int keyCode = 0;
 int keyChar = 0;
 
