@@ -10,17 +10,17 @@ Pixel  randomColor()
 	int b = (int)random(30, 255);
 
 	Pixel c;
-	c.r = r;
-	c.g = g;
-	c.b = b;
-	c.a = 255;
+	c.setR(r);
+	c.setG(g);
+	c.setB(b);
+	c.setA(255);
 
 	return c;
 }
 
 void draw()
 {
-	int cellWidth = width / nLocations;
+	int cellWidth = canvasWidth / nLocations;
 	
 	background(230);
 	strokeWeight(1);
@@ -28,8 +28,8 @@ void draw()
 	fill(0xc0);
 
 	for (int i = 0; i < nLocations; i++) {
-		int cellHeight = map(locations[i].population, 0, 2000000000, 20, height);
-		int x = map(i, 0, nLocations - 1, 0, width-cellWidth);
+		int cellHeight = map(locations[i].population, 0, 2000000000, 20, canvasHeight);
+		int x = map(i, 0, nLocations - 1, 0, canvasWidth-cellWidth);
 		int y = 0;
 
 		fill(randomColor());
@@ -42,6 +42,6 @@ void draw()
 void setup()
 {
 	createCanvas(displayWidth, displayHeight-80);
-	translate(0, height);
+	translate(0, canvasHeight);
 	scale(1, -1);
 }

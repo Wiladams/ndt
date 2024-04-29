@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Zlib
 // Official GitHub Repository: https://github.com/blend2d/blend2d
 //
-// Copyright (c) 2008-2021 The Blend2D Authors
+// Copyright (c) 2017-2023 The Blend2D Authors
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -30,8 +30,6 @@
 // that end with "_p" suffix are private and should never be  included as they
 // are not part of public API and they are not part of blend2d-dev packages.
 // ----------------------------------------------------------------------------
-
-#pragma comment(lib, "blend2d.lib")
 
 #ifndef BLEND2D_H_INCLUDED
 #define BLEND2D_H_INCLUDED
@@ -60,6 +58,7 @@
 #include "blend2d/format.h"
 #include "blend2d/geometry.h"
 #include "blend2d/glyphbuffer.h"
+#include "blend2d/glyphrun.h"
 #include "blend2d/gradient.h"
 #include "blend2d/image.h"
 #include "blend2d/imagecodec.h"

@@ -19,7 +19,7 @@ struct ImageView : GraphicElement
 		BLImageData dataOut;
 		img.getData(&dataOut);
 		uint8_t * pixelData = (uint8_t *)dataOut.pixelData + ((int)imgbox.y * (ptrdiff_t)dataOut.stride + ((int)imgbox.x * 4));
-		blImageInitAsFromData(&fImage, fImageSize.x, fImageSize.y, BLFormat::BL_FORMAT_PRGB32, pixelData, dataOut.stride, nullptr, nullptr);
+		blImageInitAsFromData(&fImage, fImageSize.x, fImageSize.y, BLFormat::BL_FORMAT_PRGB32, pixelData, dataOut.stride, BLDataAccessFlags::BL_DATA_ACCESS_RW , nullptr, nullptr);
 	}
 
 	void draw(IGraphics& ctx)
@@ -337,8 +337,10 @@ void keyEvent(const KeyboardEvent& e)
 		halt();
 		break;
 
+
 	case VK_SPACE:
-		puzzle->shuffle();
+		if (e.activity == KEYRELEASED)
+			puzzle->shuffle();
 		break;
 	}
 }

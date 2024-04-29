@@ -70,7 +70,7 @@ public:
         fOriginY = y;
         init(w, h);
 
-        BLResult bResult = blImageInitAsFromData(&fImage, (int)width(), (int)height(), BL_FORMAT_PRGB32, data(), (intptr_t)stride(), nullptr, nullptr);
+        BLResult bResult = blImageInitAsFromData(&fImage, (int)width(), (int)height(), BL_FORMAT_PRGB32, data(), (intptr_t)stride(), BLDataAccessFlags::BL_DATA_ACCESS_RW, nullptr, nullptr);
     }
 
     BLImage& getImage()

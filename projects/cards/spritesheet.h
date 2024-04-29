@@ -28,7 +28,7 @@ struct SpriteSheet
 	{
 		size_t pixelOffset = y * fImageData.stride + (x * sizeof(BLRgba32));
 		uint8_t* pixelPtr = &(((uint8_t*)fImageData.pixelData)[pixelOffset]);
-		BLResult bResult = blImageInitAsFromData(&sprite, w, h, BL_FORMAT_PRGB32, pixelPtr, fImageData.stride, nullptr, nullptr);
+		BLResult bResult = blImageInitAsFromData(&sprite, w, h, BL_FORMAT_PRGB32, pixelPtr, fImageData.stride, BLDataAccessFlags::BL_DATA_ACCESS_RW, nullptr, nullptr);
 
 		return bResult == 0;
 	}

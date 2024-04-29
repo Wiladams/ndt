@@ -303,7 +303,8 @@ public:
         gradient.addStop(0.20, p5::color(fBackgroundColor.r(), fBackgroundColor.g(), fBackgroundColor.b(), 127));     // center
         gradient.addStop(0.80, fBackgroundColor);
         gradient.addStop(1.0, p5::color(65, 127));     // edge
-        ctx.fill(gradient);
+        ctx.fill(BLVar(gradient));
+
         //ctx.fill(fBackgroundColor);
         ctx.noStroke();
 

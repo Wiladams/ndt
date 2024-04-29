@@ -40,7 +40,7 @@ public:
 
         // Initialize the BLImage
         // MUST use the PRGB32 in order for SRC_OVER operations to work correctly
-        blImageInitAsFromData(&fImage, pixmap.width(), pixmap.height(), BL_FORMAT_PRGB32, pixmap.data(), (intptr_t)pixmap.stride(), nullptr, nullptr);
+        blImageInitAsFromData(&fImage, pixmap.width(), pixmap.height(), BL_FORMAT_PRGB32, pixmap.data(), (intptr_t)pixmap.stride(), BLDataAccessFlags::BL_DATA_ACCESS_RW, nullptr, nullptr);
     
         fImage.getData(&fImageInfo);
 

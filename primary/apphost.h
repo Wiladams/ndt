@@ -16,22 +16,26 @@
 	but at least all the Win32 specific stuff is wrapped up.
 */
 
-#include <SDKDDKVer.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
-#include <windows.h>
-
-#include <windowsx.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <mmsystem.h>
 
 #include "definitions.h"
 
 
+#if defined WIN32
+#include <windowsx.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mmsystem.h>
+#endif
+
+
+
+
+
+
+
+#pragma comment(lib, "blend2d.lib")
 
 
 #if BUILD_AS_DLL

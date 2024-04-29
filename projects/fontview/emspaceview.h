@@ -272,7 +272,7 @@ public:
 		ctx.pop();
 	}
 
-	virtual void mouseWheel(const MouseEvent& e) override
+	void mouseWheel(const MouseEvent& e) override
 	{
 		printf("emspaceview.mouseWheel\n");
 

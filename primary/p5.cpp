@@ -770,22 +770,22 @@ void handleComposition()
     if (gDrawHandler != nullptr) {
         p5::push();
         gDrawHandler();
+        gAppSurface->flush();
         p5::pop();
     }
 
     // If we have a window manager, tell it to draw
     if (nullptr != gWindowManager) {
         gWindowManager->draw(*gAppSurface);
+        gAppSurface->flush();
     }
-
-    gAppSurface->flush();
 
     if (gComposedHandler != nullptr)
     {
         gComposedHandler();
+        gAppSurface->flush();
     }
 
-    gAppSurface->flush();
 }
 
 

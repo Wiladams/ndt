@@ -3,6 +3,12 @@
 
 using namespace p5;
 
+void mouseDragged(const MouseEvent& e)
+{
+	printf("mouseDragged: %d, %d\n", e.x, e.y);
+}
+
+
 BLRgba32 colorFromName(const char* name)
 {
 	maths::vec4b c{ 127,127,127,255 };

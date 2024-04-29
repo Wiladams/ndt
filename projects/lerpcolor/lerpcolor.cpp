@@ -15,6 +15,15 @@ using namespace p5;
 int ITERATIONS = 1000;
 FrameStats _stats;
 
+
+void lquad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+{
+    BLPoint pts[] = { {x1,y1},{x2,y2},{x3,y3},{x4,y4} };
+
+    gAppSurface->getBlend2dContext().fillPolygon(pts, 4);
+    gAppSurface->getBlend2dContext().fillPolygon(pts, 4);
+}
+
 void draw()
 {
     if (isLayered())
@@ -36,7 +45,7 @@ void draw()
         
         //rect(10, 10, 200, 200);
 
-        quad(
+        lquad(
             random(-40, 220), random(canvasHeight),
             random(-40, 220), random(canvasHeight),
             random(-40, 220), random(canvasHeight),
@@ -45,7 +54,7 @@ void draw()
 
 
         fill(c1);
-        quad(
+        lquad(
             random(140, 380), random(canvasHeight),
             random(140, 380), random(canvasHeight),
             random(140, 380), random(canvasHeight),
@@ -53,7 +62,7 @@ void draw()
         );
 
         fill(c2);
-        quad(
+        lquad(
             random(320, 580), random(canvasHeight),
             random(320, 580), random(canvasHeight),
             random(320, 580), random(canvasHeight),
@@ -61,7 +70,7 @@ void draw()
         );
 
         fill(to);
-        quad(
+        lquad(
             random(500, 760), random(canvasHeight),
             random(500, 760), random(canvasHeight),
             random(500, 760), random(canvasHeight),
@@ -71,11 +80,12 @@ void draw()
         // the command queue can get too big and 
         // eat up lots of memory.  A flush will clear
         // the commands, but slow things down a lot
-        gAppSurface->flush();
+        //gAppSurface->flush();
     }
-    //gAppSurface->flush();
+
 
     _stats.draw(*gAppSurface);
+    //gAppSurface->flush();
 }
 
 void keyReleased(const KeyboardEvent& event)
@@ -107,6 +117,6 @@ void setup()
     createCanvas(720, 400,"lerpcolor", 8);
     //fullscreen();
 
-    frameRate(15);
+    frameRate(30);
 }
   

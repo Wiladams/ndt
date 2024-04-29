@@ -285,7 +285,7 @@ public:
     }
 
     // Coordinate transformation
-    void transform(double* values) override { fCtx.transform(BLMatrix2D(values[0], values[1], values[2], values[3], values[4], values[5])); }
+    void transform(double* values) override { fCtx.applyTransform(BLMatrix2D(values[0], values[1], values[2], values[3], values[4], values[5])); }
     void translate(double dx, double dy) override { fCtx.translate(dx, dy); }
     void scale(double sx, double sy) override { fCtx.scale(sx, sy); }
     void rotate(double angle, double cx, double cy) override { fCtx.rotate(angle, cx, cy); }

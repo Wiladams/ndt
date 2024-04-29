@@ -77,10 +77,7 @@ namespace ndt
             return true;
         }
 		DataChunk getChunk() { return chunk_from_data_size(fData, fSize); }
-        //DataCursor createCursor() 
-        //{
-        //    return make_cursor_size(data(), size());
-        //}
+
 
         // factory method
         // desiredAccess - GENERIC_READ, GENERIC_WRITE, GENERIC_EXECUTE

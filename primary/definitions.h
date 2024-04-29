@@ -1,5 +1,12 @@
 #pragma once
 
+#include <SDKDDKVer.h>
+
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+
+
 // Herein lie definitions of some things that are low level enough 
 // to be universal
 // Don't put Windows specifics in here. Put that stuff in the w32_***
@@ -10,6 +17,9 @@
 // If this file hasn't already been included, you should include
 // it as the first item to be included.
 //
+
+#include <windows.h>
+#include <atomic>
 
 #include <cstdint>		// uint8_t, etc
 #include <cstddef>		// nullptr_t, ptrdiff_t, size_t
@@ -46,3 +56,4 @@ namespace ndt
     static INLINE bool isLE() noexcept {int i = 1; return (int)*((unsigned char*)&i) == 1;}
     static INLINE bool isBE() noexcept { return !isLE(); }
 }
+

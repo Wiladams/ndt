@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -83,7 +83,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\primary\fonthandler.hpp" />
     <ClInclude Include="..\..\primary\framestats.h" />
     <ClInclude Include="..\..\primary\maths.hpp" />
+    <ClInclude Include="..\..\primary\ndt_plat.h" />
     <ClInclude Include="..\..\primary\p5.hpp" />
     <ClInclude Include="..\..\primary\pubsub.h" />
     <ClInclude Include="..\..\primary\Recorder.hpp" />

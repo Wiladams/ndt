@@ -758,7 +758,29 @@ namespace maths
 //=========================================
 // DECLARATION - MATRICES
 //=========================================
+namespace maths
+{
+    // general matrix multiplication
+    // this one is supposed to be more cache friendly
+    // Reference: https://tavianator.com/2016/matrix_multiply.html
+    static void matmul(double *dest, const double *lhs, const double *rhs,
+            size_t rows, size_t mid, size_t cols) 
+    {
+        memset(dest, 0, rows * cols * sizeof(double));
 
+        for (size_t i = 0; i < rows; ++i) {
+            const double *rhs_row = rhs;
+            for (size_t j = 0; j < mid; ++j) {
+                for (size_t k = 0; k < cols; ++k) {
+                    dest[k] += lhs[j] * rhs_row[k];
+                }
+                rhs_row += cols;
+            }
+            dest += cols;
+            lhs += mid;
+    }
+    }
+}
 namespace maths
 {
     // Small Fixed-size matrices stored in column major format.

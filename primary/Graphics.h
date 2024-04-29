@@ -1,12 +1,13 @@
 #pragma once
 
 
+
 #include "blend2d.h"
 #include "geometry.h"
 
 
 typedef BLRgba32 Pixel;
-//using Pixel = maths::vec4b;
+
 
 // Enumerations for all the commands
 // 
