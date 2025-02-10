@@ -14,8 +14,19 @@ cmake --build . -j &&
 ```
 The rendered image is saved to `framebuffer.tga`.
 
-You can open the project in Gitpod, a free online dev evironment for GitHub:
+## Open in an Online IDE of your choice
+Skip cloning locally, and start developing in the cloud
+
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/ssloy/tinyrenderer)
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ssloy/tinyrenderer)
+
+[![Open in GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/ssloy/tinyrenderer)
+
+
+[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/ssloy/tinyrenderer)
+
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/ssloy/tinyrenderer)
 
 On open, the editor will compile & run the program as well as open the resulting image in the editor's preview.
 Just change the code in the editor and rerun the script (use the terminal's history) to see updated images.
